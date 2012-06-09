@@ -1,0 +1,38 @@
+diff --git a/Lib/site.py b/Lib/site.py
+index 21c7db2..196bd3d 100644
+--- a/Lib/site.py
++++ b/Lib/site.py
+@@ -482,6 +482,25 @@ def execusercustomize():
+         pass
+ 
+ 
++def addnixsitepackages(known_paths):
++    """
++    used to add multiple site packages from /nix/store to sys.path also
++    evaluating the .pth files (http://docs.python.org/library/site.html#module-site)
++    """
++    env_nix_sites = os.environ.get("NIX_PYTHON_SITES", None)
++    if env_nix_sites:
++      for path in env_nix_sites.split(":"):
++        
++          NIX_SITE = os.path.join(path, "lib",
++                                 "python" + sys.version[:3],
++                                 "site-packages")
++
++          if os.path.isdir(NIX_SITE):
++              addsitedir(NIX_SITE, known_paths)
++    
++    return known_paths
++
++
+ def main():
+     global ENABLE_USER_SITE
+ 
+@@ -494,6 +513,7 @@ def main():
+         ENABLE_USER_SITE = check_enableusersite()
+     known_paths = addusersitepackages(known_paths)
+     known_paths = addsitepackages(known_paths)
++    known_paths = addnixsitepackages(known_paths)
+     if sys.platform == 'os2emx':
+         setBEGINLIBPATH()
+     setquit()

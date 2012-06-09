@@ -1,0 +1,34 @@
+diff --git a/pygtk.py b/pygtk.py
+index e061b88..867571d 100755
+--- a/pygtk.py
++++ b/pygtk.py
+@@ -29,6 +29,17 @@ __all__ = ['require']
+ 
+ _our_dir = os.path.dirname(os.path.abspath(os.path.normpath(__file__)))
+ _pygtk_2_0_dir = os.path.normpath('%s/gtk-2.0' % _our_dir)
++_pygtk_2_0_dirs = [ _pygtk_2_0_dir ]
++
++env_nix_sites = os.environ.get("NIX_PYTHON_SITES", None)
++if env_nix_sites:
++  tail = _pygtk_2_0_dir[_pygtk_2_0_dir.index("lib/"):]
++  for path in env_nix_sites.split(":"):
++      p = os.path.join(path, tail)
++      if p == _pygtk_2_0_dir or not os.path.isdir(p):
++        continue
++      _pygtk_2_0_dirs.append(p)
++
+ 
+ _pygtk_dir_pat = 'gtk-[0-9].[0-9]'
+ 
+@@ -63,8 +74,9 @@ def _get_available_versions():
+     return versions
+ 
+ def require20():
+-    if _pygtk_2_0_dir not in sys.path:
+-        sys.path.insert(0, _pygtk_2_0_dir)
++    for p in _pygtk_2_0_dirs:
++        if p not in sys.path:
++            sys.path.insert(0, p)
+ 
+ def require(version):
+     if version == '2.0':

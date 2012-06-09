@@ -25,6 +25,8 @@ let
       # doesn't work in Nix because Nix changes the mtime of files in
       # the Nix store to 1.  So treat that as a special case.
       ./nix-store-mtime.patch
+
+      ./nix-find-sites.patch
     ];
 
   buildInputs =

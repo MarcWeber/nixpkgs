@@ -32,6 +32,12 @@ stdenv.mkDerivation {
     sha256 = "5648ec81f93870fde2f0aa4ed45c8718692b15ce6fd9ed309bfb827ae12010aa";
   };
 
+  patches =
+    [ 
+      # TODO still required or is PYTHONPATH enough for 3.2?
+      ./nix-find-sites.patch
+    ];
+
   preConfigure = ''
     for i in /usr /sw /opt /pkg; do	# improve purity
       substituteInPlace ./setup.py --replace $i /no-such-path

@@ -5022,6 +5022,8 @@ let
 
   pygtk = callPackage ../development/python-modules/pygtk { };
 
+  pygnome = callPackage ../development/python-modules/pygnome { };
+
   pyGtkGlade = callPackage ../development/python-modules/pygtk {
     inherit (gnome) libglade;
   };

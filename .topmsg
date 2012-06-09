@@ -1,12 +1,93 @@
 From: Marc Weber <marco-oweber@gmx.de>
-Subject: [PATCH] experimental/overlays
+Subject: [PATCH] experimental/nix-python-sites
 
-allow finding overlays by name in same directory where nixpkgs is. This is nice for experimenting
-Example: nixpkgs-haskell-overlay, nixpkgs-ruby-overlay (they do already work)
-nixpkgs-python-overlay is planned
+old patch nix2/nix-python-sites-2 rebased on top of new git repository provided by Eelco
 
-The reason for "overlays" is to keep nixpkgs modular. Some subuniverses such as python, scala, haskell, perl, ..
-should be kept separate to reduce noise on the main repo - and because the
-dumps of package sources (hackage, rubygems, pypi, ...) are quite large.
+WHAT ABOUT PYTHONHOME?
+
+A) make python find depndencies in a sane way by introducing NIX_PYTHON_SITES.
+If you look at wicd which contains many lines like this:
+
+    sed -i "3iexport PYTHONPATH=\$PYTHONPATH\$\{PYTHONPATH:+:\}$(toPythonPath $out):$(toPythonPath ${pyGtkGlade})/gtk-2.0:$(toPythonPath ${pygobject})/gtk-2.0:$(toPythonPath ${pycairo}):$(toPythonPath ${pythonDBus})" in/scripts=wicd-gtk.in
+
+you see the mess. It should suffice telling python about about the locations
+where depedencies are installed. There is already a PYTHON_USER_BASE or such -
+however it only accepts one path.
+
+So NIX_PYTHON_SITES tries to behave excatly as PYTHON_USER_BASE but supports
+many locations. This in turn requires patching of some python libraries (eg
+pygtk).
+
+Note: for python 2.5 I think .pth files were not read in $PYTHONPATH.
+The test case found in recent setuptools makes you think they are supported.
+However if you grep nixpkgs for pth you'll find at least two references to bug
+reports telling that it does not work as expected ?
+
+TODO patches for python3 and python 2.7 !!
+
+TODO review ideas here:
+[Nix-dev] python application vs python environment
+
+Think about PYTHONPATH3 for python3 - because python-2.x and 3 are not
+compatible they should be separate. I personally think they made a mistake
+keeping the same name PYTHONPATH for 3.x
+
+Obviously this patch is not finished: Most executables still use the nixpkgs
+way and are broken in this branch. This should be easy to fix.
+Also python-3.x is not supported yet.
+
+So think about patching all PYTHONPATH !?
+
+=== older description (tidy up!) ==
+
+    This topic readds the ideas found in pythonNew which was removed in rev 21197.
+    The reason was Pierron having trouble importing yaml.
+    pyyaml only has an .egg file which is added to sys.path by a easy-install.pth or such
+    which is not put into the user environment because many pyhton projects have this file.
+
+    This patch adds a new env var called NIX_PYTHON_SITES which should behave the
+    same way as PYTHONUSERBASE but it should allow adding multiple directories
+    separated by :.
+    Thus setting NIX_PYTHON_SITES to a : delemited list of store paths should be
+    enough to make pyhton find everything it wants (hopefully ..)
+
+    pygobject's pygtk.py had to be patched as well
+track important trunk updates
+
+    recommended usage: Put this into your ~/.nixpkgs/config.nix file:
+
+    pythonCollection = misc.collection {
+      name = "python-collection";
+      list = [
+        pkgs.python26Full
+        (
+          let
+            p = pkgs.python26Packages;
+            l = [
+              pkgs.pythonDBus pkgs.pygtk
+              p.pyopengl p.pyyaml
+            ];
+          in # using mkDerivation instead of writeScriptBin so that
+             # propagatedBuildInputs are found as well
+            pkgs.stdenv.mkDerivation {
+            name = "echo-pyhton-packages-env-var";
+            buildInputs = l;
+            phases = "installPhase";
+            installPhase = ''
+              for x in $nativePkgs; do
+                NIX_PYTHON_SITES=$NIX_PYTHON_SITES''${NIX_PYTHON_SITES:+:}$x
+              done
+              ensureDir $out/bin
+              cat > $out/bin/$name << EOF
+              #!/bin/sh
+              echo export NIX_PYTHON_SITES=$NIX_PYTHON_SITES
+              EOF
+              chmod +x $out/bin/$name
+            '';
+          }
+        ) ];
+    };
+
+    Then `echo-pyhton-packages-env-var` in your .bashrc.
 
 Signed-off-by: Marc Weber <marco-oweber@gmx.de>

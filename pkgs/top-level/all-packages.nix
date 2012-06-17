@@ -1099,6 +1099,8 @@ let
 
   ndisc6 = callPackage ../tools/networking/ndisc6 { };
 
+  net_snmp = callPackage ../tools/networking/net-snmp { };
+
   netboot = callPackage ../tools/networking/netboot {};
 
   netcat = callPackage ../tools/networking/netcat { };
@@ -1525,6 +1527,8 @@ let
       libXmu libXaw libXext xextproto libSM libICE libXpm
       libXp;
   };
+
+  vobcopy = callPackage ../tools/cd-dvd/vobcopy { };
 
   vorbisgain = callPackage ../tools/misc/vorbisgain { };
 
@@ -1974,10 +1978,10 @@ let
   }));
 
   gcc47 = lowPrio (wrapGCC (lib.overrideDerivation gcc46_debug.gcc (a: {
-    name = "gcc-debug-4.7.0";
+    name = "gcc-debug-4.7.1";
     src = fetchurl {
-      url = "mirror://gnu/gcc/gcc-4.7.0/gcc-4.7.0.tar.bz2";
-      sha256 = "19f9kpqwq75ax3iz1jzzpdqhxrqjk5rbjifdgamnsrbg04z0i056";
+      url = "mirror://gnu/gcc/gcc-4.7.1/gcc-4.7.1.tar.bz2";
+      sha256 = "0vs0v89zzgkngkw2p8kdynyk7j8ky4wf6zyrg3rsschpl1pky28n";
     };
 
     configureFlags = a.configureFlags
@@ -2268,9 +2272,11 @@ let
 
   path64 = callPackage ../development/compilers/path64 { };
 
-  openjdkDarwin = callPackage ../development/compilers/openjdk-darwin { };
-
-  openjdk = callPackage ../development/compilers/openjdk { };
+  openjdk =
+    if stdenv.isDarwin then
+      callPackage ../development/compilers/openjdk-darwin { }
+    else
+      callPackage ../development/compilers/openjdk { };
 
   openjre = callPackage ../development/compilers/openjdk {
     jreOnly = true;
@@ -2286,7 +2292,7 @@ let
     assert system == "i686-linux" || system == "x86_64-linux";
     callPackage ../development/compilers/jdk/default-5.nix { });
 
-  jdk       = if stdenv.isDarwin then openjdkDarwin else jdkdistro true  false;
+  jdk       = if stdenv.isDarwin then openjdk else jdkdistro true false;
   jre       = jdkdistro false false;
 
   jdkPlugin = lowPrio (jdkdistro true true);
@@ -2754,8 +2760,6 @@ let
 
   ecj = callPackage ../development/eclipse/ecj { };
 
-  ecjDarwin = ecj.override { gcj = openjdkDarwin; ant = antDarwin; };
-
   jdtsdk = callPackage ../development/eclipse/jdt-sdk { };
 
   jruby165 = callPackage ../development/interpreters/jruby { };
@@ -2784,20 +2788,16 @@ let
 
   antlr3 = callPackage ../development/tools/parsing/antlr { };
 
-  antDarwin = apacheAnt.override rec { jdk = openjdkDarwin; name = "ant-" + jdk.name; } ;
-
   ant = apacheAnt;
 
-  apacheAnt = callPackage ../development/tools/build-managers/apache-ant {
-    name = "ant-" + jdk.name;
-  };
+  apacheAnt = callPackage ../development/tools/build-managers/apache-ant { };
 
-  apacheAnt14 = callPackage ../development/tools/build-managers/apache-ant {
-    jdk = j2sdk14x;
-    name = "ant-" + j2sdk14x.name;
-  };
+  apacheAntOpenJDK = apacheAnt.override { jdk = openjdk; };
 
-  apacheAntGcj = callPackage ../development/tools/build-managers/apache-ant/from-source.nix {  # must be either pre-built or built with GCJ *alone*
+  apacheAnt14 = apacheAnt.override { jdk = j2sdk14x; };
+
+  apacheAntGcj = callPackage ../development/tools/build-managers/apache-ant/from-source.nix {
+    # must be either pre-built or built with GCJ *alone*
     gcj = gcj.gcc; # use the raw GCJ, which has ${gcj}/lib/jvm
   };
 
@@ -3053,6 +3053,7 @@ let
      buildNativeInput after the renaming.
      */
   pkgconfig = forceBuildDrv (callPackage ../development/tools/misc/pkgconfig { });
+  pkgconfigUpstream = pkgconfig.override { vanilla = true; };
 
   premake = callPackage ../development/tools/misc/premake { };
 
@@ -3188,8 +3189,6 @@ let
   axis = callPackage ../development/libraries/axis { };
 
   babl = callPackage ../development/libraries/babl { };
-
-  babl_0_1_10 = callPackage ../development/libraries/babl/0.1.10.nix {};
 
   beecrypt = callPackage ../development/libraries/beecrypt { };
 
@@ -3445,10 +3444,6 @@ let
 
   gegl = callPackage ../development/libraries/gegl {
     #  avocodec avformat librsvg
-  };
-
-  gegl_0_2_0 = callPackage ../development/libraries/gegl/0.2.0.nix {
-    babl = babl_0_1_10;
   };
 
   geoclue = callPackage ../development/libraries/geoclue {};
@@ -4752,6 +4747,8 @@ let
     inherit (pkgs.pythonPackages) numpy;
   };
 
+  vlock = callPackage ../misc/screensavers/vlock { };
+
   vmime = callPackage ../development/libraries/vmime { };
 
   vrpn = callPackage ../development/libraries/vrpn { };
@@ -5094,7 +5091,8 @@ let
 
   dovecot = callPackage ../servers/mail/dovecot { };
   dovecot_1_1_1 = callPackage ../servers/mail/dovecot/1.1.1.nix { };
-  dovecot_2_0 = callPackage ../servers/mail/dovecot/2.0.nix { };
+  dovecot_2 = callPackage ../servers/mail/dovecot/2.x.nix { };
+  dovecot_2_0 = pkgs.dovecot_2; # Actually, 2.1
 
   ejabberd = callPackage ../servers/xmpp/ejabberd { };
 
@@ -5689,6 +5687,10 @@ let
     kernelPatches =
       [ #kernelPatches.fbcondecor_2_6_38
         kernelPatches.sec_perm_2_6_24
+        kernelPatches.aufs3_4
+      ] ++ lib.optionals (platform.kernelArch == "mips")
+      [ kernelPatches.mips_fpureg_emu
+        kernelPatches.mips_fpu_sigill
       ];
   };
 
@@ -5920,6 +5922,8 @@ let
   pam_ldap = callPackage ../os-specific/linux/pam_ldap { };
 
   pam_login = callPackage ../os-specific/linux/pam_login { };
+
+  pam_ssh_agent_auth = callPackage ../os-specific/linux/pam_ssh_agent_auth { };
 
   pam_unix2 = callPackage ../os-specific/linux/pam_unix2 { };
 
@@ -6510,7 +6514,7 @@ let
 
   elvis = callPackage ../applications/editors/elvis { };
 
-  emacs = emacs23;
+  emacs = emacs24;
 
   emacs22 = callPackage ../applications/editors/emacs-22 {
     stdenv =
@@ -6551,18 +6555,16 @@ let
     librsvg = null /* if stdenv.isDarwin then null else librsvg */;
   };
 
-  emacs24 = lowPrio (callPackage ../applications/editors/emacs-24 {
-    # use override to select the appropriate gui toolkit
+  emacs24 = callPackage ../applications/editors/emacs-24 {
+    # use override to enable additional features
     libXaw = if stdenv.isDarwin then xlibs.libXaw else null;
     Xaw3d = null;
     gtk = if stdenv.isDarwin then null else gtk;
-    # TODO: these packages don't build on Darwin.
-    gconf = null /* if stdenv.isDarwin then null else gnome.GConf */;
-    librsvg = if stdenv.isDarwin then null else librsvg;
-    # alsa only on linux
-    alsaLib = if stdenv.isLinux then alsaLib else null;
-    imagemagick = imagemagickBig;
-  });
+    gconf = null;
+    librsvg = null;
+    alsaLib = null;
+    imagemagick = null;
+  };
 
   emacsPackages = emacs: self: let callPackage = newScope self; in rec {
     inherit emacs;
@@ -6633,7 +6635,7 @@ let
   };
 
   emacs22Packages = emacsPackages emacs22 pkgs.emacs22Packages;
-  emacs23Packages = recurseIntoAttrs (emacsPackages emacs23 pkgs.emacs23Packages);
+  emacs23Packages = emacsPackages emacs23 pkgs.emacs23Packages;
   emacs24Packages = recurseIntoAttrs (emacsPackages emacs24 pkgs.emacs24Packages);
 
   epdfview = callPackage ../applications/misc/epdfview { };
@@ -6774,10 +6776,8 @@ let
     inherit (gnome) libart_lgpl;
   };
 
-  gimp_2_8_0 = callPackage ../applications/graphics/gimp/2.8.0.nix {
+  gimp_2_8 = callPackage ../applications/graphics/gimp/2.8.nix {
     inherit (gnome) libart_lgpl;
-    babl = babl_0_1_10;
-    gegl = gegl_0_2_0;
   };
 
   gimpPlugins = recurseIntoAttrs (import ../applications/graphics/gimp/plugins {
@@ -7492,6 +7492,8 @@ let
     inherit (pkgs.gnome) libsoup;
   };
 
+  telepathy_haze = callPackage ../applications/networking/instant-messengers/telepathy/haze {};
+
   telepathy_logger = callPackage ../applications/networking/instant-messengers/telepathy/logger {};
 
   telepathy_mission_control = callPackage ../applications/networking/instant-messengers/telepathy/mission-control { };
@@ -8098,6 +8100,8 @@ let
 
       kadu = callPackage ../applications/networking/instant-messengers/kadu { };
 
+      kbibtex = callPackage ../applications/office/kbibtex { };
+
       kbluetooth = callPackage ../tools/bluetooth/kbluetooth { };
 
       kde_wacomtablet = callPackage ../applications/misc/kde-wacomtablet { };
@@ -8291,8 +8295,10 @@ let
       paths = [
         texLive texLiveExtra
       ];
+    };
   };
-  };
+
+  ginac = callPackage ../applications/science/math/ginac { };
 
   hol = callPackage ../applications/science/logic/hol { };
 
@@ -8303,7 +8309,7 @@ let
 
   isabelle = import ../applications/science/logic/isabelle {
     inherit (pkgs) stdenv fetchurl nettools perl polyml;
-    inherit (pkgs.emacs23Packages) proofgeneral;
+    inherit (pkgs.emacs24Packages) proofgeneral;
   };
 
   iprover = callPackage ../applications/science/logic/iprover {};

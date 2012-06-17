@@ -4278,6 +4278,8 @@ let
 
   libxslt = callPackage ../development/libraries/libxslt { };
 
+  libxml_xml_dtd_xhtml = callPackage ../data/sgml+xml/schemas/xml-dtd/xhtml { };
+
   libixp_for_wmii = lowPrio (import ../development/libraries/libixp_for_wmii {
     inherit fetchurl stdenv;
   });
@@ -7287,6 +7289,8 @@ let
   pidginotr = callPackage ../applications/networking/instant-messengers/pidgin-plugins/otr { };
 
   pidginsipe = callPackage ../applications/networking/instant-messengers/pidgin-plugins/sipe { };
+
+  pidginPlugins = callPackage ../applications/networking/instant-messengers/pidgin-plugins { };
 
   pinfo = callPackage ../applications/misc/pinfo { };
 

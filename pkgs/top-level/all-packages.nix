@@ -129,7 +129,15 @@ let
   # The package compositions.  Yes, this isn't properly indented.
   pkgsFun = pkgs: __overrides:
     with helperFunctions;
-    let defaultScope = pkgs // pkgs.xorg; in
+    let defaultScope = pkgs // pkgs.xorg;
+
+        # provide deepOverride function which overrides everything by
+        # pkgsDeepOverride before overridding with overrider.
+        # See webkit example - updated implementation of
+        # http://wiki.nixos.org/w/index.php?title=Escape_from_dependency_hell
+        # probably this is obsoleted by applyGlobalOverrides. See webkit
+        deepOverride = deepOverrides: pkgsFun pkgs (deepOverrides // __overrides);
+    in
     helperFunctions // rec {
 
   # `__overrides' is a magic attribute that causes the attributes in
@@ -6775,8 +6783,11 @@ let
   get_iplayer = callPackage ../applications/misc/get_iplayer {};
 
   gimp = callPackage ../applications/graphics/gimp {
-    inherit (gnome) libart_lgpl;
+    inherit pkgs;
+    inherit deepOverride;
   };
+
+  gimpGit = gimp.override { version = "git"; };
 
   gimp_2_8 = callPackage ../applications/graphics/gimp/2.8.nix {
     inherit (gnome) libart_lgpl;

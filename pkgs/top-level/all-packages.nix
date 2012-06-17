@@ -7246,6 +7246,11 @@ let
   opera = callPackage ../applications/networking/browsers/opera {
     inherit (pkgs.kde4) kdelibs;
   };
+  opera_my = callPackage ../applications/networking/browsers/opera/my.nix { };
+  # TODO merge with upstream opera to support HTML 5 viedos?
+  # testpages:
+  # http://www.planetoftunes.com/web_site/videoforweb/html5_example/index.html
+  # http://www.youtube.com/html5
 
   pan = callPackage ../applications/networking/newsreaders/pan {
     spellChecking = false;
@@ -7712,6 +7717,8 @@ let
 
   libxpdf = callPackage ../applications/misc/xpdf/libxpdf.nix {
   };
+
+  linuxtv_dvb_apps = callPackage ../applications/video/linuxtv-dvb-apps { };
 
   xpra = callPackage ../tools/X11/xpra {
     pyrex = pyrex095;

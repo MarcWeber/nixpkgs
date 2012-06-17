@@ -17,6 +17,8 @@ stdenv.mkDerivation rec {
     description = "Python bindings for Glib";
   };
 
+  setupHook = ./setup-hook.sh;
+
   patches = [
     # pygtk.py only adds $out/lib/.../gtk-2.0 to sys.path
     # however other store paths should be added as well such as gtk-2.0 in
@@ -24,7 +26,9 @@ stdenv.mkDerivation rec {
     # This patch uses NIX_PYTHON_SITES to find those additional directories and
     # adds them. So this makes the following common import line work as it should:
     # import pygtk; pygtk.require('2.0'); import gtk;
-    ./nix-python-sites.patch
+    # however '2.0' is the default now, because nobody is using '1.0' anymore !!
+    # So this is pretty much obsolete
+    # ./nix-python-sites.patch
   ];
 
 }

@@ -970,7 +970,13 @@ let pythonPackages = python.modules // rec {
 
     doCheck = false;
 
-    propagatedBuildInputs = [ dateutil numpy pkgs.freetype pkgs.libpng pkgs.pkgconfig pkgs.tcl pkgs.tk pkgs.xlibs.libX11 ];
+    propagatedBuildInputs = [ dateutil numpy pkgs.freetype pkgs.libpng pkgs.pkgconfig pkgs.tcl pkgs.tk pkgs.xlibs.libX11 
+      # tkinter interface
+      python.modules.tkinter
+      # GTK interface
+      pkgs.pygtk pkgs.pycairo
+      pkgs.gtk
+    ];
 
     meta = {
       description = "python plotting library, making publication quality plots";
@@ -2373,7 +2379,23 @@ let pythonPackages = python.modules // rec {
   };
 
 
+  urlgrabber = buildPythonPackage rec {
+    name = "urlgrabber-3.9.1";
+    propagatedBuildInputs = [ pycurl ];
+    doCheck = false;
+    src = fetchurl {
+      url = http://urlgrabber.baseurl.org/download/urlgrabber-3.9.1.tar.gz;
+      sha256 = "1l2h0vxn94iqjs5bp41mxqs3f8sggxnf8h25l177br88hxn0fds4";
+    };
+    meta = {
+      description = "pure python package that drastically simplifies the fetching of files";
+      homepage = http://urlgrabber.baseurl.org;
+      license = "LGPL";
+    };
+  };
+
   unittest2 = buildPythonPackage rec {
+
     name = "unittest2-0.5.1";
 
     src = fetchurl {

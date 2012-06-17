@@ -81,6 +81,7 @@ let
     passthru = {
       inherit zlibSupport;
       libPrefix = "python${majorVersion}";
+      sitePackagesPrefix = "lib/python${majorVersion}/site-packages";
     };
 
     enableParallelBuilding = true;

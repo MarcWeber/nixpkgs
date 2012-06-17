@@ -1,17 +1,21 @@
 x@{builderDefsPackage
   , gnome, gtk, glib, libxml2, libvirt, gtkvnc, cyrus_sasl, libtasn1, makeWrapper 
-  , intltool, python, pygtk, libxml2Python
-  # virtinst is required, but it breaks when building
+  , intltool, python, pygtk, pyGtkGlade, libxml2Python
+  , glibcLocales
+  , virtinst, pythonDBus, pygnome
+  , pythonPackages
   , ...}:
 builderDefsPackage
 (a :  
 let 
   helperArgNames = ["stdenv" "fetchurl" "builderDefsPackage"] ++ 
-    ["gnome"];
+    ["gnome" "pythonPackages"];
 
   buildInputs = (map (n: builtins.getAttr n x)
     (builtins.attrNames (builtins.removeAttrs x helperArgNames)))
-    ++ [gnome.libglade intltool python libvirt];
+    ++ [
+        pythonPackages.urlgrabber
+    ];
   sourceInfo = rec {
     baseName="virt-manager";
 
@@ -44,7 +48,9 @@ rec {
   phaseNames = [ "doUnpack" "patchPhase" "doConfigure" "doMakeInstall" "installPhase" ];
 
   installPhase = a.fullDepEntry ''
-    wrapProgram $out/bin/virt-manager --set PYTHONPATH $PYTHONPATH
+    wrapProgram $out/bin/virt-manager \
+    --set NIX_PYTHON_SITES $NIX_PYTHON_SITES \
+    --set LOCALE_ARCHIVE ${glibcLocales}/lib/locale/locale-archive
   '' ["minInit"];
 
   #NIX_CFLAGS_COMPILE = "-fno-stack-protector";

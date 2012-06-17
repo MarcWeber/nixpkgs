@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, pythonPackages, intltool, libvirt, libxml2Python, curl }:
+{ stdenv, fetchurl, pythonPackages, intltool, libvirt, libxml2Python, curl, python}:
 
 with stdenv.lib;
 
@@ -22,7 +22,8 @@ stdenv.mkDerivation rec {
     ];
 
   buildInputs =
-    [ pythonPackages.python 
+    [ python
+      pythonPackages.python 
       pythonPackages.wrapPython
       pythonPackages.mox
       intltool

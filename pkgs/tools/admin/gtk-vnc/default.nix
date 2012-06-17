@@ -1,17 +1,17 @@
 x@{builderDefsPackage
   , python, gtk, pygtk, gnutls, cairo, libtool, glib, pkgconfig, libtasn1
-  , libffi, cyrus_sasl, intltool, perl, perlPackages, firefox36Pkgs
+  , libffi, cyrus_sasl, intltool, perl, perlPackages, firefox12Pkgs
   , kbproto, libX11, libXext, xextproto, pygobject, libgcrypt
   , ...}:
 builderDefsPackage
 (a :  
 let 
   helperArgNames = ["stdenv" "fetchurl" "builderDefsPackage"] ++ 
-    ["perlPackages" "firefox36Pkgs"];
+    ["perlPackages" "firefox12Pkgs"];
 
   buildInputs = (map (n: builtins.getAttr n x)
     (builtins.attrNames (builtins.removeAttrs x helperArgNames)))
-    ++ [perlPackages.TextCSV firefox36Pkgs.xulrunner ];
+    ++ [perlPackages.TextCSV firefox12Pkgs.xulrunner ];
   sourceInfo = rec {
     baseName="gtk-vnc";
     majorVersion="0.4";

@@ -65,6 +65,7 @@ stdenv.mkDerivation {
     opensslSupport = openssl != null;
     tkSupport = (tk != null) && (tcl != null) && (libX11 != null) && (xproto != null);
     libPrefix = "python${majorVersion}";
+    sitePackagesPrefix = "lib/python${majorVersion}/site-packages";
   };
 
   enableParallelBuilding = true;

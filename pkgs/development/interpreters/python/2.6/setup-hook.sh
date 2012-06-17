@@ -1,4 +1,6 @@
 addPythonPath() {
+    echo addPythonPath is deprecated, use addPythonSite instead! # deprecated, use addPythonSite instead
+    exit 1 
     addToSearchPathWithCustomDelimiter : PYTHONPATH $1/lib/python2.6/site-packages
 }
 
@@ -28,3 +30,5 @@ addPythonSite(){
 }
 
 envHooks=(${envHooks[@]} addPythonSite)
+
+addPythonSite $out

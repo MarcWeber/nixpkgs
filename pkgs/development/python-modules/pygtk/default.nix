@@ -16,10 +16,8 @@ stdenv.mkDerivation rec {
   propagatedBuildInputs = [ pygobject pycairo ];
 
   postInstall = ''
-    rm $out/bin/pygtk-codegen-2.0
-
-    addPythonSite $out
-
     wrapProgram $out/bin/pygtk-demo --prefix NIX_PYTHON_SITES ":" "$NIX_PYTHON_SITES"
+
+    sed -i -e 's@^exec_prefix.*@exec_prefix=${pygobject}@' $out/bin/pygtk-codegen-2.0
   '';
 }

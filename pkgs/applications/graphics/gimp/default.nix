@@ -1,4 +1,4 @@
-{ pkgs, deepOverride
+{ pkgs, applyGlobalOverrides
 , version ? "2.7.1"
 }:
 
@@ -28,14 +28,15 @@ let
   */
 
   p = if version == "git" 
-  then deepOverride {
+  then applyGlobalOverrides ( pkgs: {
     babl = pkgs.babl.override { version = "git"; };
     gegl = pkgs.gegl.override { version = "git"; };
-  }
+    glib = pkgs.glib.override { version = "2.33.3"; };
+  })
   else pkgs;
 
   commonBuildInputs = [
-    p.pkgconfig p.gtkLibs.gtk p.freetype p.fontconfig
+    p.pkgconfig p.glib p.gtkLibs.gtk p.freetype p.fontconfig
     p.gnome.libart_lgpl p.libtiff p.libjpeg p.libpng p.libexif p.zlib p.perl
     p.perlXMLParser p.python p.pygtk p.gettext p.intltool
   ];
@@ -93,14 +94,15 @@ let
 
       preConfigure = "./autogen.sh";
       # REGION AUTO UPDATE: { name="gimp"; type="git"; url="git://git.gnome.org/gimp"; groups = "gimp"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-f400b.tar.bz2"; sha256 = "aa1320e7d1be244bf6db09cdef573c9c073ece1b77b6ca8ff3c1886d69831ab4"; });
-      name = "gimp-git-f400b";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-3d297.tar.bz2"; sha256 = "9ff38c3f94302be7ed7bdd3906ef7d7c22e5ef1dc03ffb067f5ff3cff9f4cecc"; });
+      name = "gimp-git-3d297";
       # END
 
       passthru = {
         versionUsedInName= "2.7";
         pluginDir = "lib/gimp/2.0/plug-ins";
         scriptDir = "share/gimp/2.0/scripts";
+        inherit (p) glib;
       };
     };
 

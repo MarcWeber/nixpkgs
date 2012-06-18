@@ -6784,7 +6784,8 @@ let
 
   gimp = callPackage ../applications/graphics/gimp {
     inherit pkgs;
-    inherit deepOverride;
+    # inherit deepOverride;
+    inherit applyGlobalOverrides;
   };
 
   gimpGit = gimp.override { version = "git"; };

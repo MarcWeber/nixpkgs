@@ -1,10 +1,9 @@
 {stdenv, fetchurl, sourceFromHead, automake, autoconf}:
 
 stdenv.mkDerivation rec {
-  name = "ctags-svn";
   # REGION AUTO UPDATE:      { name="ctags"; type = "svn"; url = "https://ctags.svn.sourceforge.net/svnroot/ctags/trunk"; }
-  src= sourceFromHead "ctags-749.tar.gz"
-               (fetchurl { url = "http://mawercer.de/~nix/repos/ctags-749.tar.gz"; sha256 = "01dd4bf2e55dbedc38def81febef60eece912cb7624df1c0a2cf1ed6e4bc4ecf"; });
+  src = (fetchurl { url = "http://mawercer.de/~nix/repos/ctags-svn-785.tar.bz2"; sha256 = "34a3c0923b6f7102dcd9a39f37d2830ed99760e0746984fcf305e5b3a4564a26"; });
+  name = "ctags-svn-785";
   # END
 
   preConfigure = ''

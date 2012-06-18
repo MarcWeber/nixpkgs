@@ -20,8 +20,8 @@ let
     };
     git = {
       # REGION AUTO UPDATE: { name="gegl"; type="git"; url="git://git.gnome.org/gegl"; groups = "gimp_group"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gegl-git-d31ea.tar.bz2"; sha256 = "ecd67341b385845dcda369fa09a531851a29a63d5ae5df4cc2bae678dcff566b"; });
-      name = "gegl-git-d31ea";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gegl-git-ccd1b.tar.bz2"; sha256 = "1bab14231ca478a8eb9ec0bfc80409a0194157626cb15dd2fa486914a4a75f53"; });
+      name = "gegl-git-ccd1b";
       # END
       buildInputs = commonBuildInputs ++ [(babl.override { version = "git"; }) automake bzip2 autoconf libtool intltool ruby which];
       # preConfigure = "./autogen.sh";

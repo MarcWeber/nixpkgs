@@ -2252,7 +2252,7 @@ let
   haskellPackages_ghcHEAD             =                   haskell.packages_ghcHEAD;
 
   haxeDist = import ../development/compilers/haxe {
-    inherit fetchurl sourceFromHead stdenv lib ocaml zlib makeWrapper neko;
+    inherit fetchurl sourceFromHead stdenv lib ocaml zlib makeWrapper neko writeScriptBin;
   };
   haxe = haxeDist.haxe;
   haxelib = haxeDist.haxelib;

@@ -2627,21 +2627,10 @@ let
 
   perl = if system != "i686-cygwin" then perl514 else sysPerl;
 
-  php = php5_3;
-
-  php5_2 = makeOverridable (import ../development/interpreters/php/5.2.nix) {
-    inherit
-      stdenv fetchurl lib composableDerivation autoconf automake
-      flex bison apacheHttpd mysql libxml2 readline
-      zlib curl gd postgresql openssl pkgconfig sqlite getConfig libiconv libjpeg libpng;
-  };
-
-  php5_3 = makeOverridable (import ../development/interpreters/php/5.3.nix) {
-    inherit
-      stdenv fetchurl lib composableDerivation autoconf automake
-      flex bison apacheHttpd mysql libxml2 readline
-      zlib curl gd postgresql openssl pkgconfig sqlite getConfig libiconv libjpeg libpng;
-  };
+  php = callPackage ../development/interpreters/php { };
+  php5_2 = php.override { version = "5.2.17"; };
+  php5_3 = php.override { version = "5.3.6"; }; 
+  php5_3fpm = php5_3.override { sapi = "fpm"; };
 
   php_apc = callPackage ../development/libraries/php-apc { };
 
@@ -4020,6 +4009,8 @@ let
   liblastfm = callPackage ../development/libraries/liblastfm { };
 
   liblqr1 = callPackage ../development/libraries/liblqr-1 { };
+
+  libmcrypt = callPackage ../development/libraries/libmcrypt {};
 
   libmhash = callPackage ../development/libraries/libmhash {};
 

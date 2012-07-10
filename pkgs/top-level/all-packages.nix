@@ -2632,11 +2632,10 @@ let
   php5_3 = php.override { version = "5.3.6"; }; 
   php5_3fpm = php5_3.override { sapi = "fpm"; };
 
-  php_apc = callPackage ../development/libraries/php-apc { };
-
-  php_xcache = callPackage ../development/libraries/php-xcache { };
-
-  phpXdebug = callPackage ../development/interpreters/php-xdebug { };
+  # use php.apc/xcache/Xdebug instead
+  # php_apc = callPackage ../development/libraries/php-apc { };
+  # php_xcache = callPackage ../development/libraries/php-xcache { };
+  # phpXdebug = callPackage ../development/interpreters/php-xdebug { };
 
   picolisp = callPackage ../development/interpreters/picolisp {};
 

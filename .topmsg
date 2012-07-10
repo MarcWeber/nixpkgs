@@ -1,0 +1,9 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] experimental/php
+
+PHP updates, refactoring:
+- use one PHP file for 5.2 and 5.3 because they share so much
+- true type font support
+- refactor modules so that they always fit the PHP version
+
+Signed-off-by: Marc Weber <marco-oweber@gmx.de>

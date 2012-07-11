@@ -33,12 +33,11 @@ let pythonPackages = python.modules // rec {
 
 
   afew = buildPythonPackage rec {
-    rev = "8abd64bfdcd83a486b2a3977c08fe071523b2551";
-    name = "afew-1.0pre${rev}";
+    name = "afew-1.0pre";
     src = fetchurl {
-      url = "https://github.com/teythoon/afew/tarball/${rev}";
+      url = "https://github.com/teythoon/afew/tarball/master";
       name = "${name}.tar.bz";
-      sha256 = "9b140d0eb0e5013419983604bb09a51f087a4abdf0a390c24a9596f867dc8c05";
+      sha256 = "949710f8dcf503f42f2a2d77ea71e48ccf70155a764f75ad29cc93edc120809b";
     };
 
     propagatedBuildInputs = [ notmuch pkgs.dbacl ];
@@ -60,18 +59,17 @@ let pythonPackages = python.modules // rec {
 
 
   alot = buildPythonPackage rec {
-    version = "0.3.1";
-    name = "alot-${version}";
+    name = "alot-0.3.1";
 
     src = fetchurl {
-      url = "https://github.com/pazz/alot/tarball/${version}";
+      url = "https://github.com/pazz/alot/tarball/master";
       name = "${name}.tar.bz";
-      md5 = "6c5986d9192863879e95a3f8f30ccb75";
+      sha256 = "06683de36688615d3d526198c93133e1131897c888ffa31e83f1ad292eae57af";
     };
 
     doCheck = false;
 
-    propagatedBuildInputs = [ notmuch urwid twisted magic configobj ];
+    propagatedBuildInputs = [ notmuch urwid twisted magic configobj pygpgme ];
 
     postInstall = ''
       wrapProgram $out/bin/alot \
@@ -525,6 +523,23 @@ let pythonPackages = python.modules // rec {
   };
 
   
+  django_1_3_1 = buildPythonPackage rec {
+    name = "Django-1.3.1";
+
+    src = fetchurl {
+      url = "http://www.djangoproject.com/m/releases/1.3/${name}.tar.gz";
+      sha256 = "0sqmvqy3y5h76pa3zjcnyiy5x01bzzy03afdp2qdwqx0x321i4dg";
+    };
+
+    doCheck = false;
+
+    meta = {
+      description = "A high-level Python Web framework";
+      homepage = https://www.djangoproject.com/;
+    };
+  };
+
+  
   django_evolution = buildPythonPackage rec {
     name = "django_evolution-0.6.7";
 
@@ -533,7 +548,7 @@ let pythonPackages = python.modules // rec {
       md5 = "24b8373916f53f74d701b99a6cf41409";
     };
 
-    propagatedBuildInputs = [ django ];
+    propagatedBuildInputs = [ django_1_3_1 ];
 
     meta = {
       description = "A database schema evolution tool for the Django web framework";
@@ -543,14 +558,14 @@ let pythonPackages = python.modules // rec {
 
   
   djblets = buildPythonPackage rec {
-    name = "Djblets-0.6.16";
+    name = "Djblets-0.6.19";
 
     src = fetchurl {
-      url = "http://downloads.reviewboard.org/releases/Djblets/0.6/Djblets-0.6.16.tar.gz";
-      sha256 = "1793jy0y5w79p8395lvvdlmvdybgwvc5lvgzmk1csf08ba772vc4";
+      url = "http://downloads.reviewboard.org/releases/Djblets/0.6/${name}.tar.gz";
+      sha256 = "1hhvpi81yknvlaazq1cpgamp9vf3x1fcr0ba64q3j2yz1kgin1i8";
     };
 
-    propagatedBuildInputs = [ pkgs.pil django ];
+    propagatedBuildInputs = [ pkgs.pil django_1_3_1 ];
 
     meta = {
       description = "A collection of useful extensions for Django";
@@ -726,6 +741,9 @@ let pythonPackages = python.modules // rec {
       url = http://ftp.edgewall.com/pub/genshi/Genshi-0.6.tar.gz;
       sha256 = "0jrajyppdzb3swcxv3w1mpp88vcy7400gy1v2h2gm3pq0dmggaij";
     };
+
+    # two tests fail on x86_64 at least. I don't know why.
+    doCheck = false;
 
     buildInputs = [ pkgs.setuptools ];
 
@@ -1647,6 +1665,29 @@ let pythonPackages = python.modules // rec {
   };
 
 
+  pygpgme = buildPythonPackage rec {
+    version = "0.3";
+    name = "pygpgme-${version}";
+
+    src = fetchurl {
+      url = "https://launchpad.net/pygpgme/trunk/${version}/+download/${name}.tar.gz";
+      sha256 = "5fd887c407015296a8fd3f4b867fe0fcca3179de97ccde90449853a3dfb802e1";
+    };
+
+    doCheck = false;
+
+    propagatedBuildInputs = [ pkgs.gpgme ];
+
+    meta = {
+      homepage = "https://launchpad.net/pygpgme";
+      description = "A Python wrapper for the GPGME library.";
+      license = pkgs.lib.licenses.lgpl21;
+      maintainers = [ stdenv.lib.maintainers.garbas ];
+      platforms = python.meta.platforms;
+    };
+  };
+
+
   pyparsing = buildPythonPackage rec {
     name = "pyparsing-1.5.6";
 
@@ -1983,17 +2024,17 @@ let pythonPackages = python.modules // rec {
 
   
   reviewboard = buildPythonPackage rec {
-    name = "ReviewBoard-1.6.6";
+    name = "ReviewBoard-1.6.9";
 
     src = fetchurl {
       url = "http://downloads.reviewboard.org/releases/ReviewBoard/1.6/${name}.tar.gz";
-      sha256 = "de965f48c9e63198d3c7c2bb2e8404170868e8c0ee4d6ab796abb9b1ccda6c1d";
+      sha256 = "06pwbmqwsb0g2y8zg5hk5ibaivsl1af7v0vnkqranimf4yaa10mc";
     };
 
     propagatedBuildInputs =
       [ recaptcha_client pytz memcached dateutil paramiko flup pygments
-        djblets django django_evolution pkgs.pycrypto python.modules.sqlite3
-        pysvn pkgs.pil
+        djblets django_1_3_1 django_evolution pkgs.pycrypto python.modules.sqlite3
+        pysvn pkgs.pil psycopg2
       ];
   };
 

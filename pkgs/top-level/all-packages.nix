@@ -1513,6 +1513,7 @@ let
 
   udftools = callPackage ../tools/filesystems/udftools {};
 
+  # eventually merge with gimpPlugins.ufraw ?
   ufraw = callPackage ../applications/graphics/ufraw { };
 
   unetbootin = callPackage ../tools/cd-dvd/unetbootin { };
@@ -3224,6 +3225,7 @@ let
   axis = callPackage ../development/libraries/axis { };
 
   babl = callPackage ../development/libraries/babl { };
+  bablGit = babl.override { version = "git"; };
 
   beecrypt = callPackage ../development/libraries/beecrypt { };
 
@@ -3472,9 +3474,8 @@ let
 
   gdbm = callPackage ../development/libraries/gdbm { };
 
-  gegl = callPackage ../development/libraries/gegl {
-    #  avocodec avformat librsvg
-  };
+  gegl = callPackage ../development/libraries/gegl { };
+  geglGit = gegl.override { version = "git"; };
 
   geoclue = callPackage ../development/libraries/geoclue {};
 

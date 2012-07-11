@@ -4,11 +4,11 @@
 }:
 
 stdenv.mkDerivation rec {
-  name = "systemd-185";
+  name = "systemd-186";
 
   src = fetchurl {
     url = "http://www.freedesktop.org/software/systemd/${name}.tar.xz";
-    sha256 = "1iwp41xvpq0x2flhhs8lpyjbfyg1220ahmy7037zdjy26w9g82br";
+    sha256 = "0zmj8r7a1xb5f3lvyfgw7095rq3yvr0ibw1730j54blm07sh3hmj";
   };
 
   buildInputs =
@@ -28,6 +28,7 @@ stdenv.mkDerivation rec {
       "--with-dbussessionservicedir=$(out)/share/dbus-1/services"
       "--with-firmware-path=/root/test-firmware:/var/run/current-system/firmware"
       "--with-pci-ids-path=${pciutils}/share/pci.ids"
+      "--with-tty-gid=3" # tty in NixOS has gid 3
     ];
 
   preConfigure =

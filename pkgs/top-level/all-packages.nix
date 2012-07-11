@@ -6291,6 +6291,8 @@ let
 
   ttf_bitstream_vera = callPackage ../data/fonts/ttf-bitstream-vera { };
 
+  ttf2eot = callPackage ../data/fonts/ttf-to-eot { };
+
   ucsFonts = callPackage ../data/fonts/ucs-fonts { };
 
   unifont = callPackage ../data/fonts/unifont { };

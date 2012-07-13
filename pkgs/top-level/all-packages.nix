@@ -3726,6 +3726,7 @@ let
   };
 
   glib = callPackage ../development/libraries/glib/2.30.x.nix { };
+  glib233 = glib.override {version = "2.33.3";};
 
   glibmm = callPackage ../development/libraries/glibmm/2.30.x.nix { };
 
@@ -6766,13 +6767,12 @@ let
 
   get_iplayer = callPackage ../applications/misc/get_iplayer {};
 
-  gimp = callPackage ../applications/graphics/gimp {
-    inherit (gnome) libart_lgpl;
-  };
+  gimp = callPackage ../applications/graphics/gimp { inherit pkgs applyGlobalOverrides; };
+  gimpGit = gimp.override { version = "git"; };
 
-  gimp_2_8 = callPackage ../applications/graphics/gimp/2.8.nix {
-    inherit (gnome) libart_lgpl;
-  };
+  # gimp_2_8 = callPackage ../applications/graphics/gimp/2.8.nix {
+  #   inherit (gnome) libart_lgpl;
+  # };
 
   gimpPlugins = recurseIntoAttrs (import ../applications/graphics/gimp/plugins {
     inherit pkgs gimp;

@@ -1,5 +1,5 @@
 { stdenv, fetchurl
-, autoconf, automake, libtool, sourceFromHead, glib, pkgconfig
+, autoconf, automake, libtool, sourceFromHead, glib, pkgconfig, which
 , version ? "0.1.10"
 }:
 
@@ -15,15 +15,18 @@
 
     git = {
       # REGION AUTO UPDATE: { name="babl"; type="git"; url="git://git.gnome.org/babl"; groups = "gimp_group"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/babl-git-c440e.tar.bz2"; sha256 = "f417b07858989c8869270454c310c79e97a571af1b0119fd15b5a5b2eec4136c"; });
-      name = "babl-git-c440e";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/babl-git-e3213.tar.bz2"; sha256 = "6a7988d1834b0bbd00305927a85555c22adb100d920d4aa935a4d3943ba712ee"; });
+      name = "babl-git-e3213";
       # END
-      buildInputs = [ autoconf automake libtool glib pkgconfig];
+      buildInputs = [ autoconf automake libtool glib pkgconfig which];
       preConfigure = "./autogen.sh";
     };
 
   }
   {
+
+    enableParalellBuilding = true;
+
     meta = { 
       description = "Image pixel format conversion library";
       homepage = http://gegl.org/babl/;

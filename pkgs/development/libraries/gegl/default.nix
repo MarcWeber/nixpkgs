@@ -1,21 +1,24 @@
 { stdenv, fetchurl, pkgconfig, glib, babl, libpng, cairo, libjpeg, bzip2
 
-, librsvg, pango, gtk, automake, autoconf, sourceFromHead, libtool, ruby, which
+, librsvg, pango, gtk, automake, autoconf, sourceFromHead, libtool, ruby, which, intltool
 , version ? "0.2.0" }:
 
 let
 
-  commonBuildInputs = [ pkgconfig glib libpng cairo libjpeg librsvg pango gtk ];
+  commonBuildInputs = [ pkgconfig glib libpng cairo libjpeg librsvg pango gtk intltool];
 
 in
 
   stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "gegl" version {
     git = {
       # REGION AUTO UPDATE: { name="gegl"; type="git"; url="git://git.gnome.org/gegl"; groups = "gimp_group"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gegl-git-94653.tar.bz2"; sha256 = "21b708972b80a1a9183468f61d9f7135c357dd41dd7b4af4e9acf3163f4cc3d5"; });
-      name = "gegl-git-94653";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gegl-git-a1b7e.tar.bz2"; sha256 = "bcdee36c5fc0826500f8ea42397d3d44d6c487b59e7067868a4fe2353ee91a4a"; });
+      name = "gegl-git-a1b7e";
       # END
-      buildInputs = commonBuildInputs ++ [(babl.override { version = "git"; }) automake bzip2 autoconf libtool ruby which];
+      buildInputs = commonBuildInputs ++ [
+        (babl.override { version = "git"; }) 
+        automake bzip2 autoconf libtool ruby which
+      ];
       preConfigure = "./autogen.sh";
     };
     "0.2.0" = {
@@ -28,6 +31,9 @@ in
     };
   }
   {
+
+    enableParalellBuilding = true;
+
     configureFlags = "--disable-docs"; # needs fonts otherwise  don't know how to pass them
 
     meta = { 

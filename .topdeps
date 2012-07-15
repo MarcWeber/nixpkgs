@@ -3,3 +3,4 @@ experimental/hack-nix
 experimental/php
 experimental/multi-shell-support
 experimental/gutenprint
+experimental/firebird

@@ -1757,6 +1757,8 @@ let
 
   dash = callPackage ../shells/dash { };
 
+  fish = callPackage ../shells/fish { };
+
   ipython = callPackage ../shells/ipython { };
 
   tcsh = callPackage ../shells/tcsh { };

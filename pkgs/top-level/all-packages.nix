@@ -7574,6 +7574,8 @@ let
     enableX11 = getConfig [ "unison" "enableX11" ] true;
   };
 
+  umtsmon = callPackage ../applications/misc/umtsmon { };
+
   uucp = callPackage ../tools/misc/uucp { };
 
   uwimap = callPackage ../tools/networking/uwimap { };

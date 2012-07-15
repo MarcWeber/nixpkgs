@@ -187,6 +187,13 @@ rec {
       delayOnGlobalEval = true;
     };
 
+    shellCode = supportedShells: mkOptionType {
+      name = "option shellcode";
+      merge = list: lib.concatLists (map (x: if builtins.isList x then x else [x]) list);
+      check = lib.isShellCodeItem supportedShells true;
+      apply = mergeShellCode supportedShells;
+    };
+
   };
 
 }

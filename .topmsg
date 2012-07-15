@@ -1,0 +1,6 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] experimental/multi-shell-support
+
+nixpkgs function for the nixos/multi-shell-support topic branch
+
+Signed-off-by: Marc Weber <marco-oweber@gmx.de>

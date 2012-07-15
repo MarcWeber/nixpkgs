@@ -1,4 +1,4 @@
-{stdenv, fetchurl, libedit, icu
+{stdenv, fetchurl, libedit, icu, ncurses, automake, autoconf, libtool
 , superServer ? false
 , port ? 3050
 , serviceName ? "gds_db"
@@ -23,22 +23,30 @@
 
 stdenv.mkDerivation {
 
-  name = "firebird-2.3.1";
+  name = "firebird-2.5.1.2651-0";
 
   configureFlags =
     [ "--with-serivec-port=${builtins.toString port}"
       "--with-service-name=${serviceName}"
-      # "--with-system-icu"
-      # "--with-system-editline"
+      # "--disable-static"
+      "--with-system-icu"
+      "--with-system-editline"
+      "--with-fblog=/var/log/firebird"
+      "--with-fbconf=/etc/firebird"
+      "--with-fbsecure-db=/var/db/firebird/system"
     ]
-    ++ (stdenv.lib.optional superServer "--enable-superserver=true");
+    ++ (stdenv.lib.optional superServer "--enable-superserver");
 
   src = fetchurl {
-    url = mirror://sourceforge/firebird/files/2.1.3-Release/Firebird-2.1.3.18185-0.tar.bz2;
-    sha256 = "0a7xy016r0j1f97cf2lww8fkz1vlvvghrgv9ffz2i6f7ppacniw0";
+    url = mirror://sourceforge/firebird/firebird/2.5.1-Release/Firebird-2.5.1.26351-0.tar.bz2;
+    sha256 = "04xqxmvx6b72ndvwhsbkcd911lbma7sq1jpsyc6s0g5bm7kkdln4";
   };
 
-  buildInputs = [libedit icu];
+  # configurePhase = ''
+  #   sed -i 's@cp /usr/share/automake-.*@@' autogen.sh
+  #   sh autogen.sh $configureFlags --prefix=$out
+  # '';
+  buildInputs = [libedit icu automake autoconf libtool];
 
   # TODO: Probably this hase to be tidied up..
   # make install requires beeing. disabling the root checks

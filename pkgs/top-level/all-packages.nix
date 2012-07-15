@@ -6180,6 +6180,8 @@ let
 
   docbook5 = callPackage ../data/sgml+xml/schemas/docbook-5.0 { };
 
+  docbook_sgml_dtd_31 = callPackage ../data/sgml+xml/schemas/sgml-dtd/docbook/3.1.nix { };
+
   docbook_sgml_dtd_41 = callPackage ../data/sgml+xml/schemas/sgml-dtd/docbook/4.1.nix { };
 
   docbook_xml_dtd_412 = callPackage ../data/sgml+xml/schemas/xml-dtd/docbook/4.1.2.nix { };
@@ -6199,6 +6201,10 @@ let
   docbook5_xsl = docbook_xsl_ns;
 
   docbook_xsl_ns = callPackage ../data/sgml+xml/stylesheets/xslt/docbook-xsl-ns { };
+
+  docbook_sgml_utils = callPackage ../data/sgml+xml/schemas/xml-dtd/docbook-sgml-utils { };
+
+  docbook_dsssl = callPackage ../data/sgml+xml/schemas/xml-dtd/docbook-dsssl { };
 
   dosemu_fonts = callPackage ../data/fonts/dosemu-fonts { };
 
@@ -8419,6 +8425,7 @@ let
   cups_pdf_filter = callPackage ../misc/cups/pdf-filter.nix { };
 
   gutenprint = callPackage ../misc/drivers/gutenprint { };
+  gutenprintCVS = callPackage ../misc/drivers/gutenprint { version = "cvs"; };
 
   gutenprintBin = callPackage ../misc/drivers/gutenprint/bin.nix { };
 

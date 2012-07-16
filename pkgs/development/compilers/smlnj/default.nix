@@ -69,6 +69,9 @@ in stdenv.mkDerivation {
     sed -i '/PATH=/d' config/_arch-n-opsys base/runtime/config/gen-posix-names.sh # don't set PATH to /bin:/usr/bin
     # assertion: PATH=/bin:/usr/bin may cause failure in remaining scripts. So have a look at those!
     ! grep -ri PATH=/bin:/usr/bin . 
+    
+    # smlnj also works on 3.x kernels:
+    sed -i 's@2.6.*)@2.6.*|3.*)@' config/_arch-n-opsys
     SMLNJ_HOME="$TMP" ./config/install.sh
   '';
 

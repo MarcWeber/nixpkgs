@@ -416,6 +416,8 @@ let
     client = true;
   });
 
+  anyterm = callPackage ../tools/networking/anyterm { };
+
   aria = builderDefsPackage (import ../tools/networking/aria) { };
 
   aria2 = callPackage ../tools/networking/aria2 { };
@@ -461,6 +463,8 @@ let
   };
 
   catdoc = callPackage ../tools/text/catdoc { };
+
+  dhex = callPackage ../tools/misc/dhex { };
 
   eggdrop = callPackage ../tools/networking/eggdrop { };
 

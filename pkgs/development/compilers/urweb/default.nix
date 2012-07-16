@@ -4,8 +4,8 @@
 
 let source = name: if hg then {
   # REGION AUTO UPDATE: { name="urweb"; type="hg"; url="http://hg.impredicative.com/urweb"; }
-  src = (fetchurl { url = "http://mawercer.de/~nix/repos/urweb-hg-6f2f74c.tar.bz2"; sha256 = "5e76dd568ef951b2b5c1cba6a1d9383ce7559362e35bf0de664c6d9c79a82855"; });
-  name = "urweb-hg-6f2f74c";
+  src = (fetchurl { url = "http://mawercer.de/~nix/repos/urweb-hg-25824a0.tar.bz2"; sha256 = "e725241daf3b9c31fb95b366e4371118abae326a96bdc17f32685ed38b758e39"; });
+  name = "urweb-hg-25824a0";
   # END
   }.src
   else

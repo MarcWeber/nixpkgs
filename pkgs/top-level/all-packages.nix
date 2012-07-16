@@ -2519,6 +2519,7 @@ let
   tinycc = callPackage ../development/compilers/tinycc { };
 
   urweb = callPackage ../development/compilers/urweb { };
+  urwebHG = callPackage ../development/compilers/urweb { hg = true; };
 
   vala = vala17;
 

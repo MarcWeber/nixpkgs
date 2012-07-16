@@ -416,6 +416,8 @@ let
     client = true;
   });
 
+  anyterm = callPackage ../tools/networking/anyterm { };
+
   aria = builderDefsPackage (import ../tools/networking/aria) { };
 
   aria2 = callPackage ../tools/networking/aria2 { };
@@ -461,6 +463,8 @@ let
   };
 
   catdoc = callPackage ../tools/text/catdoc { };
+
+  dhex = callPackage ../tools/misc/dhex { };
 
   eggdrop = callPackage ../tools/networking/eggdrop { };
 
@@ -2510,6 +2514,8 @@ let
 
   scala = callPackage ../development/compilers/scala { };
 
+  smlnj = callPackage_i686 ../development/compilers/smlnj { };
+
   stalin = callPackage ../development/compilers/stalin { };
 
   strategoPackages = strategoPackages018;
@@ -4467,6 +4473,7 @@ let
   opencascade = callPackage ../development/libraries/opencascade {
     ftgl = ftgl212;
   };
+  opencascadeCommunityFork = callPackage ../development/libraries/opencascade/opencascade-git-community-fork.nix { };
 
   opencsg = callPackage ../development/libraries/opencsg { };
 
@@ -5333,6 +5340,8 @@ let
   });
   squid = squids.squid31; # has ipv6 support
 
+  tinyproxy = callPackage ../servers/tinyproxy { };
+
   tomcat5 = callPackage ../servers/http/tomcat/5.0.nix { };
 
   tomcat6 = callPackage ../servers/http/tomcat/6.0.nix { };
@@ -5362,6 +5371,8 @@ let
   zabbix = recurseIntoAttrs (import ../servers/monitoring/zabbix {
     inherit fetchurl stdenv pkgconfig postgresql curl openssl zlib;
   });
+
+  ziproxy = callPackage ../servers/ziproxy { };
 
 
   ### OS-SPECIFIC

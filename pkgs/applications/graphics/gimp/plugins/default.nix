@@ -35,7 +35,7 @@ let
 
  libLQR = pluginDerivation {
     name = "liblqr-1-0.4.1";
-    # required by lqrPlugin, you don't havet to install this lib explicitely
+    # required by lqrPlugin, you don't have to install this lib explicitely
     buildInputs = [ gimp ] ++ gimp.buildNativeInputs;
     src = fetchurl {
       url = http://registry.gimp.org/files/liblqr-1-0.4.1.tar.bz2;
@@ -73,13 +73,17 @@ rec {
        Filters/Generic/FFT Forward
        Filters/Generic/FFT Inverse
     */
-    name = "fourier-0.3.3";
-    buildInputs = [ gimp pkgs.fftwSinglePrec  pkgconfig glib] ++ gimp.buildNativeInputs;
+    name = "fourier-0.4.1";
+    buildInputs = [ gimp pkgs.fftw  pkgconfig gimp.gtkLibs.glib] ++ gimp.buildNativeInputs;
     postInstall = "fail";
+    preConfigure = ''
+      NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags glib-2.0 fftw3 gimp-2.0)"
+      NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l glib-2.0 gimp-2.0 fftw3)"
+    '';
     installPhase = "installPlugins fourier";
     src = fetchurl {
-      url = http://people.via.ecp.fr/~remi/soft/gimp/fourier-0.3.3.tar.gz;
-      sha256 = "0xxgp0lrjxsj54sgygi31c7q41jkqzn0v18qyznrviv8r099v29p";
+      url = http://people.via.ecp.fr/~remi/soft/gimp/fourier-0.4.1.tar.gz;
+      sha256 = "1pr3y3zl9w8xs1circdrxpr98myz9m8wfzy022al79z4pdanwvs1";
     };
   };
 
@@ -103,6 +107,7 @@ rec {
     ";
   };
 
+  # broken with current gimp:
   texturize = pluginDerivation {
     name = "texturize-2.1";
     buildInputs = [ gimp ] ++ gimp.buildNativeInputs;
@@ -145,16 +150,21 @@ rec {
   gmic =
   let imagemagick = pkgs.imagemagickBig; # maybe the non big version is enough?
   in pluginDerivation {
-      name = "gmic-1.3.2.0";
-      buildInputs = [ imagemagick pkgconfig gimp pkgs.fftwSinglePrec ] ++ gimp.buildNativeInputs;
+      name = "gmic-1.5.0.0";
+      buildInputs = [
+            pkgconfig imagemagick pkgconfig gimp pkgs.fftwSinglePrec pkgs.ffmpeg pkgs.fftw pkgs.openexr
+            pkgs.opencv pkgs.perl
+          ] 
+          ++ gimp.buildNativeInputs;
       src = fetchurl {
-        url = http://dfn.dl.sourceforge.net/sourceforge/gmic/gmic_1.3.2.0.tar.gz;
-        sha256 = "0mxq664vzzc2l6k6sqm9syp34mihhi262i6fixk1g12lmc28797h";
+        url = mirror://sourceforge/project/gmic/gmic_1.5.0.0.tar.gz;
+        sha256 = "0swl1zav16zc3w8p1ckq6821wmyqgc9hwiyw6m2y34dw436c227m";
       };
       preConfigure = ''
-        export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -I${imagemagick}/include/ImageMagick"
+        NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags opencv ImageMagick OpenEXR)"
+        NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l opencv ImageMagick OpenEXR)"
       '';
-      installPhase = "installPlugins src/gmic4gimp";
+      installPhase = "installPlugins src/gmic_gimp";
       meta = { 
         description = "script language for image processing which comes with its open-source interpreter";
         homepage = http://gmic.sourceforge.net/repository.shtml;
@@ -167,32 +177,36 @@ rec {
       };
   };
 
-  # this is more than a gimp plugin !
-  # either load the raw image with gimp (and the import dialog will popup)
-  # or use the binary
-  ufraw = pluginDerivation {
-    name = "ufraw-0.15";
-    buildInputs = [pkgs.lcms gimp] ++ gimp.buildNativeInputs;
-      # --enable-mime - install mime files, see README for more information
-      # --enable-extras - build extra (dcraw, nikon-curve) executables
-      # --enable-dst-correction - enable DST correction for file timestamps.
-      # --enable-contrast - enable the contrast setting option.
-      # --enable-interp-none: enable 'None' interpolation (mostly for debugging).
-      # --with-lensfun: use the lensfun library - experimental feature, read this before using it. 
-      # --with-prefix=PREFIX - use also PREFIX as an input prefix for the build
-      # --with-dosprefix=PREFIX - PREFIX in the the prefix in dos format (needed only for ms-window
-    configureFlags = "--enable-extras --enable-dst-correction --enable-contrast";
-
-    src = fetchurl {
-      url = mirror://sourceforge/ufraw/ufraw-0.15.tar.gz;
-      sha256 = "0cf3csksjkyl91zxhjnn74vc31l14nm6n1i02s76xdvvkk9ics8k";
+   # this is more than a gimp plugin !
+    # either load the raw image with gimp (and the import dialog will popup)
+    # or use the binary
+    ufraw = pluginDerivation {
+      name = "ufraw-0.16";
+  
+      buildInputs = [pkgs.lcms pkgs.gtk pkgs.gtkimageview pkgs.gettext pkgs.bzip2 pkgs.zlib pkgs.libjpeg
+                    pkgs.cfitsio pkgs.exiv2 pkgs.lcms
+            gimp] ++ gimp.buildNativeInputs;
+        # --enable-mime - install mime files, see README for more information
+        # --enable-extras - build extra (dcraw, nikon-curve) executables
+        # --enable-dst-correction - enable DST correction for file timestamps.
+        # --enable-contrast - enable the contrast setting option.
+        # --enable-interp-none: enable 'None' interpolation (mostly for debugging).
+        # --with-lensfun: use the lensfun library - experimental feature, read this before using it.
+        # --with-prefix=PREFIX - use also PREFIX as an input prefix for the build
+        # --with-dosprefix=PREFIX - PREFIX in the the prefix in dos format (needed only for ms-window
+      configureFlags = "--enable-extras --enable-dst-correction --enable-contrast";
+  
+      src = fetchurl {
+        url = "mirror://sourceforge/ufraw/ufraw-0.16.tar.gz";
+        sha256 = "06fzyd7wyv5ixbmhbsz80pphhbic18d1w8ji0gz38aq1vdmgxw9n";
+      };
+      installPhase = "
+        installPlugins ufraw-gimp
+        ensureDir $out/bin
+        cp ufraw $out/bin
+      ";
     };
-    installPhase = "
-      installPlugins ufraw-gimp
-      mkdir -p $out/bin
-      cp ufraw $out/bin
-    ";
-  };
+
 
   gimplensfun = pluginDerivation rec {
     name = "gimplensfun-0.1.1";

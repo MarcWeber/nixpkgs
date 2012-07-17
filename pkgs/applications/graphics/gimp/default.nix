@@ -1,5 +1,6 @@
-{ pkgs, applyGlobalOverrides
-, version ? "2.7.1"
+{ pkgs
+, version ? "2.8.0"
+, applyGlobalOverrides
 }:
 
 let
@@ -28,17 +29,22 @@ let
   */
 
   p = if version == "git" 
-  then applyGlobalOverrides ( pkgs: {
-    babl = pkgs.babl.override { version = "git"; };
-    gegl = pkgs.gegl.override { version = "git"; };
-    glib = pkgs.glib.override { version = "2.33.3"; };
-  })
+  then applyGlobalOverrides (pkgs: { glib = pkgs.glib.override { version = "2.33.3"; }; } )
   else pkgs;
 
   commonBuildInputs = [
-    p.pkgconfig p.glib p.gtkLibs.gtk p.freetype p.fontconfig
+    p.pkgconfig p.gtkLibs.gtk p.freetype p.fontconfig
     p.gnome.libart_lgpl p.libtiff p.libjpeg p.libpng p.libexif p.zlib p.perl
     p.perlXMLParser p.python p.pygtk p.gettext p.intltool
+  ];
+  /*
+  ] ++
+  (if version == "git" then [ (p.pkgconfig.override { version = "0.27"; })  ]
+  else [ p.pkgconfig ]);
+  */
+
+  commonBuildInputs28 = [ p.pango p.cairo p.gdk_pixbuf p.librsvg  p.glib
+      p.lcms2 p.poppler p.webkit p.libmng p.libwmf p.libzip p.ghostscript p.aalib p.jasper
   ];
 
   inherit (p) stdenv fetchurl sourceFromHead;
@@ -49,7 +55,6 @@ let
         url = "ftp://ftp.gtk.org/pub/gimp/v2.6/gimp-2.6.12.tar.bz2";
         sha256 = "0qpcgaa4pdqqhyyy8vjvzfflxgsrrs25zk79gixzlnbzq3qwjlym";
       };
-      name = "2.6.12";
 
       buildInputs = commonBuildInputs ++ [ p.babl p.gegl ];
       enableParallelBuilding = true;
@@ -73,8 +78,20 @@ let
         url = "ftp://ftp.gimp.org/pub/gimp/v2.7/gimp-${version}.tar.bz2";
         md5 = "4932a0a1645ecd5b23ea6155ddda013d";
       };
-      name = "2.7.1";
       buildInputs = commonBuildInputs ++ [ p.babl p.gegl ];
+      passthru = {
+        versionUsedInName= "2.7";
+        pluginDir = "lib/gimp/2.0/plug-ins";
+        scriptDir = "share/gimp/2.0/scripts";
+      };
+    };
+    "2.8.0" = {
+      src = fetchurl {
+        url = "ftp://ftp.gimp.org/pub/gimp/v2.8/gimp-2.8.0.tar.bz2";
+        md5 = "28997d14055f15db063eb92e1c8a7ebb";
+      };
+      buildInputs = commonBuildInputs ++ commonBuildInputs28 ++ [ p.babl p.gegl ];
+
       passthru = {
         versionUsedInName= "2.7";
         pluginDir = "lib/gimp/2.0/plug-ins";
@@ -83,26 +100,28 @@ let
     };
 
     "git" = {
-      buildInputs = commonBuildInputs ++ [
-        p.babl
-        p.gegl
-        # ( p.babl.override { version = "git"; } )
-        # ( p.gegl.override { version = "git"; } )
-        p.autoconf p.automake p.gnome.gtkdoc p.libxslt p.libtool
+      buildInputs = commonBuildInputs ++ commonBuildInputs28 ++ [
+        ( p.babl.override { version = "git"; } )
+        ( p.gegl.override { version = "git"; } )
+        p.autoconf p.automake111x p.gnome.gtkdoc p.libxslt p.libtool
+        p.pango p.cairo
       ];
       enableParallelBuilding = false; # compilation fails (git version of 2011-01)
 
-      preConfigure = "./autogen.sh";
+      preConfigure = ''
+      ./autogen.sh
+      # don't ask me why !?
+      sed -i 's@gegl >= 0.1.6@gegl-2.0 >= 0.1.6@' configure
+      '';
       # REGION AUTO UPDATE: { name="gimp"; type="git"; url="git://git.gnome.org/gimp"; groups = "gimp"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-3d297.tar.bz2"; sha256 = "9ff38c3f94302be7ed7bdd3906ef7d7c22e5ef1dc03ffb067f5ff3cff9f4cecc"; });
-      name = "gimp-git-3d297";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-79ddf.tar.bz2"; sha256 = "491d23c2bd808160b2d3fa027ba6f7998c2b595066137217efb73abaa9181710"; });
+      name = "gimp-git-79ddf";
       # END
 
       passthru = {
         versionUsedInName= "2.7";
         pluginDir = "lib/gimp/2.0/plug-ins";
         scriptDir = "share/gimp/2.0/scripts";
-        inherit (p) glib;
       };
     };
 
@@ -136,4 +155,4 @@ let
         list = [  gimp ] ++ map (n: builtins.getAttr n plugins ) pluginNames;
       };
 
-in gimp // { inherit plugins withPlugins p; }
+in gimp // { inherit plugins withPlugins; }

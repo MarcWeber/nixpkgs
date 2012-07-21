@@ -3234,6 +3234,7 @@ let
   axis = callPackage ../development/libraries/axis { };
 
   babl = callPackage ../development/libraries/babl { };
+  babl_0_1_4 = babl.override { version = "0.1.4"; };
   bablGit = babl.override { version = "git"; };
 
   beecrypt = callPackage ../development/libraries/beecrypt { };
@@ -3484,6 +3485,7 @@ let
   gdbm = callPackage ../development/libraries/gdbm { };
 
   gegl = callPackage ../development/libraries/gegl { };
+  gegl_0_1_6 = gegl.override { version = "0.1.6"; };
   geglGit = gegl.override { version = "git"; };
 
   geoclue = callPackage ../development/libraries/geoclue {};
@@ -6795,6 +6797,8 @@ let
   get_iplayer = callPackage ../applications/misc/get_iplayer {};
 
   gimp = callPackage ../applications/graphics/gimp { inherit pkgs applyGlobalOverrides; };
+  gimp_2_6 = gimp.override { version = "2.6.12"; };
+  gimp_2_8 = gimp.override { version = "2.8.0"; };
   gimpGit = gimp.override { version = "git"; };
 
   # gimp_2_8 = callPackage ../applications/graphics/gimp/2.8.nix {
@@ -8459,7 +8463,10 @@ let
   cups_pdf_filter = callPackage ../misc/cups/pdf-filter.nix { };
 
   gutenprint = callPackage ../misc/drivers/gutenprint { };
-  gutenprintCVS = callPackage ../misc/drivers/gutenprint { version = "cvs"; };
+  gutenprintCVS = callPackage ../misc/drivers/gutenprint { 
+    gimp = gimp_2_6;
+    version = "cvs";
+  };
 
   gutenprintBin = callPackage ../misc/drivers/gutenprint/bin.nix { };
 

@@ -30,11 +30,11 @@ let
 
   p = if version == "git" 
   then applyGlobalOverrides (pkgs: { glib = pkgs.glib.override { version = "2.33.3"; }; } )
-  else pkgs;
+  else pkgs; # applyGlobalOverrides (pkgs: { glib = pkgs.glib.override { version = "2.33.3"; }; } );
 
   commonBuildInputs = [
     p.pkgconfig p.gtkLibs.gtk p.freetype p.fontconfig
-    p.gnome.libart_lgpl p.libtiff p.libjpeg p.libpng p.libexif p.zlib p.perl
+    p.gnome.libart_lgpl p.libtiff p.libjpeg p.libexif p.zlib p.perl
     p.perlXMLParser p.python p.pygtk p.gettext p.intltool
   ];
   /*
@@ -56,8 +56,15 @@ let
         sha256 = "0qpcgaa4pdqqhyyy8vjvzfflxgsrrs25zk79gixzlnbzq3qwjlym";
       };
 
-      buildInputs = commonBuildInputs ++ [ p.babl p.gegl ];
-      enableParallelBuilding = true;
+      buildInputs =
+        let gegl_ = p.gegl.override { version = "0.1.6"; }; in
+        commonBuildInputs ++ [ gegl_ gegl_.babl p.libpng12 ];
+
+      enableParallelBuilding = false;
+
+#       preConfigure = ''
+#         sed -i 's@gegl >= \([0-9]\.[0-9]\.[0-9]\)@gegl-0.2 >= \1@' configure
+#       '';
 
       # plugins want to find the header files. Adding the includes to
       # NIX_CFLAGS_COMPILE is faster than patching them all ..
@@ -73,24 +80,32 @@ let
       };
     };
 
-    "2.7.1" = {
-      src = fetchurl {
-        url = "ftp://ftp.gimp.org/pub/gimp/v2.7/gimp-${version}.tar.bz2";
-        md5 = "4932a0a1645ecd5b23ea6155ddda013d";
-      };
-      buildInputs = commonBuildInputs ++ [ p.babl p.gegl ];
-      passthru = {
-        versionUsedInName= "2.7";
-        pluginDir = "lib/gimp/2.0/plug-ins";
-        scriptDir = "share/gimp/2.0/scripts";
-      };
-    };
+    # "2.7.1" = {
+    #   src = fetchurl {
+    #     url = "ftp://ftp.gimp.org/pub/gimp/v2.7/gimp-${version}.tar.bz2";
+    #     md5 = "4932a0a1645ecd5b23ea6155ddda013d";
+    #   };
+    #   enableParallelBuilding = false; # compilation fails (git version of 2011-01)
+    #   buildInputs = 
+    #     let gegl_ = p.gegl.override { version = "0.1.6"; }; in
+    #     commonBuildInputs ++ [ gegl_ gegl_.babl p.libpng ];
+
+    #   # preConfigure = ''
+    #   #   sed -i 's@gegl >= \([0-9]\.[0-9]\.[0-9]\)@gegl-0.2 >= \1@' configure
+    #   # '';
+
+    #   passthru = {
+    #     versionUsedInName= "2.7";
+    #     pluginDir = "lib/gimp/2.0/plug-ins";
+    #     scriptDir = "share/gimp/2.0/scripts";
+    #   };
+    # };
     "2.8.0" = {
       src = fetchurl {
         url = "ftp://ftp.gimp.org/pub/gimp/v2.8/gimp-2.8.0.tar.bz2";
         md5 = "28997d14055f15db063eb92e1c8a7ebb";
       };
-      buildInputs = commonBuildInputs ++ commonBuildInputs28 ++ [ p.babl p.gegl ];
+      buildInputs = commonBuildInputs ++ commonBuildInputs28 ++ [ p.babl p.gegl p.libpng ];
 
       passthru = {
         versionUsedInName= "2.7";
@@ -105,6 +120,7 @@ let
         ( p.gegl.override { version = "git"; } )
         p.autoconf p.automake111x p.gnome.gtkdoc p.libxslt p.libtool
         p.pango p.cairo
+        p.libpng 
       ];
       enableParallelBuilding = false; # compilation fails (git version of 2011-01)
 

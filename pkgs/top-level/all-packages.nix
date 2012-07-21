@@ -8427,7 +8427,10 @@ let
   cups_pdf_filter = callPackage ../misc/cups/pdf-filter.nix { };
 
   gutenprint = callPackage ../misc/drivers/gutenprint { };
-  gutenprintCVS = callPackage ../misc/drivers/gutenprint { version = "cvs"; };
+  gutenprintCVS = callPackage ../misc/drivers/gutenprint { 
+    gimp = gimp_2_6;
+    version = "cvs";
+  };
 
   gutenprintBin = callPackage ../misc/drivers/gutenprint/bin.nix { };
 

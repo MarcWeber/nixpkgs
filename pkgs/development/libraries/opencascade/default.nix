@@ -1,36 +1,25 @@
-{stdenv, fetchurl, mesa, tcl, tk, file, libXmu, automake, autoconf, libtool, qt4,
-ftgl, freetype}:
+{stdenv, fetchurl, mesa, tcl, tk, file, libXmu}:
 
 stdenv.mkDerivation rec {
-  name = "opencascade-6.5.2";
+  name = "opencascade-6.3.0";
   src = fetchurl {
-    url = http://files.opencascade.com/OCCT/OCC_6.5.2_release/OpenCASCADE652.tar.gz;
-    sha256 = "0nsfjhd6rv1fmq8jbyzcs0f13h4xfld487vqs9bwd4lbwcfqxwcy";
+    url = http://files.opencascade.com/OCC_6.3_release/OpenCASCADE_src.tgz;
+    md5 = "52778127974cb3141c2827f9d40d1f11";
   };
 
-  buildInputs = [ mesa tcl tk file libXmu automake autoconf libtool qt4 ftgl freetype ];
-
-  preUnpack = ''
-    sourceRoot=`pwd`/ros
-  '';
+  buildInputs = [ mesa tcl tk file libXmu ];
 
   preConfigure = ''
-    sh ./build_configure
+    cd ros
   '';
-
-  # -fpermissive helps building opencascade, although gcc detects a flaw in the code
-  # and reports an error otherwise. Further versions may fix that.
-  NIX_CFLAGS_COMPILE = "-I${ftgl}/include/FTGL -I${freetype}/include/freetype2 -fpermissive";
 
   configureFlags = [ "--with-tcl=${tcl}/lib" "--with-tk=${tk}/lib" ];
 
   postInstall = ''
     mv $out/inc $out/include
-    mkdir -p $out/share/doc/${name}
+    ensureDir $out/share/doc/${name}
     cp -R ../doc $out/share/doc/${name}
   '';
-
-  enableParallelBuilding = true;
 
   meta = {
     description = "Open CASCADE Technology, libraries for 3D modeling and numerical simulation";

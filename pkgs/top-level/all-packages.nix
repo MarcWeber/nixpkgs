@@ -4465,9 +4465,8 @@ let
 
   openbabel = callPackage ../development/libraries/openbabel { };
 
-  opencascade = callPackage ../development/libraries/opencascade {
-    ftgl = ftgl212;
-  };
+  opencascade = callPackage ../development/libraries/opencascade { };
+  opencascadeCommunityFork = callPackage ../development/libraries/opencascade/opencascade-git-community-fork.nix { };
 
   opencsg = callPackage ../development/libraries/opencsg { };
 

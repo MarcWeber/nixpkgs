@@ -1,15 +1,38 @@
-{ stdenv, fetchurl, gawk }:
+{ stdenv, fetchurl, gawk,
+  version ? "2.6.0"
+}:
 
 let startFPC = import ./binary.nix { inherit stdenv fetchurl; }; in
 
-stdenv.mkDerivation rec {
-  version = "2.6.0";
-  name = "fpc-${version}";
+stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "fpc" version {
+  "2.6.0" = {
 
-  src = fetchurl {
-    url = "http://downloads.sourceforge.net/sourceforge/freepascal/Source/${version}/fpcbuild-${version}.tar.gz";
-    sha256 = "1vxy2y8pm0ribhpdhqlwwz696ncnz4rk2dafbn1mjgipm97qb26p";
+    src = fetchurl {
+      url = "http://downloads.sourceforge.net/sourceforge/freepascal/Source/${version}/fpcbuild-${version}.tar.gz";
+      sha256 = "1vxy2y8pm0ribhpdhqlwwz696ncnz4rk2dafbn1mjgipm97qb26p";
+    };
+
   };
+  "2.4.4" = {
+
+    src = fetchurl {
+      url = "http://downloads.sourceforge.net/sourceforge/freepascal/Source/${version}/fpcbuild-${version}.tar.gz";
+      sha256 = "ecdbc150eecc33f5734e62f1a3507421db8eba6d9074c0c5519a8fc8ffe46924";
+    };
+
+  };
+  "2.4.0" = {
+
+    src = fetchurl {
+      url = "http://downloads.sourceforge.net/sourceforge/freepascal/fpcbuild-${version}.tar.gz";
+      sha256 = "1m2g2bafjixbwl5b9lna5h7r56y1rcayfnbp8kyjfd1c1ymbxaxk";
+    };
+
+  };
+} {
+
+  version = "2.4.4";
+  name = "fpc-${version}";
 
   buildInputs = [ startFPC gawk ];
 
@@ -37,3 +60,4 @@ stdenv.mkDerivation rec {
     platforms = stdenv.lib.platforms.linux;
   };
 }
+)

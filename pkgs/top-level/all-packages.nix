@@ -1794,7 +1794,8 @@ let
   adobe_flex_sdk = callPackage ../development/compilers/adobe-flex-sdk { };
 
   fpc = callPackage ../development/compilers/fpc { };
-  fpc_2_4_0 = callPackage ../development/compilers/fpc/2.4.0.nix { };
+  fpc_2_4_0 = callPackage ../development/compilers/fpc { version = "2.4.0"; };
+  fpc_2_4_4 = callPackage ../development/compilers/fpc { version = "2.4.4"; };
 
   gambit = callPackage ../development/compilers/gambit { };
 

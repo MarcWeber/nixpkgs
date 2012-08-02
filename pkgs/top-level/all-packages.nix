@@ -462,6 +462,8 @@ let
 
   catdoc = callPackage ../tools/text/catdoc { };
 
+  dhex = callPackage ../tools/misc/dhex { };
+
   eggdrop = callPackage ../tools/networking/eggdrop { };
 
   mcrl = callPackage ../tools/misc/mcrl { };

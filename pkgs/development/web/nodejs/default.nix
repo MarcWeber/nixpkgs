@@ -1,13 +1,26 @@
-{ stdenv, fetchurl, openssl, python, zlib, v8, linkV8Headers ? false }:
+{ stdenv, fetchurl, openssl, python, zlib, v8, linkV8Headers ? false
+, version ? "0.8.4"
+}:
 
-stdenv.mkDerivation rec {
-  version = "0.6.19";
+stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "nodejs" version
+  {
+    "0.8.4" = {
+      src = fetchurl {
+        url = "http://nodejs.org/dist/v${version}/node-v${version}.tar.gz";
+        sha256 = "0x0isf87q2i3ngx5xrg91y0pw3gqss6y6gsxmfx6ppcd0b9b18yh";
+      };
+    };
+    "0.6.19" = {
+      src = fetchurl {
+        url = "http://nodejs.org/dist/v${version}/node-v${version}.tar.gz";
+        sha256 = "1frgnl7i111b8x3fr43lh3zybwsszn0daa661gszq7dhfwj2jcsf";
+      };
+    };
+  }
+
+ rec {
+  inherit version;
   name = "nodejs-${version}";
-
-  src = fetchurl {
-    url = "http://nodejs.org/dist/v${version}/node-v${version}.tar.gz";
-    sha256 = "1frgnl7i111b8x3fr43lh3zybwsszn0daa661gszq7dhfwj2jcsf";
-  };
 
   configureFlags = [
     "--openssl-includes=${openssl}/include"
@@ -40,4 +53,4 @@ stdenv.mkDerivation rec {
     maintainers = [ maintainers.goibhniu ];
     platforms = platforms.linux;
   };
-}
+})

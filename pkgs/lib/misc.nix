@@ -309,17 +309,21 @@ rec {
   mergeAttrsByFuncDefaults = foldl mergeAttrByFunc { inherit mergeAttrBy; };
   mergeAttrsByFuncDefaultsClean = list: removeAttrs (mergeAttrsByFuncDefaults list) ["mergeAttrBy"];
 
-  # merge attrs based on version key into mkDerivation args
+  # merge attrs based on version key into mkDerivation args, see mergeAttrBy to learn about smart merge defaults
   # This function is best explained by an example:
-  # mkDerivation (mergeAttrsByVersion "foo" "2.0" {
+  # {version ? "2.0"} :
+  # mkDerivation (mergeAttrsByVersion "package-name" version {
+  #     # git specific
   #     "git" = { src = ..; preConfigre = "autogen.sh"; buildInputs = [automake autoconf libtool];  };
+  #
+  #     # 2.0 specific
   #     "2.0" = { src = ..; };
   #   }
   #   {
   #      buildInputs = [ common build inputs ];
   #   }
   # )
-  # 
+  #
   mergeAttrsByVersion = name: version: attrsByVersion: base:
     mergeAttrsByFuncDefaultsClean [base (maybeAttr version (throw "bad version ${version} for ${name}") attrsByVersion)];
 

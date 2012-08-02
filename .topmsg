@@ -25,4 +25,11 @@ interpolation is not supoprted yet (TODO)
             else throw "overlay ${name} not found. See wiki how to get it"
 
 
+The alternative is that fast that I'm not going to patch anything right now:
+
+mkdir nix-repos;
+ln -s /etc/nixos/nixpkgs nix-repos
+
+Then you don't have to clone nixpkgs yourself
+
 Signed-off-by: Marc Weber <marco-oweber@gmx.de>

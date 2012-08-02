@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, openssl, python, zlib, v8, linkV8Headers ? false
+{ stdenv, fetchurl, openssl, python, zlib, v8, utillinux, linkV8Headers ? false
 , version ? "0.8.4"
 }:
 

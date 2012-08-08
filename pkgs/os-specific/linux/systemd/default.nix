@@ -3,12 +3,14 @@
 , glib, kbd
 }:
 
+assert stdenv.gcc.libc or null != null;
+
 stdenv.mkDerivation rec {
-  name = "systemd-186";
+  name = "systemd-187";
 
   src = fetchurl {
     url = "http://www.freedesktop.org/software/systemd/${name}.tar.xz";
-    sha256 = "0zmj8r7a1xb5f3lvyfgw7095rq3yvr0ibw1730j54blm07sh3hmj";
+    sha256 = "1m7fzcqqgwqdjrrdp41i81q6y0cgjbknrznsvjqwh7nc027k6fqs";
   };
 
   buildInputs =
@@ -47,6 +49,8 @@ stdenv.mkDerivation rec {
 
   NIX_CFLAGS_COMPILE = "-DKBD_LOADKEYS=\"${kbd}/bin/loadkeys\" -DKBD_SETFONT=\"${kbd}/bin/setfont\"";
 
+  makeFlags = "CPPFLAGS=-I${stdenv.gcc.libc}/include";
+
   installFlags = "localstatedir=$(TMPDIR)/var sysconfdir=$(out)/etc";
 
   # Get rid of configuration-specific data.
@@ -66,6 +70,14 @@ stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
   
+  # The interface version prevents NixOS from switching to an
+  # incompatible systemd at runtime.  (Switching across reboots is
+  # fine, of course.)  It should be increased whenever systemd changes
+  # in a backwards-incompatible way.  If the interface version of two
+  # systemd builds is the same, then we can switch between them at
+  # runtime; otherwise we can't and we need to reboot.
+  passthru.interfaceVersion = 2;
+
   meta = {
     homepage = http://www.freedesktop.org/wiki/Software/systemd;
     description = "A system and service manager for Linux";

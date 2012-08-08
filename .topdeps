@@ -1,3 +1,8 @@
-experimental/overlays
+experimental/updates
 experimental/hack-nix
-experimental/gimp-git
+experimental/php
+experimental/multi-shell-support
+experimental/gutenprint
+experimental/firebird
+experimental/urweb
+experimental/shadow

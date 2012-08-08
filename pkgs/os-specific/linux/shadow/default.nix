@@ -19,7 +19,7 @@ stdenv.mkDerivation rec {
 
   buildInputs = stdenv.lib.optional (pam != null && stdenv.isLinux) pam;
 
-  patches = [ ./no-sanitize-env.patch ./keep-path.patch 
+  patches = [ ./keep-path.patch 
     /* nixos managed /etc[/skel] files are symlinks pointing to /etc/static[/skel]
     * thus useradd will create symlinks ~/.bashrc. This patch fixes it: If a file
     * should be copied to user's home directory and it points to /etc/static

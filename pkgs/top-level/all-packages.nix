@@ -488,7 +488,8 @@ let
   btar = callPackage ../tools/backup/btar { };
 
   bup = callPackage ../tools/backup/bup {
-    pandoc = haskellPackages.pandoc;
+    inherit (pythonPackages) pyxattr pylibacl setuptools fuse;
+    inherit (haskellPackages) pandoc;
   };
 
   bzip2 = callPackage ../tools/compression/bzip2 { };
@@ -1737,6 +1738,8 @@ let
 
   xtreemfs = callPackage ../tools/filesystems/xtreemfs {};
 
+  xvfb_run = callPackage ../tools/misc/xvfb-run { inherit (texFunctions) fontsConf; };
+
   youtubeDL = callPackage ../tools/misc/youtube-dl { };
 
   zbar = callPackage ../tools/graphics/zbar {};
@@ -2028,11 +2031,9 @@ let
 
   gcc47_real = lowPrio (wrapGCC (callPackage ../development/compilers/gcc/4.7 {
     inherit noSysDirs;
-
-    # bootstrapping a profiled compiler does not work in the sheevaplug:
-    # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=43944
-    # To be reviewed. Maybe it is fixed already in 4.7.
-    profiledCompiler = if stdenv.isArm then false else true;
+    # I'm not sure if profiling with enableParallelBuilding helps a lot.
+    # We can enable it back some day. This makes the *gcc* builds faster now.
+    profiledCompiler = false;
 
     # When building `gcc.hostDrv' (a "Canadian cross", with host == target
     # and host != build), `cross' must be null but the cross-libc must still
@@ -2208,11 +2209,12 @@ let
     inherit fetchurl stdenv;
   });
 
-  gccgo = gccgo46;
+  # gccgo46 does not work. I set 4.7 then.
+  gccgo = gccgo47;
 
-  gccgo46 = wrapGCC (gcc46_real.gcc.override {
+  gccgo47 = wrapGCC (gcc47_real.gcc.override {
     name = "gccgo";
-    langCC = true; #required for go
+    langCC = true; #required for go.
     langC = true;
     langGo = true;
   });
@@ -2365,7 +2367,13 @@ let
 
   jikes = callPackage ../development/compilers/jikes { };
 
-  julia = callPackage ../development/compilers/julia { };
+  julia = callPackage ../development/compilers/julia {
+    llvm = llvm_3_1;
+    pcre = pcre_8_30;
+    liblapack = liblapack.override {shared = true;};
+    fftw = fftw.override {pthreads = true;};
+    fftwSinglePrec = fftwSinglePrec.override {pthreads = true;};
+  };
 
   lazarus = builderDefsPackage (import ../development/compilers/fpc/lazarus.nix) {
     inherit makeWrapper gtk glib pango atk gdk_pixbuf;
@@ -4552,6 +4560,11 @@ let
     cplusplusSupport = !stdenv ? isDietLibC;
   };
 
+  pcre_8_30 = callPackage ../development/libraries/pcre/8.30.nix {
+    unicodeSupport = getConfig ["pcre" "unicode"] true;
+    cplusplusSupport = !stdenv ? isDietLibC;
+  };
+
   pdf2xml = callPackage ../development/libraries/pdf2xml {} ;
 
   phonon = callPackage ../development/libraries/phonon { };
@@ -5483,6 +5496,8 @@ let
 
   drbd = callPackage ../os-specific/linux/drbd { };
 
+  dstat = callPackage ../os-specific/linux/dstat { };
+
   libuuid =
     if crossSystem != null && crossSystem.config == "i586-pc-gnu"
     then (utillinux // {
@@ -5740,7 +5755,7 @@ let
     kernelPatches =
       [
         kernelPatches.sec_perm_2_6_24
-        #kernelPatches.aufs3_4
+        kernelPatches.aufs3_5
       ] ++ lib.optionals (platform.kernelArch == "mips")
       [ kernelPatches.mips_fpureg_emu
         kernelPatches.mips_fpu_sigill
@@ -6659,6 +6674,10 @@ let
 
     emms = callPackage ../applications/editors/emacs-modes/emms { };
 
+    gh = callPackage ../applications/editors/emacs-modes/gh { };
+
+    gist = callPackage ../applications/editors/emacs-modes/gist { };
+
     jdee = callPackage ../applications/editors/emacs-modes/jdee {
       # Requires Emacs 23, for `avl-tree'.
     };
@@ -6675,6 +6694,10 @@ let
 
     htmlize = callPackage ../applications/editors/emacs-modes/htmlize { };
 
+    logito = callPackage ../applications/editors/emacs-modes/logito { };
+
+    loremIpsum = callPackage ../applications/editors/emacs-modes/lorem-ipsum { };
+
     magit = callPackage ../applications/editors/emacs-modes/magit { };
 
     maudeMode = callPackage ../applications/editors/emacs-modes/maude { };
@@ -6686,6 +6709,8 @@ let
     # This is usually a newer version of Org-Mode than that found in GNU Emacs, so
     # we want it to have higher precedence.
     org = hiPrio (callPackage ../applications/editors/emacs-modes/org { });
+
+    pcache = callPackage ../applications/editors/emacs-modes/pcache { };
 
     phpMode = callPackage ../applications/editors/emacs-modes/php { };
 
@@ -7145,9 +7170,7 @@ let
 
   lynx = callPackage ../applications/networking/browsers/lynx { };
 
-  lyx = callPackage ../applications/misc/lyx {
-   qt = qt4;
-  };
+  lyx = callPackage ../applications/misc/lyx { };
 
   makeself = callPackage ../applications/misc/makeself { };
 
@@ -7461,7 +7484,6 @@ let
 
   scribus = callPackage ../applications/office/scribus {
     inherit (gnome) libart_lgpl;
-    qt = qt4;
   };
 
   seeks = callPackage ../tools/networking/p2p/seeks {
@@ -7479,6 +7501,8 @@ let
   skype_linux = callPackage_i686 ../applications/networking/instant-messengers/skype {
     usePulseAudio = getConfig [ "pulseaudio" ] false; # disabled by default (the 100% cpu bug)
   };
+
+  st = callPackage ../applications/misc/st { };
 
   dropbox = callPackage ../applications/networking/dropbox { };
 
@@ -7536,6 +7560,7 @@ let
 
   surf = callPackage ../applications/misc/surf {
     libsoup = gnome.libsoup;
+    webkit = webkit_gtk2;
   };
 
   svk = perlPackages.SVK;
@@ -8372,6 +8397,7 @@ let
 
   liblapack = callPackage ../development/libraries/science/math/liblapack { };
 
+  openblas = callPackage ../development/libraries/science/math/openblas { };
 
   ### SCIENCE/LOGIC
 
@@ -8573,9 +8599,7 @@ let
 
   lazylist = callPackage ../tools/typesetting/tex/lazylist { };
 
-  lilypond = callPackage ../misc/lilypond {
-    guile = guile_1_8;
-  };
+  lilypond = callPackage ../misc/lilypond { };
 
   martyr = callPackage ../development/libraries/martyr { };
 

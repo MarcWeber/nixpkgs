@@ -43,6 +43,9 @@ assert libelf != null -> zlib != null;
 # Make sure we get GNU sed.
 assert stdenv.isDarwin -> gnused != null;
 
+# The go frontend is written in c++
+assert langGo -> langCC;
+
 with stdenv.lib;
 with builtins;
 
@@ -52,7 +55,7 @@ let version = "4.7.1";
     crossGNU = cross != null && cross.config == "i586-pc-gnu";
 
     patches = [ ]
-      ++ optional (cross != null || langGo) ./libstdc++-target.patch
+      ++ optional (cross != null) ./libstdc++-target.patch
       # ++ optional noSysDirs ./no-sys-dirs.patch
       # The GNAT Makefiles did not pay attention to CFLAGS_FOR_TARGET for its
       # target libraries and tools.
@@ -249,6 +252,10 @@ stdenv.mkDerivation ({
     (ppl != null && ppl ? dontDisableStatic && ppl.dontDisableStatic)
         [ "--with-host-libstdcxx=-lstdc++ -lgcc_s" ];
 
+  # 'iant' at #go-nuts@freenode, gccgo maintainer, said that
+  # they have a bug in 4.7.1 if adding "--disable-static"
+  dontDisableStatic = langGo;
+
   configureFlags = "
     ${if enableMultilib then "" else "--disable-multilib"}
     ${if enableShared then "" else "--disable-shared"}
@@ -401,7 +408,11 @@ stdenv.mkDerivation ({
   passthru = { inherit langC langCC langAda langFortran langVhdl
       langGo enableMultilib version; };
 
-  enableParallelBuilding = true;
+  /* From gccinstall.info:
+     "parallel make is currently not supported since collisions in profile
+     collecting may occur"
+  */
+  enableParallelBuilding = !profiledCompiler;
 
   meta = {
     homepage = http://gcc.gnu.org/;

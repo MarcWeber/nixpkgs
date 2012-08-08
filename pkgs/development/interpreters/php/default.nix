@@ -3,7 +3,7 @@
 , zlib, curl, gd, postgresql, openssl, pkgconfig, sqlite, getConfig, libiconv
 , libjpeg, libpng, htmlTidy, libmcrypt, fcgi, callPackage, gettext
 , freetype
-, version ? "5.3.14" # latest stable
+, version ? "5.3.15" # latest stable
 
 # options
 
@@ -33,6 +33,7 @@
 , ttfSupport ? true
 
 , lessThan53 ? builtins.lessThan (builtins.compareVersions version "5.3") 0 # you're not supposed to pass this
+, lessThan54 ? builtins.lessThan (builtins.compareVersions version "5.4") 0
 }:
 
 let
@@ -273,9 +274,13 @@ let
    src = fetchurl {
      url = "http://nl.php.net/get/php-${version}.tar.bz2/from/this/mirror";
      md5 = lib.maybeAttr version (throw "unkown php version ${version}") {
+      # does not built, due to patch?
+      "5.4.5" = "ffcc7f4dcf2b79d667fe0c110e6cb724";
+
       "5.3.3" = "21ceeeb232813c10283a5ca1b4c87b48";
       "5.3.6" = "2286f5a82a6e8397955a0025c1c2ad98";
       "5.3.14" = "7caac4f71e2f21426c11ac153e538392";
+      "5.3.15" = "5cfcfd0fa4c4da7576f397073e7993cc";
       # 5.2.11 does no longer build with current openssl. See http://marc.info/?l=openssl-users&m=124720601103894&w=2
       # else if version == "5.2.11" then "286bf34630f5643c25ebcedfec5e0a09"
       # else if version == "5.2.14" then "bfdfc0e62fe437020cc04078269d1414"
@@ -290,8 +295,9 @@ let
     license = "PHP-3";
   };
 
-  patches = [./fix.patch];
-
+  patches = if lessThan54 
+    then [./fix.patch] 
+    else []; # TODO patch still required? I use php-fpm only
     });
 
   in php // { 

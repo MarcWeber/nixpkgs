@@ -416,6 +416,8 @@ let
     client = true;
   });
 
+  anyterm = callPackage ../tools/networking/anyterm { };
+
   aria = builderDefsPackage (import ../tools/networking/aria) { };
 
   aria2 = callPackage ../tools/networking/aria2 { };
@@ -1550,6 +1552,7 @@ let
 
   udftools = callPackage ../tools/filesystems/udftools {};
 
+  # eventually merge with gimpPlugins.ufraw ?
   ufraw = callPackage ../applications/graphics/ufraw { };
 
   unetbootin = callPackage ../tools/cd-dvd/unetbootin { };
@@ -1781,6 +1784,8 @@ let
   bashCompletion = callPackage ../shells/bash-completion { };
 
   dash = callPackage ../shells/dash { };
+
+  fish = callPackage ../shells/fish { };
 
   ipython = callPackage ../shells/ipython { };
 
@@ -2544,6 +2549,8 @@ let
 
   scala = callPackage ../development/compilers/scala { };
 
+  smlnj = callPackage_i686 ../development/compilers/smlnj { };
+
   stalin = callPackage ../development/compilers/stalin { };
 
   strategoPackages = strategoPackages018;
@@ -3278,6 +3285,8 @@ let
   axis = callPackage ../development/libraries/axis { };
 
   babl = callPackage ../development/libraries/babl { };
+  babl_0_1_4 = babl.override { version = "0.1.4"; };
+  bablGit = babl.override { version = "git"; };
 
   beecrypt = callPackage ../development/libraries/beecrypt { };
 
@@ -3526,9 +3535,9 @@ let
 
   gdbm = callPackage ../development/libraries/gdbm { };
 
-  gegl = callPackage ../development/libraries/gegl {
-    #  avocodec avformat librsvg
-  };
+  gegl = callPackage ../development/libraries/gegl { };
+  gegl_0_1_6 = gegl.override { version = "0.1.6"; };
+  geglGit = gegl.override { version = "git"; };
 
   geoclue = callPackage ../development/libraries/geoclue {};
 
@@ -3779,6 +3788,7 @@ let
   };
 
   glib = callPackage ../development/libraries/glib/2.30.x.nix { };
+  glib233 = glib.override {version = "2.33.3";};
 
   glibmm = callPackage ../development/libraries/glibmm/2.30.x.nix { };
 
@@ -4517,6 +4527,7 @@ let
   opencascade = callPackage ../development/libraries/opencascade {
     ftgl = ftgl212;
   };
+  opencascadeCommunityFork = callPackage ../development/libraries/opencascade/opencascade-git-community-fork.nix { };
 
   opencsg = callPackage ../development/libraries/opencsg { };
 
@@ -5387,6 +5398,8 @@ let
   });
   squid = squids.squid31; # has ipv6 support
 
+  tinyproxy = callPackage ../servers/tinyproxy { };
+
   tomcat5 = callPackage ../servers/http/tomcat/5.0.nix { };
 
   tomcat6 = callPackage ../servers/http/tomcat/6.0.nix { };
@@ -5416,6 +5429,8 @@ let
   zabbix = recurseIntoAttrs (import ../servers/monitoring/zabbix {
     inherit fetchurl stdenv pkgconfig postgresql curl openssl zlib;
   });
+
+  ziproxy = callPackage ../servers/ziproxy { };
 
 
   ### OS-SPECIFIC
@@ -6865,17 +6880,14 @@ let
 
   get_iplayer = callPackage ../applications/misc/get_iplayer {};
 
-  gimp = callPackage ../applications/graphics/gimp {
-    inherit pkgs;
-    # inherit deepOverride;
-    inherit applyGlobalOverrides;
-  };
-
+  gimp = callPackage ../applications/graphics/gimp { inherit pkgs applyGlobalOverrides; };
+  gimp_2_6 = gimp.override { version = "2.6.12"; };
+  gimp_2_8 = gimp.override { version = "2.8.0"; };
   gimpGit = gimp.override { version = "git"; };
 
-  gimp_2_8 = callPackage ../applications/graphics/gimp/2.8.nix {
-    inherit (gnome) libart_lgpl;
-  };
+  # gimp_2_8 = callPackage ../applications/graphics/gimp/2.8.nix {
+  #   inherit (gnome) libart_lgpl;
+  # };
 
   gimpPlugins = recurseIntoAttrs (import ../applications/graphics/gimp/plugins {
     inherit pkgs gimp;
@@ -7652,6 +7664,8 @@ let
     inherit (ocamlPackages) lablgtk;
     enableX11 = getConfig [ "unison" "enableX11" ] true;
   };
+
+  umtsmon = callPackage ../applications/misc/umtsmon { };
 
   uucp = callPackage ../tools/misc/uucp { };
 

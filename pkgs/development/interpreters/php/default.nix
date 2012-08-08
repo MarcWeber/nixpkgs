@@ -297,7 +297,7 @@ let
 
   patches = if lessThan54 
     then [./fix.patch] 
-    else []; # TODO patch still required? I use php-fpm only
+    else [./fix-5.4.patch]; # TODO patch still required? I use php-fpm only
     });
 
   in php // { 

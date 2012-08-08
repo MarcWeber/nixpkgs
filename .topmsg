@@ -1,9 +1,15 @@
 From: Marc Weber <marco-oweber@gmx.de>
-Subject: [PATCH] experimental/php
+Subject: [PATCH] experimental/multiple-versions-in-one-file
 
-PHP updates, refactoring:
-- use one PHP file for 5.2 and 5.3 because they share so much
-- true type font support
-- refactor modules so that they always fit the PHP version
+This patch introduces mergeAttrsByVersion to lib.
+
+In some cases it does make sense to keep "experimental" and "older" versions of
+the same package in one file because it follows the "do it once" principle only.
+Very often many versions share their build instructions.
+
+I agree with Eelco that if tweaks for individual versions become too much they
+shoud be split into individual files.
+
+See comments to learn about its usage
 
 Signed-off-by: Marc Weber <marco-oweber@gmx.de>

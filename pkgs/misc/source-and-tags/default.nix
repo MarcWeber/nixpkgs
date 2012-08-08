@@ -10,9 +10,9 @@ args: with args; {
 
   # createTagFiles =  [ { name  = "my_tag_name_without_suffix", tagCmd = "ctags -R . -o \$TAG_FILE"; } ]
   # tag command must create file named $TAG_FILE
-  sourceWithTagsDerivation = {name, src, srcDir ? ".", tagSuffix ? "_tags", createTagFiles ? []} :  
+  sourceWithTagsDerivation = {name, src ? null, srcDir ? ".", tagSuffix ? "_tags", createTagFiles ? [], doUnpack ? true} :  
     stdenv.mkDerivation {
-    phases = "unpackPhase buildPhase";
+    phases = (lib.optionalString doUnpack "unpackPhase ") + "buildPhase";
     inherit src srcDir tagSuffix;
     name = "${name}-source-with-tags";
     buildInputs = [ unzip ];
@@ -54,9 +54,14 @@ args: with args; {
                  # tagCmd = "${toString ghcsAndLibs.ghc68.ghc}/bin/hasktags --ignore-close-implementation --ctags `find . -type f -name \"*.*hs\"`; sort tags > \$TAG_FILE"; }
                  # *.*hs.* to catch gtk2hs .hs.pp files
                  tagCmd = "
-                   srcs=\"`find . -type f -name \"*.*hs\"; find . -type f -name \"*.*hs*\";`\"
+                   srcs=\"`find . -type f -name \"*.*hs\"; find . -type f -name \"*.*hs\" ;`\"
                    [ -z \"$srcs\" ] || {
-                    ${toString hasktags}/bin/hasktags-modified --ignore-close-implementation --ctags $srcs
+                    # without this creating tag files for lifted-base fails
+                    export LC_ALL=en_US.UTF-8
+                    export LANG=en_US.UTF-8
+                    ${if args.stdenv.isLinux then "export LOCALE_ARCHIVE=${args.pkgs.glibcLocales}/lib/locale/locale-archive;" else ""}
+ 
+                    ${toString hasktags}/bin/hasktags-modified --ignore-close-implementation --ctags . || DISPLAY=:0.0 /home/marc/.nix-profile/bin/urxvt
                     sort tags > \$TAG_FILE
                    }";
               }
@@ -67,7 +72,7 @@ args: with args; {
 
 
   addCTaggingInfo = deriv :
-    deriv // { 
+    deriv // {
       passthru = {
         sourceWithTags = {
          inherit (deriv) src;
@@ -77,7 +82,37 @@ args: with args; {
                  tagCmd = "${toString ctags}/bin/ctags --sort=yes -o \$TAG_FILE -R ."; }
           ];
         };
-  }; };
+      }; 
+    };
+
+  addRubyTagingInfo = deriv: deriv // {
+    passthru = {
+      sourceWithTags = {
+         doUnpack = false; # ruby always has source in $out. So we can use the original store paths
+         name = "${deriv.name}-source-ctags";
+         createTagFiles = [
+               { inherit  (deriv) name;
+                 tagCmd = "${toString ctags}/bin/ctags --sort=yes -o \$TAG_FILE -R ${deriv}"; }
+          ];
+
+      };
+    };
+  };
+
+  addPythonTagingInfo = deriv: deriv // {
+    passthru = {
+      sourceWithTags = {
+         doUnpack = false; # assuming python has .py files, no archives
+         name = "${deriv.name}-source-ctags";
+         createTagFiles = [
+               { inherit  (deriv) name;
+                 tagCmd = "${toString ctags}/bin/ctags --sort=yes -o \$TAG_FILE -R ${deriv}"; }
+          ];
+
+      };
+    };
+  };
+
 }
 /*
 experimental

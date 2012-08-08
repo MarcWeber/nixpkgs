@@ -129,7 +129,15 @@ let
   # The package compositions.  Yes, this isn't properly indented.
   pkgsFun = pkgs: __overrides:
     with helperFunctions;
-    let defaultScope = pkgs // pkgs.xorg; in
+    let defaultScope = pkgs // pkgs.xorg;
+
+        # provide deepOverride function which overrides everything by
+        # pkgsDeepOverride before overridding with overrider.
+        # See webkit example - updated implementation of
+        # http://wiki.nixos.org/w/index.php?title=Escape_from_dependency_hell
+        # probably this is obsoleted by applyGlobalOverrides. See webkit
+        deepOverride = deepOverrides: pkgsFun pkgs (deepOverrides // __overrides);
+    in
     helperFunctions // rec {
 
   # `__overrides' is a magic attribute that causes the attributes in
@@ -408,6 +416,8 @@ let
     client = true;
   });
 
+  anyterm = callPackage ../tools/networking/anyterm { };
+
   aria = builderDefsPackage (import ../tools/networking/aria) { };
 
   aria2 = callPackage ../tools/networking/aria2 { };
@@ -451,6 +461,8 @@ let
   btrfsProgs = callPackage ../tools/filesystems/btrfsprogs { };
 
   catdoc = callPackage ../tools/text/catdoc { };
+
+  dhex = callPackage ../tools/misc/dhex { };
 
   eggdrop = callPackage ../tools/networking/eggdrop { };
 
@@ -1776,6 +1788,8 @@ let
 
   dash = callPackage ../shells/dash { };
 
+  fish = callPackage ../shells/fish { };
+
   ipython = callPackage ../shells/ipython { };
 
   tcsh = callPackage ../shells/tcsh { };
@@ -2307,7 +2321,7 @@ let
   haskellPackages_ghcHEAD             =                   haskell.packages_ghcHEAD;
 
   haxeDist = import ../development/compilers/haxe {
-    inherit fetchurl sourceFromHead stdenv lib ocaml zlib makeWrapper neko;
+    inherit fetchurl sourceFromHead stdenv lib ocaml zlib makeWrapper neko writeScriptBin;
   };
   haxe = haxeDist.haxe;
   haxelib = haxeDist.haxelib;
@@ -2542,6 +2556,8 @@ let
   };
 
   scala = callPackage ../development/compilers/scala { };
+
+  smlnj = callPackage_i686 ../development/compilers/smlnj { };
 
   stalin = callPackage ../development/compilers/stalin { };
 
@@ -4361,6 +4377,8 @@ let
 
   libxslt = callPackage ../development/libraries/libxslt { };
 
+  libxml_xml_dtd_xhtml = callPackage ../data/sgml+xml/schemas/xml-dtd/xhtml { };
+
   libixp_for_wmii = lowPrio (import ../development/libraries/libixp_for_wmii {
     inherit fetchurl stdenv;
   });
@@ -4517,6 +4535,7 @@ let
   opencascade = callPackage ../development/libraries/opencascade {
     ftgl = ftgl212;
   };
+  opencascadeCommunityFork = callPackage ../development/libraries/opencascade/opencascade-git-community-fork.nix { };
 
   opencsg = callPackage ../development/libraries/opencsg { };
 
@@ -5392,6 +5411,8 @@ let
   });
   squid = squids.squid31; # has ipv6 support
 
+  tinyproxy = callPackage ../servers/tinyproxy { };
+
   tomcat5 = callPackage ../servers/http/tomcat/5.0.nix { };
 
   tomcat6 = callPackage ../servers/http/tomcat/6.0.nix { };
@@ -5421,6 +5442,8 @@ let
   zabbix = recurseIntoAttrs (import ../servers/monitoring/zabbix {
     inherit fetchurl stdenv pkgconfig postgresql curl openssl zlib;
   });
+
+  ziproxy = callPackage ../servers/ziproxy { };
 
 
   ### OS-SPECIFIC
@@ -6370,6 +6393,8 @@ let
   tipa = callPackage ../data/fonts/tipa { };
 
   ttf_bitstream_vera = callPackage ../data/fonts/ttf-bitstream-vera { };
+
+  ttf2eot = callPackage ../data/fonts/ttf-to-eot { };
 
   ubuntu_font_family = callPackage ../data/fonts/ubuntu-font-family { };
 
@@ -7362,6 +7387,11 @@ let
   opera = callPackage ../applications/networking/browsers/opera {
     inherit (pkgs.kde4) kdelibs;
   };
+  opera_my = callPackage ../applications/networking/browsers/opera/my.nix { };
+  # TODO merge with upstream opera to support HTML 5 viedos?
+  # testpages:
+  # http://www.planetoftunes.com/web_site/videoforweb/html5_example/index.html
+  # http://www.youtube.com/html5
 
   pan = callPackage ../applications/networking/newsreaders/pan {
     spellChecking = false;
@@ -7405,6 +7435,8 @@ let
   pidginotr = callPackage ../applications/networking/instant-messengers/pidgin-plugins/otr { };
 
   pidginsipe = callPackage ../applications/networking/instant-messengers/pidgin-plugins/sipe { };
+
+  pidginPlugins = callPackage ../applications/networking/instant-messengers/pidgin-plugins { };
 
   pinfo = callPackage ../applications/misc/pinfo { };
 
@@ -7658,6 +7690,8 @@ let
     enableX11 = getConfig [ "unison" "enableX11" ] true;
   };
 
+  umtsmon = callPackage ../applications/misc/umtsmon { };
+
   uucp = callPackage ../tools/misc/uucp { };
 
   uwimap = callPackage ../tools/networking/uwimap { };
@@ -7685,6 +7719,7 @@ let
   vimHugeX = vim_configurable;
 
   vim_configurable = import ../applications/editors/vim/configurable.nix {
+    vimNox = false;
     inherit (pkgs) fetchurl stdenv ncurses pkgconfig gettext composableDerivation lib
       getConfig;
     inherit (pkgs.xlibs) libX11 libXext libSM libXpm
@@ -7832,6 +7867,8 @@ let
 
   libxpdf = callPackage ../applications/misc/xpdf/libxpdf.nix {
   };
+
+  linuxtv_dvb_apps = callPackage ../applications/video/linuxtv-dvb-apps { };
 
   xpra = callPackage ../tools/X11/xpra {
     inherit (pythonPackages) notify;

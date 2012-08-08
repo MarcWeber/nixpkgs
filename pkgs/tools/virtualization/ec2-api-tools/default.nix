@@ -4,8 +4,8 @@ stdenv.mkDerivation rec {
   name = "ec2-api-tools-1.6.0.0";
   
   src = fetchurl {
-    url = "http://nixos.org/tarballs/${name}.zip";
-    sha256 = "1j9isvi6g68zhk7zxs29yad2d0rpnbqx8fz25yn5paqx9c8pzqcl";
+    url = http://s3.amazonaws.com/ec2-downloads/ec2-api-tools.zip;
+    sha256 = "fef3661647af646e2fff37a29a4868ecfc8a52f333812757bd1c4d091eb9ad8d";
   };
 
   buildInputs = [ unzip makeWrapper ];

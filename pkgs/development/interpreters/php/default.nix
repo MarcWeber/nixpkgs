@@ -80,8 +80,27 @@ let
 
       fpm = {
         configureFlags = ["--enable-fpm"];
-        # for PHP 5.2.x there should be patches (TODO?)
-      };
+      } // (lib.optionalAttrs (version == "5.2.17") {
+        configureFlags = [
+            "--enable-fpm"
+            "--enable-fastcgi"
+            "--with-fpm-log=/var/log/php-fpm-5.2"
+            "--with-fpm-pid=/var/run/php-fpm-5.2.pid"
+            # "--with-xml-config=/etc/php-fpm-5.2.conf"
+           ];
+
+        # experimental
+        patches = [(fetchurl {
+                      url = http://php-fpm.org/downloads/php-5.2.17-fpm-0.5.14.diff.gz;
+                      sha256 = "1v3fwiifx89y5lnj0kv4sb9yj90b4k27dfd2z3a5nw1qh5c44d2g";
+                    })];
+
+        postInstall = ''
+          mv $out/etc/php-fpm.conf{,.example}
+          ln -s /etc/php-fpm-5.2.conf $out/etc/php-fpm.conf
+        '';
+      })
+      ;
 
       # Extensions
 

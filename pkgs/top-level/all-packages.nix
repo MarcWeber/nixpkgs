@@ -2291,7 +2291,7 @@ let
   haskellPackages_ghc702              =                   haskell.packages_ghc702;
   haskellPackages_ghc703              =                   haskell.packages_ghc703;
   haskellPackages_ghc704              = recurseIntoAttrs (haskell.packages_ghc704);
-  haskellPackages_ghc721              =                   haskell.packages_ghc721;
+  # haskellPackages_ghc721              =                   haskell.packages_ghc721;
   haskellPackages_ghc722              =                   haskell.packages_ghc722;
   # For the default version, we build profiling versions of the libraries, too.
   # The following three lines achieve that: the first two make Hydra build explicit

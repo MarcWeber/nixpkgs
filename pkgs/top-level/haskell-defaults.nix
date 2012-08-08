@@ -232,12 +232,14 @@
                prefFun = ghc704Prefs;
              };
 
-  packages_ghc721 =
-    packages { ghcPath = ../development/compilers/ghc/7.2.1.nix;
-               ghcBinary = ghc6121BinaryDarwin;
-               prefFun = ghc721Prefs;
-             };
+  # bug see https://github.com/haskell/xhtml/issues/1
+  # packages_ghc721 =
+  #   packages { ghcPath = ../development/compilers/ghc/7.2.1.nix;
+  #              ghcBinary = ghc6121BinaryDarwin;
+  #              prefFun = ghc721Prefs;
+  #            };
 
+  # 72x doesn't compile yesod, see mailinglist, fixed?
   packages_ghc722 =
     packages { ghcPath = ../development/compilers/ghc/7.2.2.nix;
                ghcBinary = ghc6121BinaryDarwin;

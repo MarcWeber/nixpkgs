@@ -13,11 +13,9 @@ in
 
 composableDerivation.composableDerivation {} ( fixed : {
 
-  name = "neko-cvs";
-
-  # REGION AUTO UPDATE:                        { name="neko"; type="cvs"; cvsRoot = ":pserver:anonymous@cvs.motion-twin.com:/cvsroot"; module = "neko"; groups = "haxe_group"; }
-  src = sourceFromHead "neko-F_16-06-48.tar.gz"
-               (fetchurl { url = "http://mawercer.de/~nix/repos/neko-F_16-06-48.tar.gz"; sha256 = "e952582a26099b7a5568d0798839a6d349331510ffe6d7936b4537d60b6ccf26"; });
+  # REGION AUTO UPDATE: { name="neko"; type="svn"; url="http://nekovm.googlecode.com/svn/trunk"; groups = "haxe_group"; }
+  src = (fetchurl { url = "http://mawercer.de/~nix/repos/neko-svn-1880.tar.bz2"; sha256 = "9ef6aee69419b16492ee3e1f54e4a1158f2bbec4c6463a4c21c4aa3f3ee79170"; });
+  name = "neko-svn-1880";
   # END
 
   # optionally remove apache mysql like gentoo does?

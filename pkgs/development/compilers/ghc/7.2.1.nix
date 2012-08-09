@@ -9,6 +9,8 @@ stdenv.mkDerivation rec {
     sha256 = "099w2bvx07jq4b1k8f1hspri30wbk35dz6ilsivxr2xg661c2qjm";
   };
 
+  enableParallelBuilding = true; # let's try it
+
   buildInputs = [ ghc perl gmp ncurses ];
 
   buildMK = ''

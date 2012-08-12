@@ -12,4 +12,6 @@ shoud be split into individual files.
 
 See comments to learn about its usage
 
+Adding fpm code for configuration.nix
+
 Signed-off-by: Marc Weber <marco-oweber@gmx.de>

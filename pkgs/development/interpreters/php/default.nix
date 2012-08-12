@@ -2,7 +2,7 @@
 , flex, bison, apacheHttpd, mysql, libxml2, readline
 , zlib, curl, gd, postgresql, openssl, pkgconfig, sqlite, getConfig, libiconv
 , libjpeg, libpng, htmlTidy, libmcrypt, fcgi, callPackage, gettext
-, freetype
+, freetype, writeText
 , version ? "5.3.15" # latest stable
 
 # options
@@ -304,4 +304,8 @@ let
     xdebug = callPackage ../../interpreters/php-xdebug { inherit php; };
     xcache = callPackage ../../libraries/php-xcache { inherit php; };
     apc = callPackage ../../libraries/php-apc { inherit php; };
+    system_fpm_config =
+      if lessThan53 
+      then config: pool: (import ./php-5.2-fpm-system-config.nix) { inherit php lib writeText config pool;}
+      else config: pool: (import ./php-5.3-fpm-system-config.nix) { inherit php lib writeText config pool;};
   }

@@ -277,13 +277,15 @@ let
       # does not built, due to patch?
       "5.4.5" = "ffcc7f4dcf2b79d667fe0c110e6cb724";
 
-      "5.3.3" = "21ceeeb232813c10283a5ca1b4c87b48";
-      "5.3.6" = "2286f5a82a6e8397955a0025c1c2ad98";
-      "5.3.14" = "7caac4f71e2f21426c11ac153e538392";
+      # those older versions are likely to be buggy - there should be no reason to compile them
+      # "5.3.3" = "21ceeeb232813c10283a5ca1b4c87b48";
+      # "5.3.6" = "2286f5a82a6e8397955a0025c1c2ad98";
+      # "5.3.14" = "7caac4f71e2f21426c11ac153e538392";
       "5.3.15" = "5cfcfd0fa4c4da7576f397073e7993cc";
-      # 5.2.11 does no longer build with current openssl. See http://marc.info/?l=openssl-users&m=124720601103894&w=2
-      # else if version == "5.2.11" then "286bf34630f5643c25ebcedfec5e0a09"
-      # else if version == "5.2.14" then "bfdfc0e62fe437020cc04078269d1414"
+
+      # 5.2 is no longer supported. However PHP 5.2 -> 5.3 has had many
+      # incompatibilities which is why it may be useful to continue supporting it
+      # while also warning about it.
       "5.2.17" = "b27947f3045220faf16e4d9158cbfe13";
      };
      name = "php-${version}.tar.bz2";
@@ -297,7 +299,7 @@ let
 
   patches = if lessThan54 
     then [./fix.patch] 
-    else []; # TODO patch still required? I use php-fpm only
+    else [./fix-5.4.patch]; # TODO patch still required? I use php-fpm only
     });
 
   in php // { 

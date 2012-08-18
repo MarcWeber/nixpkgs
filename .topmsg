@@ -1,0 +1,18 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] experimental/nixos-eval-config-rewrite
+
+    nix2/nixos-eval-config-rewrite
+    
+    While the nixos configuration system gets its job done it has some flaws:
+    - much code hard to read
+    - mkElse has very wired behaviour (see bug tracker)
+    - I couldn't maintain it and always wondered how to setup option declarations
+      such as  jobs (.*.) myself - and failed several times
+    
+    That's why I felt its was time to rewrite the nixos configuration system
+    trying to keep the code base as small as possible.
+    
+    Basic setup is working. Missing:
+      - overrides (easy to add)
+      - .*. and many option type implementations.
+      - think about mkOption

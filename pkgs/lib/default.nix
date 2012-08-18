@@ -19,6 +19,8 @@ let
   customisation = import ./customisation.nix;
   licenses = import ./licenses.nix;
 
+  modules2 = import ./modules-2/eval-config.nix;
+
 in
   { inherit trivial lists strings stringsWithDeps attrsets sources options
       properties modules types meta debug maintainers licenses platforms systems;
@@ -29,3 +31,4 @@ in
   // properties // options // types // meta // debug // misc // modules
   // systems
   // customisation
+  // modules2

@@ -110,5 +110,122 @@ runTests {
         ];
     expected = true;
   };
+
+  testsToRun = ["testEvalConfigOptions"];
+
+  testEvalConfigOptions = 
+    let eC = (import modules-2/eval-config.nix).evalConfig;
+        pkgs = import /etc/nixos/nixpkgs/default.nix { };
+
+        moduleFun = modulePath: module:
+          {
+            inherit modulePath;
+            moduleOuterFun = { lib, ... }: {
+               require  = []; # list like modulePathList
+               inherit module;
+            };
+          };
+
+        # simple module having int option
+        intOptionModule = moduleFun "int-option" ({lib, ...}: { options.simpleIntValue = lib.mkOptionSingle { description = "simple int value"; }; });
+        # module defining that int value
+        intConfigModule = moduleFun "int-config" ({lib, ...}: { config .simpleIntValue = 10; });
+
+        # test that mkMerge works on values (should also work on option/config attr trees)
+        intOptionListModule1 = moduleFun "int-list-option" ({lib, ...}: {
+            options.intValues = lib.mkOption { description = "simple int values"; };
+            config .intValues = lib.mkMerge [ 10 20 ];# due to mkMerge you can pass many configuration values in one concfiguration setting
+        });
+
+        # however more appropriate may be the mkOptionList option:
+        intOptionListModule2 = moduleFun "int-list-option" ({lib, ...}: {
+            options.intValues = lib.mkOptionList { option = lib.mkOption { description = "simple int values"; type = lib.types.int; }; };
+            config .intValues = [ 10 20 ];
+        });
+
+        intOverrideConfigModule = moduleFun "int-override-config" ({lib, ...}: { config .simpleIntValue = lib.mkOverride 1 50; });
+
+        u = nr: { name1 = "u${builtins.toString nr}_name_1"; name2 = "u${builtins.toString nr}_name_2"; };
+
+        referToModule = moduleFun "referToModule" ({lib, config, ...}: {
+            options = {
+              option1 = lib.mkOptionSingle { description = "option1"; };
+              option2 = lib.mkOptionSingle { description = "option2"; };
+            };
+            config.option2 = 20;
+            config.option1 = config.option2;
+        });
+
+        optionAttrListTest = moduleFun "optionAttrListTest" ({lib, config, ...}: {
+            options =
+            let userOption = {
+                name1 = lib.mkOptionSingle { description = "first name"; };
+                name2 = lib.mkOptionSingle { description = "first name"; };
+            };
+            in
+            {
+              attrOption = lib.mkOptionAttrs { option = userOption; };
+              listOption = lib.mkOptionList { option = userOption; };
+            };
+            config.attrOption.first_user  = u 1;
+            config.attrOption.second_user = u 2;
+            config.listOption = [ (u 1) (u 2) ];
+        });
+
+        # note: even though this is possible I don't recommend it:
+        crazyModuleCreatingOption = moduleFun "crazy-module-creating-option" ({lib, config, ...}: lib.mkMerge [
+            # option providing name
+            { options.optionName = lib.mkOptionSingle { description = "option name"; }; }
+            # generated option
+            { options.generated = 
+               let name = config.optionName;
+                in builtins.listToAttrs [ { inherit name; value = lib.mkOptionSingle { description = "generated option ${name}"; }; } ];
+            }
+            {
+              config = {
+                # setting name
+                optionName = "foobar";
+                # setting generated option
+                generated.foobar = 10;
+              };
+            }
+        ]);
+
+    in {
+      expr = {
+        test_mkOverride 
+          = (eC { inherit pkgs; modulePathList = [ intOptionModule intConfigModule intOverrideConfigModule ]; }).simpleIntValue;
+
+        test_refer_to_option_same_level
+          = (eC { inherit pkgs; modulePathList = [ referToModule ]; }).option1;
+
+        test_option_attr_list
+          = (eC { inherit pkgs; modulePathList = [ optionAttrListTest ]; });
+
+        test_crazy_dynamic_option
+          = (eC { inherit pkgs; modulePathList = [ crazyModuleCreatingOption ]; }).generated.foobar;
+
+        test_int_values1
+          = (eC { inherit pkgs; modulePathList = [ intOptionListModule1 ];}).intValues;
+
+        test_int_values2
+          = (eC { inherit pkgs; modulePathList = [ intOptionListModule2 ];}).intValues;
+
+      };
+
+      expected = {
+        test_mkOverride = 50;
+        test_refer_to_option_same_level = 20;
+        test_option_attr_list = {
+          attrOption.first_user = (u 1);
+          attrOption.second_user = (u 2);
+          listOption = [ (u 1) (u 2) ];
+        };
+        test_crazy_dynamic_option = 10;
+
+        test_int_values1 = [ 10 20 ];
+        test_int_values2 = [ 10 20 ];
+      };
+    };
   
 }

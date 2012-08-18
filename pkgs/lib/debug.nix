@@ -1,9 +1,9 @@
 let lib = import ./default.nix;
 
 inherit (builtins) trace attrNamesToStr isAttrs isFunction isList isInt
-        isString isBool head substring attrNames;
+        isString isBool head substring attrNames getAttr;
 
-inherit (lib) all id mapAttrsFlatten elem;
+inherit (lib) all id mapAttrsFlatten elem maybeAttr filter concatMap;
 
 in
 
@@ -62,14 +62,22 @@ rec {
      Only tests having names starting with "test" are run.
      Add attr { tests = ["testName"]; } to run these test only
   */
-  runTests = tests: lib.concatLists (lib.attrValues (lib.mapAttrs (name: test:
-    let testsToRun = if tests ? tests then tests.tests else [];
-    in if (substring 0 4 name == "test" ||  elem name testsToRun)
-       && ((testsToRun == []) || elem name tests.tests)
-       && (!lib.eqStrict test.expr test.expected)
+  runTests = tests:
+    let 
+        # each name starting by "test" is choosen by default. This list can be
+        # overwritten by defining the testsToRun name
+        namesOfTests = maybeAttr "testsToRun" 
+                                 (filter (name: substring 0 4 name == "test") (attrNames tests))
+                                  tests;
+        runTest = name: 
+            let test = getAttr name tests;
+            in
+              if lib.eqStrict test.expr test.expected
+              then []
+              else [ { inherit name; inherit (test) expected expr; }];
 
-      then [ { inherit name; expected = test.expected; result = test.expr; } ]
-      else [] ) tests));
+    in
+         concatMap runTest namesOfTests;
   
   # create a test assuming that list elements are true
   # usage: { testX = allTrue [ true ]; }

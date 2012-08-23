@@ -444,6 +444,8 @@ let
 
   bfr = callPackage ../tools/misc/bfr { };
 
+  boomerang = callPackage ../development/tools/boomerang { };
+
   bootchart = callPackage ../tools/system/bootchart { };
 
   bsod = callPackage ../misc/emulators/bsod { };
@@ -498,6 +500,8 @@ let
     inherit (pythonPackages) pyxattr pylibacl setuptools fuse;
     inherit (haskellPackages) pandoc;
   };
+
+  atool = callPackage ../tools/archivers/atool { };
 
   bzip2 = callPackage ../tools/compression/bzip2 { };
 
@@ -2053,6 +2057,15 @@ let
       else null;
   }));
 
+  gcc47_debug = lowPrio (wrapGCC (callPackage ../development/compilers/gcc/4.7 {
+    stripped = false;
+
+    inherit noSysDirs;
+    cross = null;
+    libcCross = null;
+    binutilsCross = null;
+  }));
+
   gccApple =
     wrapGCC (makeOverridable
       (if stdenv.system == "i686-darwin"
@@ -2302,6 +2315,8 @@ let
   haskellPackages_ghc741              = recurseIntoAttrs (haskell.packages_ghc741.highPrio);
   # Stable branch snapshot.
   haskellPackages_ghc742              = recurseIntoAttrs (haskell.packages_ghc742);
+  # Release candidate.
+  haskellPackages_ghc761              =                   haskell.packages_ghc761;
   # Reasonably current HEAD snapshot.
   haskellPackages_ghcHEAD             =                   haskell.packages_ghcHEAD;
 
@@ -2344,27 +2359,15 @@ let
     jreOnly = true;
   };
 
-  j2sdk14x = (
-    assert system == "i686-linux";
-    import ../development/compilers/jdk/default-1.4.nix {
-      inherit fetchurl stdenv;
-    });
+  jdk = if stdenv.isDarwin then openjdk else jdkdistro true false;
+  jre = jdkdistro false false;
 
-  jdk5 = (
-    assert system == "i686-linux" || system == "x86_64-linux";
-    callPackage ../development/compilers/jdk/default-5.nix { });
-
-  jdk       = if stdenv.isDarwin then openjdk else jdkdistro true false;
-  jre       = jdkdistro false false;
-
-  jdkPlugin = lowPrio (jdkdistro true true);
   jrePlugin = lowPrio (jdkdistro false true);
 
   supportsJDK =
     system == "i686-linux" ||
     system == "x86_64-linux" ||
-    system == "i686-cygwin" ||
-    system == "powerpc-linux";
+    system == "i686-cygwin";
 
   jdkdistro = installjdk: pluginSupport:
        (assert supportsJDK;
@@ -2676,6 +2679,8 @@ let
 
   guile = guile_2_0;
 
+  hadoop = callPackage ../applications/networking/cluster/hadoop { };
+
   io = callPackage ../development/interpreters/io { };
 
   j = callPackage ../development/interpreters/j {};
@@ -2873,8 +2878,6 @@ let
 
   apacheAntOpenJDK = apacheAnt.override { jdk = openjdk; };
 
-  apacheAnt14 = apacheAnt.override { jdk = j2sdk14x; };
-
   apacheAntGcj = callPackage ../development/tools/build-managers/apache-ant/from-source.nix {
     # must be either pre-built or built with GCJ *alone*
     gcj = gcj.gcc; # use the raw GCJ, which has ${gcj}/lib/jvm
@@ -2893,7 +2896,7 @@ let
   automake110x = callPackage ../development/tools/misc/automake/automake-1.10.x.nix { };
 
   automake111x = callPackage ../development/tools/misc/automake/automake-1.11.x.nix {
-    doCheck = !stdenv.isArm && !stdenv.isCygwin
+    doCheck = !stdenv.isArm && !stdenv.isCygwin && !stdenv.isMips
       # Some of the parallel tests seem to hang on `i386-pc-solaris2.11'.
       && stdenv.system != "i686-solaris"
 
@@ -2902,7 +2905,7 @@ let
   };
 
   automake112x = callPackage ../development/tools/misc/automake/automake-1.12.x.nix {
-    doCheck = !stdenv.isArm && !stdenv.isCygwin
+    doCheck = !stdenv.isArm && !stdenv.isCygwin && !stdenv.isMips
       # Some of the parallel tests seem to hang on `i386-pc-solaris2.11'.
       && stdenv.system != "i686-solaris";
   };
@@ -3129,6 +3132,8 @@ let
 
   patchelf = callPackage ../development/tools/misc/patchelf { };
 
+  patchelfUnstable = callPackage ../development/tools/misc/patchelf/unstable.nix { };
+
   peg = callPackage ../development/tools/parsing/peg { };
 
   pmccabe = callPackage ../development/tools/misc/pmccabe { };
@@ -3143,6 +3148,8 @@ let
   pkgconfigUpstream = pkgconfig.override { vanilla = true; };
 
   premake = callPackage ../development/tools/misc/premake { };
+
+  pstack = callPackage ../development/tools/misc/gdb/pstack.nix { };
 
   radare = callPackage ../development/tools/analysis/radare {
     inherit (gnome) vte;
@@ -3274,6 +3281,8 @@ let
   audiofile = callPackage ../development/libraries/audiofile { };
 
   axis = callPackage ../development/libraries/axis { };
+
+  babl_0_0_22 = callPackage ../development/libraries/babl/0_0_22.nix { };
 
   babl = callPackage ../development/libraries/babl { };
 
@@ -3528,6 +3537,9 @@ let
     #  avocodec avformat librsvg
   };
 
+  gegl_0_0_22 = callPackage ../development/libraries/gegl/0_0_22.nix {
+    #  avocodec avformat librsvg
+  };
   geoclue = callPackage ../development/libraries/geoclue {};
 
   geoip = builderDefsPackage ../development/libraries/geoip {
@@ -4136,9 +4148,12 @@ let
 
   libiconv = callPackage ../development/libraries/libiconv { };
 
-  libiconvOrEmpty = if (libiconvOrNull == null) then [] else libiconv;
+  libiconvOrEmpty = if (libiconvOrNull == null) then [] else [libiconv];
 
-  libiconvOrNull = if gcc ? libc then null else libiconv;
+  libiconvOrNull =
+    if ((gcc ? libc && (gcc.libc != null)) || stdenv.isGlibc)
+    then null
+    else libiconv;
 
   libiconvOrLibc = if (libiconvOrNull == null) then gcc.libc else libiconv;
 
@@ -4511,6 +4526,7 @@ let
   openbabel = callPackage ../development/libraries/openbabel { };
 
   opencascade = callPackage ../development/libraries/opencascade {
+    automake = automake111x;
     ftgl = ftgl212;
   };
 
@@ -5017,9 +5033,7 @@ let
 
   javasvn = callPackage ../development/libraries/java/javasvn { };
 
-  jclasslib = callPackage ../development/tools/java/jclasslib {
-    ant = apacheAnt14;
-  };
+  jclasslib = callPackage ../development/tools/java/jclasslib { };
 
   jdom = callPackage ../development/libraries/java/jdom { };
 
@@ -5288,7 +5302,7 @@ let
 
   rpcbind = callPackage ../servers/rpcbind { };
 
-  monetdb = callPackage ../servers/sql/monetdb { };
+  #monetdb = callPackage ../servers/sql/monetdb { };
 
   mongodb = callPackage ../servers/nosql/mongodb {
     boost = boost149;
@@ -5583,6 +5597,8 @@ let
 
   ipw2200fw = callPackage ../os-specific/linux/firmware/ipw2200 { };
 
+  iw = callPackage ../os-specific/linux/iw { };
+
   iwlwifi1000ucode = callPackage ../os-specific/linux/firmware/iwlwifi-1000-ucode { };
 
   iwlwifi3945ucode = callPackage ../os-specific/linux/firmware/iwlwifi-3945-ucode { };
@@ -5763,6 +5779,7 @@ let
       [
         kernelPatches.sec_perm_2_6_24
         kernelPatches.aufs3_5
+        kernelPatches.perf3_5
       ] ++ lib.optionals (platform.kernelArch == "mips")
       [ kernelPatches.mips_fpureg_emu
         kernelPatches.mips_fpu_sigill
@@ -6050,8 +6067,6 @@ let
 
   rt2870fw = callPackage ../os-specific/linux/firmware/rt2870 { };
 
-  rt73fw = callPackage ../os-specific/linux/firmware/rt73 { };
-
   rtkit = callPackage ../os-specific/linux/rtkit { };
 
   rtl8192cfw = callPackage ../os-specific/linux/firmware/rtl8192c { };
@@ -6112,7 +6127,7 @@ let
 
   uclibc = callPackage ../os-specific/linux/uclibc { };
 
-  uclibcCross = import ../os-specific/linux/uclibc {
+  uclibcCross = callPackage ../os-specific/linux/uclibc {
     inherit fetchurl stdenv libiconv;
     linuxHeaders = linuxHeadersCross;
     gccCross = gccCrossStageStatic;
@@ -6663,11 +6678,17 @@ let
   emacsPackages = emacs: self: let callPackage = newScope self; in rec {
     inherit emacs;
 
+    autoComplete = callPackage ../applications/editors/emacs-modes/auto-complete { };
+
     bbdb = callPackage ../applications/editors/emacs-modes/bbdb { };
 
     cedet = callPackage ../applications/editors/emacs-modes/cedet { };
 
     calfw = callPackage ../applications/editors/emacs-modes/calfw { };
+
+    coffee = callPackage ../applications/editors/emacs-modes/coffee { };
+
+    colorTheme = callPackage ../applications/editors/emacs-modes/color-theme { };
 
     cua = callPackage ../applications/editors/emacs-modes/cua { };
 
@@ -6681,9 +6702,13 @@ let
 
     emms = callPackage ../applications/editors/emacs-modes/emms { };
 
+    flymakeCursor = callPackage ../applications/editors/emacs-modes/flymake-cursor { };
+
     gh = callPackage ../applications/editors/emacs-modes/gh { };
 
     gist = callPackage ../applications/editors/emacs-modes/gist { };
+
+    jade = callPackage ../applications/editors/emacs-modes/jade { };
 
     jdee = callPackage ../applications/editors/emacs-modes/jdee {
       # Requires Emacs 23, for `avl-tree'.
@@ -6731,11 +6756,15 @@ let
 
     quack = callPackage ../applications/editors/emacs-modes/quack { };
 
+    rectMark = callPackage ../applications/editors/emacs-modes/rect-mark { };
+
     remember = callPackage ../applications/editors/emacs-modes/remember { };
 
     rudel = callPackage ../applications/editors/emacs-modes/rudel { };
 
     scalaMode = callPackage ../applications/editors/emacs-modes/scala-mode { };
+
+    sunriseCommander = callPackage ../applications/editors/emacs-modes/sunrise-commander { };
   };
 
   emacs22Packages = emacsPackages emacs22 pkgs.emacs22Packages;
@@ -6876,13 +6905,15 @@ let
 
   get_iplayer = callPackage ../applications/misc/get_iplayer {};
 
-  gimp = callPackage ../applications/graphics/gimp {
+  gimp_2_6 = callPackage ../applications/graphics/gimp {
     inherit (gnome) libart_lgpl;
   };
 
   gimp_2_8 = callPackage ../applications/graphics/gimp/2.8.nix {
     inherit (gnome) libart_lgpl;
   };
+
+  gimp = gimp_2_6;
 
   gimpPlugins = recurseIntoAttrs (import ../applications/graphics/gimp/plugins {
     inherit pkgs gimp;
@@ -6894,6 +6925,7 @@ let
   git = gitAndTools.git;
   gitFull = gitAndTools.gitFull;
   gitSVN = gitAndTools.gitSVN;
+  tig = gitAndTools.tig;
 
   giv = callPackage ../applications/graphics/giv {
     pcre = pcre.override { unicodeSupport = true; };
@@ -7062,7 +7094,7 @@ let
     inherit (perlPackages) TextMarkdown URI HTMLParser HTMLScrubber
       HTMLTemplate TimeDate CGISession DBFile CGIFormBuilder LocaleGettext
       RpcXML XMLSimple PerlMagick YAML YAMLLibYAML HTMLTree Filechdir
-      AuthenPassphrase;
+      AuthenPassphrase NetOpenIDConsumer LWPxParanoidAgent CryptSSLeay;
   };
 
   imagemagick = callPackage ../applications/graphics/ImageMagick {
@@ -7313,6 +7345,8 @@ let
   };
 
   navit = callPackage ../applications/misc/navit { };
+
+  ncdu = callPackage ../tools/misc/ncdu { };
 
   nedit = callPackage ../applications/editors/nedit {
       motif = lesstif;
@@ -7812,9 +7846,15 @@ let
 
   xineUI = callPackage ../applications/video/xine-ui { };
 
-  xneur = callPackage ../applications/misc/xneur { };
+  xneur_0_13 = callPackage ../applications/misc/xneur { };
 
   xneur_0_8 = callPackage ../applications/misc/xneur/0.8.nix { };
+
+  xneur = xneur_0_13;
+
+  gxneur = callPackage ../applications/misc/gxneur  {
+    inherit (gnome) libglade GConf;
+  };
 
   xournal = callPackage ../applications/graphics/xournal {
     inherit (gnome) libgnomeprint libgnomeprintui libgnomecanvas;
@@ -8408,6 +8448,11 @@ let
     camlp5 = ocamlPackages.camlp5_transitional;
   };
 
+  coq_8_3 = callPackage ../applications/science/logic/coq/8.3.nix {
+    inherit (ocamlPackages) findlib lablgtk;
+    camlp5 = ocamlPackages.camlp5_transitional;
+  };
+
   cvc3 = callPackage ../applications/science/logic/cvc3 {};
 
   eprover = callPackage ../applications/science/logic/eProver {
@@ -8461,6 +8506,7 @@ let
   spass = callPackage ../applications/science/logic/spass {};
 
   ssreflect = callPackage ../applications/science/logic/ssreflect {
+    coq = coq_8_3;
     camlp5 = ocamlPackages.camlp5_transitional;
   };
 
@@ -8622,14 +8668,10 @@ let
     stateDir = getConfig [ "nix" "stateDir" ] "/nix/var";
   };
 
-  nixUnstable = nix;
-
-  /*
   nixUnstable = callPackage ../tools/package-management/nix/unstable.nix {
     storeDir = getConfig [ "nix" "storeDir" ] "/nix/store";
     stateDir = getConfig [ "nix" "stateDir" ] "/nix/var";
   };
-  */
 
   nixCustomFun = src: preConfigure: enableScripts: configureFlags:
     import ../tools/package-management/nix/custom.nix {

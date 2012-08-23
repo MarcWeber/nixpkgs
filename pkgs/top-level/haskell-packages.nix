@@ -128,7 +128,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
     HTTP         = self.HTTP_4000_2_3;          # 7.5 ok
     HUnit        = self.HUnit_1_2_5_1;          # 7.5 ok
     mtl          = self.mtl_2_1_2;              # 7.5 ok
-    network      = self.network_2_3_0_14;       # 7.5 ok
+    network      = self.network_2_3_1_0;        # 7.5 ok
     OpenGL       = self.OpenGL_2_2_3_1;         # 7.5 fail
     parallel     = self.parallel_3_2_0_2;       # 7.5 fail
     parsec       = self.parsec_3_1_3;           # 7.5 ok
@@ -139,7 +139,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
     regexPosix   = self.regexPosix_0_95_1;      # 7.5 fail
     stm          = self.stm_2_4;                # 7.5 ok
     syb          = self.syb_0_3_7;              # 7.5 ok
-    text         = self.text_0_11_2_2;          # 7.5 ok
+    text         = self.text_0_11_2_3;          # 7.5 ok
     transformers = self.transformers_0_3_0_0;   # 7.5 ok
     xhtml        = self.xhtml_3000_2_1;         # 7.5 ok
     zlib         = self.zlib_0_5_3_3;           # 7.5 fail
@@ -533,8 +533,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   colour = callPackage ../development/libraries/haskell/colour {};
 
   comonad_1_1_1_6 = callPackage ../development/libraries/haskell/comonad/1.1.1.6.nix {};
-  comonad_3_0_0_1 = callPackage ../development/libraries/haskell/comonad/3.0.0.1.nix {};
-  comonad = self.comonad_3_0_0_1;
+  comonad_3_0_0_2 = callPackage ../development/libraries/haskell/comonad/3.0.0.2.nix {};
+  comonad = self.comonad_3_0_0_2;
 
   comonadTransformers_2_1_2 = callPackage ../development/libraries/haskell/comonad-transformers/2.1.2.nix {
     comonad = self.comonad_1_1_1_6;
@@ -1020,6 +1020,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   ListLike = callPackage ../development/libraries/haskell/ListLike {};
 
+  lrucache = callPackage ../development/libraries/haskell/lrucache {};
+
   ltk = callPackage ../development/libraries/haskell/ltk {};
 
   logfloat = callPackage ../development/libraries/haskell/logfloat {};
@@ -1055,6 +1057,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   monadcryptorandom = callPackage ../development/libraries/haskell/monadcryptorandom {};
 
   monadLoops = callPackage ../development/libraries/haskell/monad-loops {};
+
+  monadLogger = callPackage ../development/libraries/haskell/monad-logger {};
 
   monadPar_0_1_0_3 = callPackage ../development/libraries/haskell/monad-par/0.1.0.3.nix {};
   monadPar_0_3 = callPackage ../development/libraries/haskell/monad-par/0.3.nix {};
@@ -1106,8 +1110,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   network_2_3_0_2 = callPackage ../development/libraries/haskell/network/2.3.0.2.nix {};
   network_2_3_0_5 = callPackage ../development/libraries/haskell/network/2.3.0.5.nix {};
   network_2_3_0_13 = callPackage ../development/libraries/haskell/network/2.3.0.13.nix {};
-  network_2_3_0_14 = callPackage ../development/libraries/haskell/network/2.3.0.14.nix {};
-  network = self.network_2_3_0_14;
+  network_2_3_1_0 = callPackage ../development/libraries/haskell/network/2.3.1.0.nix {};
+  network = self.network_2_3_1_0;
 
   networkConduit = callPackage ../development/libraries/haskell/network-conduit {};
 
@@ -1474,8 +1478,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   text_0_11_1_5 = callPackage ../development/libraries/haskell/text/0.11.1.5.nix {};
   text_0_11_1_13 = callPackage ../development/libraries/haskell/text/0.11.1.13.nix {};
   text_0_11_2_0 = callPackage ../development/libraries/haskell/text/0.11.2.0.nix {};
-  text_0_11_2_2 = callPackage ../development/libraries/haskell/text/0.11.2.2.nix {};
-  text = self.text_0_11_2_2;
+  text_0_11_2_3 = callPackage ../development/libraries/haskell/text/0.11.2.3.nix {};
+  text = self.text_0_11_2_3;
 
   thespian = callPackage ../development/libraries/haskell/thespian {};
 
@@ -1515,6 +1519,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   uniqueid = callPackage ../development/libraries/haskell/uniqueid {};
 
   unixCompat = callPackage ../development/libraries/haskell/unix-compat {};
+
+  unixTime = callPackage ../development/libraries/haskell/unix-time {};
 
   unlambda = callPackage ../development/libraries/haskell/unlambda {};
 

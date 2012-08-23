@@ -1,9 +1,31 @@
 { stdenv, fetchurl, openssl, python, zlib, v8, utillinux, linkV8Headers ? false
-, version ? "0.8.4"
+, version ? "0.8.8"
 }:
+
+let
+
+  espipe_patch = fetchurl {
+    url = https://github.com/joyent/libuv/commit/0ac2fdc55455794e057e4999a2e785ca8fbfb1b2.patch;
+    sha256 = "0mqgbsz23b3zp19dwk12ys14b031hssmlp40dylb7psj937qcpzi";
+  };
+
+in
 
 stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "nodejs" version
   {
+    "0.8.8" = {
+      src = fetchurl {
+        url = "http://nodejs.org/dist/v${version}/node-v${version}.tar.gz";
+        sha256 = "0cri5r191l5pw8a8pf3gs7hfjm3rrz6kdnm3l8wghmp9p12p0aq9";
+      };
+
+      prePatch = ''
+        sed -e 's|^#!/usr/bin/env python$|#!${python}/bin/python|g' -i tools/{*.py,waf-light,node-waf} configure
+        pushd deps/uv
+        patch -p 1 < ${espipe_patch}
+        popd
+      '';
+    };
     "0.8.4" = {
       src = fetchurl {
         url = "http://nodejs.org/dist/v${version}/node-v${version}.tar.gz";
@@ -38,9 +60,6 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "nodejs" version
 
   patches = stdenv.lib.optional stdenv.isDarwin ./no-arch-flag.patch;
 
-  prePatch = ''
-    sed -e 's|^#!/usr/bin/env python$|#!${python}/bin/python|g' -i tools/{*.py,waf-light,node-waf} configure
-  '';
 
   postInstall = ''
     sed -e 's|^#!/usr/bin/env node$|#!'$out'/bin/node|' -i $out/lib/node_modules/npm/bin/npm-cli.js

@@ -315,6 +315,27 @@ rec {
       )
     ];
   mergeAttrsByFuncDefaults = foldl mergeAttrByFunc { inherit mergeAttrBy; };
+  mergeAttrsByFuncDefaultsClean = list: removeAttrs (mergeAttrsByFuncDefaults list) ["mergeAttrBy"];
+
+  # merge attrs based on version key into mkDerivation args, see mergeAttrBy to learn about smart merge defaults
+  # This function is best explained by an example:
+  # {version ? "2.0"} :
+  # mkDerivation (mergeAttrsByVersion "package-name" version {
+  #     # git specific
+  #     "git" = { src = ..; preConfigre = "autogen.sh"; buildInputs = [automake autoconf libtool];  };
+  #
+  #     # 2.0 specific
+  #     "2.0" = { src = ..; };
+  #   }
+  #   {
+  #      buildInputs = [ common build inputs ];
+  #   }
+  # )
+  #
+  mergeAttrsByVersion = name: version: attrsByVersion: base:
+    mergeAttrsByFuncDefaultsClean [base (maybeAttr version (throw "bad version ${version} for ${name}") attrsByVersion)];
+
+
   # sane defaults (same name as attr name so that inherit can be used)
   mergeAttrBy = # { buildInputs = concatList; [...]; passthru = mergeAttr; [..]; }
     listToAttrs (map (n : nameValuePair n lib.concat) [ "buildNativeInputs" "buildInputs" "propagatedBuildInputs" "configureFlags" "prePhases" "postAll" ])

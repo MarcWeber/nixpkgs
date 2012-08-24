@@ -1944,7 +1944,8 @@ let
     });
 
   gcc_realCross =
-    if crossSystem.config == "i686-pc-mingw32"
+    if builtins.isAttrs crossSystem # this is only to prevent failure evaluating everything without cross system configuration
+       && crossSystem.config == "i686-pc-mingw32"
     then 
          # gcc46 targeting 32bit builds executables, but they segfault
          # gcc45 which seems to work

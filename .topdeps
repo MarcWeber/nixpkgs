@@ -6,4 +6,5 @@ experimental/opera
 experimental/opencascade
 experimental/nodejs
 experimental/shadow
-experimental/nix
+experimental/mingw
+experimental/gutenprint

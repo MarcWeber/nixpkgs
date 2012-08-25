@@ -6,9 +6,9 @@
 let 
 
   inherit (lib) concatStringsSep maybeAttr;
-  inherit (builtins) getAttr isString attrNames;
-
-  defaultConfig = {
+  inherit (builtins) getAttr isString isInt isAttrs attrNames;
+defaultConfig = {
+    # jobName = ..
     pid_file = "/var/run/php-fpm-5.2.pid";
     error_log = "/var/log/php-fpm-5.2.log";
     log_level = "notice";
@@ -52,12 +52,15 @@ let
   createPHPFpmConfig52 = config: pool:
    let 
      options = a: names:
-      concatStringsSep "\n" (map (n: xmlOption n (getAttr a n)) names);
+      concatStringsSep "\n" (map (n: xmlOption n (getAttr n a)) names);
 
      xmlOption = name: value: 
       if isString value
       then "<value name=\"${name}\">${value}</value>"
-      else ''
+      else if isInt value
+      then "<value name=\"${name}\">${toString value}</value>"
+      else 
+        ''
         <value name="${name}">
           ${options value (attrNames value)}
         </value>
@@ -99,7 +102,7 @@ let
               ]}}
           </section>
           <workers>
-          ${lib.concatStringsSep "\n" (map (poolC: poolToConfig (defaultPoolConfig // maybeAttr "commonPoolConfig" {} // poolC)) pool)}
+          ${lib.concatStringsSep "\n" (map (poolC: poolToConfig (defaultPoolConfig // maybeAttr "commonPoolConfig" {} config // poolC)) pool)}
           </workers>
         </configuration>
       '';
@@ -113,7 +116,7 @@ in {
   }];
 
   jobs = 
-    let name = "fpm-${builtins.baseNameOf php}";
+    let name = maybeAttr "jobName" "fpm-${php.version}" config;
     in builtins.listToAttrs [{
           inherit name;
           value = {

@@ -3,9 +3,10 @@
 let 
 
   inherit (lib) concatStringsSep maybeAttr;
-  inherit (builtins) getAttr isString attrNames;
+  inherit (builtins) getAttr isInt isString attrNames toString;
 
   defaultConfig = {
+    # jobName = ..
     pid_file = "/var/run/php-fpm-5.2.pid";
     error_log = "/var/log/php-fpm-5.2.log";
     log_level = "notice";
@@ -50,16 +51,19 @@ let
     # listen = 127.0.0.1:${builtins.toString (builtins.add start_port_php_fpm kunde.nr)} 
    let 
      options = prefix: a: names:
-      concatStringsSep "\n" (map (n: option prefix n (getAttr a n)) names);
+      concatStringsSep "\n" (map (n: option prefix n (getAttr n a)) names);
 
      option = prefix: name: value: 
       if isString value
       then "${prefix}${name} = ${value}\n"
+      else if isInt value
+      then "${prefix}${name} = ${toString value}\n"
       else "${options "${name}." value (attrNames value)}\n";
       
      poolToConfig = poolC: ''
       [${poolC.name}]
       ${options 
+          ""
           poolC
           [
             # attrs
@@ -78,19 +82,19 @@ let
       # main config which pools
       writeText "php-fpm" ''
           [global]
-          ${options config [
+          ${options "" config [
             "pid_file" "error_log" "log_level" "emergency_restart_threshold"
             "emergency_restart_interval" "process_control_timeout" "daemonize"
           ]}
 
-          ${lib.concatStringsSep "\n" (map (poolC: poolToConfig (defaultPoolConfig // maybeAttr "commonPoolConfig" {} // poolC)) pool)}
+          ${lib.concatStringsSep "\n" (map (poolC: poolToConfig (defaultPoolConfig // maybeAttr "commonPoolConfig" {}  config // poolC)) pool)}
        '';
 
   configFile = createConfig (defaultConfig // config) (pool);
 
 in {
   jobs = 
-    let name = "fpm-${builtins.baseNameOf php}";
+    let name = maybeAttr "jobName" "fpm-${php.version}" config;
     in builtins.listToAttrs [{
           inherit name;
           value = {

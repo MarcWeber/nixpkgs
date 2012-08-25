@@ -14,8 +14,8 @@ in
 composableDerivation.composableDerivation {} ( fixed : {
 
   # REGION AUTO UPDATE: { name="neko"; type="svn"; url="http://nekovm.googlecode.com/svn/trunk"; groups = "haxe_group"; }
-  src = (fetchurl { url = "http://mawercer.de/~nix/repos/neko-svn-1880.tar.bz2"; sha256 = "9ef6aee69419b16492ee3e1f54e4a1158f2bbec4c6463a4c21c4aa3f3ee79170"; });
-  name = "neko-svn-1880";
+  src = (fetchurl { url = "http://mawercer.de/~nix/repos/neko-svn-1898.tar.bz2"; sha256 = "370f974d362e4484e786dc301a69739d2019d0fd1f22b06c4c904c783f3883ef"; });
+  name = "neko-svn-1898";
   # END
 
   # optionally remove apache mysql like gentoo does?

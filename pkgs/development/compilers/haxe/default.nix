@@ -10,8 +10,8 @@ let
 */
     src_haxe = {
       # REGION AUTO UPDATE:       { name="haxe-read-only"; type="svn"; url="http://haxe.googlecode.com/svn/trunk"; groups = "haxe_group"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-read-only-svn-4487.tar.bz2"; sha256 = "caa425c2052f6c7a737abb43a16b80d84ff347f40d3cf7d3c4fbc9e66efb2902"; });
-      name = "haxe-read-only-svn-4487";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-read-only-svn-5329.tar.bz2"; sha256 = "43a430f0dc6cbd102a7aef0c6ca2eab7ed516b049aae53fbfc4b771a501930a4"; });
+      name = "haxe-read-only-svn-5329";
       # END
     }.src;
 

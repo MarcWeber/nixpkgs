@@ -2313,11 +2313,10 @@ let
   # Reasonably current HEAD snapshot.
   haskellPackages_ghcHEAD             =                   haskell.packages_ghcHEAD;
 
-  haxeDist = import ../development/compilers/haxe {
+  haxe = callPackage ../development/compilers/haxe {
     inherit fetchurl sourceFromHead stdenv lib ocaml zlib makeWrapper neko writeScriptBin;
   };
-  haxe = haxeDist.haxe;
-  haxelib = haxeDist.haxelib;
+  haxelib = haxe.haxelib;
 
   falcon = builderDefsPackage (import ../development/interpreters/falcon) {
     inherit cmake;

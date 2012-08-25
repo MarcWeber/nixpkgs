@@ -1,4 +1,4 @@
-{php, lib, writeText, config, pool}:
+{pkgs, php, lib, writeText, config, pool}:
 
 # yes - PHP 5.2 should no longer be used. I know
 # TODO pass config file
@@ -9,13 +9,13 @@ let
   inherit (builtins) getAttr isString isInt isAttrs attrNames;
 defaultConfig = {
     # jobName = ..
-    pid_file = "/var/run/php-fpm-5.2.pid";
+    pid = "/var/run/php-fpm-5.2.pid"; # pid_file option
     error_log = "/var/log/php-fpm-5.2.log";
     log_level = "notice";
     emergency_restart_threshold = "10";
     emergency_restart_interval = "1m";
     process_control_timeout = "5s";
-    daemonize = "yes";
+    daemonize = "no";
     listen = { # xml: listen_options
       backlog = "-1";
       owner = "nobody";
@@ -66,7 +66,7 @@ defaultConfig = {
         </value>
         '';
      poolToConfig = poolC: ''
-      <section name="name">
+      <section name="pool">
         ${options poolC [ "name" "listen_address" ] }
           <value name = "listen_options">
           ${options poolC.listen (attrNames poolC.listen) }
@@ -95,8 +95,9 @@ defaultConfig = {
       <?xml version="1.0" ?>
         <configuration>
           <section name="global_options">
+            ${xmlOption "pid_file" config.pid}
             ${options config [
-              "pid_file" "error_log" "log_level"
+              "error_log" "log_level"
               "emergency_restart_threshold" "emergency_restart_interval"
               "process_control_timeout" "daemonize"
               ]}}
@@ -108,21 +109,55 @@ defaultConfig = {
       '';
 
 
+      cfg = defaultConfig // config;
+      cfgFile =  createPHPFpmConfig52 (cfg) (pool);
 in {
   # must be in /etc .., there is no command line flag for PHP 5.2
   environment.etc = [{
-    source =  createPHPFpmConfig52 (defaultConfig // config) (pool);
+    source = cfgFile;
     target = "php-fpm-5.2.conf";
   }];
 
   jobs = 
-    let name = maybeAttr "jobName" "fpm-${php.version}" config;
+    let name = maybeAttr "jobName" "php-fpm-${php.version}" config;
     in builtins.listToAttrs [{
           inherit name;
           value = {
            inherit name;
            startOn = "started httpd";
-           script = ''${php}/sbin/php-fpm'';
+           script = ''
+            # ${cfgFile}, dummy: force restart if config changes
+
+            pidFile=${cfg.pid}
+            isRunning(){
+               [ -e "$pidFile" ] \
+                && ${pkgs.procps}/bin/ps `${pkgs.coreutils}/bin/cat $pidFile` | grep -q php-cgi;
+            }
+            stopAndWait(){
+              ${php}/sbin/php-fpm stop
+              # TODO: add timeout
+              while isRunning; do echo 'waiting for shutdown'; sleep 5; done
+            }
+
+            if [ -e "$pidFile" ]; then  rm $pidFile; fi
+
+            # If this script stops (eg stop is run) make postfix stop
+            trap "stopAndWait" INT TERM EXIT
+
+            if isRunning; then
+              echo "something went wrong! postfix is already running - trying to stop it"
+              stopAndWait
+            fi
+
+            ${php}/sbin/php-fpm start
+
+            # wait for the pid file:
+            while [ ! -e  "$pidFile" ]; do echo "waiting for pidfile $pidFile"; sleep 5; done
+            while isRunning; do
+              ${pkgs.coreutils}/bin/sleep 1m
+            done
+            echo 'SCRIPT END'
+           '';
          };
         }];
 }

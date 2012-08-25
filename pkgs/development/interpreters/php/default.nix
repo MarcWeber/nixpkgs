@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, composableDerivation, autoconf, automake
+{ pkgs, stdenv, fetchurl, composableDerivation, autoconf, automake
 , flex, bison, apacheHttpd, mysql, libxml2, readline
 , zlib, curl, gd, postgresql, openssl, pkgconfig, sqlite, getConfig, libiconv
 , libjpeg, libpng, htmlTidy, libmcrypt, fcgi, callPackage, gettext
@@ -308,6 +308,6 @@ let
     apc = callPackage ../../libraries/php-apc { inherit php; };
     system_fpm_config =
       if lessThan53 
-      then config: pool: (import ./php-5.2-fpm-system-config.nix) { inherit php lib writeText config pool;}
+      then config: pool: (import ./php-5.2-fpm-system-config.nix) { inherit pkgs php lib writeText config pool;}
       else config: pool: (import ./php-5.3-fpm-system-config.nix) { inherit php lib writeText config pool;};
   }

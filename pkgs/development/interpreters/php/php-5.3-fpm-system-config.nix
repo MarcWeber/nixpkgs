@@ -7,43 +7,45 @@ let
 
   defaultConfig = {
     # jobName = ..
-    pid_file = "/var/run/php-fpm-5.2.pid";
+    pid = "/var/run/php-fpm-5.2.pid";
     error_log = "/var/log/php-fpm-5.2.log";
     log_level = "notice";
     emergency_restart_threshold = "10";
     emergency_restart_interval = "1m";
     process_control_timeout = "5s";
-    daemonize = "yes";
-    listen_options = {
-      backlog = "-1";
-      owner = "nobody";
-      group = "nogroup";
-      mode = "0777";
-    };
+    daemonize = "no";
     commonPoolConfig = {
     };
   };
 
   defaultPoolConfig = {
     request_terminate_timeout = "305s";
+    # slowlog = ..
     request_slowlog_timeout = "30s";
     rlimit_files = "1024";
     rlimit_core = "0";
     chroot = "";
     chdir = "";
     catch_workers_output = "yes";
-    max_requests = "500";
     allowed_clients = "127.0.0.1";
+    # can't use "listen" when using listen attrs
+    # listen_address = .. # listen setting
+    # listen = {
+    #   backlog = "-1";
+    #   owner = "nobody";
+    #   group = "nogroup";
+    #   mode = "0777";
+    # };
+
     environment = {
     };
+    pm_type = "dynamic"; # pm setting
     pm = {
-      style = "static";
       max_children = "5";
-      apache_like = {
-        StartServers = 20;
-        MinSpareServers = 5;
-        MaxSpareServers = 35;
-      };
+      max_requests = "500";
+      start_servers = 1;
+      min_spare_servers = 1;
+      max_spare_servers = 4;
     };
   };
 
@@ -62,6 +64,8 @@ let
       
      poolToConfig = poolC: ''
       [${poolC.name}]
+      ${option "" "listen" (poolC.listen_address)}
+      ${option "" "pm" (poolC.pm_type)}
       ${options 
           ""
           poolC
@@ -74,6 +78,7 @@ let
             "user"
             "group"
             "request_terminate_timeout"
+            "slowlog"
             "request_slowlog_timeout"
           ]
       }
@@ -83,7 +88,7 @@ let
       writeText "php-fpm" ''
           [global]
           ${options "" config [
-            "pid_file" "error_log" "log_level" "emergency_restart_threshold"
+            "pid" "error_log" "log_level" "emergency_restart_threshold"
             "emergency_restart_interval" "process_control_timeout" "daemonize"
           ]}
 
@@ -94,13 +99,13 @@ let
 
 in {
   jobs = 
-    let name = maybeAttr "jobName" "fpm-${php.version}" config;
+    let name = maybeAttr "jobName" "php-fpm-${php.version}" config;
     in builtins.listToAttrs [{
           inherit name;
           value = {
            inherit name;
            startOn = "started httpd";
-           script = ''${php}/sbin/php-fpm -y ${configFile}'';
+           exec = ''${php}/sbin/php-fpm -y ${configFile}'';
          };
         }];
 }

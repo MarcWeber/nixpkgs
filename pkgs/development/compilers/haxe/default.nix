@@ -1,4 +1,7 @@
-args: with args;
+args@{
+version ? "stable"
+, ...
+}: with args;
 
 let
 /*
@@ -8,12 +11,6 @@ let
     libpcre
     libgtk2.0
 */
-    src_haxe = {
-      # REGION AUTO UPDATE:       { name="haxe-read-only"; type="svn"; url="http://haxe.googlecode.com/svn/trunk"; groups = "haxe_group"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-read-only-svn-4487.tar.bz2"; sha256 = "caa425c2052f6c7a737abb43a16b80d84ff347f40d3cf7d3c4fbc9e66efb2902"; });
-      name = "haxe-read-only-svn-4487";
-      # END
-    }.src;
 
     svn_export_fake = args.writeScriptBin "svn" ''
     #!/bin/sh
@@ -25,12 +22,23 @@ let
 
 
     # the HaXe compiler
-    haxe = stdenv.mkDerivation {
-      name = "haxe-cvs";
+    haxe =  stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "haxe" version {
+        "stable" = {
+            # REGION AUTO UPDATE:       { name="haxe-stable"; type="svn"; url="http://haxe.googlecode.com/svn/tags/v2-10"; groups = "haxe_group"; }
+            src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-stable-svn-5329.tar.bz2"; sha256 = "88c0b8284ba8dcabf65c374a7bc04a34ea4238590b3f1e94fadb66ec2909e322"; });
+            name = "haxe-stable-svn-5329";
+            # END
+        };
+        "latest" = {
+            # REGION AUTO UPDATE:       { name="haxe-unstable"; type="svn"; url="http://haxe.googlecode.com/svn/trunk"; groups = "haxe_group"; }
+            src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-unstable-svn-5329.tar.bz2"; sha256 = "43a430f0dc6cbd102a7aef0c6ca2eab7ed516b049aae53fbfc4b771a501930a4"; });
+            name = "haxe-unstable-svn-5329";
+            # END
+        };
 
+     } 
+     {
       buildInputs = [ocaml zlib makeWrapper svn_export_fake];
-
-      src = src_haxe;
 
       inherit zlib;
 
@@ -68,7 +76,7 @@ let
         maintainers = [args.lib.maintainers.marcweber];
         platforms = args.lib.platforms.linux;
       };
-    };
+    });
 
     # build a tool found in std/tools/${name} source directory
     # the .hxml files contain a recipe  to cerate a binary.
@@ -76,7 +84,7 @@ let
 
         inherit name;
 
-        src = src_haxe;
+        src = haxe.src;
 
         buildPhase = ''
           cd std/tools/${name};
@@ -103,13 +111,9 @@ let
 
 in
 
-{
-
-  inherit haxe;
-
+haxe // {
   haxelib = tool {
     name = "haxelib";
     description = "haxelib is a HaXe library management tool similar to easyinstall or ruby gems";
   };
-
 }

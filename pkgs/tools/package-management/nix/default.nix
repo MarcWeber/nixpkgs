@@ -62,6 +62,7 @@ stdenv.mkDerivation rec {
   patches = [
     ./debug-coercion-failures.patch
     ./write-file-hashed.patch
+    ./hash.patch
   ];
 
   meta = {

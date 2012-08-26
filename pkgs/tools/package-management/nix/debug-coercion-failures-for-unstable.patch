@@ -43,7 +43,7 @@ index fadfb3b..58b47b4 100644
 +++ b/src/libexpr/eval.cc
 @@ -1,9 +1,10 @@
 -#include "eval.hh"
-+once#include "eval.hh"
++#include "eval.hh"
  #include "hash.hh"
  #include "util.hh"
  #include "store-api.hh"

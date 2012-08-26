@@ -22,7 +22,7 @@ index 0d4efc4..8beb3f7 100644
 +      throw Error(format("bad hash type `%1%'") % type);
 +    }
 +
-+    Hash h = hashString(htMD5, s);
++    Hash h = hashString(ht, s);
 +
 +    string hash = printHash(h);
 +

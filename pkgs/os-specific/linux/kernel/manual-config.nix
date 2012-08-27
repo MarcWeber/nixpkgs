@@ -74,7 +74,7 @@ let
     (isModular || (config.isDisabled "FIRMWARE_IN_KERNEL"));
 
   commonMakeFlags = [
-    "O=../build"
+    "O=$(buildRoot)"
     "INSTALL_PATH=$(out)"
   ] ++ (optional isModular "INSTALL_MOD_PATH=$(out)")
   ++ optional installsFirmware "INSTALL_FW_PATH=$(out)/lib/firmware";
@@ -86,28 +86,42 @@ stdenv.mkDerivation {
   enableParallelBuilding = true;
 
   passthru = {
-    inherit version modDirVersion config kernelPatches;
+    inherit version modDirVersion config kernelPatches src;
   };
 
-  inherit src;
+  sourceRoot = stdenv.mkDerivation {
+    name = "linux-${version}-source";
 
-  patches = map (p: p.patch) kernelPatches;
+    inherit src;
 
-  prePatch = ''
-    for mf in $(find -name Makefile -o -name Makefile.include -o -name install.sh); do
-        echo "stripping FHS paths in \`$mf'..."
-        sed -i "$mf" -e 's|/usr/bin/||g ; s|/bin/||g ; s|/sbin/||g'
-    done
-    sed -i Makefile -e 's|= depmod|= ${kmod}/sbin/depmod|'
+    patches = map (p: p.patch) kernelPatches;
+
+    phases = [ "unpackPhase" "patchPhase" "installPhase" ]; 
+
+    prePatch = ''
+      for mf in $(find -name Makefile -o -name Makefile.include -o -name install.sh); do
+          echo "stripping FHS paths in \`$mf'..."
+          sed -i "$mf" -e 's|/usr/bin/||g ; s|/bin/||g ; s|/sbin/||g'
+      done
+      sed -i Makefile -e 's|= depmod|= ${kmod}/sbin/depmod|'
+    '';
+
+    installPhase = ''
+      cd ..
+      mv $sourceRoot $out
+    '';
+  };
+
+  unpackPhase = ''
+    mkdir build
+    export buildRoot="$(pwd)/build"
+    ln -sv ${configfile} $buildRoot/.config
+    cd $sourceRoot
   '';
 
   configurePhase = ''
     runHook preConfigure
-    mkdir ../build
-    make $makeFlags "''${makeFlagsArray[@]}" mrproper
-    ln -sv ${configfile} ../build/.config
     make $makeFlags "''${makeFlagsArray[@]}" oldconfig
-    rm ../build/.config.old
     runHook postConfigure
   '';
 
@@ -128,12 +142,8 @@ stdenv.mkDerivation {
   '' + (if isModular then ''
     make modules_install $makeFlags "''${makeFlagsArray[@]}" \
       $installFlags "''${installFlagsArray[@]}"
-    rm -f $out/lib/modules/${modDirVersion}/{build,source}
-    cd ..
-    mv $sourceRoot $out/lib/modules/${modDirVersion}/source
-    mv build $out/lib/modules/${modDirVersion}/build
-    unlink $out/lib/modules/${modDirVersion}/build/source
-    ln -sv $out/lib/modules/${modDirVersion}/{,build/}source
+    rm -f $out/lib/modules/${modDirVersion}/build
+    mv $buildRoot $out/lib/modules/${modDirVersion}/build
   '' else optionalString installsFirmware ''
     make firmware_install $makeFlags "''${makeFlagsArray[@]}" \
       $installFlags "''${installFlagsArray[@]}"

@@ -985,6 +985,8 @@ let
 
   less = callPackage ../tools/misc/less { };
 
+  lockfileProgs = callPackage ../tools/misc/lockfile-progs { };
+
   logstash = callPackage ../tools/misc/logstash { };
 
   klavaro = callPackage ../games/klavaro {};
@@ -1003,10 +1005,6 @@ let
     inherit pkgs stdenv nodejs fetchurl;
   });
 
-  npm2nix = callPackage ../development/tools/node/npm2nix {
-    coffeescript = nodePackages."coffee-script";
-  };
-
   ldns = callPackage ../development/libraries/ldns { };
 
   lftp = callPackage ../tools/networking/lftp { };
@@ -1016,6 +1014,10 @@ let
   libtirpc = callPackage ../development/libraries/ti-rpc { };
 
   libtorrent = callPackage ../tools/networking/p2p/libtorrent { };
+
+  logcheck = callPackage ../tools/system/logcheck {
+    inherit (perlPackages) mimeConstruct;
+  };
 
   logrotate = callPackage ../tools/system/logrotate { };
 
@@ -2371,11 +2373,16 @@ let
 
   path64 = callPackage ../development/compilers/path64 { };
 
+  openjdkBootstrap = callPackage ../development/compilers/openjdk/bootstrap.nix {};
+
   openjdk =
     if stdenv.isDarwin then
       callPackage ../development/compilers/openjdk-darwin { }
     else
-      callPackage ../development/compilers/openjdk { };
+      callPackage ../development/compilers/openjdk {
+        jdk = pkgs.openjdkBootstrap;
+        ant = pkgs.ant.override { jdk = pkgs.openjdkBootstrap; };
+      };
 
   openjre = callPackage ../development/compilers/openjdk {
     jreOnly = true;
@@ -4151,6 +4158,8 @@ let
 
   liblqr1 = callPackage ../development/libraries/liblqr-1 { };
 
+  liblockfile = callPackage ../development/libraries/liblockfile { };
+
   libmhash = callPackage ../development/libraries/libmhash {};
 
   libmtp = callPackage ../development/libraries/libmtp { };
@@ -4674,6 +4683,8 @@ let
   qimageblitz = callPackage ../development/libraries/qimageblitz {};
 
   qjson = callPackage ../development/libraries/qjson { };
+
+  qoauth = callPackage ../development/libraries/qoauth { };
 
   qt3 = callPackage ../development/libraries/qt-3 {
     openglSupport = mesaSupported;
@@ -5502,6 +5513,8 @@ let
   apparmor = callPackage ../os-specific/linux/apparmor {
     inherit (perlPackages) LocaleGettext TermReadKey RpcXML;
   };
+
+  atop = callPackage ../os-specific/linux/atop { };
 
   b43Firmware_5_1_138 = callPackage ../os-specific/linux/firmware/b43-firmware/5.1.138.nix { };
 
@@ -7155,6 +7168,8 @@ let
 
   bip = callPackage ../applications/networking/irc/bip { };
 
+  jack_capture = callPackage ../applications/audio/jack-capture { };
+
   jackmeter = callPackage ../applications/audio/jackmeter { };
 
   jedit = callPackage ../applications/editors/jedit { };
@@ -7208,6 +7223,7 @@ let
     inherit (gnome) GConf ORBit2 gnome_vfs;
     zip = zip.override { enableNLS = false; };
     boost = boost149;
+    jdk = openjdk;
     fontsConf = makeFontsConf {
       fontDirectories = [
         freefont_ttf xorg.fontmiscmisc xorg.fontbhttf
@@ -8694,9 +8710,8 @@ let
 
   martyr = callPackage ../development/libraries/martyr { };
 
-  maven = callPackage ../misc/maven/maven-1.0.nix { };
-  maven2 = callPackage ../misc/maven { };
-  maven3 = callPackage ../misc/maven/3.0.nix { };
+  maven = maven3;
+  maven3 = callPackage ../misc/maven { jdk = openjdk; };
 
   mess = callPackage ../misc/emulators/mess {
     inherit (pkgs.gnome) GConf;

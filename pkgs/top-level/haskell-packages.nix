@@ -1410,6 +1410,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   SMTPClient = callPackage ../development/libraries/haskell/SMTPClient {};
 
+  split_0_1 = callPackage ../development/libraries/haskell/split/0.1.nix {};
   split = callPackage ../development/libraries/haskell/split {};
 
   stbImage = callPackage ../development/libraries/haskell/stb-image {};
@@ -1781,6 +1782,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   xmonadExtras = callPackage ../applications/window-managers/xmonad/xmonad-extras.nix {
     X11 = self.X11_1_5_0_1;
+    split = self.split_0_1;
   };
 
   # Tools.

@@ -84,8 +84,6 @@ rec {
      => { a = [ 2 3 ]; }
   */
   foldAttrs = op: nul: list_of_attrs:
-    assert builtins.isList list_of_attrs;
-    assert all (builtins.isAttrs) list_of_attrs;
     fold (n: a:
         fold (name: o:
           o // (listToAttrs [{inherit name; value = op (getAttr name n) (maybeAttr name nul a); }])

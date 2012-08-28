@@ -1,0 +1,6 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] experimental/lib-fold-attr
+
+adding useful primop function foldAttr
+
+Signed-off-by: Marc Weber <marco-oweber@gmx.de>

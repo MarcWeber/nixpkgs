@@ -1,6 +1,6 @@
 From: Marc Weber <marco-oweber@gmx.de>
 Subject: [PATCH] experimental/lib-fold-attr
 
-adding useful primop function foldAttr
+adding useful function foldAttr which behave like fold on attr values grouped by name
 
 Signed-off-by: Marc Weber <marco-oweber@gmx.de>

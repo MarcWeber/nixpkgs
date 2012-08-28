@@ -306,8 +306,9 @@ let
     xdebug = callPackage ../../interpreters/php-xdebug { inherit php; };
     xcache = callPackage ../../libraries/php-xcache { inherit php; };
     apc = callPackage ../../libraries/php-apc { inherit php; };
-    system_fpm_config =
-      if lessThan53 
-      then config: pool: (import ./php-5.2-fpm-system-config.nix) { inherit pkgs php lib writeText config pool;}
-      else config: pool: (import ./php-5.3-fpm-system-config.nix) { inherit php lib writeText config pool;};
-  }
+    } // (lib.optionalAttrs (sapi == "fpm") {
+        system_fpm_config =
+        if lessThan53
+        then config: pool: (import ./php-5.2-fpm-system-config.nix) { inherit pkgs php lib writeText config pool;}
+        else config: pool: (import ./php-5.3-fpm-system-config.nix) { inherit php lib writeText config pool;};
+    })

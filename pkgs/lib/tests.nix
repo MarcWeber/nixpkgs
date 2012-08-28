@@ -59,7 +59,7 @@ runTests {
   ];
 
   testFoldAttrs = {
-    expr = foldAttr (n: a: [n] ++ a) [] [
+    expr = foldAttrs (n: a: [n] ++ a) [] [
     { a = 2; b = 7; }
     { a = 3;        c = 8; }
     ];

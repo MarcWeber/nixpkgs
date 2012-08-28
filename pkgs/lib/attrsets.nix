@@ -79,7 +79,7 @@ rec {
   filterAttrs = pred: set:
     listToAttrs (fold (n: ys: let v = getAttr n set; in if pred n v then [(nameValuePair n v)] ++ ys else ys) [] (attrNames set));
 
-  /* foldAttrs: apply fold functions to values grouped by key Eg accumulate values as list:
+  /* foldAttrs: apply fold functions to values grouped by key. Eg accumulate values as list:
      foldAttrs (n: a: [n] ++ a) [] [{ a = 2; } { a = 3; }]
      => { a = [ 2 3 ]; }
   */

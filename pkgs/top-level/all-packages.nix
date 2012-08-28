@@ -2358,8 +2358,16 @@ let
     jreOnly = true;
   };
 
-  jdk = if stdenv.isDarwin then openjdk else jdkdistro true false;
-  jre = jdkdistro false false;
+  jdk = if (stdenv.isDarwin || stdenv.system == "i686-linux" || stdenv.system == "x86_64-linux")
+    then openjdk
+    else jdkdistro true false;
+  jre = if (stdenv.system == "i686-linux" || stdenv.system == "x86_64-linux")
+    then openjre
+    else jdkdistro false false;
+
+  oraclejdk = jdkdistro true false;
+
+  oraclejre = jdkdistro false false;
 
   jrePlugin = lowPrio (jdkdistro false true);
 
@@ -3432,6 +3440,8 @@ let
   dssi = callPackage ../development/libraries/dssi {};
 
   dragonegg = callPackage ../development/compilers/llvm/dragonegg.nix { };
+
+  dxflib = callPackage ../development/libraries/dxflib {};
 
   eigen = callPackage ../development/libraries/eigen {};
 
@@ -6780,6 +6790,8 @@ let
 
   espeak = callPackage ../applications/audio/espeak { };
 
+  espeakedit = callPackage ../applications/audio/espeak/edit.nix { };
+
   esniper = callPackage ../applications/networking/esniper { };
 
   etherape = callPackage ../applications/networking/sniffers/etherape {
@@ -6946,6 +6958,8 @@ let
   qcad = callPackage ../applications/misc/qcad { };
 
   libquvi = callPackage ../applications/video/quvi/library.nix { };
+
+  praat = callPackage ../applications/audio/praat { };
 
   quvi = callPackage ../applications/video/quvi/tool.nix { };
 
@@ -7487,6 +7501,8 @@ let
     inherit (xorg) libXpm libXft;
     fltk = fltk13;
   };
+
+  rapcad = callPackage ../applications/graphics/rapcad {};
 
   rapidsvn = callPackage ../applications/version-management/rapidsvn { };
 

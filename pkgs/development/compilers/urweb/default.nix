@@ -1,11 +1,11 @@
 { stdenv, fetchurl, file, openssl, mlton, mysql, postgresql, sqlite, pkgconfig
-, version ? "20120110"
+, version ? "20120807"
 }:
 
 stdenv.mkDerivation ( stdenv.lib.mergeAttrsByVersion "urweb" version {
-    "20120110" = rec {
+    "20120807" = rec {
       pname = "urweb";
-      version = "20120110";
+      version = "20120807";
       name = "${pname}-${version}";
       src = fetchurl {
         url = "http://www.impredicative.com/ur/${name}.tgz";
@@ -14,8 +14,8 @@ stdenv.mkDerivation ( stdenv.lib.mergeAttrsByVersion "urweb" version {
     };
     "hg" = {
       # REGION AUTO UPDATE: { name="urweb"; type="hg"; url="http://hg.impredicative.com/urweb"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/urweb-hg-6e6f164.tar.bz2"; sha256 = "e725241daf3b9c31fb95b366e4371118abae326a96bdc17f32685ed38b758e39"; });
-      name = "urweb-hg-6e6f164";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/urweb-hg-ae8b0e0.tar.bz2"; sha256 = "e725241daf3b9c31fb95b366e4371118abae326a96bdc17f32685ed38b758e39"; });
+      name = "urweb-hg-ae8b0e0";
       # END
     };
 } {

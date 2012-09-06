@@ -468,6 +468,8 @@ let
 
   eggdrop = callPackage ../tools/networking/eggdrop { };
 
+  extundelete = callPackage ../tools/recovery/extundelete { };
+
   mcrl = callPackage ../tools/misc/mcrl { };
 
   mcrl2 = callPackage ../tools/misc/mcrl2 { };

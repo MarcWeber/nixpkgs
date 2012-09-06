@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, file, openssl, mlton, mysql, postgresql, sqlite
+{ stdenv, fetchurl, file, openssl, mlton, mysql, postgresql, sqlite, pkgconfig
 , version ? "20120110"
 }:
 
@@ -20,11 +20,14 @@ stdenv.mkDerivation ( stdenv.lib.mergeAttrsByVersion "urweb" version {
     };
 } {
 
-  buildInputs = [ stdenv.gcc file openssl mlton mysql postgresql sqlite ];
+  buildInputs = [ stdenv.gcc file openssl mlton mysql postgresql sqlite pkgconfig ];
+
+  configureFlags = [ "--with-openssl=${openssl}" ];
 
   prePatch = ''
     sed -e 's@/usr/bin/file@${file}/bin/file@g' -i configure
-    '';
+    sed -e 's@gcc @${stdenv.gcc}/bin/gcc @g' -i src/compiler.sml
+  '';
 
   preConfigure =
     ''
@@ -36,8 +39,6 @@ stdenv.mkDerivation ( stdenv.lib.mergeAttrsByVersion "urweb" version {
       export MSHEADER="${mysql}/include/mysql/mysql.h";
       export SQHEADER="${sqlite}/include/sqlite3.h";
     '';
-
-  configureFlags = "--with-openssl=${openssl}"; 
 
   dontDisableStatic = true;
 
@@ -81,7 +82,7 @@ stdenv.mkDerivation ( stdenv.lib.mergeAttrsByVersion "urweb" version {
     '';
 
     homepage = http://www.impredicative.com/ur/;
-    license = "bsd";
+    license = stdenv.lib.licenses.bsd3;
     platforms = [ "i686-linux" "x86_64-linux" ];
   };
 })

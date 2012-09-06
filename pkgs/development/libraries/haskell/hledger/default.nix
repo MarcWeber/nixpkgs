@@ -5,14 +5,17 @@
 
 cabal.mkDerivation (self: {
   pname = "hledger";
-  version = "0.18.1";
-  sha256 = "0nrs9qawvny6dl0pj3f183sgwmam9dsb2dfhp8hqnxx48g1p01lk";
+  version = "0.18.2";
+  sha256 = "1i0rix3h5vrq9j01fzgwyhs2n8nfzhidi4rjlvn402ps0w6j15ld";
   isLibrary = true;
   isExecutable = true;
   buildDepends = [
     cabalFileTh cmdargs filepath haskeline hledgerLib HUnit mtl parsec
     regexpr safe shakespeareText split text time utf8String
   ];
+  patchPhase = ''
+    sed -i -e 's|,split.*|,split|' -e 's|,cmdargs.*|,cmdargs|' hledger.cabal
+  '';
   meta = {
     homepage = "http://hledger.org";
     description = "The main command-line interface for the hledger accounting tool";

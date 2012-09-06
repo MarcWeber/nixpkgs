@@ -21,10 +21,12 @@
   # null, the default standard environment is used.
   bootStdenv ? null
 
-, # Darwin is an "impure" platform, with its libc outside of the store.
-  # Thus, GCC, GFortran, & co. must always look for files in standard system
-  # directories (/usr/include, etc.)
-  noSysDirs ? (system != "x86_64-darwin" && system != "i686-darwin")
+, # Non-GNU/Linux OSes are currently "impure" platforms, with their libc
+  # outside of the store.  Thus, GCC, GFortran, & co. must always look for
+  # files in standard system directories (/usr/include, etc.)
+  noSysDirs ? (system != "x86_64-darwin" && system != "i686-darwin"
+               && system != "x86_64-freebsd" && system != "i686-freebsd"
+               && system != "x86_64-kfreebsd-gnu")
 
   # More flags for the bootstrapping of stdenv.
 , gccWithCC ? true
@@ -467,6 +469,8 @@ let
   dhex = callPackage ../tools/misc/dhex { };
 
   eggdrop = callPackage ../tools/networking/eggdrop { };
+
+  enca = callPackage ../tools/text/enca { };
 
   mcrl = callPackage ../tools/misc/mcrl { };
 
@@ -1320,6 +1324,8 @@ let
 
   plotutils = callPackage ../tools/graphics/plotutils { };
 
+  plowshare = callPackage ../tools/misc/plowshare { };
+
   pngcrush = callPackage ../tools/graphics/pngcrush { };
 
   pngnq = callPackage ../tools/graphics/pngnq { };
@@ -1511,6 +1517,8 @@ let
   stunnel = callPackage ../tools/networking/stunnel { };
 
   su = shadow;
+
+  surfraw = callPackage ../tools/networking/surfraw { };
 
   swec = callPackage ../tools/networking/swec {
     inherit (perlPackages) LWP URI HTMLParser HTTPServerSimple Parent;
@@ -3364,6 +3372,7 @@ let
 
   celt = callPackage ../development/libraries/celt {};
   celt_0_7 = callPackage ../development/libraries/celt/0.7.nix {};
+  celt_0_5_1 = callPackage ../development/libraries/celt/0.5.1.nix {};
 
   cgal = callPackage ../development/libraries/CGAL {};
 
@@ -3399,6 +3408,8 @@ let
   cln = callPackage ../development/libraries/cln { };
 
   clppcre = builderDefsPackage (import ../development/libraries/cl-ppcre) { };
+
+  clucene_core_2 = callPackage ../development/libraries/clucene-core/2.x.nix { };
 
   clucene_core = callPackage ../development/libraries/clucene-core { };
 
@@ -4023,6 +4034,8 @@ let
 
   libcdio = callPackage ../development/libraries/libcdio { };
 
+  libcdr = callPackage ../development/libraries/libcdr { };
+
   libchamplain = callPackage ../development/libraries/libchamplain {
     inherit (gnome) libsoup;
   };
@@ -4125,6 +4138,8 @@ let
   libextractor = callPackage ../development/libraries/libextractor {
     libmpeg2 = mpeg2dec;
   };
+
+  libexttextcat = callPackage ../development/libraries/libexttextcat {};
 
   libf2c = callPackage ../development/libraries/libf2c {};
 
@@ -4368,6 +4383,8 @@ let
 
   libvirt = callPackage ../development/libraries/libvirt { };
 
+  libvisio = callPackage ../development/libraries/libvisio { };
+
   libvncserver = builderDefsPackage (import ../development/libraries/libvncserver) {
     inherit libtool libjpeg openssl zlib;
     inherit (xlibs) xproto libX11 damageproto libXdamage
@@ -4456,6 +4473,8 @@ let
 
   lzo = callPackage ../development/libraries/lzo { };
 
+  mdds = callPackage ../development/libraries/mdds { };
+
   # failed to build
   mediastreamer = callPackage ../development/libraries/mediastreamer { };
 
@@ -4511,6 +4530,8 @@ let
   myguiSvn = callPackage ../development/libraries/mygui/svn.nix {};
 
   mysocketw = callPackage ../development/libraries/mysocketw { };
+
+  mythes = callPackage ../development/libraries/mythes { };
 
   ncurses = makeOverridable (import ../development/libraries/ncurses) {
     inherit fetchurl;
@@ -4830,6 +4851,13 @@ let
   speex = callPackage ../development/libraries/speex { };
 
   sphinxbase = callPackage ../development/libraries/sphinxbase { };
+
+  spice = callPackage ../development/libraries/spice {
+    celt = celt_0_5_1;
+    inherit (xlibs) libXrandr libXfixes libXext libXrender libXinerama;
+  };
+
+  spiceProtocol = callPackage ../development/libraries/spice-protocol { };
 
   sratom = callPackage ../development/libraries/audio/sratom { };
 
@@ -5657,6 +5685,8 @@ let
   iw = callPackage ../os-specific/linux/iw { };
 
   iwlwifi1000ucode = callPackage ../os-specific/linux/firmware/iwlwifi-1000-ucode { };
+
+  iwlwifi2030ucode = callPackage ../os-specific/linux/firmware/iwlwifi-2030-ucode { };
 
   iwlwifi3945ucode = callPackage ../os-specific/linux/firmware/iwlwifi-3945-ucode { };
 
@@ -6926,6 +6956,13 @@ let
 
   firefox13Wrapper = lowPrio (wrapFirefox { browser = firefox13Pkgs.firefox; });
 
+  firefox15Pkgs = callPackage ../applications/networking/browsers/firefox/15.0.nix {
+    inherit (gnome) libIDL;
+    inherit (pythonPackages) pysqlite;
+  };
+
+  firefox15Wrapper = lowPrio (wrapFirefox { browser = firefox15Pkgs.firefox; });
+
   flac = callPackage ../applications/audio/flac { };
 
   flashplayer = flashplayer11;
@@ -6981,7 +7018,6 @@ let
   git = gitAndTools.git;
   gitFull = gitAndTools.gitFull;
   gitSVN = gitAndTools.gitSVN;
-  tig = gitAndTools.tig;
 
   giv = callPackage ../applications/graphics/giv {
     pcre = pcre.override { unicodeSupport = true; };
@@ -7727,6 +7763,8 @@ let
     inherit (gnome) libIDL;
   };
 
+  tig = gitAndTools.tig;
+
   timidity = callPackage ../tools/misc/timidity { };
 
   tkcvs = callPackage ../applications/version-management/tkcvs { };
@@ -7980,7 +8018,13 @@ let
     fltk = fltk13;
   };
 
-  zathura = callPackage ../applications/misc/zathura { };
+  zathuraCollection = recurseIntoAttrs
+    (let callPackage = newScope pkgs.zathuraCollection; in
+      import ../applications/misc/zathura { inherit callPackage pkgs; });
+
+  zathura = zathuraCollection.zathuraWrapper;
+
+  girara = callPackage ../applications/misc/girara { };
 
   zgrviewer = callPackage ../applications/graphics/zgrviewer {};
 

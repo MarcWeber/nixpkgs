@@ -2615,7 +2615,7 @@ let
   tinycc = callPackage ../development/compilers/tinycc { };
 
   urweb = callPackage ../development/compilers/urweb { };
-  urwebHG = callPackage ../development/compilers/urweb { hg = true; };
+  urwebHG = callPackage ../development/compilers/urweb { version = "hg"; };
 
   vala = vala17;
 

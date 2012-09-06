@@ -1,16 +1,26 @@
-{ stdenv, fetchurl, file, openssl, mlton, mysql, postgresql, sqlite }:
+{ stdenv, fetchurl, file, openssl, mlton, mysql, postgresql, sqlite, pkgconfig
+, version ? "20120807"
+}:
 
-stdenv.mkDerivation rec {
-  pname = "urweb";
-  version = "20120807";
-  name = "${pname}-${version}";
+stdenv.mkDerivation ( stdenv.lib.mergeAttrsByVersion "urweb" version {
+    "20120807" = rec {
+      pname = "urweb";
+      version = "20120807";
+      name = "${pname}-${version}";
+      src = fetchurl {
+        url = "http://www.impredicative.com/ur/${name}.tgz";
+        sha256 = "d4344a6c9dcaf968dbeb6fe9a4d9371e08674e37e5b131c8a57f3604c267e195";
+      };
+    };
+    "hg" = {
+      # REGION AUTO UPDATE: { name="urweb"; type="hg"; url="http://hg.impredicative.com/urweb"; }
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/urweb-hg-ae8b0e0.tar.bz2"; sha256 = "e725241daf3b9c31fb95b366e4371118abae326a96bdc17f32685ed38b758e39"; });
+      name = "urweb-hg-ae8b0e0";
+      # END
+    };
+} {
 
-  src = fetchurl {
-    url = "http://www.impredicative.com/ur/${name}.tgz";
-    sha256 = "15g1cz108dkzlp433cg56x76f20y6zcs9sbgxgdniyfakmn4ld6l";
-  };
-
-  buildInputs = [ stdenv.gcc file openssl mlton mysql postgresql sqlite ];
+  buildInputs = [ stdenv.gcc file openssl mlton mysql postgresql sqlite pkgconfig ];
 
   prePatch = ''
     sed -e 's@/usr/bin/file@${file}/bin/file@g' -i configure
@@ -74,4 +84,4 @@ stdenv.mkDerivation rec {
     license = stdenv.lib.licenses.bsd3;
     platforms = [ "i686-linux" "x86_64-linux" ];
   };
-}
+})

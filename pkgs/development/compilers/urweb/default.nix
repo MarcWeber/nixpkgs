@@ -9,7 +9,7 @@ stdenv.mkDerivation ( stdenv.lib.mergeAttrsByVersion "urweb" version {
       name = "${pname}-${version}";
       src = fetchurl {
         url = "http://www.impredicative.com/ur/${name}.tgz";
-        sha256 = "1f67nj2akji9dh3n2hwmcrrwd61zlrnb0xh841fpb3n20ycjzg6j";
+        sha256 = "d4344a6c9dcaf968dbeb6fe9a4d9371e08674e37e5b131c8a57f3604c267e195";
       };
     };
     "hg" = {

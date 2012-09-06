@@ -2,20 +2,23 @@
 , version ? "20120110"
 }:
 
-stdenv.mkDerivation rec {
-  pname = "urweb";
-  version = "20120110";
-  name = "${pname}-${version}";
-
-  src = fetchurl {
-    url = "http://www.impredicative.com/ur/${name}.tgz";
-    sha256 = "1f67nj2akji9dh3n2hwmcrrwd61zlrnb0xh841fpb3n20ycjzg6j";
-  };
-#  # REGION AUTO UPDATE: { name="urweb"; type="hg"; url="http://hg.impredicative.com/urweb"; }
-#  src = (fetchurl { url = "http://mawercer.de/~nix/repos/urweb-hg-6e6f164.tar.bz2"; sha256 = "e725241daf3b9c31fb95b366e4371118abae326a96bdc17f32685ed38b758e39"; });
-#  name = "urweb-hg-6e6f164";
-#  # END
-
+stdenv.mkDerivation ( stdenv.lib.mergeAttrsByVersion "urweb" version {
+    "20120110" = rec {
+      pname = "urweb";
+      version = "20120110";
+      name = "${pname}-${version}";
+      src = fetchurl {
+        url = "http://www.impredicative.com/ur/${name}.tgz";
+        sha256 = "1f67nj2akji9dh3n2hwmcrrwd61zlrnb0xh841fpb3n20ycjzg6j";
+      };
+    };
+    "hg" = {
+      # REGION AUTO UPDATE: { name="urweb"; type="hg"; url="http://hg.impredicative.com/urweb"; }
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/urweb-hg-6e6f164.tar.bz2"; sha256 = "e725241daf3b9c31fb95b366e4371118abae326a96bdc17f32685ed38b758e39"; });
+      name = "urweb-hg-6e6f164";
+      # END
+    };
+} {
 
   buildInputs = [ stdenv.gcc file openssl mlton mysql postgresql sqlite ];
 
@@ -81,4 +84,4 @@ stdenv.mkDerivation rec {
     license = "bsd";
     platforms = [ "i686-linux" "x86_64-linux" ];
   };
-}
+})

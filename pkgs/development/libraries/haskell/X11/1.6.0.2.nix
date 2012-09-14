@@ -1,11 +1,9 @@
-{ cabal, libX11, libXext, libXinerama, libXrandr, libXrender, syb
-}:
+{ cabal, libX11, libXext, libXinerama, libXrandr, libXrender }:
 
 cabal.mkDerivation (self: {
   pname = "X11";
-  version = "1.6.0";
-  sha256 = "0jjnr4490mkdrmq3lvv7hha7rc9vbwsxlwsvcv56q6zgjx4zwf8j";
-  buildDepends = [ syb ];
+  version = "1.6.0.2";
+  sha256 = "0z1g93k2zbkb9is2zy6pfwp13bv11cvs30b9cz253wjv2liphshw";
   extraLibraries = [
     libX11 libXext libXinerama libXrandr libXrender
   ];

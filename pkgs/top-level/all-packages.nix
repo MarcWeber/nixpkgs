@@ -999,6 +999,8 @@ let
 
   minidlna = callPackage ../tools/networking/minidlna { };
 
+  mmv = callPackage ../tools/misc/mmv { };
+
   most = callPackage ../tools/misc/most { };
 
   netperf = callPackage ../applications/networking/netperf { };
@@ -1185,6 +1187,8 @@ let
   nmap = callPackage ../tools/security/nmap {
     inherit (pythonPackages) pysqlite;
   };
+
+  nss_pam_ldapd = callPackage ../tools/networking/nss-pam-ldapd {};
 
   ntfs3g = callPackage ../tools/filesystems/ntfs-3g { };
 
@@ -1446,6 +1450,8 @@ let
   };
 
   sablotron = callPackage ../tools/text/xml/sablotron { };
+
+  salut_a_toi = callPackage ../applications/networking/instant-messengers/salut-a-toi {};
 
   screen = callPackage ../tools/misc/screen { };
 
@@ -2344,10 +2350,8 @@ let
   haskellPackages_ghc741_no_profiling = recurseIntoAttrs (haskell.packages_ghc741.noProfiling);
   haskellPackages_ghc741_profiling    = recurseIntoAttrs (haskell.packages_ghc741.profiling);
   haskellPackages_ghc741              = recurseIntoAttrs (haskell.packages_ghc741.highPrio);
-  # Stable branch snapshot.
   haskellPackages_ghc742              = recurseIntoAttrs (haskell.packages_ghc742);
-  # Release candidate.
-  haskellPackages_ghc761              =                   haskell.packages_ghc761;
+  haskellPackages_ghc761              = recurseIntoAttrs (haskell.packages_ghc761);
   # Reasonably current HEAD snapshot.
   haskellPackages_ghcHEAD             =                   haskell.packages_ghcHEAD;
 
@@ -2917,6 +2921,7 @@ let
   apacheAnt = callPackage ../development/tools/build-managers/apache-ant { };
 
   apacheAntOpenJDK = apacheAnt.override { jdk = openjdk; };
+  apacheAntOracleJDK = ant.override { jdk = pkgs.oraclejdk; };
 
   apacheAntGcj = callPackage ../development/tools/build-managers/apache-ant/from-source.nix {
     # must be either pre-built or built with GCJ *alone*
@@ -3339,7 +3344,8 @@ let
   boost147 = callPackage ../development/libraries/boost/1.47.nix { };
   boost149 = callPackage ../development/libraries/boost/1.49.nix { };
   boost150 = callPackage ../development/libraries/boost/1.50.nix { };
-  boost = boost150;
+  boost151 = callPackage ../development/libraries/boost/1.51.nix { };
+  boost = boost151;
 
   boostHeaders149 = callPackage ../development/libraries/boost/1.49-headers.nix { };
   boostHeaders150 = callPackage ../development/libraries/boost/1.50-headers.nix { };
@@ -4849,7 +4855,7 @@ let
     inherit (xlibs) libXrandr libXfixes libXext libXrender libXinerama;
   };
 
-  spiceProtocol = callPackage ../development/libraries/spice-protocol { };
+  spice_protocol = callPackage ../development/libraries/spice-protocol { };
 
   sratom = callPackage ../development/libraries/audio/sratom { };
 
@@ -4894,6 +4900,8 @@ let
   talloc = callPackage ../development/libraries/talloc { };
 
   tclap = callPackage ../development/libraries/tclap {};
+
+  tclgpg = callPackage ../development/libraries/tclgpg { };
 
   tcllib = callPackage ../development/libraries/tcllib { };
 
@@ -5377,7 +5385,6 @@ let
   #monetdb = callPackage ../servers/sql/monetdb { };
 
   mongodb = callPackage ../servers/nosql/mongodb {
-    boost = boost149;
     useV8 = (getConfig ["mongodb" "useV8"] false);
   };
 
@@ -5712,10 +5719,6 @@ let
   libcgroup = callPackage ../os-specific/linux/libcgroup { };
 
   libnl = callPackage ../os-specific/linux/libnl { };
-
-  libnl2 = callPackage ../os-specific/linux/libnl/v2.nix { };
-
-  libnl1 = callPackage ../os-specific/linux/libnl/v1.nix { };
 
   linuxHeaders = callPackage ../os-specific/linux/kernel-headers { };
 
@@ -6114,6 +6117,8 @@ let
   pmount = callPackage ../os-specific/linux/pmount { };
 
   pmutils = callPackage ../os-specific/linux/pm-utils { };
+
+  pmtools = callPackage ../os-specific/linux/pmtools { };
 
   policycoreutils = callPackage ../os-specific/linux/policycoreutils { };
 
@@ -6830,6 +6835,8 @@ let
     # we want it to have higher precedence.
     org = hiPrio (callPackage ../applications/editors/emacs-modes/org { });
 
+    org2blog = callPackage ../applications/editors/emacs-modes/org2blog { };
+
     pcache = callPackage ../applications/editors/emacs-modes/pcache { };
 
     phpMode = callPackage ../applications/editors/emacs-modes/php { };
@@ -6853,6 +6860,8 @@ let
     scalaMode = callPackage ../applications/editors/emacs-modes/scala-mode { };
 
     sunriseCommander = callPackage ../applications/editors/emacs-modes/sunrise-commander { };
+
+    xmlRpc = callPackage ../applications/editors/emacs-modes/xml-rpc { };
   };
 
   emacs22Packages = emacsPackages emacs22 pkgs.emacs22Packages;
@@ -7259,6 +7268,8 @@ let
     fftw = fftwSinglePrec;
   };
 
+  lastwatch = callPackage ../applications/audio/lastwatch { };
+
   lci = callPackage ../applications/science/logic/lci {};
 
   ldcpp = callPackage ../applications/networking/p2p/ldcpp {
@@ -7512,6 +7523,8 @@ let
   pdftk = callPackage ../tools/typesetting/pdftk { };
 
   pianobooster = callPackage ../applications/audio/pianobooster { };
+
+  picard = callPackage ../applications/audio/picard { };
 
   pidgin = callPackage ../applications/networking/instant-messengers/pidgin {
     openssl = if (getConfig ["pidgin" "openssl"] true) then openssl else null;
@@ -8624,7 +8637,6 @@ let
   spass = callPackage ../applications/science/logic/spass {};
 
   ssreflect = callPackage ../applications/science/logic/ssreflect {
-    coq = coq_8_3;
     camlp5 = ocamlPackages.camlp5_transitional;
   };
 
@@ -8741,6 +8753,7 @@ let
     inherit (gnome) libglade;
     inherit (xlibs) libXScrnSaver libXt xproto libXext xextproto libX11
       scrnsaverproto;
+    inherit (pythonPackages) pyasn1;
     python = pythonFull;
   };
 

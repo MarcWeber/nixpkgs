@@ -6476,6 +6476,8 @@ let
 
   adobeReader = callPackage_i686 ../applications/misc/adobe-reader { };
 
+  aewan = callPackage ../applications/editors/aewan { };
+
   amsn = callPackage ../applications/networking/instant-messengers/amsn { };
 
   antiword = callPackage ../applications/office/antiword {};
@@ -7110,6 +7112,8 @@ let
   gv = callPackage ../applications/misc/gv { };
 
   hello = callPackage ../applications/misc/hello/ex-2 { };
+
+  hexedit = callPackage ../applications/editors/hexedit { };
 
   homebank = callPackage ../applications/office/homebank { };
 

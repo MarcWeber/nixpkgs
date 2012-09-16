@@ -1,3 +1,15 @@
-experimental/overlays
+experimental/updates
 experimental/hack-nix
-experimental/gimp-git
+experimental/php
+experimental/multi-shell-support
+experimental/opera
+experimental/opencascade
+experimental/nodejs
+experimental/shadow
+experimental/mingw
+experimental/gutenprint
+experimental/haxe
+experimental/nix
+experimental/lib-fold-attr
+experimental/extundelete
+experimental/urweb

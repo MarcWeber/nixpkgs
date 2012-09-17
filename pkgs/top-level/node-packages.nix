@@ -1,8 +1,9 @@
-{ pkgs, stdenv, nodejs, fetchurl }:
+{ pkgs, stdenv, nodejs, fetchurl, neededNatives }:
 
 let self = {
   buildNodePackage = import ../development/web/nodejs/build-node-package.nix {
-    inherit stdenv nodejs;
+    inherit stdenv nodejs neededNatives;
+    inherit (pkgs) runCommand;
   };
 
   patchLatest = srcAttrs:
@@ -95,14 +96,15 @@ let self = {
     ];
   };
 
-  "bson" = self."bson-0.1.0";
+  "bson" = self."bson-0.1.3";
 
-  "bson-0.1.0" = self.buildNodePackage rec {
-    name = "bson-0.1.0";
+  "bson-0.1.3" = self.buildNodePackage rec {
+    name = "bson-0.1.3";
     src = fetchurl {
       url = "http://registry.npmjs.org/bson/-/${name}.tgz";
-      sha256 = "32618266420f4d2688e957a6a145aab6a1402c950b7b7c7c1d0520cbd08251c9";
+      sha256 = "86ed2b1465e30a4089c8c88dee3d97fafcd7deb60edc3819c00a0604c84d5040";
     };
+    flags = [ "mongodb:native" ];
     deps = [
 
     ];
@@ -277,6 +279,19 @@ let self = {
     src = fetchurl {
       url = "http://registry.npmjs.org/eyes/-/${name}.tgz";
       sha256 = "4fa6db8f2c9926fb39a211c622d7eb3a76efbc4878559f9bd155d647a6963735";
+    };
+    deps = [
+
+    ];
+  };
+
+  "faye-websocket" = self."faye-websocket-0.4.0";
+
+  "faye-websocket-0.4.0" = self.buildNodePackage rec {
+    name = "faye-websocket-0.4.0";
+    src = fetchurl {
+      url = "http://registry.npmjs.org/faye-websocket/-/${name}.tgz";
+      sha256 = "853b8d2f4611013da89faf45b6c9f6e440ad6c46616e405b8cf59b4302e78e2f";
     };
     deps = [
 
@@ -476,16 +491,16 @@ let self = {
     ];
   };
 
-  "mongodb" = self."mongodb-1.1.0-beta";
+  "mongodb" = self."mongodb-1.1.7";
 
-  "mongodb-1.1.0-beta" = self.buildNodePackage rec {
-    name = "mongodb-1.1.0-beta";
+  "mongodb-1.1.7" = self.buildNodePackage rec {
+    name = "mongodb-1.1.7";
     src = fetchurl {
       url = "http://registry.npmjs.org/mongodb/-/${name}.tgz";
-      sha256 = "05e5a798d4c3a499af1e77a33eb13a31d4fb688a63e97b3fe970a3bccea39ab3";
+      sha256 = "10ed2903b839907e854a4ae4508940207f260500bfaff028497e9df865ead475";
     };
     deps = [
-      self."bson-0.1.0"
+      self."bson-0.1.3"
     ];
   };
 
@@ -524,6 +539,19 @@ let self = {
       self."semver-1"
       self."tar-~0.1.12"
       self."which-1"
+    ];
+  };
+
+  "node-uuid" = self."node-uuid-1.3.3";
+
+  "node-uuid-1.3.3" = self.buildNodePackage rec {
+    name = "node-uuid-1.3.3";
+    src = fetchurl {
+      url = "http://registry.npmjs.org/node-uuid/-/${name}.tgz";
+      sha256 = "a3fbccc904944a9c8eadc59e55aaac908cc458569f539b50077d9672a84587a8";
+    };
+    deps = [
+
     ];
   };
 
@@ -654,6 +682,22 @@ let self = {
     };
     deps = [
 
+    ];
+  };
+
+  "rbytes" = self."rbytes-0.0.2";
+
+  "rbytes-0.0.2" = self.buildNodePackage rec {
+    name = "rbytes-0.0.2";
+    src = fetchurl {
+      url = "http://registry.npmjs.org/rbytes/-/${name}.tgz";
+      sha256 = "0fd4697be996ee12c65f8fb13b2edc7a554d22c31d1a344539bc611ce73b69aa";
+    };
+    deps = [
+
+    ];
+    nativeDeps = [
+      pkgs.openssl
     ];
   };
 
@@ -791,6 +835,21 @@ let self = {
     ];
   };
 
+  "sockjs" = self."sockjs-0.3.1";
+
+  "sockjs-0.3.1" = self.buildNodePackage rec {
+    name = "sockjs-0.3.1";
+    src = fetchurl {
+      url = "http://registry.npmjs.org/sockjs/-/${name}.tgz";
+      sha256 = "056476f23dbe2e2182e5edea755108a8b6dbaea4b675b228172e876c8649efdf";
+    };
+    deps = [
+      self."node-uuid-1.3.3"
+      self."faye-websocket-0.4.0"
+      self."rbytes-0.0.2"
+    ];
+  };
+
   "tar" = self."tar-~0.1.12";
 
   "tar-~0.1.12" = self.buildNodePackage rec {
@@ -898,8 +957,9 @@ let self = {
   };
 
   "ws" = self."ws-0.4.x";
+  "ws-0.4.x" = self."ws-0.4.21";
 
-  "ws-0.4.x" = self.buildNodePackage rec {
+  "ws-0.4.21" = self.buildNodePackage rec {
     name = "ws-0.4.21";
     src = self.patchLatest {
       url = "http://registry.npmjs.org/ws/-/${name}.tgz";

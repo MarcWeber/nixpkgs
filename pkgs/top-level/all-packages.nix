@@ -2739,27 +2739,21 @@ let
 
   perl = if system != "i686-cygwin" then perl514 else sysPerl;
 
-  php = php5_3;
+  php = callPackage ../development/interpreters/php { };
+  # php 5.2 is no longer supported officially. It works - but use at your own risk!
+  php5_2 = php.override { version = "5.2.17"; };
+  php5_2fpm = php5_3.override { version ="5.2.17"; sapi = "fpm"; }; # experimental patch
 
-  php5_2 = makeOverridable (import ../development/interpreters/php/5.2.nix) {
-    inherit
-      stdenv fetchurl lib composableDerivation autoconf automake
-      flex bison apacheHttpd mysql libxml2 readline
-      zlib curl gd postgresql openssl pkgconfig sqlite getConfig libiconv libjpeg libpng;
-  };
+  php5_3 = php.override { version = "5.3.15"; }; 
+  php5_3fpm = php5_3.override { sapi = "fpm"; };
 
-  php5_3 = makeOverridable (import ../development/interpreters/php/5.3.nix) {
-    inherit
-      stdenv fetchurl lib composableDerivation autoconf automake
-      flex bison apacheHttpd mysql libxml2 readline
-      zlib curl gd postgresql openssl pkgconfig sqlite getConfig libiconv libjpeg libpng;
-  };
+  php5_4 = php.override { version = "5.4.5";  gdSupport = false; }; # gd support fails for 5.4.x
+  php5_4fpm = php5_3.override { sapi = "fpm"; };
 
-  php_apc = callPackage ../development/libraries/php-apc { };
-
-  php_xcache = callPackage ../development/libraries/php-xcache { };
-
-  phpXdebug = callPackage ../development/interpreters/php-xdebug { };
+  # use php.apc/xcache/Xdebug instead
+  # php_apc = callPackage ../development/libraries/php-apc { };
+  # php_xcache = callPackage ../development/libraries/php-xcache { };
+  # phpXdebug = callPackage ../development/interpreters/php-xdebug { };
 
   picolisp = callPackage ../development/interpreters/picolisp {};
 
@@ -4155,6 +4149,8 @@ let
   liblastfm = callPackage ../development/libraries/liblastfm { };
 
   liblqr1 = callPackage ../development/libraries/liblqr-1 { };
+
+  libmcrypt = callPackage ../development/libraries/libmcrypt {};
 
   liblockfile = callPackage ../development/libraries/liblockfile { };
 

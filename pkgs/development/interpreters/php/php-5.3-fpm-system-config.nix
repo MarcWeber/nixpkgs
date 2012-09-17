@@ -7,8 +7,8 @@ let
 
   defaultConfig = {
     # jobName = ..
-    pid = "/var/run/php-fpm-5.2.pid";
-    error_log = "/var/log/php-fpm-5.2.log";
+    pid = "/var/run/php-fpm-${php.id}.pid";
+    error_log = "/var/log/php-fpm-${php.id}.log";
     log_level = "notice";
     emergency_restart_threshold = "10";
     emergency_restart_interval = "1m";

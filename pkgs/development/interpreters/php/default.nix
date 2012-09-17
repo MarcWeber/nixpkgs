@@ -297,18 +297,23 @@ let
     license = "PHP-3";
   };
 
-  patches = if lessThan54 
-    then [./fix.patch] 
+  patches = if lessThan54
+    then [./fix.patch]
     else [./fix-5.4.patch]; # TODO patch still required? I use php-fpm only
     });
 
-  in php // { 
-    xdebug = callPackage ../../interpreters/php-xdebug { inherit php; };
-    xcache = callPackage ../../libraries/php-xcache { inherit php; };
-    apc = callPackage ../../libraries/php-apc { inherit php; };
-    } // (lib.optionalAttrs (sapi == "fpm") {
-        system_fpm_config =
-        if lessThan53
-        then config: pool: (import ./php-5.2-fpm-system-config.nix) { inherit pkgs php lib writeText config pool;}
-        else config: pool: (import ./php-5.3-fpm-system-config.nix) { inherit php lib writeText config pool;};
-    })
+  php_with_id = php // {
+    id = builtins.baseNameOf (builtins.unsafeDiscardStringContext php); # the hash of the store path depending on php version and all configuration details
+  };
+
+  in php_with_id // {
+    xdebug = callPackage ../../interpreters/php-xdebug { php = php_with_id; };
+    xcache = callPackage ../../libraries/php-xcache { php = php_with_id; };
+    apc = callPackage ../../libraries/php-apc { php = php_with_id; };
+    system_fpm_config =
+          if (sapi == "fpm") then
+              if lessThan53
+              then config: pool: (import ./php-5.2-fpm-system-config.nix) { php = php_with_id; inherit pkgs lib writeText config pool;}
+              else config: pool: (import ./php-5.3-fpm-system-config.nix) { php = php_with_id; inherit      lib writeText config pool;}
+          else throw "php built without fpm support. use php.override { sapi = \"fpm\"; }";
+  }

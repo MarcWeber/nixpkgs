@@ -1,0 +1,6 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] experimental/blender
+
+support multiple blender versions (all but the latest are broken right now ...)
+
+Signed-off-by: Marc Weber <marco-oweber@gmx.de>

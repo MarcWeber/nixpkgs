@@ -122,13 +122,13 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
     inherit (self) cabal ghc;
     cgi          = self.cgi_3001_1_8_3;         # 7.6 ok
     fgl          = self.fgl_5_4_2_4;            # 7.6 ok
-    GLUT         = self.GLUT_2_3_0_0;           # 7.6 fail
+    GLUT         = self.GLUT_2_3_0_0;           # 7.6 ok
     haskellSrc   = self.haskellSrc_1_0_1_5;     # 7.6 fail
     html         = self.html_1_0_1_2;           # 7.6 ok
-    HTTP         = self.HTTP_4000_2_4;          # 7.6 ok
+    HTTP         = self.HTTP_4000_2_5;          # 7.6 ok
     HUnit        = self.HUnit_1_2_5_1;          # 7.6 ok
     mtl          = self.mtl_2_1_2;              # 7.6 ok
-    network      = self.network_2_3_1_0;        # 7.6 ok
+    network      = self.network_2_4_0_0;        # 7.6 ok
     OpenGL       = self.OpenGL_2_5_0_0;         # 7.6 ok
     parallel     = self.parallel_3_2_0_3;       # 7.6 ok
     parsec       = self.parsec_3_1_3;           # 7.6 ok
@@ -858,8 +858,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   HTTP_4000_2_1 = callPackage ../development/libraries/haskell/HTTP/4000.2.1.nix {};
   HTTP_4000_2_2 = callPackage ../development/libraries/haskell/HTTP/4000.2.2.nix {};
   HTTP_4000_2_3 = callPackage ../development/libraries/haskell/HTTP/4000.2.3.nix {};
-  HTTP_4000_2_4 = callPackage ../development/libraries/haskell/HTTP/4000.2.4.nix {};
-  HTTP = self.HTTP_4000_2_4;
+  HTTP_4000_2_5 = callPackage ../development/libraries/haskell/HTTP/4000.2.5.nix {};
+  HTTP = self.HTTP_4000_2_5;
 
   hackageDb = callPackage ../development/libraries/haskell/hackage-db {};
 
@@ -1130,8 +1130,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   network_2_3_0_2 = callPackage ../development/libraries/haskell/network/2.3.0.2.nix {};
   network_2_3_0_5 = callPackage ../development/libraries/haskell/network/2.3.0.5.nix {};
   network_2_3_0_13 = callPackage ../development/libraries/haskell/network/2.3.0.13.nix {};
-  network_2_3_1_0 = callPackage ../development/libraries/haskell/network/2.3.1.0.nix {};
-  network = self.network_2_3_1_0;
+  network_2_4_0_0 = callPackage ../development/libraries/haskell/network/2.4.0.0.nix {};
+  network = self.network_2_4_0_0;
 
   networkConduit = callPackage ../development/libraries/haskell/network-conduit {};
 
@@ -1389,6 +1389,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   stringsearch = callPackage ../development/libraries/haskell/stringsearch {};
 
+  strptime = callPackage ../development/libraries/haskell/strptime {};
+
   stylishHaskell = callPackage ../development/libraries/haskell/stylish-haskell {};
 
   syb_0_2_2 = callPackage ../development/libraries/haskell/syb/0.2.2.nix {};
@@ -1432,7 +1434,6 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   SMTPClient = callPackage ../development/libraries/haskell/SMTPClient {};
 
-  split_0_1 = callPackage ../development/libraries/haskell/split/0.1.nix {};
   split = callPackage ../development/libraries/haskell/split {};
 
   stbImage = callPackage ../development/libraries/haskell/stb-image {};
@@ -1568,6 +1569,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   vacuumCairo = callPackage ../development/libraries/haskell/vacuum-cairo {};
 
   vault = callPackage ../development/libraries/haskell/vault {};
+
+  vcsRevision = callPackage ../development/libraries/haskell/vcs-revision {};
 
   Vec = callPackage ../development/libraries/haskell/Vec {};
 
@@ -1811,7 +1814,6 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   xmonadExtras = callPackage ../applications/window-managers/xmonad/xmonad-extras.nix {
     X11 = self.X11_1_5_0_1;
-    split = self.split_0_1;
   };
 
   # Tools.
@@ -1832,6 +1834,10 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   lhs2tex = callPackage ../tools/typesetting/lhs2tex {};
 
   myhasktags = callPackage ../tools/misc/myhasktags {};
+
+  splot = callPackage ../development/tools/haskell/splot {};
+
+  timeplot = callPackage ../development/tools/haskell/timeplot {};
 
   # Games.
 

@@ -5271,7 +5271,7 @@ let
     inherit stdenv lib dict;
   };
 
-  dovecot = callPackage ../servers/mail/dovecot { };
+  dovecot = callPackage ../servers/mail/dovecot/1.0.3.nix { };
   dovecot_1_1_1 = callPackage ../servers/mail/dovecot/1.1.1.nix { };
   dovecot_2 = callPackage ../servers/mail/dovecot/2.x.nix { };
   dovecot_2_0 = pkgs.dovecot_2; # Actually, 2.1
@@ -5332,6 +5332,8 @@ let
   myserver = callPackage ../servers/http/myserver { };
 
   nginx = callPackage ../servers/http/nginx { };
+
+  popa3d = callPackage ../servers/mail/popa3d { };
 
   postfix = callPackage ../servers/mail/postfix { };
 
@@ -6432,6 +6434,8 @@ let
   tipa = callPackage ../data/fonts/tipa { };
 
   ttf_bitstream_vera = callPackage ../data/fonts/ttf-bitstream-vera { };
+
+  tzdata = callPackage ../data/misc/tzdata { };
 
   ubuntu_font_family = callPackage ../data/fonts/ubuntu-font-family { };
 

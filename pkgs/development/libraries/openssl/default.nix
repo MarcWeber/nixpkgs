@@ -1,4 +1,5 @@
-{ stdenv, fetchurl, perl }:
+{ stdenv, fetchurl, perl
+, withCryptodev ? false, cryptodevHeaders }:
 
 let
   name = "openssl-1.0.0i";
@@ -50,6 +51,8 @@ stdenv.mkDerivation {
 
   patches = patchesCross false;
 
+  buildInputs = stdenv.lib.optional withCryptodev cryptodevHeaders;
+
   buildNativeInputs = [ perl ];
 
   # On x86_64-darwin, "./config" misdetects the system as
@@ -57,7 +60,8 @@ stdenv.mkDerivation {
   configureScript =
     if stdenv.system == "x86_64-darwin" then "./Configure darwin64-x86_64-cc" else "./config";
 
-  configureFlags = "shared --libdir=lib";
+  configureFlags = "shared --libdir=lib" +
+    stdenv.lib.optionalString withCryptodev " -DHAVE_CRYPTODEV -DUSE_CRYPTODEV_DIGESTS";
 
   makeFlags = "MANDIR=$(out)/share/man";
 

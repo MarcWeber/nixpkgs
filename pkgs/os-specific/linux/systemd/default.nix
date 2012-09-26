@@ -1,23 +1,29 @@
 { stdenv, fetchurl, pkgconfig, intltool, gperf, libcap, dbus, kmod
 , xz, pam, acl, cryptsetup, libuuid, m4, utillinux, usbutils, pciutils
-, glib, kbd
+, glib, kbd, libxslt
 }:
 
 assert stdenv.gcc.libc or null != null;
 
 stdenv.mkDerivation rec {
-  name = "systemd-188";
+  name = "systemd-192";
 
   src = fetchurl {
     url = "http://www.freedesktop.org/software/systemd/${name}.tar.xz";
-    sha256 = "0nr1cg1mizbwcafjcqw3c30mx6xdv596jpbgjlxr6myvc5hfsfg8";
+    sha256 = "03y3y1w3x7bx67jvdxryhns3h1g6nrllln46gqipp35n99alki2m";
   };
 
-  patches = [ ./fail-after-reaching-respawn-limit.patch ];
+  patches = [ ./reexec.patch ] ++
+            # Remove this patch after the next update.
+            stdenv.lib.optional (stdenv.system == "i686-linux") (fetchurl {
+              url = "https://bugs.freedesktop.org/attachment.cgi?id=67621";
+              name = "fix-32-bit-build.patch";
+              sha256 = "1i4xn6lc6iapaasd2lz717b1zrq5ds5g18i7m509fgfwy7w7x95l";
+            });
 
   buildInputs =
     [ pkgconfig intltool gperf libcap dbus kmod xz pam acl
-      /* cryptsetup */ libuuid m4 usbutils pciutils glib
+      /* cryptsetup */ libuuid m4 usbutils pciutils glib libxslt
     ];
 
   configureFlags =

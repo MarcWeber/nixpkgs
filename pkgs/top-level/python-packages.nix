@@ -3109,4 +3109,40 @@ let pythonPackages = python.modules // rec {
     };
   };
 
+  # steno engine, see http://plover.stenoknight.com
+  plover = buildPythonPackage rec {
+    name = "plover-2.2.0";
+    doCheck = false;
+    patchPhase = ''
+      sed -i 's@/usr@usr@g' setup.py
+    '';
+    installCommand = "python setup.py install --prefix=$out";
+    src = fetchurl {
+      url = http://launchpad.net/plover/trunk/plover-2.2.0/+download/plover-2.2.0.tar.gz;
+      sha256 = "1wwgp39zcwqdwj2p8dh1l5bh8qc48s5da7gzp8n8kyv8ja87yzkq";
+    };
+    propagatedBuildInputs = [wxPython lockfile serial xlib];
+  };
+
+  # learning app for plover
+  fly = buildPythonPackage rec {
+    name = "plover-2.2.0";
+    doCheck = false;
+    installCommand = ''
+      ensureDir $out/bin
+      cp -a fly $out/fly
+      cat >> $out/bin/fly << EOF
+      #!/bin/sh
+      cd $out/fly
+      $out/fly/main.py "\$@"
+      EOF
+      chmod +x $out/bin/fly
+    '';
+    src = fetchurl {
+      url = https://launchpadlibrarian.net/113180132/fly_v1.0.0_linux.tar.gz;
+      sha256 = "0w2xgq1hvbzk5gswl08a1bannjzi7z1kh4zcjsnvmjp3qz4v39z8";
+    };
+    propagatedBuildInputs = [wxPython lockfile serial xlib game];
+  };
+
 }; in pythonPackages

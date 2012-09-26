@@ -61,7 +61,7 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "blender" version {
     "-DPYTHON_LIBPATH=${python}/lib"
   ];
 
-  meta = { 
+  meta = {
     description = "3D Creation/Animation/Publishing System";
     homepage = http://www.blender.org;
     # They comment two licenses: GPLv2 and Blender License, but they

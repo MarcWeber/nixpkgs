@@ -299,7 +299,6 @@ with (import ./release-lib.nix);
   tinycc = ["i686-linux"];
   uae = linux;
   udev = linux;
-  uml = ["i686-linux"];
   unrar = linux;
   upstart = linux;
   usbutils = linux;
@@ -360,7 +359,6 @@ with (import ./release-lib.nix);
 
   firefox36Pkgs.firefox = linux;
   firefox12Pkgs.firefox = linux;
-  firefox13Pkgs.firefox = linux;
   firefox15Pkgs.firefox = linux;
 
   gnome = {

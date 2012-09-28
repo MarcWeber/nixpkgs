@@ -1,8 +1,9 @@
 { pkgs, stdenv, fetchurl, composableDerivation, autoconf, automake
 , flex, bison, apacheHttpd, mysql, libxml2, readline
-, zlib, curl, gd, postgresql, openssl, pkgconfig, sqlite, getConfig, libiconv
+, zlib, curl, gd, postgresql, openssl, pkgconfig, sqlite, config, libiconv
 , libjpeg, libpng, htmlTidy, libmcrypt, fcgi, callPackage, gettext
 , freetype, writeText
+, openldap, cyrus_sasl
 , version ? "5.3.15" # latest stable
 
 # options
@@ -31,6 +32,7 @@
 , zipSupport ? true
 , zlibSupport ? true
 , ttfSupport ? true
+, ldapSupport ? true
 
 , lessThan53 ? builtins.lessThan (builtins.compareVersions version "5.3") 0 # you're not supposed to pass this
 , lessThan54 ? builtins.lessThan (builtins.compareVersions version "5.4") 0
@@ -113,7 +115,12 @@ let
         configureFlags = ["--with-curl=${curl}" "--with-curlwrappers"];
         buildInputs = [curl openssl];
       };
-      
+
+      ldap = {
+        configureFlags = ["--with-ldap=${openldap}" "--with-ldap-sasl=${cyrus_sasl}"];
+        buildInputs = [openldap cyrus_sasl];
+      };
+
       zlib = {
         configureFlags = ["--with-zlib=${zlib}"];
         buildInputs = [zlib];

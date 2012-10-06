@@ -82,6 +82,7 @@ let
             "request_slowlog_timeout"
           ]
       }
+      ${maybeAttr "extraLines" "" poolC}
       '';
     in
       # main config which pools

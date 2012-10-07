@@ -1,115 +1,33 @@
-args: with args;
+{ stdenv, fetchsvn, ocaml, zlib, neko }:
 
-let
-/*
-  TODO: build all ndlls, they also depend on
-    apache2 (or 1.3)
-    libmysqlclient
-    libpcre
-    libgtk2.0
-*/
-    src_haxe = {
-      # REGION AUTO UPDATE:       { name="haxe-read-only"; type="svn"; url="http://haxe.googlecode.com/svn/trunk"; groups = "haxe_group"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-read-only-svn-4487.tar.bz2"; sha256 = "caa425c2052f6c7a737abb43a16b80d84ff347f40d3cf7d3c4fbc9e66efb2902"; });
-      name = "haxe-read-only-svn-4487";
-      # END
-    }.src;
+stdenv.mkDerivation {
+  name = "haxe-2.10";
 
-    svn_export_fake = args.writeScriptBin "svn" ''
-    #!/bin/sh
-    fail(){ echo $1; exit 1; }
-    [ "$1" == "export" ] || fail "first arg should be export, got $@"
-    [ "$2" == "-q" ] || fail "first arg should be -q, got $@"
-    cp -a "$3" "$4"
-    '';
+  buildInputs = [ocaml zlib neko];
 
-
-    # the HaXe compiler
-    haxe = stdenv.mkDerivation {
-      name = "haxe-cvs";
-
-      buildInputs = [ocaml zlib makeWrapper svn_export_fake];
-
-      src = src_haxe;
-
-      inherit zlib;
-
-      buildPhase = ''
-        set -x
-        mkdir -p ocaml/{swflib,extc,extlib-dev,xml-light} neko/libs
-
-        # strange setup. install.ml seems to co the same repo again into haxe directory!
-        mkdir haxe
-        tar xfj $src --strip-components=1 -C haxe
-
-        t(){ tar xfj $1 -C $2 --strip-components=2; }
-
-        sed -e '/download();/d' \
-            -e "s@/usr/lib/@''${zlib}/lib/@g" \
-            doc/install.ml > install.ml
-        
-        ocaml install.ml
-      '';
-
-      # probably rpath should be set properly
-      installPhase = ''
-        mkdir -p $out/lib/haxe
-        cp -r bin $out/bin
-        wrapProgram "$out/bin/haxe" \
-          --set "LD_LIBRARY_PATH" $zlib/lib \
-          --set HAXE_LIBRARY_PATH "''${HAXE_LIBRARY_PATH}''${HAXE_LIBRARY_PATH:-:}:$out/lib/haxe/std:."
-        cp -r std $out/lib/haxe/
-      '';
-
-      meta = { 
-        description = "programming language targeting JavaScript, Flash, NekVM, PHP, C++";
-        homepage = http://haxe.org;
-        license = ["GPLv2" "BSD2" /*?*/ ];  # -> docs/license.txt
-        maintainers = [args.lib.maintainers.marcweber];
-        platforms = args.lib.platforms.linux;
-      };
-    };
-
-    # build a tool found in std/tools/${name} source directory
-    # the .hxml files contain a recipe  to cerate a binary.
-    tool = { name, description }: stdenv.mkDerivation {
-
-        inherit name;
-
-        src = src_haxe;
-
-        buildPhase = ''
-          cd std/tools/${name};
-          haxe *.hxml
-          mkdir -p $out/bin
-          mv ${name} $out/bin/
-        '';
-
-        buildInputs = [haxe neko];
-
-        dontStrip=1;
-
-        installPhase=":";
-
-        meta = {
-          inherit description;
-          homepage = http://haxe.org;
-          # license = "?"; TODO
-          maintainers = [args.lib.maintainers.marcweber];
-          platforms = args.lib.platforms.linux;
-        };
-
-      };
-
-in
-
-{
-
-  inherit haxe;
-
-  haxelib = tool {
-    name = "haxelib";
-    description = "haxelib is a HaXe library management tool similar to easyinstall or ruby gems";
+  src = fetchsvn {
+    url = "http://haxe.googlecode.com/svn/tags/v2-10";
+    sha256 = "dbd3c655e4136eb68a165ef83b96bfc1f0f2eb9ec8729603b19bcd717a61a679";
   };
 
+  prePatch = ''
+    sed -i -e 's|com.class_path <- \[|&"'"$out/lib/haxe/std/"'";|' main.ml
+  '';
+
+  installPhase = ''
+    install -vd "$out/bin" "$out/lib/haxe/std"
+    install -vt "$out/bin" haxe haxelib haxedoc
+    find std -mindepth 1 -maxdepth 1 -path std/tools -o \
+      -exec cp -vr '{}' "$out/lib/haxe/std" \;
+  '';
+
+  dontStrip = true;
+
+  meta = {
+    description = "Programming language targeting JavaScript, Flash, NekoVM, PHP, C++";
+    homepage = http://haxe.org;
+    license = ["GPLv2" "BSD2" /*?*/ ];  # -> docs/license.txt
+    maintainers = [stdenv.lib.maintainers.marcweber];
+    platforms = stdenv.lib.platforms.linux;
+  };
 }

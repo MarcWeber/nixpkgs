@@ -6623,9 +6623,8 @@ let
   blender = callPackage ../applications/misc/blender {
     inherit (xlibs) libXi;
     python = python32;
-    version = "2.57";
   };
-  blender_2_63 = blender.override { version = "2.63a"; };
+  blender_2_63 = blender;
 
 
   bvi = callPackage ../applications/editors/bvi { };

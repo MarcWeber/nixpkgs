@@ -24,7 +24,11 @@ composableDerivation.composableDerivation {} ( fixed : {
     url = "http://nekovm.org/_media/neko-${version}.tar.gz";
     sha256 = "099727w6dk689z3pcgbhsqjl74zzrh82a5vb2abxynamcqxcgz1w";
   };
+<<<<<<< HEAD
 >>>>>>> experimental/updates
+=======
+>>>>>>> refs/top-bases/experimental/haxe
+>>>>>>> experimental/haxe
 
   prePatch = with stdenv.lib; let
     libs = concatStringsSep "," (map (lib: "\"${lib}/include\"") buildInputs);

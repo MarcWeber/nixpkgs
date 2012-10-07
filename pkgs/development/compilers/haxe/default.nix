@@ -144,5 +144,9 @@ haxe // {
     maintainers = [stdenv.lib.maintainers.marcweber];
     platforms = stdenv.lib.platforms.linux;
   };
+<<<<<<< HEAD
 >>>>>>> experimental/updates
+=======
+>>>>>>> refs/top-bases/experimental/haxe
+>>>>>>> experimental/haxe
 }

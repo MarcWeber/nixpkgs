@@ -1,8 +1,10 @@
-{ composableDerivation, lib, fetchurl, mysql, apacheHttpd, zlib, sqlite
-, pcre, apr, gtk, boehmgc, pkgconfig, makeWrapper, sourceFromHead }:
+{ stdenv, fetchurl, boehmgc, zlib, sqlite, pcre }:
 
-let
+stdenv.mkDerivation rec {
+  name = "neko-${version}";
+  version = "1.8.2";
 
+<<<<<<< HEAD
   inherit (composableDerivation) edf wwf;
 
   libs = [ mysql apacheHttpd zlib sqlite pcre apr gtk ];
@@ -17,51 +19,45 @@ composableDerivation.composableDerivation {} ( fixed : {
   src = (fetchurl { url = "http://mawercer.de/~nix/repos/neko-svn-1898.tar.bz2"; sha256 = "370f974d362e4484e786dc301a69739d2019d0fd1f22b06c4c904c783f3883ef"; });
   name = "neko-svn-1898";
   # END
-
-  # optionally remove apache mysql like gentoo does?
-  # they just remove libs/{apache,mod_neko}
-  buildInputs = [boehmgc pkgconfig makeWrapper] ++ libs;
-  # apr should be in apacheHttpd propagatedBuildInputs
-
-  preConfigure = ''
-    sed -i \
-      -e 's@"/usr/include",@${includes}@' \
-      src/tools/install.neko
-    sed -i "s@/usr/local@$out@" Makefile vm/load.c
-    # make sure that nekotools boot finds the neko executable and not our wrapper:
-    mkdir -p $out/{bin,lib}
-
-    sed -i "s@\"neko\"@\".neko-wrapped\"@" src/tools/nekoboot.neko
-    ln -s ./neko bin/.neko-wrapped
-  '';
-
-  inherit zlib;
-
-  meta = { 
-    description = "Neko is an high-level dynamicly typed programming language";
-    homepage = http://nekovm.org;
-    license = ["GPLv2" ];  # -> docs/license.txt
-    maintainers = [ lib.maintainers.marcweber ];
-    platforms = lib.platforms.linux;
+=======
+  src = fetchurl {
+    url = "http://nekovm.org/_media/neko-${version}.tar.gz";
+    sha256 = "099727w6dk689z3pcgbhsqjl74zzrh82a5vb2abxynamcqxcgz1w";
   };
+<<<<<<< HEAD
+>>>>>>> experimental/updates
+=======
+>>>>>>> refs/top-bases/experimental/haxe
+>>>>>>> experimental/haxe
 
-  # if stripping was done neko and nekoc would be the same. ?!
-  dontStrip = 1;
+  prePatch = with stdenv.lib; let
+    libs = concatStringsSep "," (map (lib: "\"${lib}/include\"") buildInputs);
+  in ''
+    sed -i -e '/^search_includes/,/^}/c \
+      search_includes = function(_) { return $array(${libs}) }
+    ' src/tools/install.neko
+    sed -i -e '/allocated = strdup/s|"[^"]*"|"'"$out/lib/neko:$out/bin"'"|' \
+      vm/load.c
 
-  # neko-wrapped: nekotools boot has to find it. So don't prefix wrapped executable by "."
-  postInstall = ''
-    for prog in nekotools nekoc; do
-      wrapProgram "$out/bin/$prog" \
-        --prefix "LD_LIBRARY_PATH" $out/lib/neko
+    for disabled_mod in mod_neko{,2} mod_tora{,2} mysql ui; do
+      sed -i -e '/^libs/,/^}/{/^\s*'"$disabled_mod"'\s*=>/,/^\s*}/d}' \
+        src/tools/install.neko
     done
-  
-    wrapProgram "$out/bin/neko" \
-      --prefix "LD_LIBRARY_PATH" $out/lib/neko
-
-    # create symlink so that nekotools boot finds not wrapped neko-wrapped executable
-    ln -s  ln -s ../../bin/.neko-wrapped $out/lib/neko
   '';
 
-  # TODO make them optional and make them work 
-  patches = [ ./disable-modules.patch ];
-})
+  makeFlags = "INSTALL_PREFIX=$(out)";
+  buildInputs = [ boehmgc zlib sqlite pcre ];
+  dontStrip = true;
+
+  preInstall = ''
+    install -vd "$out/lib" "$out/bin"
+  '';
+
+  meta = {
+    description = "A high-level dynamically typed programming language";
+    homepage = http://nekovm.org;
+    license = stdenv.lib.licenses.lgpl21;
+    maintainers = [ stdenv.lib.maintainers.marcweber ];
+    platforms = stdenv.lib.platforms.linux;
+  };
+}

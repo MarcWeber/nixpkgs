@@ -6576,14 +6576,12 @@ let
     gnutls = gnutls2;
   };
 
-  blender_2_57 = callPackage ../applications/misc/blender {
+  blender = callPackage ../applications/misc/blender {
     inherit (xlibs) libXi;
     python = python32;
     version = "2.57";
   };
-  blender_2_59 = blender_2_57.override { version = "2.59"; };
-  blender_2_62 = blender_2_57.override { version = "2.62"; };
-  blender_2_63 = blender_2_57.override { version = "2.63a"; };
+  blender_2_63 = blender.override { version = "2.63a"; };
 
 
   bvi = callPackage ../applications/editors/bvi { };

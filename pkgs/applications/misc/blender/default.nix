@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, SDL, cmake, gettext, ilmbase, libXi, libjpeg,
+{ stdenv, fetchurl, SDL, cmake, gettext, ilmbase, libXi, libjpeg, libXext,
 libpng, libsamplerate, libtiff, mesa, openal, openexr, openjpeg, boost,
 python, zlib,
 version ? "2.63a"
@@ -52,7 +52,7 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "blender" version {
 } {
 
   buildInputs = [ cmake mesa gettext python libjpeg libpng zlib openal
-    SDL openexr libsamplerate libXi libtiff ilmbase openjpeg boost ];
+    SDL openexr libsamplerate libXi libXext libtiff ilmbase openjpeg boost ];
 
   cmakeFlags = [
     "-DOPENEXR_INC=${openexr}/include/OpenEXR"

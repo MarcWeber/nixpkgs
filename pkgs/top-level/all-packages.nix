@@ -4123,6 +4123,8 @@ let
 
   libgig = callPackage ../development/libraries/libgig { };
 
+  libgit2 = callPackage ../development/libraries/libgit2 { };
+
   libgnome_keyring = callPackage ../development/libraries/libgnome-keyring { };
   libgnome_keyring3 = callPackage ../development/libraries/libgnome-keyring/3.x.nix { };
 

@@ -332,7 +332,7 @@ rec {
   # )
   #
   mergeAttrsByVersion = name: version: attrsByVersion: base:
-    mergeAttrsByFuncDefaultsClean [base (maybeAttr version (throw "bad version ${version} for ${name}") attrsByVersion)];
+    mergeAttrsByFuncDefaultsClean [ { name = "${name}-${version}"; } base (maybeAttr version (throw "bad version ${version} for ${name}") attrsByVersion)];
 
   # sane defaults (same name as attr name so that inherit can be used)
   mergeAttrBy = # { buildInputs = concatList; [...]; passthru = mergeAttr; [..]; }

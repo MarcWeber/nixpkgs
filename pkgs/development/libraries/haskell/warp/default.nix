@@ -5,14 +5,13 @@
 
 cabal.mkDerivation (self: {
   pname = "warp";
-  version = "1.3.3.1";
-  sha256 = "0nz5n574lgaii6i9ncc6dkzw2aw6g7hwjjq7v8njly2vpwygxn7s";
+  version = "1.3.4.1";
+  sha256 = "09slbxbk88sjdgs3mibsvp17c85mn2r2sp67fchkmqkhf40lhcxw";
   buildDepends = [
     blazeBuilder blazeBuilderConduit caseInsensitive conduit hashable
     httpTypes liftedBase network networkConduit simpleSendfile
     transformers unixCompat void wai
   ];
-  patchPhase = "sed -i -e 's|, lifted-base.*|, lifted-base|' warp.cabal";
   meta = {
     homepage = "http://github.com/yesodweb/wai";
     description = "A fast, light-weight web server for WAI applications";

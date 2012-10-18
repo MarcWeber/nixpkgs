@@ -29,6 +29,8 @@ stdenv.mkDerivation rec {
 
   doCheck = true;
 
+  patches = [ ./syscall-name-clash.patch ];
+
   meta = {
     homepage = http://www.gnome.org/projects/libgsf;
     license = "LGPLv2";

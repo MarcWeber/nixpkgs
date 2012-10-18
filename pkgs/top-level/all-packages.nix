@@ -6688,6 +6688,8 @@ let
     inherit (gnome) libgnomeui GConf;
   };
 
+  csound = callPackage ../applications/audio/csound { };
+
   libcompizconfig = callPackage ../applications/window-managers/compiz/libcompizconfig.nix { };
 
   compiz_bcop = callPackage ../applications/window-managers/compiz/bcop.nix { };

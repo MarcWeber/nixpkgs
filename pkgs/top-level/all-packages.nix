@@ -2756,10 +2756,10 @@ let
   php5_2 = php.override { version = "5.2.17"; };
   php5_2fpm = php5_3.override { version ="5.2.17"; sapi = "fpm"; }; # experimental patch
 
-  php5_3 = php.override { version = "5.3.15"; }; 
+  php5_3 = php.override { version = "5.3.17"; }; 
   php5_3fpm = php5_3.override { sapi = "fpm"; };
 
-  php5_4 = php.override { version = "5.4.5";  gdSupport = false; }; # gd support fails for 5.4.x
+  php5_4 = php.override { version = "5.4.7";  gdSupport = false; }; # gd support fails for 5.4.x
   php5_4fpm = php5_3.override { sapi = "fpm"; };
 
   # use php.apc/xcache/Xdebug instead

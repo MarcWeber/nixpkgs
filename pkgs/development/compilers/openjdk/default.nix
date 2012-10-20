@@ -130,7 +130,6 @@ stdenv.mkDerivation rec {
     "UNIXCOMMAND_PATH="
     "BOOTDIR=${jdk}"
     "DROPS_DIR=$(DROPS_PATH)"
-    "SKIP_BOOT_CYCLE=false"
   ];
 
   configurePhase = ''

@@ -5,7 +5,7 @@
 , gobjectSupport ? true, glib
 , stdenv, fetchurl, pkgconfig, x11, fontconfig, freetype, xlibs
 , zlib, libpng, pixman, libxcb ? null, xcbutil ? null
-, gettext
+, gettext, libiconvOrEmpty
 }:
 
 assert postscriptSupport -> zlib != null;
@@ -25,7 +25,9 @@ stdenv.mkDerivation rec {
     ++ stdenv.lib.optionals xcbSupport [ libxcb xcbutil ]
 
     # On non-GNU systems we need GNU Gettext for libintl.
-    ++ stdenv.lib.optional (!stdenv.isLinux) gettext;
+    ++ stdenv.lib.optional (!stdenv.isLinux) gettext
+
+    ++ libiconvOrEmpty;
 
   propagatedBuildInputs =
     [ freetype pixman ] ++
@@ -43,7 +45,16 @@ stdenv.mkDerivation rec {
     # `-I' flags to be propagated.
     sed -i "src/cairo.pc.in" \
         -es'|^Cflags:\(.*\)$|Cflags: \1 -I${freetype}/include/freetype2 -I${freetype}/include|g'
-  '';
+  ''
+
+  # On FreeBSD, `-ldl' doesn't exist.
+  + (stdenv.lib.optionalString stdenv.isFreeBSD
+       '' for i in "util/"*"/Makefile.in" boilerplate/Makefile.in
+          do
+            cat "$i" | sed -es/-ldl//g > t
+            mv t "$i"
+          done
+       '');
 
   enableParallelBuilding = true;
 

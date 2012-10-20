@@ -8,6 +8,8 @@ stdenv.mkDerivation rec {
   name = "ardour-${version}";
   version = "2.8.12";
 
+  enableParallelBuilding = true;
+
   # svn is the source to get official releases from their site?
   # alternative: wget  --data-urlencode 'key=7c4b2e1df903aae5ff5cc4077cda801e' http://ardour.org/downloader
   # but hash is changing ?

@@ -44,7 +44,8 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "glib" version {
       };
     };
 
-} {
+} 
+({
 
   # configure script looks for d-bus but it is only needed for tests
   buildInputs = [ libiconvOrNull ];
@@ -78,4 +79,13 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "glib" version {
     maintainers = with stdenv.lib.maintainers; [raskin urkud];
     platforms = stdenv.lib.platforms.linux;
   };
-})
+}
+//
+(stdenv.lib.optionalAttrs stdenv.isDarwin {
+  # XXX: Disable the NeXTstep back-end because stdenv.gcc doesn't support
+  # Objective-C.
+  postConfigure =
+    '' sed -i configure -e's/glib_have_cocoa=yes/glib_have_cocoa=no/g'
+    '';
+}))
+)

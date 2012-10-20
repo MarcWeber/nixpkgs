@@ -1031,8 +1031,7 @@ let
 
   lshw = callPackage ../tools/system/lshw { };
 
-  lxc = callPackage ../applications/virtualization/lxc { };
-  lxc_0_8 = callPackage ../applications/virtualization/lxc/0.8.nix { };
+  lxc = callPackage ../os-specific/linux/lxc { };
 
   lzma = xz;
 
@@ -1277,6 +1276,8 @@ let
               }).hostDrv)
            { hurd = gnu.hurdCrossIntermediate; })
     else null;
+
+  ipsecTools = callPackage ../os-specific/linux/ipsec-tools { };
 
   patch = gnupatch;
 
@@ -1624,6 +1625,8 @@ let
   tigervnc = callPackage ../tools/admin/tigervnc {
     fontDirectories = [ xorg.fontadobe75dpi xorg.fontmiscmisc xorg.fontcursormisc
       xorg.fontbhlucidatypewriter75dpi ];
+    xorgserver = xorg.xorgserver_1_13_0;
+    fltk = fltk13;
   };
 
   tightvnc = callPackage ../tools/admin/tightvnc {
@@ -6645,6 +6648,8 @@ let
     inherit (gnome) libgnomeui GConf;
   };
 
+  csound = callPackage ../applications/audio/csound { };
+
   libcompizconfig = callPackage ../applications/window-managers/compiz/libcompizconfig.nix { };
 
   compiz_bcop = callPackage ../applications/window-managers/compiz/bcop.nix { };
@@ -8144,7 +8149,7 @@ let
   };
 
   gtypist = callPackage ../games/gtypist { };
- 
+
   hexen = callPackage ../games/hexen { };
 
   icbm3d = callPackage ../games/icbm3d { };
@@ -8200,7 +8205,7 @@ let
     mygui = myguiSvn;
   };
 
-  rili = callPackage ../games/rili { }; 
+  rili = callPackage ../games/rili { };
 
   rogue = callPackage ../games/rogue { };
 

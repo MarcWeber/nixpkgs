@@ -13,6 +13,8 @@ in
 stdenv.mkDerivation {
   name = "ardour3-svn-${rev}";
 
+  enableParallelBuilding = true;
+
   src = fetchsvn {
     url = http://subversion.ardour.org/svn/ardour2/branches/3.0;
     inherit rev;

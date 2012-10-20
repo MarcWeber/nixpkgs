@@ -3,6 +3,8 @@
 stdenv.mkDerivation rec {
   name = "raptor2-2.0.4";
 
+  enableParallelBuilding = true;
+
   src = fetchurl {
     url = "http://download.librdf.org/source/${name}.tar.gz";
     sha256 = "0viaam60adhsxim2vaq5xs1pfmm6wiidxpkrhwyl7x9mz8x9vx1l";

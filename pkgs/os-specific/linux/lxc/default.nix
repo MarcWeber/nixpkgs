@@ -1,10 +1,7 @@
 { stdenv, fetchurl, libcap, perl, docbook2x, docbook_xml_dtd_45 }:
 
-let
+stdenv.mkDerivation rec {
   name = "lxc-0.8.0-rc2";
-in
-stdenv.mkDerivation{
-  inherit name;
 
   src = fetchurl {
     url = "http://lxc.sf.net/download/lxc/${name}.tar.gz";
@@ -21,7 +18,7 @@ stdenv.mkDerivation{
 
   preConfigure = "export XML_CATALOG_FILES=${docbook_xml_dtd_45}/xml/dtd/docbook/catalog.xml";
 
-  configureFlags = "--localstatedir=/var --disable-doc";
+  configureFlags = "--localstatedir=/var";
 
   postInstall = ''
     cd "$out/lib"
@@ -41,7 +38,6 @@ stdenv.mkDerivation{
       complete virtual systems, adding resource management and isolation
       mechanisms to Linux’s existing process management infrastructure.
     '';
-
 
     platforms = stdenv.lib.platforms.linux;
     maintainers = [ stdenv.lib.maintainers.simons ];

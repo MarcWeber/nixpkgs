@@ -13,3 +13,4 @@ experimental/nix
 experimental/blender
 experimental/plover
 experimental/xsbt
+experimental/parallel-building

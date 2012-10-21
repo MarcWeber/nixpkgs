@@ -1531,6 +1531,8 @@ let
     autoconf = autoconf213;
   };
 
+  tarsnap = callPackage ../tools/backup/tarsnap { };
+
   tcpdump = callPackage ../tools/networking/tcpdump { };
 
   /*

@@ -1549,6 +1549,8 @@ let
     autoconf = autoconf213;
   };
 
+  tarsnap = callPackage ../tools/backup/tarsnap { };
+
   task = callPackage ../tools/misc/task { };
 
   tcpdump = callPackage ../tools/networking/tcpdump { };
@@ -9025,14 +9027,6 @@ let
 
   texLivePGF = builderDefsPackage (import ../tools/typesetting/tex/texlive/pgf.nix) {
     inherit texLiveLatexXColor texLive;
-  };
-
-  texLiveBeamer = builderDefsPackage (import ../tools/typesetting/tex/texlive/beamer.nix) {
-    inherit texLiveLatexXColor texLivePGF texLive;
-  };
-
-  texLiveModerncv = builderDefsPackage (import ../tools/typesetting/tex/texlive/moderncv.nix) {
-    inherit texLive unzip;
   };
 
   vice = callPackage ../misc/emulators/vice { };

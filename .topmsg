@@ -1,0 +1,6 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] experimental/eclipse
+
+some updates for eclipse (attempt to use dropins fgor old viPlugin and the like)
+
+Signed-off-by: Marc Weber <marco-oweber@gmx.de>

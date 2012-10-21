@@ -6716,7 +6716,7 @@ let
   eaglemode = callPackage ../applications/misc/eaglemode { };
 
   eclipses = recurseIntoAttrs (callPackage ../applications/editors/eclipse {
-    inherit applyGlobalOverrides;
+    inherit applyGlobalOverrides config;
   });
 
   ed = callPackage ../applications/editors/ed { };

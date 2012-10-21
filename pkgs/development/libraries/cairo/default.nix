@@ -18,7 +18,7 @@ stdenv.mkDerivation rec {
   # when updating check Eclipse, maybe the older version there can be removed then
   src = fetchurl {
     url = "http://cairographics.org/releases/${name}.tar.xz";
-    sha1 = "f4158981ed01e73c94fb8072074b17feee61a68b";
+    sha1 = "bc2ee50690575f16dab33af42a2e6cdc6451e3f9";
   };
 
   buildInputs =
@@ -35,7 +35,7 @@ stdenv.mkDerivation rec {
     stdenv.lib.optional gobjectSupport glib ++
     stdenv.lib.optional postscriptSupport zlib ++
     stdenv.lib.optional pngSupport libpng;
-
+    
   configureFlags =
     [ "--enable-tee" ]
     ++ stdenv.lib.optional xcbSupport "--enable-xcb"

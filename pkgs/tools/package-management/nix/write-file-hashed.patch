@@ -1,6 +1,6 @@
-commit cd89e84069a23690b2181cbe9fbbb7257dd0e8e9
+commit 0210a99de8c4d8630274726fe184337db3e85a01
 Author: Marc Weber <marco-oweber@gmx.de>
-Date:   Sun Aug 12 23:49:42 2012 +0200
+Date:   Mon Oct 22 01:26:48 2012 +0200
 
     experimental/write-file-hashed
     
@@ -17,7 +17,7 @@ Date:   Sun Aug 12 23:49:42 2012 +0200
     Signed-off-by: Marc Weber <marco-oweber@gmx.de>
 
 diff --git a/src/libexpr/primops.cc b/src/libexpr/primops.cc
-index 0d4efc4..1ada52c 100644
+index 5092970..b4f3699 100644
 --- a/src/libexpr/primops.cc
 +++ b/src/libexpr/primops.cc
 @@ -15,6 +15,8 @@
@@ -29,7 +29,7 @@ index 0d4efc4..1ada52c 100644
  
  namespace nix {
  
-@@ -666,6 +668,119 @@ struct FilterFromExpr : PathFilter
+@@ -672,6 +674,119 @@ struct FilterFromExpr : PathFilter
          return state.forceBool(res);
      }
  };
@@ -149,7 +149,7 @@ index 0d4efc4..1ada52c 100644
  
  
  static void prim_filterSource(EvalState & state, Value * * args, Value & v)
-@@ -1104,6 +1219,9 @@ void EvalState::createBaseEnv()
+@@ -1171,6 +1286,9 @@ void EvalState::createBaseEnv()
      addPrimOp("__toFile", 2, prim_toFile);
      addPrimOp("__filterSource", 2, prim_filterSource);
  

@@ -103,3 +103,14 @@ installPhase() {
 
 genericBuild
 
+# hack - without ~/.config soffice will show a prompt "internal error" and fail to start
+for prog in $out/bin/*; do
+  link=$(readlink $prog)
+  rm $prog
+  cat >> $prog << EOF
+  #!/bin/sh
+  [ -d ~/.config ] || mkdir ~/.config
+  exec $link "\$@"
+EOF
+  chmod +x $prog
+done

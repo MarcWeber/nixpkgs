@@ -1,12 +1,13 @@
-commit 625484f9507949b7fe95cac64fa8a73183034065
-Author: Marc Weber <marco-oweber@gmx.de>
-Date:   Mon Oct 22 01:26:49 2012 +0200
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] experimental/hash
 
-    experimental/hash
-    
-    adding primop function calculating hash of a string
-    
-    Signed-off-by: Marc Weber <marco-oweber@gmx.de>
+adding primop function calculating hash of a string
+
+Signed-off-by: Marc Weber <marco-oweber@gmx.de>
+
+---
+ src/libexpr/primops.cc | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
 diff --git a/src/libexpr/primops.cc b/src/libexpr/primops.cc
 index 5092970..4ea5c98 100644
@@ -52,3 +53,5 @@ index 5092970..4ea5c98 100644
      // Versions
      addPrimOp("__parseDrvName", 1, prim_parseDrvName);
      addPrimOp("__compareVersions", 2, prim_compareVersions);
+-- 
+tg: (dde6486..) experimental/hash (depends on: master)

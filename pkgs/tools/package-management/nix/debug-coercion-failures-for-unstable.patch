@@ -1,19 +1,26 @@
-commit bd3318b3f07660f57acbdeea2af599e35243154c
-Author: Marc Weber <marco-oweber@gmx.de>
-Date:   Mon Oct 22 01:26:48 2012 +0200
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] experimental/debug-coercions-as-xml
 
-    experimental/debug-coercions-as-xml
-    
-    We're all pretty helpless seeing messages like:
-    
-      value is an attribute set while a list was expected
-    
-    This patch add sthe flag --xml-debug-coercion-failure
-    making nix output the xml representation of the attribute set
-    - which of course may fail eg if infinite recursions are used.
-    However its more often useful than failing.
-    
-    Signed-off-by: Marc Weber <marco-oweber@gmx.de>
+We're all pretty helpless seeing messages like:
+
+  value is an attribute set while a list was expected
+
+This patch add sthe flag --xml-debug-coercion-failure
+making nix output the xml representation of the attribute set
+- which of course may fail eg if infinite recursions are used.
+However its more often useful than failing.
+
+Signed-off-by: Marc Weber <marco-oweber@gmx.de>
+
+---
+ src/libexpr/eval-inline.hh             |  4 ++--
+ src/libexpr/eval.cc                    | 33 +++++++++++++++++++++++----------
+ src/libexpr/eval.hh                    |  2 ++
+ src/libmain/shared.cc                  |  3 +++
+ src/libstore/globals.cc                |  1 +
+ src/libstore/globals.hh                |  6 ++++++
+ src/nix-instantiate/nix-instantiate.cc |  3 +++
+ 7 files changed, 40 insertions(+), 12 deletions(-)
 
 diff --git a/src/libexpr/eval-inline.hh b/src/libexpr/eval-inline.hh
 index 57a9e4c..d114e64 100644
@@ -38,7 +45,7 @@ index 57a9e4c..d114e64 100644
  
  }
 diff --git a/src/libexpr/eval.cc b/src/libexpr/eval.cc
-index 2f9601e..c4f9abf 100644
+index 2f9601e..476d170 100644
 --- a/src/libexpr/eval.cc
 +++ b/src/libexpr/eval.cc
 @@ -4,6 +4,7 @@
@@ -54,7 +61,7 @@ index 2f9601e..c4f9abf 100644
  
  
 +string EvalState::showTypeOrXml(Value &v){
-+    if (xmldebugCorcionFailure){
++    if (settings.xmldebugCorecionFailure){
 +        // make running this code intsead optional
 +        std::ostringstream out;
 +        PathSet context;
@@ -172,7 +179,7 @@ index a3c55a3..c737b09 100644
      
      friend class ExprVar;
 diff --git a/src/libmain/shared.cc b/src/libmain/shared.cc
-index 9e5964a..261352e 100644
+index 9e5964a..f1bcec4 100644
 --- a/src/libmain/shared.cc
 +++ b/src/libmain/shared.cc
 @@ -196,6 +196,9 @@ static void initAndRun(int argc, char * * argv)
@@ -180,25 +187,25 @@ index 9e5964a..261352e 100644
          else if (arg == "--show-trace")
              showTrace = true;
 +        else if (arg == "--xml-debug-coercion-failure") {
-+            xmldebugCorcionFailure = true;
++            settings.set("xmldebugCorecionFailure", "true");
 +        }
          else if (arg == "--option") {
              ++i; if (i == args.end()) throw UsageError("`--option' requires two arguments");
              string name = *i;
 diff --git a/src/libstore/globals.cc b/src/libstore/globals.cc
-index 9b22d54..96829ff 100644
+index 9b22d54..bab3df1 100644
 --- a/src/libstore/globals.cc
 +++ b/src/libstore/globals.cc
 @@ -22,6 +22,7 @@ Settings::Settings()
      maxBuildJobs = 1;
      buildCores = 1;
      readOnlyMode = false;
-+    xmldebugCorcionFailure = false;
++    xmldebugCorecionFailure = false;
      thisSystem = SYSTEM;
      maxSilentTime = 0;
      buildTimeout = 0;
 diff --git a/src/libstore/globals.hh b/src/libstore/globals.hh
-index d25ee6a..6776134 100644
+index d25ee6a..7951428 100644
 --- a/src/libstore/globals.hh
 +++ b/src/libstore/globals.hh
 @@ -78,6 +78,12 @@ struct Settings {
@@ -209,13 +216,13 @@ index d25ee6a..6776134 100644
 +    /* if set to true nix will print the value it tried to coerce to a
 +     particular type as xml. This printing may trigger infitie recursions
 +     in soem cases - thus use for debugging only */
-+    bool xmldebugCorcionFailure;
++    bool xmldebugCorecionFailure;
 +
      /* The canonical system name, as returned by config.guess. */
      string thisSystem;
  
 diff --git a/src/nix-instantiate/nix-instantiate.cc b/src/nix-instantiate/nix-instantiate.cc
-index ab0c8cf..5f27d68 100644
+index ab0c8cf..513f14a 100644
 --- a/src/nix-instantiate/nix-instantiate.cc
 +++ b/src/nix-instantiate/nix-instantiate.cc
 @@ -96,6 +96,9 @@ void run(Strings args)
@@ -223,8 +230,10 @@ index ab0c8cf..5f27d68 100644
              evalOnly = true;
          }
 +        else if (arg == "--xml-debug-coercion-failure") {
-+            xmldebugCorcionFailure = true;
++            settings.xmldebugCorecionFailure = true;
 +        }
          else if (arg == "--parse-only") {
              settings.readOnlyMode = true;
              parseOnly = evalOnly = true;
+-- 
+tg: (dde6486..) experimental/debug-coercions-as-xml (depends on: master)

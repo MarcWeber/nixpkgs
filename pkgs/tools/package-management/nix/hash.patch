@@ -1,8 +1,19 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] experimental/hash
+
+adding primop function calculating hash of a string
+
+Signed-off-by: Marc Weber <marco-oweber@gmx.de>
+
+---
+ src/libexpr/primops.cc | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
+
 diff --git a/src/libexpr/primops.cc b/src/libexpr/primops.cc
-index 0d4efc4..8beb3f7 100644
+index 5092970..4ea5c98 100644
 --- a/src/libexpr/primops.cc
 +++ b/src/libexpr/primops.cc
-@@ -1021,6 +1021,30 @@ static void prim_unsafeDiscardOutputDependency(EvalState & state, Value * * args
+@@ -1088,6 +1088,30 @@ static void prim_unsafeDiscardOutputDependency(EvalState & state, Value * * args
  }
  
  
@@ -33,7 +44,7 @@ index 0d4efc4..8beb3f7 100644
  /*************************************************************
   * Versions
   *************************************************************/
-@@ -1135,6 +1159,8 @@ void EvalState::createBaseEnv()
+@@ -1206,6 +1230,8 @@ void EvalState::createBaseEnv()
      addPrimOp("__unsafeDiscardStringContext", 1, prim_unsafeDiscardStringContext);
      addPrimOp("__unsafeDiscardOutputDependency", 1, prim_unsafeDiscardOutputDependency);
  
@@ -42,3 +53,5 @@ index 0d4efc4..8beb3f7 100644
      // Versions
      addPrimOp("__parseDrvName", 1, prim_parseDrvName);
      addPrimOp("__compareVersions", 2, prim_compareVersions);
+-- 
+tg: (dde6486..) experimental/hash (depends on: master)

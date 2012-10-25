@@ -42,6 +42,11 @@ in
 stdenv.mkDerivation rec {
   name = "openj${if jreOnly then "re" else "dk"}-7b127";
 
+  # enableParallelBuilding = true fails, one makefile suggests:
+  preConfigure = ''
+    export HOTSPOT_BUILD_JOBS=$NIX_BUILD_CORES
+  '';
+
   src = fetchurl {
     url = http://www.java.net/download/openjdk/jdk7/promoted/b147/openjdk-7-fcs-src-b147-27_jun_2011.zip;
     sha256 = "1qhwlz9y5qmwmja4qnxg6sn3pgsg1i11fb9j41w8l26acyhk34rs";

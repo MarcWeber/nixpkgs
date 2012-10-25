@@ -5094,7 +5094,8 @@ let
     static = true;
   }));
 
-  zeromq = callPackage ../development/libraries/zeromq {};
+  zeromq2 = callPackage ../development/libraries/zeromq/2.x.nix {};
+  zeromq3 = callPackage ../development/libraries/zeromq/3.x.nix {};
 
   ### DEVELOPMENT / LIBRARIES / JAVA
 
@@ -6957,19 +6958,13 @@ let
 
   firefoxWrapper = wrapFirefox { browser = pkgs.firefox; };
 
-  firefoxPkgs = pkgs.firefox15Pkgs;
+  firefoxPkgs = pkgs.firefox16Pkgs;
 
   firefox36Pkgs = callPackage ../applications/networking/browsers/firefox/3.6.nix {
     inherit (gnome) libIDL;
   };
 
   firefox36Wrapper = wrapFirefox { browser = firefox36Pkgs.firefox; };
-
-  firefox12Pkgs = callPackage ../applications/networking/browsers/firefox/12.0.nix {
-    inherit (gnome) libIDL;
-  };
-
-  firefox12Wrapper = wrapFirefox { browser = firefox12Pkgs.firefox; };
 
   firefox15Pkgs = callPackage ../applications/networking/browsers/firefox/15.0.nix {
     inherit (gnome) libIDL;

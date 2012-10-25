@@ -7,8 +7,8 @@
 
 cabal.mkDerivation (self: {
   pname = "yesod-auth";
-  version = "1.1.1.2";
-  sha256 = "1agyazzkgwmp63vwx84bzalf9lwg14k5jshj6n97g1iagsiaxqa0";
+  version = "1.1.1.4";
+  sha256 = "162f92s78ppqr7f2bcdcr9wvl0n77nr8lma7z1816dn1j5mwm0kr";
   buildDepends = [
     aeson authenticate blazeHtml blazeMarkup hamlet httpConduit
     liftedBase mimeMail persistent persistentTemplate pureMD5

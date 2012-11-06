@@ -69,6 +69,9 @@ let
         for dropin in $dropins; do
           ln -s $dropin $out/eclipse/dropins/
         done
+
+        mkdir -p $out/share/pixmaps
+        ln -s $out/eclipse/icon.xpm $out/share/pixmaps/eclipse.xpm
       ''; # */
 
       meta = {

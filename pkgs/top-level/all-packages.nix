@@ -9033,6 +9033,14 @@ let
     inherit texLiveLatexXColor texLive;
   };
 
+  texLiveBeamer = builderDefsPackage (import ../tools/typesetting/tex/texlive/beamer.nix) {
+    inherit texLiveLatexXColor texLivePGF texLive;
+  };
+
+  texLiveModerncv = builderDefsPackage (import ../tools/typesetting/tex/texlive/moderncv.nix) {
+    inherit texLive unzip;
+  };
+
   vice = callPackage ../misc/emulators/vice { };
 
   vimprobable2 = callPackage ../applications/networking/browsers/vimprobable2 {

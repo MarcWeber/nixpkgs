@@ -178,8 +178,8 @@ let self = {
     ];
   };
 
-  "coffee-script" = self."coffee-script-1.3.3";
-  "coffee-script-~1" = self."coffee-script-1.3.3";
+  "coffee-script" = self."coffee-script-1.4.0";
+  "coffee-script-~1" = self."coffee-script-1.4.0";
 
   "coffee-script-~1.1.2" = self.buildNodePackage rec {
     name = "coffee-script-1.1.3";
@@ -197,6 +197,17 @@ let self = {
     src = fetchurl {
       url = "http://registry.npmjs.org/coffee-script/-/${name}.tgz";
       sha256 = "deedd2cf9d5abe2bad724e6809bec40efa07215dae85f44d78cd37736bb50bc5";
+    };
+    deps = [
+
+    ];
+  };
+
+  "coffee-script-1.4.0" = self.buildNodePackage rec {
+    name = "coffee-script-1.4.0";
+    src = fetchurl {
+      url = "http://registry.npmjs.org/coffee-script/-/${name}.tgz";
+      sha256 = "146e8985d89210b63dae83378fd851ccf54d38d7d11cadcdca01520d50882613";
     };
     deps = [
 
@@ -321,6 +332,19 @@ let self = {
     src = fetchurl {
       url = "http://registry.npmjs.org/diff/-/${name}.tgz";
       sha256 = "88e1bb04e3707c5601ec0841e170f8892a3b929bf8c4030f826cd32c1fa21472";
+    };
+    deps = [
+
+    ];
+  };
+
+  "escape-html" = self."escape-html-0.0.1";
+
+  "escape-html-0.0.1" = self.buildNodePackage rec {
+    name = "escape-html-0.0.1";
+    src = fetchurl {
+      url = "http://registry.npmjs.org/escape-html/-/${name}.tgz";
+      sha256 = "03c24a492f80659c25f788809ae64277408a4c12594cff62f89db4b3259c6b58";
     };
     deps = [
 

@@ -405,6 +405,15 @@ stdenv.mkDerivation ({
 # the stripping by default.
 // optionalAttrs (!stripped) { dontStrip = true; }
 
+// optionalAttrs (cross != null && cross.config == "i686-pc-mingw32"){
+
+  # don't ask me why removing the .dll.a file fixes simple g++ main.cpp files
+  postFixup = ''
+    rm $out/lib/gcc/i686-pc-mingw32/4.5.3/libstdc++.dll.a || true
+  '';
+
+}
+
 // optionalAttrs langVhdl rec {
   name = "ghdl-0.29";
 

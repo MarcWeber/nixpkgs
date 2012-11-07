@@ -1,5 +1,5 @@
 { stdenv, fetchurl, openssl, python, zlib, v8, utillinux, linkV8Headers ? false
-, version ? "0.8.9"
+, version ? "0.8.12"
 }:
 
 let
@@ -13,6 +13,19 @@ in
 
 stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "nodejs" version
   {
+    "0.8.12" = rec {
+      version = "0.8.12";
+      name = "nodejs-${version}";
+
+      src = fetchurl {
+        url = "http://nodejs.org/dist/v${version}/node-v${version}.tar.gz";
+        sha256 = "0igsz9g3hmxcnn685v4k8p6d2vv6cmh9sdz5pl8rlhglp0m7yjnn";
+      };
+
+      prePatch = ''
+        sed -e 's|^#!/usr/bin/env python$|#!${python}/bin/python|g' -i tools/{*.py,waf-light,node-waf} configure
+      '';
+    };
     "0.8.9" = rec {
 
       version = "0.8.9";

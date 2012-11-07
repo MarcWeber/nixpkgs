@@ -4,8 +4,8 @@
 
 cabal.mkDerivation (self: {
   pname = "OpenGL";
-  version = "2.5.0.0";
-  sha256 = "1kpakn5i4aka67mqcpfq9jpl38h409x63zd14y35abpm6h3x8m3j";
+  version = "2.6.0.1";
+  sha256 = "1fpabhpjfl1bj0dhlj2sg8zsn3l6py4zw1arplwmqalz3xbkkgdi";
   buildDepends = [ GLURaw ObjectName OpenGLRaw StateVar Tensor ];
   extraLibraries = [ libX11 mesa ];
   meta = {

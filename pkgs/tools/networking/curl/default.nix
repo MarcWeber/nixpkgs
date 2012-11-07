@@ -49,6 +49,9 @@ stdenv.mkDerivation rec {
       ${if linkStatic then "--enable-static --disable-shared" else ""}
       --with-random /dev/urandom
     '';
+
+    dontStrip = stdenv.cross.libc == "msvcrt";
+
   };
 
   passthru = {

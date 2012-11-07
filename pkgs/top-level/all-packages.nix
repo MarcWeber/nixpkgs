@@ -6585,9 +6585,12 @@ let
     gnutls = gnutls2;
   };
 
-  blender = callPackage  ../applications/misc/blender {
+  blender = callPackage ../applications/misc/blender {
+    inherit (xlibs) libXi;
     python = python32;
   };
+  blender_2_63 = blender;
+
 
   bvi = callPackage ../applications/editors/bvi { };
 

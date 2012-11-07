@@ -1539,6 +1539,8 @@ let
 
   svnfs = callPackage ../tools/filesystems/svnfs { };
 
+  sysbench = callPackage ../development/tools/misc/sysbench {};
+
   system_config_printer = callPackage ../tools/misc/system-config-printer {
     libxml2 = libxml2Python;
    };
@@ -2347,9 +2349,9 @@ let
   # particularly in connection with Hydra builds for all these packages.
   # So we enable it for selected versions only.
 
-  # Current default version: 7.4.1.
-  haskellPackages = haskellPackages_ghc741;
-  # Current Haskell platform.
+  # Current default version: 7.4.2.
+  haskellPackages = haskellPackages_ghc742;
+  # Current Haskell Platform: 2012.4.0.0
   haskellPlatform = haskellPackages.haskellPlatform;
 
   haskellPackages_ghc6104             = recurseIntoAttrs (haskell.packages_ghc6104);
@@ -2366,11 +2368,10 @@ let
   # The following three lines achieve that: the first two make Hydra build explicit
   # profiling and non-profiling versions; the final respects the user-configured
   # default setting.
-  haskellPackages_ghc741_no_profiling = recurseIntoAttrs (haskell.packages_ghc741.noProfiling);
-  haskellPackages_ghc741_profiling    = recurseIntoAttrs (haskell.packages_ghc741.profiling);
-  haskellPackages_ghc741              = recurseIntoAttrs (haskell.packages_ghc741.highPrio);
-  haskellPackages_ghc742              = recurseIntoAttrs (haskell.packages_ghc742);
-  haskellPackages_ghc742_pedantic     =                   haskell.packages_ghc742_pedantic;
+  haskellPackages_ghc741              = recurseIntoAttrs (haskell.packages_ghc741);
+  haskellPackages_ghc742_no_profiling = recurseIntoAttrs (haskell.packages_ghc741.noProfiling);
+  haskellPackages_ghc742_profiling    = recurseIntoAttrs (haskell.packages_ghc741.profiling);
+  haskellPackages_ghc742              = recurseIntoAttrs (haskell.packages_ghc742.highPrio);
   haskellPackages_ghc761              = recurseIntoAttrs (haskell.packages_ghc761);
   # Reasonably current HEAD snapshot.
   haskellPackages_ghcHEAD             =                   haskell.packages_ghcHEAD;
@@ -3373,11 +3374,13 @@ let
   boost147 = callPackage ../development/libraries/boost/1.47.nix { };
   boost149 = callPackage ../development/libraries/boost/1.49.nix { };
   boost151 = callPackage ../development/libraries/boost/1.51.nix { };
-  boost = boost151;
+  boost152 = callPackage ../development/libraries/boost/1.52.nix { };
+  boost = boost152;
 
   boostHeaders149 = callPackage ../development/libraries/boost/1.49-headers.nix { };
   boostHeaders151 = callPackage ../development/libraries/boost/1.51-headers.nix { };
-  boostHeaders = boostHeaders151;
+  boostHeaders152 = callPackage ../development/libraries/boost/1.52-headers.nix { };
+  boostHeaders = boostHeaders152;
 
   botan = callPackage ../development/libraries/botan { };
 
@@ -5136,7 +5139,8 @@ let
     static = true;
   }));
 
-  zeromq = callPackage ../development/libraries/zeromq {};
+  zeromq2 = callPackage ../development/libraries/zeromq/2.x.nix {};
+  zeromq3 = callPackage ../development/libraries/zeromq/3.x.nix {};
 
   ### DEVELOPMENT / LIBRARIES / JAVA
 
@@ -5919,6 +5923,7 @@ let
       ] ++ lib.optionals (platform.kernelArch == "mips")
       [ kernelPatches.mips_fpureg_emu
         kernelPatches.mips_fpu_sigill
+        kernelPatches.mips_ext3_n32
       ];
   };
 
@@ -5931,6 +5936,7 @@ let
       ] ++ lib.optionals (platform.kernelArch == "mips")
       [ kernelPatches.mips_fpureg_emu
         kernelPatches.mips_fpu_sigill
+        kernelPatches.mips_ext3_n32
       ];
   };
 
@@ -6780,7 +6786,7 @@ let
   eaglemode = callPackage ../applications/misc/eaglemode { };
 
   eclipses = recurseIntoAttrs (callPackage ../applications/editors/eclipse {
-    inherit applyGlobalOverrides;
+    inherit applyGlobalOverrides config;
   });
 
   ed = callPackage ../applications/editors/ed { };
@@ -7017,19 +7023,13 @@ let
 
   firefoxWrapper = wrapFirefox { browser = pkgs.firefox; };
 
-  firefoxPkgs = pkgs.firefox15Pkgs;
+  firefoxPkgs = pkgs.firefox16Pkgs;
 
   firefox36Pkgs = callPackage ../applications/networking/browsers/firefox/3.6.nix {
     inherit (gnome) libIDL;
   };
 
   firefox36Wrapper = wrapFirefox { browser = firefox36Pkgs.firefox; };
-
-  firefox12Pkgs = callPackage ../applications/networking/browsers/firefox/12.0.nix {
-    inherit (gnome) libIDL;
-  };
-
-  firefox12Wrapper = wrapFirefox { browser = firefox12Pkgs.firefox; };
 
   firefox15Pkgs = callPackage ../applications/networking/browsers/firefox/15.0.nix {
     inherit (gnome) libIDL;
@@ -7847,7 +7847,7 @@ let
 
   thinkingRock = callPackage ../applications/misc/thinking-rock { };
 
-  thunderbird = callPackage ../applications/networking/mailreaders/thunderbird/15.x.nix {
+  thunderbird = callPackage ../applications/networking/mailreaders/thunderbird {
     inherit (gnome) libIDL;
   };
 
@@ -7913,7 +7913,7 @@ let
 
   vimHugeX = vim_configurable;
 
-  vim_configurable = import ../applications/editors/vim/configurable.nix {
+  vim_configurable = callPackage (import ../applications/editors/vim/configurable.nix) {
     vimNox = false;
     inherit (pkgs) fetchurl stdenv ncurses pkgconfig gettext composableDerivation lib config;
     inherit (pkgs.xlibs) libX11 libXext libSM libXpm libXt libXaw libXau libXmu libICE;
@@ -7927,6 +7927,7 @@ let
     # optional features by flags
     flags = [ "X11" ]; # only flag "X11" by now
   };
+  vimNox = vim_configurable.override { vimNox = true; };
 
   virtviewer = callPackage ../applications/virtualization/virt-viewer {};
   virtmanager = callPackage ../applications/virtualization/virt-manager {
@@ -8302,7 +8303,7 @@ let
   # You still can override by passing more arguments.
   spaceOrbit = callPackage ../games/orbit { };
 
-  spring = callPackage ../games/spring { };
+  spring = callPackage ../games/spring { boost = boost149;};
 
   springLobby = callPackage ../games/spring/springlobby.nix { };
 

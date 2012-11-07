@@ -2,6 +2,7 @@
 , freetype, fontconfig, libX11, libXext, libXrender, zlib
 , glib, gtk, libXtst, jre
 , pkgs, applyGlobalOverrides
+, config
 }:
 
 assert stdenv ? glibc;
@@ -19,10 +20,10 @@ let
   inherit (p) glib gtk; # only these seem to depend on cairo
 
   buildEclipse =
-    { name, src, description }:
+    { name, src, description, dropins ? (config.eclipse.dropins or []), flags ? (config.eclipse.flags or [])}:
 
     stdenv.mkDerivation rec {
-      inherit name src;
+      inherit name src dropins;
 
       desktopItem = makeDesktopItem {
         name = "Eclipse";
@@ -51,15 +52,26 @@ let
         # than ~/.eclipse/org.eclipse.platform_<version>_<number>.
         productId=$(sed 's/id=//; t; d' $out/eclipse/.eclipseproduct)
         productVersion=$(sed 's/version=//; t; d' $out/eclipse/.eclipseproduct)
-        
+
         makeWrapper $out/eclipse/eclipse $out/bin/eclipse \
           --prefix PATH : ${jre}/bin \
           --prefix LD_LIBRARY_PATH : ${glib}/lib:${gtk}/lib:${libXtst}/lib \
-          --add-flags "-configuration \$HOME/.eclipse/''${productId}_$productVersion/configuration"
+          --add-flags "-configuration \$HOME/.eclipse/''${productId}_$productVersion/configuration" \
+          ${if flags == "" then "" else "--add-flags ${pkgs.lib.escapeShellArg flags}"}
 
         # Create desktop item.
         mkdir -p $out/share/applications
         cp ${desktopItem}/share/applications/* $out/share/applications
+
+        # provide alias by name - you may want to install multiple versions
+        ln -s $out/bin/eclipse $out/bin/${name}
+
+        for dropin in $dropins; do
+          ln -s $dropin $out/eclipse/dropins/
+        done
+
+        mkdir -p $out/share/pixmaps
+        ln -s $out/eclipse/icon.xpm $out/share/pixmaps/eclipse.xpm
       ''; # */
 
       meta = {
@@ -138,13 +150,13 @@ in {
   };
 
   eclipse_sdk_37 = buildEclipse {
-    name = "eclipse-sdk-3.7";
+    name = "eclipse-sdk-3.7.2";
     description = "Eclipse Classic";
     src =
       if stdenv.system == "x86_64-linux" then
         fetchurl {
-          url = http://eclipse.ialto.com/eclipse/downloads/drops/R-3.7-201106131736/eclipse-SDK-3.7-linux-gtk-x86_64.tar.gz;
-          sha256 = "00ig3ww98r8imf32sx5npm6csn5nx288gvdk6w653nijni0di16j";
+          url = ftp://artfiles.org/eclipse.org//eclipse/downloads/drops/R-3.7.2-201202080800/eclipse-SDK-3.7.2-linux-gtk-x86_64.tar.gz;
+          md5 = "6a0fd32cb6a986032a67defab3753476";
         }
       else
         fetchurl {

@@ -45,18 +45,18 @@ in
 
 stdenv.mkDerivation rec {
   name = "google-talk-plugin-${version}";
-  version = "3.6.1.0";
+  version = "3.10.2.0";
 
   src =
     if stdenv.system == "x86_64-linux" then
       fetchurl {
         url = "${baseURL}/google-talkplugin_${version}-1_amd64.deb";
-        sha256 = "1h6qa9vh1bbhsxsihm56nqg9is9vnrvnjl8cjz3hqym2w160ycbv";
+        sha256 = "0ivjmqrxy3xkwqjp20aqz47smdcdds0i82pfyb5k9jywi8afvchr";
       }
     else if stdenv.system == "i686-linux" then
       fetchurl {
         url = "${baseURL}/google-talkplugin_${version}-1_i386.deb";
-        sha256 = "0d6dfivmm0azfpv283bqs04w6098z8w4cnjgivp80mfd6ndjv8x2";
+        sha256 = "1bac95r9721sc7fsklsmv0lq673901zppdgabjjarpnx8z280jvj";
       }
     else throw "Google Talk does not support your platform.";
 

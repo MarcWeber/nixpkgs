@@ -21,7 +21,9 @@
 , libXcursor
 , fontconfig
 , cpio
+, cacert
 , jreOnly ? false
+, perl
 }:
 
 let
@@ -93,6 +95,7 @@ stdenv.mkDerivation rec {
     libXinerama
     libXcursor
     fontconfig
+    perl
   ];
 
   NIX_LDFLAGS = "-lfontconfig -lXcursor -lXinerama";
@@ -144,6 +147,10 @@ stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out
     cp -av build/*/j2${if jreOnly then "re" else "sdk"}-image/* $out
+    pushd $out/${if ! jreOnly then "jre/" else ""}lib/security
+    rm cacerts
+    perl ${./generate-cacerts.pl} $out/bin/keytool ${cacert}/etc/ca-bundle.crt
+    popd
   '';
 #  '' + (if jreOnly then "" else ''
 #    if [ -z $jre ]; then

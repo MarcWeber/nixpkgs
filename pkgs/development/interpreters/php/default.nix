@@ -4,7 +4,7 @@
 , libjpeg, libpng, htmlTidy, libmcrypt, fcgi, callPackage, gettext
 , freetype, writeText
 , openldap, cyrus_sasl
-, version ? "5.3.17" # latest stable
+, version ? "5.3.18" # latest stable
 
 # options
 
@@ -290,7 +290,8 @@ let
       # "5.3.6" = "2286f5a82a6e8397955a0025c1c2ad98";
       # "5.3.14" = "7caac4f71e2f21426c11ac153e538392";
       # "5.3.15" = "5cfcfd0fa4c4da7576f397073e7993cc";
-      "5.3.17" = "29ee79c941ee85d6c1555c176f12f7ef";
+      # "5.3.17" = "29ee79c941ee85d6c1555c176f12f7ef";
+      "5.3.18" = " 52539c19d0f261560af3c030143dfa8f";
 
       # 5.2 is no longer supported. However PHP 5.2 -> 5.3 has had many
       # incompatibilities which is why it may be useful to continue supporting it

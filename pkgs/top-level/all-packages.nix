@@ -2798,7 +2798,7 @@ let
   php5_3 = php.override { version = "5.3.17"; }; 
   php5_3fpm = php5_3.override { sapi = "fpm"; };
 
-  php5_4 = php.override { version = "5.4.7";  gdSupport = false; }; # gd support fails for 5.4.x
+  php5_4 = php.override { version = "5.4.7";  gdSupport = false; }; # gd support fails for 5.4.x ?
   php5_4fpm = php5_3.override { sapi = "fpm"; };
 
   # use php.apc/xcache/Xdebug instead
@@ -4145,6 +4145,8 @@ let
   libgdata_0_6 = (newScope gnome) ../development/libraries/libgdata/0.6.nix {};
 
   libgig = callPackage ../development/libraries/libgig { };
+
+  libgit2 = callPackage ../development/libraries/libgit2 { };
 
   libgnome_keyring = callPackage ../development/libraries/libgnome-keyring { };
   libgnome_keyring3 = callPackage ../development/libraries/libgnome-keyring/3.x.nix { };
@@ -9029,6 +9031,14 @@ let
 
   texLivePGF = builderDefsPackage (import ../tools/typesetting/tex/texlive/pgf.nix) {
     inherit texLiveLatexXColor texLive;
+  };
+
+  texLiveBeamer = builderDefsPackage (import ../tools/typesetting/tex/texlive/beamer.nix) {
+    inherit texLiveLatexXColor texLivePGF texLive;
+  };
+
+  texLiveModerncv = builderDefsPackage (import ../tools/typesetting/tex/texlive/moderncv.nix) {
+    inherit texLive unzip;
   };
 
   vice = callPackage ../misc/emulators/vice { };

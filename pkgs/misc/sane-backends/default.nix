@@ -9,6 +9,8 @@ assert hotplugSupport -> (stdenv.system == "i686-linux" || stdenv.system == "x86
 stdenv.mkDerivation rec {
   version = "1.0.23";
   name = "sane-backends-${version}";
+
+  enableParallelBuilding = true;
   
   src = fetchurl {
     url = "https://launchpad.net/ubuntu/+archive/primary/+files/sane-backends_${version}.orig.tar.gz";

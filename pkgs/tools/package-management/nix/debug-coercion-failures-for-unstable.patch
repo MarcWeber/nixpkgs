@@ -1,19 +1,26 @@
-commit 37453f6d95f4f62a45f382ba759bbf6d4409dea3
-Author: Marc Weber <marco-oweber@gmx.de>
-Date:   Sun Aug 26 19:19:17 2012 +0200
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] experimental/debug-coercions-as-xml
 
-    experimental/debug-coercions-as-xml
-    
-    We're all pretty helpless seeing messages like:
-    
-      value is an attribute set while a list was expected
-    
-    This patch add sthe flag --xml-debug-coercion-failure
-    making nix output the xml representation of the attribute set
-    - which of course may fail eg if infinite recursions are used.
-    However its more often useful than failing.
-    
-    Signed-off-by: Marc Weber <marco-oweber@gmx.de>
+We're all pretty helpless seeing messages like:
+
+  value is an attribute set while a list was expected
+
+This patch add sthe flag --xml-debug-coercion-failure
+making nix output the xml representation of the attribute set
+- which of course may fail eg if infinite recursions are used.
+However its more often useful than failing.
+
+Signed-off-by: Marc Weber <marco-oweber@gmx.de>
+
+---
+ src/libexpr/eval-inline.hh             |  4 ++--
+ src/libexpr/eval.cc                    | 33 +++++++++++++++++++++++----------
+ src/libexpr/eval.hh                    |  2 ++
+ src/libmain/shared.cc                  |  3 +++
+ src/libstore/globals.cc                |  1 +
+ src/libstore/globals.hh                |  6 ++++++
+ src/nix-instantiate/nix-instantiate.cc |  3 +++
+ 7 files changed, 40 insertions(+), 12 deletions(-)
 
 diff --git a/src/libexpr/eval-inline.hh b/src/libexpr/eval-inline.hh
 index 57a9e4c..d114e64 100644
@@ -38,14 +45,10 @@ index 57a9e4c..d114e64 100644
  
  }
 diff --git a/src/libexpr/eval.cc b/src/libexpr/eval.cc
-index fadfb3b..58b47b4 100644
+index 2f9601e..476d170 100644
 --- a/src/libexpr/eval.cc
 +++ b/src/libexpr/eval.cc
-@@ -1,9 +1,10 @@
--#include "eval.hh"
-+#include "eval.hh"
- #include "hash.hh"
- #include "util.hh"
+@@ -4,6 +4,7 @@
  #include "store-api.hh"
  #include "derivations.hh"
  #include "globals.hh"
@@ -53,12 +56,12 @@ index fadfb3b..58b47b4 100644
  #include "eval-inline.hh"
  
  #include <cstring>
-@@ -204,6 +205,18 @@ void EvalState::addConstant(const string & name, Value & v)
+@@ -205,6 +206,18 @@ void EvalState::addConstant(const string & name, Value & v)
  }
  
  
 +string EvalState::showTypeOrXml(Value &v){
-+    if (xmldebugCorcionFailure){
++    if (settings.xmldebugCorecionFailure){
 +        // make running this code intsead optional
 +        std::ostringstream out;
 +        PathSet context;
@@ -72,7 +75,7 @@ index fadfb3b..58b47b4 100644
  void EvalState::addPrimOp(const string & name,
      unsigned int arity, PrimOpFun primOp)
  {
-@@ -452,7 +465,7 @@ inline bool EvalState::evalBool(Env & env, Expr * e)
+@@ -453,7 +466,7 @@ inline bool EvalState::evalBool(Env & env, Expr * e)
      Value v;
      e->eval(*this, env, v);
      if (v.type != tBool)
@@ -81,7 +84,7 @@ index fadfb3b..58b47b4 100644
      return v.boolean;
  }
  
-@@ -461,7 +474,7 @@ inline void EvalState::evalAttrs(Env & env, Expr * e, Value & v)
+@@ -462,7 +475,7 @@ inline void EvalState::evalAttrs(Env & env, Expr * e, Value & v)
  {
      e->eval(*this, env, v);
      if (v.type != tAttrs)
@@ -90,7 +93,7 @@ index fadfb3b..58b47b4 100644
  }
  
  
-@@ -725,7 +738,7 @@ void EvalState::callFunction(Value & fun, Value & arg, Value & v)
+@@ -726,7 +739,7 @@ void EvalState::callFunction(Value & fun, Value & arg, Value & v)
      
      if (fun.type != tLambda)
          throwTypeError("attempt to call something which is not a function but %1%",
@@ -99,7 +102,7 @@ index fadfb3b..58b47b4 100644
  
      unsigned int size =
          (fun.lambda.fun->arg.empty() ? 0 : 1) +
-@@ -999,7 +1012,7 @@ int EvalState::forceInt(Value & v)
+@@ -1000,7 +1013,7 @@ int EvalState::forceInt(Value & v)
  {
      forceValue(v);
      if (v.type != tInt)
@@ -108,7 +111,7 @@ index fadfb3b..58b47b4 100644
      return v.integer;
  }
  
-@@ -1008,7 +1021,7 @@ bool EvalState::forceBool(Value & v)
+@@ -1009,7 +1022,7 @@ bool EvalState::forceBool(Value & v)
  {
      forceValue(v);
      if (v.type != tBool)
@@ -117,7 +120,7 @@ index fadfb3b..58b47b4 100644
      return v.boolean;
  }
  
-@@ -1017,7 +1030,7 @@ void EvalState::forceFunction(Value & v)
+@@ -1018,7 +1031,7 @@ void EvalState::forceFunction(Value & v)
  {
      forceValue(v);
      if (v.type != tLambda && v.type != tPrimOp && v.type != tPrimOpApp)
@@ -126,7 +129,7 @@ index fadfb3b..58b47b4 100644
  }
  
  
-@@ -1025,7 +1038,7 @@ string EvalState::forceString(Value & v)
+@@ -1026,7 +1039,7 @@ string EvalState::forceString(Value & v)
  {
      forceValue(v);
      if (v.type != tString)
@@ -135,7 +138,7 @@ index fadfb3b..58b47b4 100644
      return string(v.string.s);
  }
  
-@@ -1106,7 +1119,7 @@ string EvalState::coerceToString(Value & v, PathSet & context,
+@@ -1107,7 +1120,7 @@ string EvalState::coerceToString(Value & v, PathSet & context,
      if (v.type == tAttrs) {
          Bindings::iterator i = v.attrs->find(sOutPath);
          if (i == v.attrs->end())
@@ -144,7 +147,7 @@ index fadfb3b..58b47b4 100644
          return coerceToString(*i->value, context, coerceMore, copyToStore);
      }
  
-@@ -1133,7 +1146,7 @@ string EvalState::coerceToString(Value & v, PathSet & context,
+@@ -1134,7 +1147,7 @@ string EvalState::coerceToString(Value & v, PathSet & context,
          }
      }
      
@@ -153,7 +156,7 @@ index fadfb3b..58b47b4 100644
  }
  
  
-@@ -1219,7 +1232,7 @@ bool EvalState::eqValues(Value & v1, Value & v2)
+@@ -1220,7 +1233,7 @@ bool EvalState::eqValues(Value & v1, Value & v2)
              return false;
  
          default:
@@ -163,10 +166,10 @@ index fadfb3b..58b47b4 100644
  }
  
 diff --git a/src/libexpr/eval.hh b/src/libexpr/eval.hh
-index a1f26a0..ef3d1a8 100644
+index a3c55a3..c737b09 100644
 --- a/src/libexpr/eval.hh
 +++ b/src/libexpr/eval.hh
-@@ -201,6 +201,8 @@ private:
+@@ -205,6 +205,8 @@ private:
      void addPrimOp(const string & name,
          unsigned int arity, PrimOpFun primOp);
  
@@ -176,61 +179,61 @@ index a1f26a0..ef3d1a8 100644
      
      friend class ExprVar;
 diff --git a/src/libmain/shared.cc b/src/libmain/shared.cc
-index 026db41..751ad67 100644
+index 9e5964a..f1bcec4 100644
 --- a/src/libmain/shared.cc
 +++ b/src/libmain/shared.cc
-@@ -188,6 +188,9 @@ static void initAndRun(int argc, char * * argv)
-             useBuildHook = false;
+@@ -196,6 +196,9 @@ static void initAndRun(int argc, char * * argv)
+             settings.useBuildHook = false;
          else if (arg == "--show-trace")
              showTrace = true;
 +        else if (arg == "--xml-debug-coercion-failure") {
-+            xmldebugCorcionFailure = true;
++            settings.set("xmldebugCorecionFailure", "true");
 +        }
          else if (arg == "--option") {
              ++i; if (i == args.end()) throw UsageError("`--option' requires two arguments");
              string name = *i;
 diff --git a/src/libstore/globals.cc b/src/libstore/globals.cc
-index 5c22f14..4baf982 100644
+index 9b22d54..bab3df1 100644
 --- a/src/libstore/globals.cc
 +++ b/src/libstore/globals.cc
-@@ -26,6 +26,7 @@ Verbosity buildVerbosity = lvlError;
- unsigned int maxBuildJobs = 1;
- unsigned int buildCores = 1;
- bool readOnlyMode = false;
-+bool xmldebugCorcionFailure = false;
- string thisSystem = "unset";
- time_t maxSilentTime = 0;
- time_t buildTimeout = 0;
+@@ -22,6 +22,7 @@ Settings::Settings()
+     maxBuildJobs = 1;
+     buildCores = 1;
+     readOnlyMode = false;
++    xmldebugCorecionFailure = false;
+     thisSystem = SYSTEM;
+     maxSilentTime = 0;
+     buildTimeout = 0;
 diff --git a/src/libstore/globals.hh b/src/libstore/globals.hh
-index 1c0877a..967c1db 100644
+index d25ee6a..7951428 100644
 --- a/src/libstore/globals.hh
 +++ b/src/libstore/globals.hh
-@@ -113,7 +113,13 @@ void overrideSetting(const string & name, const Strings & value);
+@@ -78,6 +78,12 @@ struct Settings {
+        the database. */
+     bool readOnlyMode;
  
- void reloadSettings();
- 
--void setDefaultsFromEnvironment();
- 
-+/* if set to true this prints the type which nix tried to coerce to a non matching type
-+ * printing the xml can lead to infinite recursions etc.. So this is for
-+ * debugging your Nix code only
-+ */
-+extern bool xmldebugCorcionFailure;
 +
-+void setDefaultsFromEnvironment();
++    /* if set to true nix will print the value it tried to coerce to a
++     particular type as xml. This printing may trigger infitie recursions
++     in soem cases - thus use for debugging only */
++    bool xmldebugCorecionFailure;
++
+     /* The canonical system name, as returned by config.guess. */
+     string thisSystem;
  
- }
 diff --git a/src/nix-instantiate/nix-instantiate.cc b/src/nix-instantiate/nix-instantiate.cc
-index bca65d0..3c11f0a 100644
+index ab0c8cf..513f14a 100644
 --- a/src/nix-instantiate/nix-instantiate.cc
 +++ b/src/nix-instantiate/nix-instantiate.cc
-@@ -99,6 +99,9 @@ void run(Strings args)
-             readOnlyMode = true;
+@@ -96,6 +96,9 @@ void run(Strings args)
+             settings.readOnlyMode = true;
              evalOnly = true;
          }
 +        else if (arg == "--xml-debug-coercion-failure") {
-+            xmldebugCorcionFailure = true;
++            settings.xmldebugCorecionFailure = true;
 +        }
          else if (arg == "--parse-only") {
-             readOnlyMode = true;
+             settings.readOnlyMode = true;
              parseOnly = evalOnly = true;
+-- 
+tg: (dde6486..) experimental/debug-coercions-as-xml (depends on: master)

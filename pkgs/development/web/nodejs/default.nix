@@ -1,5 +1,5 @@
 { stdenv, fetchurl, openssl, python, zlib, v8, utillinux, linkV8Headers ? false
-, version ? "0.8.8"
+, version ? "0.8.12"
 }:
 
 let
@@ -13,6 +13,32 @@ in
 
 stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "nodejs" version
   {
+    "0.8.12" = rec {
+      version = "0.8.12";
+      name = "nodejs-${version}";
+
+      src = fetchurl {
+        url = "http://nodejs.org/dist/v${version}/node-v${version}.tar.gz";
+        sha256 = "0igsz9g3hmxcnn685v4k8p6d2vv6cmh9sdz5pl8rlhglp0m7yjnn";
+      };
+
+      prePatch = ''
+        sed -e 's|^#!/usr/bin/env python$|#!${python}/bin/python|g' -i tools/{*.py,waf-light,node-waf} configure
+      '';
+    };
+    "0.8.9" = rec {
+
+      version = "0.8.9";
+      name = "nodejs-${version}";
+
+      src = fetchurl {
+        url = "http://nodejs.org/dist/v${version}/node-v${version}.tar.gz";
+        sha256 = "1finh64yra4lqy5jzqif3hhq8hzjvkbc8xkw8364sjsygj3hc3rj";
+      };
+      prePatch = ''
+        sed -e 's|^#!/usr/bin/env python$|#!${python}/bin/python|g' -i tools/{*.py,waf-light,node-waf} configure
+      '';
+    };
     "0.8.8" = {
       src = fetchurl {
         url = "http://nodejs.org/dist/v${version}/node-v${version}.tar.gz";
@@ -60,11 +86,9 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "nodejs" version
 
   patches = stdenv.lib.optional stdenv.isDarwin ./no-arch-flag.patch;
 
-
   postInstall = ''
+
     sed -e 's|^#!/usr/bin/env node$|#!'$out'/bin/node|' -i $out/lib/node_modules/npm/bin/npm-cli.js
-  '' + stdenv.lib.optionalString linkV8Headers '' # helps binary npms
-    ln -s ${v8}/include/* $out/include
   '' + stdenv.lib.optionalString stdenv.isDarwin ''
     install_name_tool -change libv8.dylib ${v8}/lib/libv8.dylib $out/bin/node
   '';

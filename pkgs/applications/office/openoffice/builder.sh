@@ -103,3 +103,14 @@ installPhase() {
 
 genericBuild
 
+# hack:
+for prog in $out/bin/*; do
+  link=$(readlink $prog)
+  rm $prog
+  cat >> $prog << EOF
+  #!/bin/sh
+  [ -d ~/.config ] || mkdir ~/.config
+  exec $link "\$@"
+EOF
+  chmod +x $prog
+done

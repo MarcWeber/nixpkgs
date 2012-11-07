@@ -1,4 +1,4 @@
-{ composableDerivation, lib, fetchurl, alsaLib, libao, lame, libmad }:
+{ composableDerivation, lib, fetchurl, alsaLib, libao, lame, libmad, flac, libvorbis }:
 
 let inherit (composableDerivation) edf; in
 
@@ -9,6 +9,8 @@ composableDerivation.composableDerivation {} {
     url = mirror://sourceforge/sox/sox-14.3.0.tar.gz;
     sha256 = "15r39dq9nlwrypm0vpxmbxyqqv0bd6284djbi1fdfrlkjhf43gws";
   };
+
+  enableParallelBuilding = true;
 
   flags =
     # are these options of interest? We'll see
@@ -23,11 +25,15 @@ composableDerivation.composableDerivation {} {
     // edf { name = "lame";    enable.buildInputs = [ lame ]; }
     // edf { name = "dl-mad"; enable.buildInputs = [ libmad ]; } # use shared library
     // edf { name = "mad";    enable.buildInputs =[ libmad ]; }
+    // edf { name = "flac";   enable.buildInputs =[ flac ]; }
+    // edf { name = "oggvorbis";   enable.buildInputs =[ libvorbis ]; }
     ;
 
   cfg = {
     ossSupport = false;
     sun_audioSupport = false;
+    flacSupport = true;
+    oggSupport = true;
   } // lib.listToAttrs
     [ { name = "dl-lameSupport"; value = true; }
       { name = "dl-madSupport"; value = true; }

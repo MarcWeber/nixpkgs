@@ -3,6 +3,8 @@
 stdenv.mkDerivation {
   name = "xsane-0.998";
 
+  enableParallelBuilding = true;
+
   src = fetchurl {
     url = http://www.xsane.org/download/xsane-0.998.tar.gz;
     sha256 = "0vn2cj85ijgp2v2j2h9xpqmg2jwlbxmwyb88kxhjjakqay02ybm3";

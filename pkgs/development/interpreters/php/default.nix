@@ -1,9 +1,10 @@
 { pkgs, stdenv, fetchurl, composableDerivation, autoconf, automake
 , flex, bison, apacheHttpd, mysql, libxml2, readline
-, zlib, curl, gd, postgresql, openssl, pkgconfig, sqlite, getConfig, libiconv
+, zlib, curl, gd, postgresql, openssl, pkgconfig, sqlite, config, libiconv
 , libjpeg, libpng, htmlTidy, libmcrypt, fcgi, callPackage, gettext
 , freetype, writeText
-, version ? "5.3.15" # latest stable
+, openldap, cyrus_sasl
+, version ? "5.3.17" # latest stable
 
 # options
 
@@ -31,6 +32,7 @@
 , zipSupport ? true
 , zlibSupport ? true
 , ttfSupport ? true
+, ldapSupport ? true
 
 , lessThan53 ? builtins.lessThan (builtins.compareVersions version "5.3") 0 # you're not supposed to pass this
 , lessThan54 ? builtins.lessThan (builtins.compareVersions version "5.4") 0
@@ -113,7 +115,12 @@ let
         configureFlags = ["--with-curl=${curl}" "--with-curlwrappers"];
         buildInputs = [curl openssl];
       };
-      
+
+      ldap = {
+        configureFlags = ["--with-ldap=${openldap}" "--with-ldap-sasl=${cyrus_sasl}"];
+        buildInputs = [openldap cyrus_sasl];
+      };
+
       zlib = {
         configureFlags = ["--with-zlib=${zlib}"];
         buildInputs = [zlib];
@@ -275,13 +282,15 @@ let
      url = "http://nl.php.net/get/php-${version}.tar.bz2/from/this/mirror";
      md5 = lib.maybeAttr version (throw "unkown php version ${version}") {
       # does not built, due to patch?
-      "5.4.5" = "ffcc7f4dcf2b79d667fe0c110e6cb724";
+      # "5.4.5" = "ffcc7f4dcf2b79d667fe0c110e6cb724";
+      "5.4.7" = "9cd421f1cc8fa8e7f215e44a1b06199f";
 
       # those older versions are likely to be buggy - there should be no reason to compile them
       # "5.3.3" = "21ceeeb232813c10283a5ca1b4c87b48";
       # "5.3.6" = "2286f5a82a6e8397955a0025c1c2ad98";
       # "5.3.14" = "7caac4f71e2f21426c11ac153e538392";
-      "5.3.15" = "5cfcfd0fa4c4da7576f397073e7993cc";
+      # "5.3.15" = "5cfcfd0fa4c4da7576f397073e7993cc";
+      "5.3.17" = "29ee79c941ee85d6c1555c176f12f7ef";
 
       # 5.2 is no longer supported. However PHP 5.2 -> 5.3 has had many
       # incompatibilities which is why it may be useful to continue supporting it

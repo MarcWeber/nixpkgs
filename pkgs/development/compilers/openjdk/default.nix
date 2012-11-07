@@ -17,8 +17,13 @@
 , libXrender
 , libXtst
 , libXi
+, libXinerama
+, libXcursor
+, fontconfig
 , cpio
+, cacert
 , jreOnly ? false
+, perl
 }:
 
 let
@@ -38,6 +43,11 @@ in
 
 stdenv.mkDerivation rec {
   name = "openj${if jreOnly then "re" else "dk"}-7b127";
+
+  # enableParallelBuilding = true fails, one makefile suggests:
+  preConfigure = ''
+    export HOTSPOT_BUILD_JOBS=$NIX_BUILD_CORES
+  '';
 
   src = fetchurl {
     url = http://www.java.net/download/openjdk/jdk7/promoted/b147/openjdk-7-fcs-src-b147-27_jun_2011.zip;
@@ -82,7 +92,13 @@ stdenv.mkDerivation rec {
     libXrender
     libXtst
     libXi
+    libXinerama
+    libXcursor
+    fontconfig
+    perl
   ];
+
+  NIX_LDFLAGS = "-lfontconfig -lXcursor -lXinerama";
 
   postUnpack = ''
     mkdir -p drops
@@ -122,7 +138,6 @@ stdenv.mkDerivation rec {
     "UNIXCOMMAND_PATH="
     "BOOTDIR=${jdk}"
     "DROPS_DIR=$(DROPS_PATH)"
-    "SKIP_BOOT_CYCLE=false"
   ];
 
   configurePhase = ''
@@ -132,6 +147,10 @@ stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out
     cp -av build/*/j2${if jreOnly then "re" else "sdk"}-image/* $out
+    pushd $out/${if ! jreOnly then "jre/" else ""}lib/security
+    rm cacerts
+    perl ${./generate-cacerts.pl} $out/bin/keytool ${cacert}/etc/ca-bundle.crt
+    popd
   '';
 #  '' + (if jreOnly then "" else ''
 #    if [ -z $jre ]; then

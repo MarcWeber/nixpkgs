@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 args@{
 version ? "stable"
 , ...
@@ -11,15 +12,16 @@ let
     libpcre
     libgtk2.0
 */
+=======
+{ stdenv, fetchsvn, ocaml, zlib, neko }:
 
-    svn_export_fake = args.writeScriptBin "svn" ''
-    #!/bin/sh
-    fail(){ echo $1; exit 1; }
-    [ "$1" == "export" ] || fail "first arg should be export, got $@"
-    [ "$2" == "-q" ] || fail "first arg should be -q, got $@"
-    cp -a "$3" "$4"
-    '';
+stdenv.mkDerivation {
+  name = "haxe-2.10";
+>>>>>>> experimental/updates
 
+  buildInputs = [ocaml zlib neko];
+
+<<<<<<< HEAD
 
     # the HaXe compiler
     haxe =  stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "haxe" version {
@@ -116,4 +118,39 @@ haxe // {
     name = "haxelib";
     description = "haxelib is a HaXe library management tool similar to easyinstall or ruby gems";
   };
+=======
+  src = fetchsvn {
+    url = "http://haxe.googlecode.com/svn/tags/v2-10";
+    sha256 = "dbd3c655e4136eb68a165ef83b96bfc1f0f2eb9ec8729603b19bcd717a61a679";
+  };
+
+  prePatch = ''
+    sed -i -e 's|com.class_path <- \[|&"'"$out/lib/haxe/std/"'";|' main.ml
+  '';
+
+  postBuild = ''
+    find std/tools -name '*.n' -delete
+    rm std/tools/haxedoc/haxedoc std/tools/haxelib/haxelib
+  '';
+
+  installPhase = ''
+    install -vd "$out/bin" "$out/lib/haxe/std"
+    install -vt "$out/bin" haxe haxelib haxedoc
+    cp -vr std "$out/lib/haxe"
+  '';
+
+  dontStrip = true;
+
+  meta = {
+    description = "Programming language targeting JavaScript, Flash, NekoVM, PHP, C++";
+    homepage = http://haxe.org;
+    license = ["GPLv2" "BSD2" /*?*/ ];  # -> docs/license.txt
+    maintainers = [stdenv.lib.maintainers.marcweber];
+    platforms = stdenv.lib.platforms.linux;
+  };
+<<<<<<< HEAD
+>>>>>>> experimental/updates
+=======
+>>>>>>> refs/top-bases/experimental/haxe
+>>>>>>> experimental/haxe
 }

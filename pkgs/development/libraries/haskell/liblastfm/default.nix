@@ -2,8 +2,8 @@
 
 cabal.mkDerivation (self: {
   pname = "liblastfm";
-  version = "0.0.3.4";
-  sha256 = "1d8fypl9s64jpsr8hygyfqq6jzv1bvd22zq4f93xsffpvv7nqnyk";
+  version = "0.0.3.6";
+  sha256 = "0xmrciv489dvksgpg9g83kna34x1amsx45wvpngcpnx4m44fcp4w";
   buildDepends = [
     aeson curl mtl pureMD5 urlencoded utf8String xml
   ];

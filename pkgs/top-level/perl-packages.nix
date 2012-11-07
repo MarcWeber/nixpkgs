@@ -1439,10 +1439,10 @@ rec {
   };
 
   EmailSender = buildPerlPackage rec {
-    name = "Email-Sender-0.110001";
+    name = "Email-Sender-0.120002";
     src = fetchurl {
       url = "mirror://cpan/authors/id/R/RJ/RJBS/${name}.tar.gz";
-      sha256 = "0z4nl7aizbailraqwkkqhx6k3hdz67wxszjfhd5yg2vn06ybsjwj";
+      sha256 = "1cp735ndmh76xzijsm1hd0yh0m9yj34jc8akjhidkn677h2021dc";
     };
     buildInputs = [ TestMore ];
     propagatedBuildInputs =
@@ -1578,12 +1578,39 @@ rec {
     };
   };
 
+  FileBaseDir = buildPerlPackage rec {
+    version = "0.03";
+    name = "File-BaseDir-${version}";
+    configurePhase = ''
+      preConfigure || true
+      perl Build.PL PREFIX="$out" prefix="$out"
+    '';
+    src = fetchurl {
+      url = "mirror://cpan/modules/by-module/File/${name}.tar.gz";
+      sha256 = "0029cba7a3b5d8aa5f7d03cb1b7ba2bcf2829382f7f26aa3bee06fce8611a886";
+    };
+  };
+
   FileCopyRecursive = buildPerlPackage rec {
     name = "File-Copy-Recursive-0.38";
     src = fetchurl {
       url = "mirror://cpan/authors/id/D/DM/DMUEY/${name}.tar.gz";
       sha256 = "1syyyvylr51iicialdmv0dw06q49xzv8zrkb5cn8ma4l73gvvk44";
     };
+  };
+
+  FileDesktopEntry = buildPerlPackage rec {
+    version = "0.04";
+    name = "File-DesktopEntry-${version}";
+    configurePhase = ''
+      preConfigure || true
+      perl Build.PL PREFIX="$out" prefix="$out"
+    '';
+    src = fetchurl {
+      url = "mirror://cpan/modules/by-module/File/${name}.tar.gz";
+      sha256 = "d7f80d8bd303651a43dc1810c73740d38a0d2b158fb33cd3b6ca4d3a566da7cb";
+    };
+    propagatedBuildInputs = [ FileBaseDir ];
   };
 
   FileFindRule = buildPerlPackage rec {
@@ -2869,6 +2896,15 @@ rec {
       sha256 = "12b2xvrd253ngvzwf81s9han4jr94l39vs5ca70pzr3wpi39qn8k";
     };
     propagatedBuildInputs = [IOSocketSSL];
+  };
+
+  NetSMTPTLS = buildPerlPackage {
+    name = "Net-SMTP-TLS-0.12";
+    src = fetchurl {
+      url = mirror://cpan/authors/id/A/AW/AWESTHOLM/Net-SMTP-TLS-0.12.tar.gz;
+      sha256 = "19g48kabj22v66jbf69q78xplhi7r1y2kdbddfwh4xy3g9k75rzg";
+    };
+    propagatedBuildInputs = [IOSocketSSL DigestHMAC];
   };
 
   NetSSLeay = buildPerlPackage rec {

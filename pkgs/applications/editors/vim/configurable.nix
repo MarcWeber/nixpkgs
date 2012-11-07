@@ -4,11 +4,13 @@ args@{vimNox ? false, ...}: with args;
 
 
 let inherit (args.composableDerivation) composableDerivation edf; in
-composableDerivation {} {
+composableDerivation {} (fix: {
+
+    inherit (args) vimNox;
 
     name = "vim_configurable-7.3";
 
-    src = if vimNox 
+    src = if fix.fixed.vimNox
       then {
         # vim nox branch: client-server without X by uing sockets
         # REGION AUTO UPDATE: { name="vim-nox"; type="hg"; url="https://code.google.com/r/yukihironakadaira-vim-cmdsrv-nox/"; branch="cmdsrv-nox"; }
@@ -95,4 +97,4 @@ composableDerivation {} {
     homepage = "www.vim.org";
   };
 
-}
+})

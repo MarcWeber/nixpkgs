@@ -125,6 +125,7 @@ in {
           value = {
            inherit name;
            startOn = "started httpd";
+           environment = if config.phpIni == null then {} else  { PHPRC = config.phpIni; };
            script = ''
             # ${cfgFile}, dummy: force restart if config changes
 

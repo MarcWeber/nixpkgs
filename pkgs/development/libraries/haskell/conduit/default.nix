@@ -4,8 +4,8 @@
 
 cabal.mkDerivation (self: {
   pname = "conduit";
-  version = "0.5.2.3";
-  sha256 = "1snyh9zxdmvjb1ilaz6c2z5220r7ygshmcq013nch44b6w3r3cp9";
+  version = "0.5.3";
+  sha256 = "1gqxfvgdlv0sn145v232rcfddds1sgw9yazwi7hhqjdsgdyk3x5m";
   buildDepends = [
     liftedBase monadControl resourcet text transformers
     transformersBase void

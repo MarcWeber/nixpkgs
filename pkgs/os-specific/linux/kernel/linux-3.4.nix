@@ -1,4 +1,4 @@
-args @ { stdenv, fetchurl, userModeLinux ? false, extraConfig ? ""
+args @ { stdenv, fetchurl, extraConfig ? ""
 , perl, mktemp, module_init_tools
 , ... }:
 
@@ -239,7 +239,7 @@ in
 import ./generic.nix (
 
   rec {
-    version = "3.4.10";
+    version = "3.4.18";
     testing = false;
 
     preConfigure = ''
@@ -248,7 +248,7 @@ import ./generic.nix (
 
     src = fetchurl {
       url = "mirror://kernel/linux/kernel/v3.x/${if testing then "testing/" else ""}linux-${version}.tar.xz";
-      sha256 = "03xfiyhv6zl3wn78bgm7a30w4hs2p328s447slilp0z2w09jqn4q";
+      sha256 = "196m681612k6xq62bf9ryii0vzmj23z605s0xc35x0cqhhx1wq16";
     };
 
     config = configWithPlatform stdenv.platform;
@@ -257,6 +257,7 @@ import ./generic.nix (
     features.iwlwifi = true;
     features.efiBootStub = true;
     features.needsCifsUtils = true;
+    features.netfilterRPFilter = true;
   }
 
   // removeAttrs args ["extraConfig"]

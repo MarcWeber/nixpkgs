@@ -116,7 +116,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   # GHC version, change the "preferences function" for that GHC version
   # in haskell-defaults.nix.
 
-  # NOTE: 2012.2.0.0 is the current default.
+  # NOTE: 2012.4.0.0 is the current default.
 
   haskellPlatformArgs_future = self : {
     inherit (self) cabal ghc;
@@ -146,7 +146,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
     vector       = self.vector_0_10_0_1;        # 7.6 ok
     xhtml        = self.xhtml_3000_2_1;         # 7.6 ok
     zlib         = self.zlib_0_5_4_0;           # 7.6 ok
-    cabalInstall = self.cabalInstall_1_16_0_1;  # 7.6 ok
+    cabalInstall = self.cabalInstall_1_16_0_2;  # 7.6 ok
     alex         = self.alex_3_0_2;             # 7.6 ok
     haddock      = self.haddock_2_13_1;         # 7.6 ok
     happy        = self.happy_1_18_10;          # 7.6 ok
@@ -486,6 +486,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   baseUnicodeSymbols = callPackage ../development/libraries/haskell/base-unicode-symbols {};
 
+  basicPrelude = callPackage ../development/libraries/haskell/basic-prelude {};
+
   benchpress = callPackage ../development/libraries/haskell/benchpress {
     time = self.time_1_1_3;
   };
@@ -544,7 +546,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   };
 
   Cabal_1_14_0 = callPackage ../development/libraries/haskell/Cabal/1.14.0.nix { cabal = self.cabal.override { Cabal = null; }; };
-  Cabal_1_16_0_2 = callPackage ../development/libraries/haskell/Cabal/1.16.0.2.nix { cabal = self.cabal.override { Cabal = null; }; };
+  Cabal_1_16_0_3 = callPackage ../development/libraries/haskell/Cabal/1.16.0.3.nix { cabal = self.cabal.override { Cabal = null; }; };
   Cabal = null; # core package in GHC
 
   cabalFileTh = callPackage ../development/libraries/haskell/cabal-file-th {};
@@ -576,6 +578,10 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   citeprocHs = callPackage ../development/libraries/haskell/citeproc-hs {};
 
   cipherAes = callPackage ../development/libraries/haskell/cipher-aes {};
+
+  classyPrelude = callPackage ../development/libraries/haskell/classy-prelude {};
+
+  classyPreludeConduit = callPackage ../development/libraries/haskell/classy-prelude-conduit {};
 
   clientsession = callPackage ../development/libraries/haskell/clientsession {};
 
@@ -783,6 +789,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   fingertree = callPackage ../development/libraries/haskell/fingertree {};
 
+  fsnotify = callPackage ../development/libraries/haskell/fsnotify {};
+
   gamma = callPackage ../development/libraries/haskell/gamma {};
 
   gd = callPackage ../development/libraries/haskell/gd {
@@ -921,6 +929,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   HTTP_4000_2_5 = callPackage ../development/libraries/haskell/HTTP/4000.2.5.nix {};
   HTTP_4000_2_6 = callPackage ../development/libraries/haskell/HTTP/4000.2.6.nix {};
   HTTP = self.HTTP_4000_2_6;
+
+  httpReverseProxy = callPackage ../development/libraries/haskell/http-reverse-proxy {};
 
   hackageDb = callPackage ../development/libraries/haskell/hackage-db {};
 
@@ -1240,7 +1250,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   OpenGLRaw = callPackage ../development/libraries/haskell/OpenGLRaw {};
 
-  optparse_applicative = callPackage ../development/libraries/haskell/optparse-applicative {};
+  optparseApplicative = callPackage ../development/libraries/haskell/optparse-applicative {};
 
   pathPieces = callPackage ../development/libraries/haskell/path-pieces {};
 
@@ -1315,6 +1325,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   primitive_0_5_0_1 = callPackage ../development/libraries/haskell/primitive/0.5.0.1.nix   {};
   primitive = self.primitive_0_5_0_1;
 
+  projectTemplate = callPackage ../development/libraries/haskell/project-template {};
+
   processExtras = callPackage ../development/libraries/haskell/process-extras {};
 
   processLeksah = callPackage ../development/libraries/haskell/leksah/process-leksah.nix {};
@@ -1364,6 +1376,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   reactiveBanana = callPackage ../development/libraries/haskell/reactive-banana {};
 
   reactiveBananaWx = callPackage ../development/libraries/haskell/reactive-banana-wx {};
+
+  ReadArgs = callPackage ../development/libraries/haskell/ReadArgs {};
 
   readline = callPackage ../development/libraries/haskell/readline {
     inherit (pkgs) readline;
@@ -1427,6 +1441,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   semigroups = callPackage ../development/libraries/haskell/semigroups {};
 
   semigroupoids = callPackage ../development/libraries/haskell/semigroupoids {};
+
+  setenv = callPackage ../development/libraries/haskell/setenv {};
 
   shelly = callPackage ../development/libraries/haskell/shelly {};
 
@@ -1708,6 +1724,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   wlPprintText = callPackage ../development/libraries/haskell/wl-pprint-text {};
 
+  word8 = callPackage ../development/libraries/haskell/word8 {};
+
   wx = callPackage ../development/libraries/haskell/wxHaskell/wx.nix {};
 
   wxc = callPackage ../development/libraries/haskell/wxHaskell/wxc.nix {
@@ -1927,8 +1945,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   cabalInstall_0_8_2  = callPackage ../tools/package-management/cabal-install/0.8.2.nix  {};
   cabalInstall_0_10_2 = callPackage ../tools/package-management/cabal-install/0.10.2.nix {};
   cabalInstall_0_14_0 = callPackage ../tools/package-management/cabal-install/0.14.0.nix {};
-  cabalInstall_1_16_0_1 = callPackage ../tools/package-management/cabal-install/1.16.0.1.nix {};
-  cabalInstall = self.cabalInstall_1_16_0_1;
+  cabalInstall_1_16_0_2 = callPackage ../tools/package-management/cabal-install/1.16.0.2.nix {};
+  cabalInstall = self.cabalInstall_1_16_0_2;
 
   jailbreakCabal = callPackage ../development/tools/haskell/jailbreak-cabal {};
 

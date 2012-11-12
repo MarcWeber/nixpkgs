@@ -402,6 +402,13 @@ let
     client = true;
   });
 
+  androidenv = import ../development/androidenv {
+    inherit pkgs;
+    pkgs_i686 = pkgsi686Linux;
+  };
+
+  inherit (androidenv) androidsdk_4_1;
+
   aria = builderDefsPackage (import ../tools/networking/aria) { };
 
   aria2 = callPackage ../tools/networking/aria2 { };
@@ -1636,6 +1643,17 @@ let
 
   tkabber_plugins = callPackage ../applications/networking/instant-messengers/tkabber-plugins { };
 
+  qfsm = callPackage ../applications/science/electronics/qfsm { };
+
+  tkgate = callPackage ../applications/science/electronics/tkgate/1.x.nix {
+    inherit (xlibs) libX11 imake xproto gccmakedep;
+  };
+
+  # The newer package is low-priority because it segfaults at startup.
+  tkgate2 = lowPrio (callPackage ../applications/science/electronics/tkgate/2.x.nix {
+    inherit (xlibs) libX11;
+  });
+
   tm = callPackage ../tools/system/tm { };
 
   trang = callPackage ../tools/text/xml/trang { };
@@ -1951,7 +1969,19 @@ let
       cross = assert crossSystem != null; crossSystem;
     });
 
-  gcc_realCross = gcc46_realCross;
+  gcc47_realCross = lib.addMetaAttrs { platforms = []; }
+    (makeOverridable (import ../development/compilers/gcc/4.7) {
+      inherit fetchurl stdenv texinfo gmp mpfr mpc libelf zlib
+        cloog ppl gettext which noSysDirs;
+      binutilsCross = binutilsCross;
+      libcCross = libcCross;
+      profiledCompiler = false;
+      enableMultilib = false;
+      crossStageStatic = false;
+      cross = assert crossSystem != null; crossSystem;
+    });
+
+  gcc_realCross = gcc47_realCross;
 
   gccCrossStageStatic = let
       isMingw = (stdenv.cross.libc == "msvcrt");
@@ -2707,9 +2737,9 @@ let
     clooj = clooj_standalone_binary;
   };
 
-  erlang = callPackage ../development/interpreters/erlang { };
-
   erlangR14B04 = callPackage ../development/interpreters/erlang/R14B04.nix { };
+  erlangR15B02 = callPackage ../development/interpreters/erlang/R15B02.nix { };
+  erlang = erlangR15B02;
 
   groovy = callPackage ../development/interpreters/groovy { };
 
@@ -2951,11 +2981,11 @@ let
     gold = true;
   };
 
-  binutilsCross = forceBuildDrv (import ../development/tools/misc/binutils {
+  binutilsCross = lowPrio (forceBuildDrv (import ../development/tools/misc/binutils {
     inherit stdenv fetchurl zlib;
     noSysDirs = true;
     cross = assert crossSystem != null; crossSystem;
-  });
+  }));
 
   bison = bison25;
 
@@ -3238,9 +3268,9 @@ let
     inherit (gnu) mig;
   };
 
-  gdbCross = callPackage ../development/tools/misc/gdb {
+  gdbCross = lowPrio (callPackage ../development/tools/misc/gdb {
     target = crossSystem;
-  };
+  });
 
   valgrind = callPackage ../development/tools/analysis/valgrind {
     stdenv =
@@ -6232,12 +6262,12 @@ let
 
   uclibc = callPackage ../os-specific/linux/uclibc { };
 
-  uclibcCross = callPackage ../os-specific/linux/uclibc {
+  uclibcCross = lowPrio (callPackage ../os-specific/linux/uclibc {
     inherit fetchurl stdenv libiconv;
     linuxHeaders = linuxHeadersCross;
     gccCross = gccCrossStageStatic;
     cross = assert crossSystem != null; crossSystem;
-  };
+  });
 
   udev145 = callPackage ../os-specific/linux/udev/145.nix { };
   udev173 = callPackage ../os-specific/linux/udev/173.nix { };
@@ -6701,7 +6731,9 @@ let
   djview = callPackage ../applications/graphics/djview { };
   djview4 = pkgs.djview;
 
-  dmenu = callPackage ../applications/misc/dmenu { };
+  dmenu = callPackage ../applications/misc/dmenu {
+    enableXft = config.dmenu.enableXft or false;
+  };
 
   dmtx = builderDefsPackage (import ../tools/graphics/dmtx) {
     inherit libpng libtiff libjpeg imagemagick librsvg
@@ -6965,6 +6997,12 @@ let
   };
 
   firefox36Wrapper = wrapFirefox { browser = firefox36Pkgs.firefox; };
+
+  firefox13Pkgs = callPackage ../applications/networking/browsers/firefox/13.0.nix {
+    inherit (gnome) libIDL;
+  };
+
+  firefox13Wrapper = lowPrio (wrapFirefox { browser = firefox13Pkgs.firefox; });
 
   firefox15Pkgs = callPackage ../applications/networking/browsers/firefox/15.0.nix {
     inherit (gnome) libIDL;
@@ -7481,6 +7519,8 @@ let
 
   novaclient = callPackage ../applications/virtualization/nova/client.nix { };
 
+  nspluginwrapper = callPackage ../applications/networking/browsers/mozilla-plugins/nspluginwrapper {};
+
   nvi = callPackage ../applications/editors/nvi { };
 
   ocrad = callPackage ../applications/graphics/ocrad { };
@@ -7659,7 +7699,7 @@ let
 
   siproxd = callPackage ../applications/networking/siproxd { };
 
-  skype_linux = callPackage_i686 ../applications/networking/instant-messengers/skype {
+  skype = callPackage_i686 ../applications/networking/instant-messengers/skype {
     usePulseAudio = config.pulseaudio or false; # disabled by default (the 100% cpu bug)
   };
 
@@ -7697,6 +7737,8 @@ let
     inherit texinfo;
     clisp = clisp_2_44_1;
   };
+
+  sublime = callPackage ../applications/editors/sublime { };
 
   subversion = callPackage ../applications/version-management/subversion/default.nix {
     neon = pkgs.neon029;
@@ -7823,10 +7865,11 @@ let
   uwimap = callPackage ../tools/networking/uwimap { };
 
   uzbl = builderDefsPackage (import ../applications/networking/browsers/uzbl) {
-    inherit pkgconfig webkit makeWrapper glib_networking;
-    inherit gtk3 glib;
+    inherit pkgconfig webkit makeWrapper glib_networking python3;
+    inherit glib pango cairo gdk_pixbuf atk;
     inherit (xlibs) libX11 kbproto;
     inherit (gnome) libsoup;
+    gtk = gtk3;
   };
 
   vdpauinfo = callPackage ../tools/X11/vdpauinfo { };

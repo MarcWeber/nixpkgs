@@ -2377,6 +2377,7 @@ let
   haskellPackages_ghcHEAD             =                   haskell.packages_ghcHEAD;
 
   haxe = callPackage ../development/compilers/haxe { };
+  haxeLatest = haxe.override { version = "latest"; };
 
   falcon = builderDefsPackage (import ../development/interpreters/falcon) {
     inherit cmake;

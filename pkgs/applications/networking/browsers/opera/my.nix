@@ -55,7 +55,7 @@ stdenv.mkDerivation rec {
     else if stdenv.system == "x86_64-linux" then
       fetchurl {
         url = "${mirror}/linux/1151/${name}.x86_64.linux.tar.xz";
-        sha256 = "d394d08f73267b90c0ab18e55cdc4cf4ec239fcb1f0684187ab02a81befae580";
+        sha256 = "63a4fb2e480bd895384bfb8e2c8e71dc979354f0eb8423b552dc37089dc791ad";
       }
     else throw "Opera is not supported on ${stdenv.system} (only i686-linux and x86_64 linux are supported)";
 

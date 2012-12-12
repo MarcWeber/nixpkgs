@@ -158,6 +158,7 @@ in
   };
 
   xf86videosis = attrs: attrs // {
+    NIX_CFLAGS_COMPILE = "-I${xorg.pixman}/include/pixman-1";
     buildInputs = attrs.buildInputs ++ [xorg.glproto args.mesa];
   };
 
@@ -176,13 +177,9 @@ in
     buildInputs = attrs.buildInputs ++ [xorg.pixman];
   };
 
-  xf86videoopenchrome = attrs: attrs // rec {
-    name = "xf86-video-openchrome-0.2.905";
-    src = args.fetchurl {
-      url = "http://openchrome.org/releases/${name}.tar.bz2";
-      sha256 = "1llbm020s0fck9chs0906xz7jr4h3whxan4s10ls9046g7xib3qc";
-    };
-    buildInputs = attrs.buildInputs ++ [xorg.glproto args.mesa xorg.libXext];
+  xf86videoopenchrome = attrs: attrs // {
+    NIX_CFLAGS_COMPILE = "-I${xorg.pixman}/include/pixman-1";
+    buildInputs = attrs.buildInputs ++ [xorg.pixman xorg.glproto args.mesa];
   };
 
   xf86videonv = attrs: attrs // {
@@ -254,10 +251,7 @@ in
   };
 
   libSM = attrs: attrs
-    // { propagatedBuildInputs = [ xorg.libICE ]; }
-    // args.stdenv.lib.optionalAttrs (args.stdenv.system == "i686-darwin") {
-      configureFlags = "LIBUUID_CFLAGS='' LIBUUID_LIBS=''";
-    };
+    // { propagatedBuildInputs = [ xorg.libICE ]; };
 
   lndir = attrs: attrs // {
     preConfigure = ''

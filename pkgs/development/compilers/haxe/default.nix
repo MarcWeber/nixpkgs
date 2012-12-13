@@ -1,16 +1,22 @@
-{ stdenv, fetchsvn, ocaml, zlib, neko
-, version ? "2.10" # latest stable
+{ stdenv, fetchsvn, ocaml, zlib, neko, fetchurl
+, version ? "latest"
 }:
 
 stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "haxe" version {
-    "2.10" = {
-      name = "haxe-2.10";
+    # build fails with:
+    # File "genswf9.ml", line 742, characters 14-42:
+    # Error: This expression has type As3hl.hl_opcode array
+    # but an expression was expected of type As3hl.hl_opcode MultiArray.t
 
-      src = fetchsvn {
-        url = "http://haxe.googlecode.com/svn/tags/v2-10";
-        sha256 = "dbd3c655e4136eb68a165ef83b96bfc1f0f2eb9ec8729603b19bcd717a61a679";
-      };
-    };
+    # "2.10" = {
+    #   name = "haxe-2.10";
+
+    #   src = fetchsvn {
+    #     url = "http://haxe.googlecode.com/svn/tags/v2-10";
+    #     sha256 = "44fb288c65535ef70c478c55b47df4ed565d245237a7c47c32839e68efdaf5b0";
+    #   };
+    # };
+
     "latest" = {
       name = "haxe-svn";
       src = fetchsvn {
@@ -24,6 +30,7 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "haxe" version {
 
   prePatch = ''
     sed -i -e 's|com.class_path <- \[|&"'"$out/lib/haxe/std/"'";|' main.ml
+    export HAXE_LIBRARY_PATH=`pwd`/std
   '';
 
   postBuild = ''

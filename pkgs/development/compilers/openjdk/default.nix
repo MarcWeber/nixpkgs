@@ -39,10 +39,12 @@ let
     else
       throw "openjdk requires i686-linux or x86_64 linux";
 
+  build = "147";
+
 in
 
 stdenv.mkDerivation rec {
-  name = "openj${if jreOnly then "re" else "dk"}-7b127";
+  name = "openj${if jreOnly then "re" else "dk"}-7b${build}";
 
   # enableParallelBuilding = true fails, one makefile suggests:
   preConfigure = ''
@@ -50,7 +52,7 @@ stdenv.mkDerivation rec {
   '';
 
   src = fetchurl {
-    url = http://www.java.net/download/openjdk/jdk7/promoted/b147/openjdk-7-fcs-src-b147-27_jun_2011.zip;
+    url = "http://www.java.net/download/openjdk/jdk7/promoted/b${build}/openjdk-7-fcs-src-b${build}-27_jun_2011.zip";
     sha256 = "1qhwlz9y5qmwmja4qnxg6sn3pgsg1i11fb9j41w8l26acyhk34rs";
   };
 
@@ -131,7 +133,7 @@ stdenv.mkDerivation rec {
     "FREETYPE_HEADERS_PATH=${freetype}/include"
     "FREETYPE_LIB_PATH=${freetype}/lib"
     "MILESTONE=release"
-    "BUILD_NUMBER=b127"
+    "BUILD_NUMBER=b${build}"
     "CUPS_HEADERS_PATH=${cups}/include"
     "USRBIN_PATH="
     "COMPILER_PATH="

@@ -13,6 +13,21 @@ in
 
 stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "nodejs" version
   {
+
+    "0.8.15" = rec {
+      version = "0.8.15";
+      name = "nodejs-${version}";
+
+      src = fetchurl {
+        url = "http://nodejs.org/dist/v${version}/node-v${version}.tar.gz";
+        sha256 = "1ccjaw0lqspnrmzcb9jbnh1mf74ny7874m2q4vz83q7kdnf66n0p";
+      };
+
+      prePatch = ''
+        sed -e 's|^#!/usr/bin/env python$|#!${python}/bin/python|g' -i tools/{*.py,waf-light,node-waf} configure
+      '';
+    };
+
     "0.8.12" = rec {
       version = "0.8.12";
       name = "nodejs-${version}";

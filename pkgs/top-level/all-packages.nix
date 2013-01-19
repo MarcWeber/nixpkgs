@@ -485,6 +485,8 @@ let
 
   mcrl2 = callPackage ../tools/misc/mcrl2 { };
 
+  slowhttptest = callPackage ../tools/misc/slowhttptest { };
+
   syslogng = callPackage ../tools/system/syslog-ng { };
 
   mcelog = callPackage ../os-specific/linux/mcelog { };

@@ -18,11 +18,15 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "haxe" version {
     # };
 
     "latest" = {
-      name = "haxe-svn";
-      src = fetchsvn {
-        url = "http://haxe.googlecode.com/svn/trunk";
-        sha256 = "0dxidmnyjszddiyb0a4cxsp3q2bfpm9c0cqnkiypx0l76fhjn73z";
-      };
+    # REGION AUTO UPDATE: { name="haxe-unstable"; type="svn"; url="http://haxe.googlecode.com/svn/trunk"; }
+    src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-unstable-svn-5691.tar.bz2"; sha256 = "8ecbd9738aa9a3f208d2a890afa137bba406e68c2d0effd6e8271a1c69453027"; });
+    name = "haxe-unstable-svn-5691";
+    # END
+    #   name = "haxe-svn";
+    #   src = fetchsvn {
+    #     url = "http://haxe.googlecode.com/svn/trunk";
+    #     sha256 = "0dxidmnyjszddiyb0a4cxsp3q2bfpm9c0cqnkiypx0l76fhjn73z";
+    #   };
     };
 } {
 

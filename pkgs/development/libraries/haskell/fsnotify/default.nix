@@ -2,8 +2,8 @@
 
 cabal.mkDerivation (self: {
   pname = "fsnotify";
-  version = "0.0.3";
-  sha256 = "17m47rfd1pw4dkw1ghlkfm9cjir0cpgrsasx4vsbj07f2nzidx8a";
+  version = "0.0.6";
+  sha256 = "0ib6ansj3vaq9hxxbsq5jw14w2b61wp4jfahzb3c3x46mdb1bqw5";
   buildDepends = [ hinotify systemFileio systemFilepath text time ];
   meta = {
     description = "Cross platform library for file creation, modification, and deletion notification";

@@ -3,8 +3,7 @@
 stdenv.mkDerivation rec {
   name = "ctags-svn";
   # REGION AUTO UPDATE:      { name="ctags"; type = "svn"; url = "https://ctags.svn.sourceforge.net/svnroot/ctags/trunk"; }
-  src= sourceFromHead "ctags-749.tar.gz"
-               (fetchurl { url = "http://mawercer.de/~nix/repos/ctags-749.tar.gz"; sha256 = "01dd4bf2e55dbedc38def81febef60eece912cb7624df1c0a2cf1ed6e4bc4ecf"; });
+  src = (fetchurl { url = "http://mawercer.de/~nix/repos/ctags-svn-804.tar.bz2"; sha256 = "9ab3b13f60ec285df4c33cae3b79b32aa1523ede734d0b5e0af47eeaaf58f2b4"; });
   # END
 
   preConfigure = ''

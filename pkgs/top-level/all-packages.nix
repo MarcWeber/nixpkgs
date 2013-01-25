@@ -42,7 +42,11 @@
 }:
 
 
-let config_ = config; platform_ = platform; in # rename the function arguments
+let 
+
+  mainArgs = { inherit system stdenvType bootStdenv noSysDirs gccWithCC
+    gccWithProfiling config crossSystem platform; };
+  config_ = config; platform_ = platform; in # rename the function arguments
 
 let
 
@@ -177,6 +181,9 @@ let
   inherit lib config stdenvAdapters;
 
   inherit (lib) lowPrio hiPrio appendToName makeOverridable;
+
+  # tip: merge overlays into pkgs using packageOverrides in your config
+  overlay = name: import (../../.. + "/nixpkgs-${name}-overlay") mainArgs;
 
   # Applying this to an attribute set will cause nix-env to look
   # inside the set for derivations.

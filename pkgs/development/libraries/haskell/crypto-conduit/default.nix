@@ -2,8 +2,8 @@
 
 cabal.mkDerivation (self: {
   pname = "crypto-conduit";
-  version = "0.4.1";
-  sha256 = "1gdznwcq3fb9ls68lgpwna6k1k612j241c8441z7r2kx3a64dqwv";
+  version = "0.4.3";
+  sha256 = "0h9dmr88hqmz2876mlnzz8s5kmi368zs9pljvvmb9vn7m44gpyrk";
   buildDepends = [ cereal conduit cryptoApi transformers ];
   meta = {
     homepage = "https://github.com/meteficha/crypto-conduit";

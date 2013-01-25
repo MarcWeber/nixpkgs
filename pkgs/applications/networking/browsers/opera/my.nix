@@ -12,7 +12,7 @@
   # so use gtk for now!
   guiSupport ? [ "gtk" "qt"  /* "kde" */ ]
 , flashSupport ? false
-, flashplayer10
+, flashplayer
 }:
 
 assert stdenv.isLinux && stdenv.gcc.gcc != null && stdenv.gcc.libc != null;
@@ -84,7 +84,7 @@ stdenv.mkDerivation rec {
     sed -i "s@/usr/local/lib/opera/plugins@$out/lib/opera/plugins@" $out/share/opera/defaults/pluginpath.ini
   ''
   + (stdenv.lib.optionalString flashSupport ''
-    ln -s ${flashplayer10}/lib/mozilla/plugins/libflashplayer.so $out/lib/opera/plugins/libflashplayer.so
+    ln -s ${flashplayer}/lib/mozilla/plugins/libflashplayer.so $out/lib/opera/plugins/libflashplayer.so
   '');
 
   meta = {

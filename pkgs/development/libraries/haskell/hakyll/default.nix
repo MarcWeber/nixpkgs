@@ -1,18 +1,20 @@
-{ cabal, binary, blazeHtml, blazeMarkup, citeprocHs, cryptohash
-, filepath, hamlet, lrucache, mtl, pandoc, parsec, regexBase
-, regexTdfa, snapCore, snapServer, tagsoup, text, time
+{ cabal, binary, blazeHtml, blazeMarkup, citeprocHs, cmdargs
+, cryptohash, deepseq, filepath, httpConduit, httpTypes, lrucache
+, mtl, pandoc, parsec, random, regexBase, regexTdfa, snapCore
+, snapServer, tagsoup, text, time
 }:
 
 cabal.mkDerivation (self: {
   pname = "hakyll";
-  version = "3.5.2.0";
-  sha256 = "088qhzycpz003qa4b7hnn6frgmidk6219icii04ap964fkw0mqn0";
+  version = "4.1.2.1";
+  sha256 = "1d9bbqy1dix60w72zc3g4y7454avngfyl2i8gj99bdqin2wwcgp8";
+  isLibrary = true;
+  isExecutable = true;
   buildDepends = [
-    binary blazeHtml blazeMarkup citeprocHs cryptohash filepath hamlet
-    lrucache mtl pandoc parsec regexBase regexTdfa snapCore snapServer
-    tagsoup text time
+    binary blazeHtml blazeMarkup citeprocHs cmdargs cryptohash deepseq
+    filepath httpConduit httpTypes lrucache mtl pandoc parsec random
+    regexBase regexTdfa snapCore snapServer tagsoup text time
   ];
-  jailbreak = true;
   meta = {
     homepage = "http://jaspervdj.be/hakyll";
     description = "A static website compiler library";

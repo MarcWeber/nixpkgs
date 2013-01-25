@@ -2,8 +2,8 @@
 
 cabal.mkDerivation (self: {
   pname = "cprng-aes";
-  version = "0.3.1";
-  sha256 = "0z1kpgy9d4yp1vmcparsv3r5g1khv2yqqkr99ac3mgvr6pyh24dk";
+  version = "0.3.4";
+  sha256 = "0k1zh4nw30qgdrkgn6x6zfbpp129f9cparzyqsdqfbf44j0mf2rw";
   buildDepends = [
     cipherAes cryptoApi cryptoRandomApi entropy random
   ];

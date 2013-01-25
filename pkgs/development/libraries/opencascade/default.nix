@@ -1,10 +1,10 @@
-{stdenv, fetchurl, mesa, tcl, tk, file, libXmu}:
+{stdenv, fetchurl, mesa, tcl, tk, file, libXmu, qt4, ftgl, freetype}:
 
 stdenv.mkDerivation rec {
-  name = "opencascade-6.3.0";
+  name = "opencascade-6.5.4";
   src = fetchurl {
-    url = http://files.opencascade.com/OCC_6.3_release/OpenCASCADE_src.tgz;
-    md5 = "52778127974cb3141c2827f9d40d1f11";
+    url = http://files.opencascade.com/OCCT/OCC_6.5.4_release/OpenCASCADE654.tar.gz;
+    sha256 = "1di08mc0wly4cdi3rh9kj52bk0bfpyk6dy03c9yfnv04i7z03kmy";
   };
 
   buildInputs = [ mesa tcl tk file libXmu ];
@@ -13,7 +13,11 @@ stdenv.mkDerivation rec {
     cd ros
   '';
 
-  configureFlags = [ "--with-tcl=${tcl}/lib" "--with-tk=${tk}/lib" ];
+  # -fpermissive helps building opencascade, although gcc detects a flaw in the code
+  # and reports an error otherwise. Further versions may fix that.
+  NIX_CFLAGS_COMPILE = "-fpermissive";
+
+  configureFlags = [ "--with-tcl=${tcl}/lib" "--with-tk=${tk}/lib" "--with-qt=${qt4}" "--with-ftgl=${ftgl}" "--with-freetype=${freetype}" ];
 
   postInstall = ''
     mv $out/inc $out/include

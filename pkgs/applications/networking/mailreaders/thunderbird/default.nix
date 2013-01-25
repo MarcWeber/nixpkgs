@@ -12,17 +12,17 @@
   enableOfficialBranding ? false
 }:
 
-let version = "16.0.2"; in
+let version = "17.0"; in
 
 stdenv.mkDerivation {
   name = "thunderbird-${version}";
 
   src = fetchurl {
     url = "ftp://ftp.mozilla.org/pub/thunderbird/releases/${version}/source/thunderbird-${version}.source.tar.bz2";
-    sha1 = "842d852b31a388d4cf3ac59bc89e8611474e2ec7";
+    sha1 = "ccc5f2e155364948945abf6fd27bebeb4d797aa8";
   };
 
-  enableParallelBuilding = true;
+  enableParallelBuilding = false;
 
   buildInputs =
     [ pkgconfig perl python zip unzip bzip2 gtk dbus_glib alsaLib libIDL nspr
@@ -50,6 +50,7 @@ stdenv.mkDerivation {
       "--disable-webm"
       "--disable-tests"
       "--enable-calendar"
+      "--disable-ogg"
     ]
     ++ stdenv.lib.optional enableOfficialBranding "--enable-official-branding";
 

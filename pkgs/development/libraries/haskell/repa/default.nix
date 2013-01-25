@@ -2,8 +2,8 @@
 
 cabal.mkDerivation (self: {
   pname = "repa";
-  version = "3.2.2.2";
-  sha256 = "1a7rgpy2qc42zc9si7p1zgi1m9b06dz533d2mvhizzac9k3fb5vq";
+  version = "3.2.3.1";
+  sha256 = "0r5z781h9v6ri2m3ih7jbymvc3i2m26qaf29pxwmaks0sdlp4qmr";
   buildDepends = [ QuickCheck vector ];
   jailbreak = true;
   meta = {

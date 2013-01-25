@@ -5,8 +5,8 @@
 
 cabal.mkDerivation (self: {
   pname = "yesod-default";
-  version = "1.1.1";
-  sha256 = "1nphnb5dvgniff9msj0psa1nbkz3zv2rx221c6xwz9x9gy6n3vwv";
+  version = "1.1.3";
+  sha256 = "1g0hb6jl0bp2q50pw2cy3hkbww1l230al08s7vfpqir68n9infiy";
   buildDepends = [
     dataDefault hamlet networkConduit safe shakespeareCss shakespeareJs
     text transformers unorderedContainers wai waiExtra warp yaml

@@ -1,17 +1,18 @@
-{ cabal, attoparsec, blazeHtml, blazeMarkup, caseInsensitive, hspec
-, htmlConduit, httpTypes, HUnit, monadControl, network, persistent
-, poolConduit, text, transformers, wai, waiTest, xmlConduit
-, xmlTypes
+{ cabal, attoparsec, blazeBuilder, blazeHtml, blazeMarkup
+, caseInsensitive, cookie, hspec, htmlConduit, httpTypes, HUnit
+, monadControl, network, persistent, poolConduit, text, time
+, transformers, wai, waiTest, xmlConduit, xmlTypes
 }:
 
 cabal.mkDerivation (self: {
   pname = "yesod-test";
-  version = "0.3.0.1";
-  sha256 = "0dfdvhk3mspqhqicjapqvjzmi0hpd2641zb1899fk6mank8yfz0m";
+  version = "0.3.3";
+  sha256 = "1jb410r905wd26swh2rk59nbyy389gcfz261adhb69awmsyql5x3";
   buildDepends = [
-    attoparsec blazeHtml blazeMarkup caseInsensitive hspec htmlConduit
-    httpTypes HUnit monadControl network persistent poolConduit text
-    transformers wai waiTest xmlConduit xmlTypes
+    attoparsec blazeBuilder blazeHtml blazeMarkup caseInsensitive
+    cookie hspec htmlConduit httpTypes HUnit monadControl network
+    persistent poolConduit text time transformers wai waiTest
+    xmlConduit xmlTypes
   ];
   meta = {
     homepage = "http://www.yesodweb.com";

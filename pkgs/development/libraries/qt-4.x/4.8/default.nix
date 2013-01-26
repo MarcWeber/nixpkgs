@@ -9,6 +9,7 @@
 , buildWebkit ? true
 , flashplayerFix ? false, gdk_pixbuf
 , gtkStyle ? false, libgnomeui, gtk, GConf, gnome_vfs
+, developerBuild ? false
 }:
 
 with stdenv.lib;
@@ -74,6 +75,7 @@ stdenv.mkDerivation rec {
       -nomake demos -nomake examples -nomake docs
 
       -no-phonon ${if buildWebkit then "" else "-no"}-webkit ${if buildMultimedia then "" else "-no"}-multimedia -audio-backend
+      ${if developerBuild then "-developer-build" else ""}
     '';
 
   propagatedBuildInputs =
@@ -138,7 +140,7 @@ stdenv.mkDerivation rec {
   };
 
   meta = {
-    homepage = http://qt.nokia.com/products;
+    homepage = http://qt-project.org/;
     description = "A cross-platform application framework for C++";
     license = "GPL/LGPL";
     maintainers = with maintainers; [ urkud sander ];

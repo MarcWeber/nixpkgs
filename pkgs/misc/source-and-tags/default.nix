@@ -85,7 +85,7 @@ args: with args; {
       }; 
     };
 
-  addRubyTagingInfo = deriv: deriv // {
+  addRubyTaggingInfo = deriv: deriv // {
     passthru = {
       sourceWithTags = {
          doUnpack = false; # ruby always has source in $out. So we can use the original store paths
@@ -99,7 +99,7 @@ args: with args; {
     };
   };
 
-  addPythonTagingInfo = deriv: deriv // {
+  addPythonTaggingInfo = deriv: deriv // {
     passthru = {
       sourceWithTags = {
          doUnpack = false; # assuming python has .py files, no archives

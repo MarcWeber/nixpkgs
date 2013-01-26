@@ -66,7 +66,7 @@ stdenv.mkDerivation rec {
   enableParallelBuilding = true;
 
   patches = [
-    ./debug-coercion-failures.patch
+    ./debug-coercion-failures-for-unstable.patch
     ./write-file-hashed.patch
     ./hash.patch
   ];

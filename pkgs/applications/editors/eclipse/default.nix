@@ -57,7 +57,7 @@ let
           --prefix PATH : ${jre}/bin \
           --prefix LD_LIBRARY_PATH : ${glib}/lib:${gtk}/lib:${libXtst}/lib \
           --add-flags "-configuration \$HOME/.eclipse/''${productId}_$productVersion/configuration" \
-          ${if flags == "" then "" else "--add-flags ${pkgs.lib.escapeShellArg flags}"}
+          ${pkgs.lib.concatMapStrings (flag: " --add-flags ${pkgs.lib.escapeShellArg flag}") flags}
 
         # Create desktop item.
         mkdir -p $out/share/applications

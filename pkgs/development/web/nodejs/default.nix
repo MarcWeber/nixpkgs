@@ -99,7 +99,7 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "nodejs" version
     "--shared-v8-libpath=${v8}/lib"
   ];
 
-  patches = stdenv.lib.optional stdenv.isDarwin ./no-arch-flag.patch;
+  #patches = stdenv.lib.optional stdenv.isDarwin ./no-arch-flag.patch;
 
   postInstall = ''
 

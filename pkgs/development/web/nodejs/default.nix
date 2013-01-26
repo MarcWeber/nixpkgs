@@ -1,5 +1,5 @@
 { stdenv, fetchurl, openssl, python, zlib, v8, utillinux, linkV8Headers ? false
-, version ? "0.8.12"
+, version ? "0.8.15"
 }:
 
 let
@@ -13,7 +13,6 @@ in
 
 stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "nodejs" version
   {
-
     "0.8.15" = rec {
       version = "0.8.15";
       name = "nodejs-${version}";
@@ -99,7 +98,7 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "nodejs" version
     "--shared-v8-libpath=${v8}/lib"
   ];
 
-  patches = stdenv.lib.optional stdenv.isDarwin ./no-arch-flag.patch;
+  #patches = stdenv.lib.optional stdenv.isDarwin ./no-arch-flag.patch;
 
   postInstall = ''
 

@@ -34,6 +34,8 @@ installPhase() {
 
     ensureDir $out/share/applications
     cp $desktopItem/share/applications/* $out/share/applications
+
+    eval "$installPlugins"
 }
 
 genericBuild

@@ -106,6 +106,7 @@ in {
           value = {
            inherit name;
            startOn = "started httpd";
+           environment = if config.phpIni == null then {} else  { PHPRC = config.phpIni; };
            exec = ''${php}/sbin/php-fpm -y ${configFile}'';
          };
         }];

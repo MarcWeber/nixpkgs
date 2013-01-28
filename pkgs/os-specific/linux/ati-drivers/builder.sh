@@ -10,6 +10,7 @@ die(){ echo $@; exit 1; }
 cp $src archive
 sh archive --extract .
 
+eval "$patchPhase"
 
 kernelVersion=$(cd ${kernel}/lib/modules && ls)
 kernelBuild=$(echo ${kernel}/lib/modules/$kernelVersion/build)

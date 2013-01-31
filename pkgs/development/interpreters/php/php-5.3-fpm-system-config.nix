@@ -8,10 +8,14 @@ let
   inherit (lib) concatStringsSep maybeAttr;
   inherit (builtins) getAttr isInt isString attrNames toString;
 
+  # id: a uniq identifier based on php version and fpm-daemon config (php ini)
+  id = config.id;
+  name = "php-fpm-${id}";
+
   defaultConfig = {
-    # serviceName = ..
-    pid = "/var/run/php-fpm-${php.id}.pid";
-    error_log = "/var/log/php-fpm-${php.id}.log";
+    serviceName = "php-fpm-${id}";
+    pid = "/var/run/${name}.pid";
+    error_log = "/var/log/${name}.log";
     log_level = "notice";
     emergency_restart_threshold = "10";
     emergency_restart_interval = "1m";
@@ -20,6 +24,8 @@ let
     commonPoolConfig = {
     };
   };
+
+  cfg = defaultConfig // config;
 
   defaultPoolConfig = {
     request_terminate_timeout = "305s";
@@ -99,27 +105,29 @@ let
           ${lib.concatStringsSep "\n" (map (poolC: poolToConfig (defaultPoolConfig // maybeAttr "commonPoolConfig" {}  config // poolC)) pool)}
        '';
 
-  configFile = createConfig (defaultConfig // config) (pool);
+  configFile = createConfig (cfg) (pool);
 
 in {
   units = 
-    let name = maybeAttr "serviceName" "php-fpm-${php.version}" config;
+    let name = "php-fpm-${id}";
     in builtins.listToAttrs [{
-        name = "${name}.service";
+        name = "${lib.traceVal name}.service";
         value.text = ''
           [Unit] 
-          Description=The PHP FastCGI Process Manager ${name}
+          Description=The PHP FastCGI Process Manager ${id}
           After=syslog.target network.target 
 
           [Service] 
           ${lib.optionalString (config.phpIni != null) "Environment=PHPRC=${config.phpIni}"}
-          Type=forking 
-          PIDFile=/var/run/php-fpm/php-fpm.pid 
+          # see config file
+          Type=simple
+          PIDFile=${cfg.pid}
           ExecStart=${php}/sbin/php-fpm -y ${configFile}
           # TODO: test this:
           ExecReload=${pkgs.coreutils}/bin/kill -USR2 $MAINPID 
           ExecStop=${pkgs.coreutils}/bin/kill -9 $MAINPID 
           # ExecStop=/usr/sbin/httpd $OPTIONS -k stop 
+          PrivateTmp=true
 
           [Install] 
           WantedBy=multi-user.target 

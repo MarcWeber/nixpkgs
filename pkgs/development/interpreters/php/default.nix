@@ -34,11 +34,20 @@
 , ttfSupport ? true
 , ldapSupport ? true
 
+, idByConfig ? true # if true the php.id value will only depend on php configuration, not on the store path, eg dependencies
+
 , lessThan53 ? builtins.lessThan (builtins.compareVersions version "5.3") 0 # you're not supposed to pass this
 , lessThan54 ? builtins.lessThan (builtins.compareVersions version "5.4") 0
 }:
 
 let
+
+  options = [ /* sapi */ "bcmathSupport" "curlSupport" "fastcgiSupport"
+    "gdSupport" "gettextSupport" "libxml2Support" "mbstringSupport"
+    "mcryptSupport" "mysqliSupport" "mysqlSupport" "opensslSupport"
+    "pdo_mysqlSupport" "postgresqlSupport" "readlineSupport" "soapSupport"
+    "socketsSupport" "sqliteSupport" "tidySupport" "zipSupport" "zlibSupport"
+    "ttfSupport" "ldapSupport" ];
 
   # note: this derivation contains a small hack: It contains several PHP
   # versions
@@ -313,7 +322,14 @@ let
     });
 
   php_with_id = php // {
-    id = builtins.baseNameOf (builtins.unsafeDiscardStringContext php); # the hash of the store path depending on php version and all configuration details
+    id =
+       if idByConfig && builtins ? hash
+       then # turn options into something hashable:
+            let opts_s = lib.concatMapStrings (x: if x then "1" else "") (lib.attrVals options php);
+            # you're never going to use that many php's at the same time, thus use a short hash
+            in "${php.version}-${builtins.substring 0 5 (builtins.hash "sha256" opts_s)}"
+       else # the hash of the store path depending on php version and all configuration details
+            builtins.baseNameOf (builtins.unsafeDiscardStringContext php);
   };
 
   in php_with_id // {

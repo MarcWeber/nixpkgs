@@ -127,6 +127,7 @@ in {
           ExecReload=${pkgs.coreutils}/bin/kill -USR2 $MAINPID 
           ExecStop=${pkgs.coreutils}/bin/kill -9 $MAINPID 
           # ExecStop=/usr/sbin/httpd $OPTIONS -k stop 
+          PrivateTmp=true
 
           [Install] 
           WantedBy=multi-user.target 

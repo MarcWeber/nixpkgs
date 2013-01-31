@@ -1,4 +1,7 @@
-{php, lib, writeText, config, pool}:
+{ php, pkgs, lib, writeText
+, config # shared config
+, pool   # configuration for each pool
+}:
 
 let 
 
@@ -6,7 +9,7 @@ let
   inherit (builtins) getAttr isInt isString attrNames toString;
 
   defaultConfig = {
-    # jobName = ..
+    # serviceName = ..
     pid = "/var/run/php-fpm-${php.id}.pid";
     error_log = "/var/log/php-fpm-${php.id}.log";
     log_level = "notice";
@@ -99,15 +102,39 @@ let
   configFile = createConfig (defaultConfig // config) (pool);
 
 in {
-  jobs = 
-    let name = maybeAttr "jobName" "php-fpm-${php.version}" config;
+  units = 
+    let name = maybeAttr "serviceName" "php-fpm-${php.version}" config;
     in builtins.listToAttrs [{
-          inherit name;
-          value = {
-           inherit name;
-           startOn = "started httpd";
-           environment = if config.phpIni == null then {} else  { PHPRC = config.phpIni; };
-           exec = ''${php}/sbin/php-fpm -y ${configFile}'';
-         };
-        }];
+        name = "${name}.service";
+        value.text = ''
+          [Unit] 
+          Description=The PHP FastCGI Process Manager ${name}
+          After=syslog.target network.target 
+
+          [Service] 
+          ${lib.optionalString (config.phpIni != null) "Environment=PHPRC=${config.phpIni}"}
+          Type=forking 
+          PIDFile=/var/run/php-fpm/php-fpm.pid 
+          ExecStart=${php}/sbin/php-fpm -y ${configFile}
+          # TODO: test this:
+          ExecReload=${pkgs.coreutils}/bin/kill -USR2 $MAINPID 
+          ExecStop=${pkgs.coreutils}/bin/kill -9 $MAINPID 
+          # ExecStop=/usr/sbin/httpd $OPTIONS -k stop 
+
+          [Install] 
+          WantedBy=multi-user.target 
+        '';
+      }];
+  
+  # jobs = 
+  #   let name = maybeAttr "serviceName" "php-fpm-${php.version}" config;
+  #   in builtins.listToAttrs [{
+  #         inherit name;
+  #         value = {
+  #          inherit name;
+  #          startOn = "started httpd";
+  #          environment = if config.phpIni == null then {} else  { PHPRC = config.phpIni; };
+  #          exec = ''${php}/sbin/php-fpm -y ${configFile}'';
+  #        };
+  #       }];
 }

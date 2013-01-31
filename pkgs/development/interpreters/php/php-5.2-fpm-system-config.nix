@@ -3,6 +3,8 @@
 # yes - PHP 5.2 should no longer be used. I know
 # TODO pass config file
 
+# TODO update or remove
+
 let 
 
   inherit (lib) concatStringsSep maybeAttr;

@@ -35,7 +35,7 @@ stdenv.mkDerivation rec {
     stdenv.lib.optional gobjectSupport glib ++
     stdenv.lib.optional postscriptSupport zlib ++
     stdenv.lib.optional pngSupport libpng;
-
+    
   configureFlags =
     [ "--enable-tee" ]
     ++ stdenv.lib.optional xcbSupport "--enable-xcb"

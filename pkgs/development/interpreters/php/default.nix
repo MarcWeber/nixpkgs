@@ -324,6 +324,6 @@ let
           if (sapi == "fpm") then
               if lessThan53
               then config: pool: (import ./php-5.2-fpm-system-config.nix) { php = php_with_id; inherit pkgs lib writeText config pool;}
-              else config: pool: (import ./php-5.3-fpm-system-config.nix) { php = php_with_id; inherit      lib writeText config pool;}
+              else config: pool: (import ./php-5.3-fpm-system-config.nix) { php = php_with_id; inherit pkgs lib writeText config pool;}
           else throw "php built without fpm support. use php.override { sapi = \"fpm\"; }";
   }

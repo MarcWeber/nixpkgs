@@ -73,7 +73,7 @@ let
 
   buildInputs = ["flex" "bison" "pkgconfig"];
 
-  enableParallelBuilding = true;
+  enableParallelBuilding = ! lessThan53; # php 5.2 fails with job server token error (make)
 
   flags = {
 

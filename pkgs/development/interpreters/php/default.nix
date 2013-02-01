@@ -42,6 +42,8 @@
 
 let
 
+  libxml2 = if lessThan53 then pkgs.libxml2.override { version = "2.7.8"; } else pkgs.libxml2;
+
   options = [ /* sapi */ "bcmathSupport" "curlSupport" "fastcgiSupport"
     "gdSupport" "gettextSupport" "libxml2Support" "mbstringSupport"
     "mcryptSupport" "mysqliSupport" "mysqlSupport" "opensslSupport"
@@ -64,7 +66,9 @@ let
 
   inherit (stdenv) lib;
 
-  php = composableDerivation.composableDerivation {} (fixed: /* let inherit (fixed.fixed) version; in*/ {
+  php = composableDerivation.composableDerivation {
+    inherit (stdenv) mkDerivation;
+  } (fixed: /* let inherit (fixed.fixed) version; in*/ {
   # Yes, this isn't properly indented.
 
   inherit version;

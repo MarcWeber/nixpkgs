@@ -9,10 +9,15 @@ let
 
   inherit (lib) concatStringsSep maybeAttr;
   inherit (builtins) getAttr isString isInt isAttrs attrNames;
+
+  # id: a uniq identifier based on php version and fpm-daemon config (php ini)
+  id = config.id;
+  name = "php-fpm-${id}";
+
 defaultConfig = {
     # jobName = ..
-    pid = "/var/run/php-fpm-5.2.pid"; # pid_file option
-    error_log = "/var/log/php-fpm-5.2.log";
+    pid = "/var/run/${name}.pid";
+    error_log = "/var/log/${name}.log";
     log_level = "notice";
     emergency_restart_threshold = "10";
     emergency_restart_interval = "1m";
@@ -120,47 +125,27 @@ in {
     target = "php-fpm-5.2.conf";
   }];
 
-  jobs = 
-    let name = maybeAttr "jobName" "php-fpm-${php.version}" config;
+  services = 
+    let name = "php-fpm-${id}";
     in builtins.listToAttrs [{
-          inherit name;
-          value = {
-           inherit name;
-           startOn = "started httpd";
-           environment = if config.phpIni == null then {} else  { PHPRC = config.phpIni; };
-           script = ''
-            # ${cfgFile}, dummy: force restart if config changes
-
-            pidFile=${cfg.pid}
-            isRunning(){
-               [ -e "$pidFile" ] \
-                && ${pkgs.procps}/bin/ps `${pkgs.coreutils}/bin/cat $pidFile` | grep -q php-cgi;
-            }
-            stopAndWait(){
-              ${php}/sbin/php-fpm stop
-              # TODO: add timeout
-              while isRunning; do echo 'waiting for shutdown'; sleep 5; done
-            }
-
-            if [ -e "$pidFile" ]; then  rm $pidFile; fi
-
-            # If this script stops (eg stop is run) make postfix stop
-            trap "stopAndWait" INT TERM EXIT
-
-            if isRunning; then
-              echo "something went wrong! postfix is already running - trying to stop it"
-              stopAndWait
-            fi
-
-            ${php}/sbin/php-fpm start
-
-            # wait for the pid file:
-            while [ ! -e  "$pidFile" ]; do echo "waiting for pidfile $pidFile"; sleep 5; done
-            while isRunning; do
-              ${pkgs.coreutils}/bin/sleep 1m
-            done
-            echo 'SCRIPT END'
-           '';
-         };
-        }];
+      inherit name;
+      value = {
+        description = "The PHP 5.2 FastCGI Process Manager ${id} - testing only";
+        after = [ "networking.target" ];
+        # TODO: wantedBy should be merged somewhere else
+        wantedBy = [ "httpd.target" ];
+        serviceConfig = {
+          Type = "simple";
+          PIDFile = cfg.pid;
+          ExecStart = "${php}/sbin/php-fpm start";
+          ExecReload= "${pkgs.coreutils}/bin/kill -USR2 $MAINPID";
+          ExecStop  = "${pkgs.coreutils}/bin/kill -9 $MAINPID";
+          PrivateTmp=true;
+        };
+        environment =
+          lib.optionalAttrs (config.phpIni != null) {
+            PHPRC = config.phpIni;
+          };
+        };
+    }];
 }

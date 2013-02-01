@@ -111,11 +111,11 @@ in {
   units = 
     let name = "php-fpm-${id}";
     in builtins.listToAttrs [{
-        name = "${lib.traceVal name}.service";
+        name = "${name}.service";
         value.text = ''
           [Unit] 
           Description=The PHP FastCGI Process Manager ${id}
-          After=syslog.target network.target 
+          After=network.target 
 
           [Service] 
           ${lib.optionalString (config.phpIni != null) "Environment=PHPRC=${config.phpIni}"}
@@ -127,6 +127,7 @@ in {
           ExecReload=${pkgs.coreutils}/bin/kill -USR2 $MAINPID 
           ExecStop=${pkgs.coreutils}/bin/kill -9 $MAINPID 
           # ExecStop=/usr/sbin/httpd $OPTIONS -k stop 
+          PrivateTmp=true
 
           [Install] 
           WantedBy=multi-user.target 

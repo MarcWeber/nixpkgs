@@ -11,6 +11,10 @@ stdenv.mkDerivation rec {
   buildInputs = [];
 
   meta = {
+    description = "library providing uniform interface to access several encryption algorithms";
     homepage = http://mcrypt.sourceforge.net;
+    license = "GPLv2.1";
+    maintainers = [stdenv.lib.maintainers.marcweber];
+    platforms = stdenv.lib.platforms.linux;
   };
 }

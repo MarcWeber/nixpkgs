@@ -1,9 +1,8 @@
 {pkgs, php, lib, writeText, config, pool}:
 
 # yes - PHP 5.2 should no longer be used. I know
-# TODO pass config file
-
-# TODO update or remove
+# note that only one setup (with many pools) can be used
+# because only one configuration file is supported.
 
 let 
 
@@ -115,7 +114,6 @@ defaultConfig = {
         </configuration>
       '';
 
-
       cfg = defaultConfig // config;
       cfgFile =  createPHPFpmConfig52 (cfg) (pool);
 in {
@@ -125,15 +123,13 @@ in {
     target = "php-fpm-5.2.conf";
   }];
 
-  services = 
+  systemd.services = 
     let name = "php-fpm-${id}";
     in builtins.listToAttrs [{
       inherit name;
       value = {
-        description = "The PHP 5.2 FastCGI Process Manager ${id} - testing only";
-        after = [ "networking.target" ];
-        # TODO: wantedBy should be merged somewhere else
-        wantedBy = [ "httpd.target" ];
+        description = "The PHP 5.2 FastCGI Process Manager ${id}";
+        wantedBy = [ "multi-user.target" ];
         serviceConfig = {
           Type = "simple";
           PIDFile = cfg.pid;

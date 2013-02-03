@@ -108,29 +108,35 @@ let
   configFile = createConfig (cfg) (pool);
 
 in {
-  services =
-    let name = "php-fpm-${id}";
-    in builtins.listToAttrs [{
-        inherit name;
+  systemd.sockets = 
+    builtins.listToAttrs [{
+	inherit name;
+
         value = {
-          description = "The PHP FastCGI Process Manager ${id}";
-          # TODO: wantedBy should be merged somewhere else
-          after = [ "networking.target" ];
-          wantedBy = [ "httpd.target" ];
-          serviceConfig = {
-            Type = "simple";
-            PIDFile = cfg.pid;
-            ExecStart = "${php}/sbin/php-fpm -y ${configFile}";
-            ExecReload= "${pkgs.coreutils}/bin/kill -USR2 $MAINPID";
-            ExecStop  = "${pkgs.coreutils}/bin/kill -9 $MAINPID";
-            PrivateTmp=true;
-          };
-          environment =
-            lib.optionalAttrs (config.phpIni != null) {
-              PHPRC = config.phpIni;
-            };
-          };
-          # [Install]
-          # WantedBy=multi-user.target
+          description="The PHP FastCGI Process Manager ${id} socket";
+          wantedBy=["multi-user.target"];
+          socketConfig={
+	    ListenStream = lib.catAttrs "listen_address" pool;
+	  };
+	};
+      }];
+
+  systemd.services = builtins.listToAttrs [{
+	inherit name;
+        value = {
+	  description =  "The PHP FastCGI Process Manager ${id} service";
+	  environment = lib.optionalAttrs (config.phpIni != null) {
+	    PHPRC="${config.phpIni}";
+	  };
+	  serviceConfig = {
+	    Type = "simple";
+	    PIDFile=cfg.pid;
+	    ExecStart="${php}/sbin/php-fpm -y ${configFile}";
+	    # TODO: test this:
+	    ExecReload="${pkgs.coreutils}/bin/kill -USR2 $MAINPID";
+	    ExecStop="${pkgs.coreutils}/bin/kill -9 $MAINPID";
+	    PrivateTmp=true;
+	  };
+	};
       }];
 }

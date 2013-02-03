@@ -4,6 +4,7 @@
 , libjpeg, libpng, htmlTidy, libmcrypt, fcgi, callPackage, gettext
 , freetype, writeText
 , openldap, cyrus_sasl
+, systemd
 , version ? "5.3.18" # latest stable
 
 # options
@@ -34,6 +35,8 @@
 , ttfSupport ? true
 , ldapSupport ? true
 
+, fpmSystemdSocketActivationPatchSupport ? true
+
 , idByConfig ? true # if true the php.id value will only depend on php configuration, not on the store path, eg dependencies
 
 , lessThan53 ? builtins.lessThan (builtins.compareVersions version "5.3") 0 # you're not supposed to pass this
@@ -44,12 +47,13 @@ let
 
   libxml2 = if lessThan53 then pkgs.libxml2.override { version = "2.7.8"; } else pkgs.libxml2;
 
+  # used to calculate php id based on features
   options = [ /* sapi */ "bcmathSupport" "curlSupport" "fastcgiSupport"
     "gdSupport" "gettextSupport" "libxml2Support" "mbstringSupport"
     "mcryptSupport" "mysqliSupport" "mysqlSupport" "opensslSupport"
     "pdo_mysqlSupport" "postgresqlSupport" "readlineSupport" "soapSupport"
     "socketsSupport" "sqliteSupport" "tidySupport" "zipSupport" "zlibSupport"
-    "ttfSupport" "ldapSupport" ];
+    "ttfSupport" "ldapSupport" "fpmSystemdSocketActivationPatchSupport"];
 
   # note: this derivation contains a small hack: It contains several PHP
   # versions
@@ -75,7 +79,7 @@ let
 
   name = "php_configurable-${version}";
 
-  buildInputs = ["flex" "bison" "pkgconfig"];
+  buildInputs = [/*flex bison*/ pkgconfig];
 
   enableParallelBuilding = ! lessThan53; # php 5.2 fails with job server token error (make)
 
@@ -91,6 +95,19 @@ let
       apxs2 = {
         configureFlags = ["--with-apxs2=${apacheHttpd}/bin/apxs"];
         buildInputs = [apacheHttpd];
+      };
+
+
+      fpmSystemdSocketActivationPatch = lib.optionalAttrs (fixed.fixed.cfg.fpmSupport) {
+	preConfigure = ''
+	export NIX_LDFLAGS="$NIX_LDFLAGS `pkg-config --libs libsystemd-daemon`"
+	'';
+        buildInputs = [systemd];
+	patches = [
+	  # wiki.php.net/rfc/socketactivation (merged both files)
+	  ./systemd-socket-activation.patch
+	];
+
       };
 
       fpm = {
@@ -272,7 +289,8 @@ let
     tidySupport
     ttfSupport
     zipSupport
-    zlibSupport;
+    zlibSupport
+    fpmSystemdSocketActivationPatchSupport;
   };
 
   configurePhase = ''
@@ -320,10 +338,13 @@ let
     license = "PHP-3";
   };
 
-  patches = if lessThan54
+  patches = 
+    # TODO patch still required? I use php-fpm only
+    if lessThan54
     then [./fix.patch]
-    else [./fix-5.4.patch]; # TODO patch still required? I use php-fpm only
-    });
+    else [./fix-5.4.patch];
+
+  });
 
   php_with_id = php // {
     id =

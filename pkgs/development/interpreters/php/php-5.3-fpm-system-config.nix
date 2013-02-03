@@ -3,7 +3,7 @@
 , pool   # configuration for each pool
 }:
 
-let 
+let
 
   inherit (lib) concatStringsSep maybeAttr;
   inherit (builtins) getAttr isInt isString attrNames toString;
@@ -59,23 +59,23 @@ let
   };
 
   createConfig = config: pool:
-    # listen = 127.0.0.1:${builtins.toString (builtins.add start_port_php_fpm kunde.nr)} 
-   let 
+    # listen = 127.0.0.1:${builtins.toString (builtins.add start_port_php_fpm kunde.nr)}
+   let
      options = prefix: a: names:
       concatStringsSep "\n" (map (n: option prefix n (getAttr n a)) names);
 
-     option = prefix: name: value: 
+     option = prefix: name: value:
       if isString value
       then "${prefix}${name} = ${value}\n"
       else if isInt value
       then "${prefix}${name} = ${toString value}\n"
       else "${options "${name}." value (attrNames value)}\n";
-      
+
      poolToConfig = poolC: ''
       [${poolC.name}]
       ${option "" "listen" (poolC.listen_address)}
       ${option "" "pm" (poolC.pm_type)}
-      ${options 
+      ${options
           ""
           poolC
           [
@@ -108,41 +108,29 @@ let
   configFile = createConfig (cfg) (pool);
 
 in {
-  units = 
+  services =
     let name = "php-fpm-${id}";
     in builtins.listToAttrs [{
-        name = "${name}.service";
-        value.text = ''
-          [Unit] 
-          Description=The PHP FastCGI Process Manager ${id}
-          After=network.target 
-
-          [Service] 
-          ${lib.optionalString (config.phpIni != null) "Environment=PHPRC=${config.phpIni}"}
-          # see config file
-          Type=simple
-          PIDFile=${cfg.pid}
-          ExecStart=${php}/sbin/php-fpm -y ${configFile}
-          # TODO: test this:
-          ExecReload=${pkgs.coreutils}/bin/kill -USR2 $MAINPID 
-          ExecStop=${pkgs.coreutils}/bin/kill -9 $MAINPID 
-          # ExecStop=/usr/sbin/httpd $OPTIONS -k stop 
-          PrivateTmp=true
-
-          [Install] 
-          WantedBy=multi-user.target 
-        '';
+        inherit name;
+        value = {
+          description = "The PHP FastCGI Process Manager ${id}";
+          # TODO: wantedBy should be merged somewhere else
+          after = [ "networking.target" ];
+          wantedBy = [ "httpd.target" ];
+          serviceConfig = {
+            Type = "simple";
+            PIDFile = cfg.pid;
+            ExecStart = "${php}/sbin/php-fpm -y ${configFile}";
+            ExecReload= "${pkgs.coreutils}/bin/kill -USR2 $MAINPID";
+            ExecStop  = "${pkgs.coreutils}/bin/kill -9 $MAINPID";
+            PrivateTmp=true;
+          };
+          environment =
+            lib.optionalAttrs (config.phpIni != null) {
+              PHPRC = config.phpIni;
+            };
+          };
+          # [Install]
+          # WantedBy=multi-user.target
       }];
-  
-  # jobs = 
-  #   let name = maybeAttr "serviceName" "php-fpm-${php.version}" config;
-  #   in builtins.listToAttrs [{
-  #         inherit name;
-  #         value = {
-  #          inherit name;
-  #          startOn = "started httpd";
-  #          environment = if config.phpIni == null then {} else  { PHPRC = config.phpIni; };
-  #          exec = ''${php}/sbin/php-fpm -y ${configFile}'';
-  #        };
-  #       }];
 }

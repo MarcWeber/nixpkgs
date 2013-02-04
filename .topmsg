@@ -1,17 +1,15 @@
 From: Marc Weber <marco-oweber@gmx.de>
 Subject: [PATCH] experimental/multiple-versions-in-one-file
 
-This patch introduces mergeAttrsByVersion to lib.
+dependencies:
+This PHP topic branch depends on experimental/multiple-versions-in-one-file.
 
-In some cases it does make sense to keep "experimental" and "older" versions of
-the same package in one file because it follows the "do it once" principle only.
-Very often many versions share their build instructions.
+purpose:
+  PHP: fpm support (including patches for systemd socket activation)
+  nixos systemd unit implementation
+  keep old PHP-5.2 working even though its horrible outdated.
 
-I agree with Eelco that if tweaks for individual versions become too much they
-shoud be split into individual files.
-
-See comments to learn about its usage
-
-Adding fpm code for configuration.nix
+TODO:
+  think about permissions of sockets
 
 Signed-off-by: Marc Weber <marco-oweber@gmx.de>

@@ -16,3 +16,4 @@ experimental/xsbt
 experimental/parallel-building
 experimental/eclipse
 experimental/ruby
+experimental/imap-sync-update

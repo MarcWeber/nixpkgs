@@ -8026,7 +8026,8 @@ let
     # optional features by flags
     flags = [ "python" "X11" ]; # only flag "X11" by now
   };
-  vimNox = vim_configurable.override { vimNox = true; };
+  vimLatest = vim_configurable.override { source = "latest"; };
+  vimNox = vim_configurable.override { source = "vim-nox"; };
 
   virtviewer = callPackage ../applications/virtualization/virt-viewer {};
   virtmanager = callPackage ../applications/virtualization/virt-manager {

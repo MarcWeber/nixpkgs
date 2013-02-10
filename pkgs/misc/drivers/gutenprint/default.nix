@@ -60,8 +60,8 @@ let gutenprint = (composableDerivation.composableDerivation {} { mergeAttrBy = {
 
     cvs = {
       # REGION AUTO UPDATE: { name="gutenprint"; type = "cvs"; cvsRoot = ":pserver:anonymous@gimp-print.cvs.sourceforge.net:/cvsroot/gimp-print"; module="print"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gutenprint-cvs-F_00-44-38.tar.bz2"; sha256 = "8a557de866674ff404199b7915cff43eba2f44e2fb649cd2185cbe692420e199"; });
-      name = "gutenprint-cvs-F_00-44-38";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gutenprint-cvs-F_13-02-47.tar.bz2"; sha256 = "0686cdacc79a0ffd807f562bec53ad79521a039fd579e31c02406ea23b1e8b7e"; });
+      name = "gutenprint-cvs-F_13-02-47";
       # END
       buildInputs = [ automake autoconf libtool gettext imagemagick flex bison docbook2x docbook_sgml_utils db2X openjade docbook_xml_dtd_42];
 
@@ -78,6 +78,13 @@ let gutenprint = (composableDerivation.composableDerivation {} { mergeAttrBy = {
 
   preConfigure = ''
     export NIX_LDFLAGS="$NIX_LDFLAGS -rpath $out/lib"
+
+    # openjade does not honor SGML_CATALOG_FILES, thus replace PUBLIC identifier with absolute path
+    export SGML_CATALOG_FILES=${docbook_xml_dtd_42}/xml/dtd/docbook/docbook.cat
+    sed -i \
+      -e 's@<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"@<!DOCTYPE book SYSTEM "${docbook_xml_dtd_42}/xml/dtd/docbook/docbookx.dtd" [@' \
+      -e 's@"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" \[@@' \
+      doc/developer/gutenprint.xml
   '';
 
 

@@ -1,6 +1,6 @@
 # TODO tidy up eg The patchelf code is patching gvim even if you don't build it..
 # but I have gvim with python support now :) - Marc
-args@{vimNox ? false, ...}: with args;
+args@{source ? "latest", ...}: with args;
 
 
 let inherit (args.composableDerivation) composableDerivation edf; in
@@ -10,18 +10,30 @@ composableDerivation {} (fix: {
 
     name = "vim_configurable-7.3";
 
-    src = if fix.fixed.vimNox
-      then {
-        # vim nox branch: client-server without X by uing sockets
-        # REGION AUTO UPDATE: { name="vim-nox"; type="hg"; url="https://code.google.com/r/yukihironakadaira-vim-cmdsrv-nox/"; branch="cmdsrv-nox"; }
-        src = (fetchurl { url = "http://mawercer.de/~nix/repos/vim-nox-hg-2082fc3.tar.bz2"; sha256 = "293164ca1df752b7f975fd3b44766f5a1db752de6c7385753f083499651bd13a"; });
-        name = "vim-nox-hg-2082fc3";
-        # END
-      }.src else
+    enableParallelBuilding = true; # test this
+
+    src = 
+      builtins.getAttr source {
+      "default" =
         args.fetchurl {
-        url = ftp://ftp.vim.org/pub/vim/unix/vim-7.3.tar.bz2;
-        sha256 = "079201qk8g9yisrrb0dn52ch96z3lzw6z473dydw9fzi0xp5spaw";
-      };
+            url = ftp://ftp.vim.org/pub/vim/unix/vim-7.3.tar.bz2;
+            sha256 = "079201qk8g9yisrrb0dn52ch96z3lzw6z473dydw9fzi0xp5spaw";
+          };
+      "vim-nox" =
+          {
+            # vim nox branch: client-server without X by uing sockets
+            # REGION AUTO UPDATE: { name="vim-nox"; type="hg"; url="https://code.google.com/r/yukihironakadaira-vim-cmdsrv-nox/"; branch="cmdsrv-nox"; }
+            src = (fetchurl { url = "http://mawercer.de/~nix/repos/vim-nox-hg-2082fc3.tar.bz2"; sha256 = "293164ca1df752b7f975fd3b44766f5a1db752de6c7385753f083499651bd13a"; });
+            name = "vim-nox-hg-2082fc3";
+            # END
+          }.src;
+      "latest" = {
+         # REGION AUTO UPDATE: { name="vim"; type="hg"; url="https://vim.googlecode.com/hg"; }
+         src = (fetchurl { url = "http://mawercer.de/~nix/repos/vim-hg-ba88359.tar.bz2"; sha256 = "581a7f3800872e690ba52ee6502645d112cfaf0cc28571fa10eeeae17c331fc1"; });
+         name = "vim-hg-ba88359";
+        # END
+      }.src;
+    };
 
     configureFlags = ["--enable-gui=auto" "--with-features=${args.features}"];
 

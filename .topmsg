@@ -1,7 +1,9 @@
 From: Marc Weber <marco-oweber@gmx.de>
 Subject: [PATCH] experimental/gutenprint
 
-gutenprint: add ppds attr which can be used in configuration.nix in such a way:
+gutenprint updates
+
+- add ppds attr which can be used in configuration.nix in such a way:
 
   printing = {
     enable = true;
@@ -22,6 +24,8 @@ gutenprint: add ppds attr which can be used in configuration.nix in such a way:
   }
 
 
-build gutenprintCVS
+- add option to build cvs version
+
+- drop composable derivation which is overkill in this simple case
 
 Signed-off-by: Marc Weber <marco-oweber@gmx.de>

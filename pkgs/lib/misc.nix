@@ -318,20 +318,36 @@ rec {
   mergeAttrsByFuncDefaultsClean = list: removeAttrs (mergeAttrsByFuncDefaults list) ["mergeAttrBy"];
 
   # merge attrs based on version key into mkDerivation args, see mergeAttrBy to learn about smart merge defaults
+  #
   # This function is best explained by an example:
-  # {version ? "2.0"} :
-  # mkDerivation (mergeAttrsByVersion "package-name" version {
-  #     # git specific
-  #     "git" = { src = ..; preConfigre = "autogen.sh"; buildInputs = [automake autoconf libtool];  };
   #
-  #     # 2.0 specific
-  #     "2.0" = { src = ..; };
-  #   }
-  #   {
-  #      buildInputs = [ common build inputs ];
-  #   }
-  # )
+  #     {version ? "2.0"} :
   #
+  #     mkDerivation (mergeAttrsByVersion "package-name" version 
+  #       { # version specific settings
+  #         "git" = { src = ..; preConfigre = "autogen.sh"; buildInputs = [automake autoconf libtool];  };
+  #         "2.0" = { src = ..; };
+  #       }
+  #       {  // shared settings
+  #          buildInputs = [ common build inputs ];
+  #          meta = { .. }
+  #       }
+  #     )
+  #
+  # Please note that e.g. Eelco Dolstra usually prefers having one file for
+  # each version. On the other hand there are valuable additional design goals
+  #  - readability
+  #  - do it once only
+  #  - try to avoid duplication
+  #
+  # Marc Weber and Michael Raskin sometimes prefer keeping older
+  # versions around for testing and regression tests - as long as its cheap to
+  # do so.
+  #
+  # Very often it just happens that the "shared" code is the bigger part.
+  # Then using this function might be appropriate.
+  #
+  # Be aware that its easy to cause recompilations in all versions when using this function
   mergeAttrsByVersion = name: version: attrsByVersion: base:
     mergeAttrsByFuncDefaultsClean [ { name = "${name}-${version}"; } base (maybeAttr version (throw "bad version ${version} for ${name}") attrsByVersion)];
 

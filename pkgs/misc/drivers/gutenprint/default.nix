@@ -4,7 +4,7 @@
 #    or add to cups.driver 
 # 2) generate the PPD for you printer 
 # 3) add it by uploading the PPD in the cups admin interface (worked for me)
-{ fetchurl, stdenv, pkgconfig, composableDerivation, cups
+{ fetchurl, stdenv, pkgconfig, cups
 , libtiff, libpng, openssl, gimp
 
 # for cvs version
@@ -16,6 +16,10 @@
 , docbook_xml_dtd_42
 , docbook_dsssl
 
+
+, gimp2Support ? true
+, cupsSupport ? true
+
 # for ppds
 , runCommand
 
@@ -23,7 +27,7 @@
 }:
 let
 
-   inherit (composableDerivation) edf wwf;
+   inherit (stdenv) lib;
 
    # tell docbook2html where to find catalogs (TODO: there should be a better
    # solution generating catalog files or by env var or such)
@@ -47,10 +51,11 @@ let
 
 in
 
-let gutenprint = (composableDerivation.composableDerivation {} { mergeAttrBy = { installArgs = stdenv.lib.concat; }; }).merge
-    (stdenv.lib.mergeAttrsByVersion "gutenprint" version {
+let gutenprint = (stdenv.mkDerivation (lib.mergeAttrsByVersion "gutenprint" version {
     "5.2.7" = {
       name = "gutenprint-${version}";
+
+      NIX_CFLAGS_COMPILE="-include stdio.h";
 
       src = fetchurl {
         url = "mirror://sourceforge/gimp-print/gutenprint-${version}.tar.bz2";
@@ -65,26 +70,38 @@ let gutenprint = (composableDerivation.composableDerivation {} { mergeAttrBy = {
       # END
       buildInputs = [ automake autoconf libtool gettext imagemagick flex bison docbook2x docbook_sgml_utils db2X openjade docbook_xml_dtd_42];
 
-      preConfigure = "./autogen.sh";
+      preConfigure = ''
+      ./autogen.sh
+      # openjade does not honor SGML_CATALOG_FILES, thus replace PUBLIC identifier with absolute path
+      export SGML_CATALOG_FILES=${docbook_xml_dtd_42}/xml/dtd/docbook/docbook.cat
+      sed -i \
+        -e 's@<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"@<!DOCTYPE book SYSTEM "${docbook_xml_dtd_42}/xml/dtd/docbook/docbookx.dtd" [@' \
+        -e 's@"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" \[@@' \
+        doc/developer/gutenprint.xml
+      '';
     };
   } {
 
   enableParallelBuilding = true;
 
   # gimp, gui is still not working (TODO)
-  buildInputs = [ openssl pkgconfig ];
+  buildInputs = [ openssl pkgconfig ]
+    ++ lib.optionals cupsSupport [cups libtiff libpng ]
+    ++ lib.optionals gimp2Support [gimp gimp.gtk]
+  ;
 
-  configureFlags = ["--enable-static-genppd" ];
+
+  configureFlags = ["--enable-static-genppd" ]
+    ++ (if gimp2Support then ["--with-gimp2"] else ["--without-gimp2"])
+  ;
+
+  installArgs = 
+    lib.optionals cupsSupport  [ "cups_conf_datadir=$out cups_conf_serverbin=$out cups_conf_serverroot=$out"]
+    ++ lib.optionals gimp2Support [ "gimp2_plug_indir=$out/${gimp.name}-plugins" ]
+  ;
 
   preConfigure = ''
     export NIX_LDFLAGS="$NIX_LDFLAGS -rpath $out/lib"
-
-    # openjade does not honor SGML_CATALOG_FILES, thus replace PUBLIC identifier with absolute path
-    export SGML_CATALOG_FILES=${docbook_xml_dtd_42}/xml/dtd/docbook/docbook.cat
-    sed -i \
-      -e 's@<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"@<!DOCTYPE book SYSTEM "${docbook_xml_dtd_42}/xml/dtd/docbook/docbookx.dtd" [@' \
-      -e 's@"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" \[@@' \
-      doc/developer/gutenprint.xml
   '';
 
 
@@ -123,31 +140,7 @@ let gutenprint = (composableDerivation.composableDerivation {} { mergeAttrBy = {
     license = "GPL";
   };
 
-  # most interpreters aren't tested yet.. (see python for example how to do it)
-  flags =
-      wwf {
-        name = "gimp2";
-        enable = {
-          buildInputs = [gimp gimp.gtk];
-          installArgs = [ "gimp2_plug_indir=$out/${gimp.name}-plugins" ];
-        };
-      }
-      // {
-        cups = {
-          set = {
-           buildInputs = [cups libtiff libpng ];
-           installArgs = [ "cups_conf_datadir=$out cups_conf_serverbin=$out cups_conf_serverroot=$out"];
-          };
-        };
-      }
-    ;
-
-  cfg = {
-    gimp2Support = true;
-    cupsSupport = true;
-  };
-
-}
+})
 );
 
 in gutenprint // {

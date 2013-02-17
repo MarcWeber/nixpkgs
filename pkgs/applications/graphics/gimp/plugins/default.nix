@@ -181,7 +181,7 @@ rec {
     # either load the raw image with gimp (and the import dialog will popup)
     # or use the binary
     ufraw = pluginDerivation {
-      name = "ufraw-0.16";
+      name = "ufraw-0.18";
   
       buildInputs = [pkgs.lcms pkgs.gtk pkgs.gtkimageview pkgs.gettext pkgs.bzip2 pkgs.zlib pkgs.libjpeg
                     pkgs.cfitsio pkgs.exiv2 pkgs.lcms
@@ -197,8 +197,8 @@ rec {
       configureFlags = "--enable-extras --enable-dst-correction --enable-contrast";
   
       src = fetchurl {
-        url = "mirror://sourceforge/ufraw/ufraw-0.16.tar.gz";
-        sha256 = "06fzyd7wyv5ixbmhbsz80pphhbic18d1w8ji0gz38aq1vdmgxw9n";
+        url = "mirror://sourceforge/ufraw/ufraw-0.18.tar.gz";
+        sha256 = "01cjdc748vamjpaw2sbm8a9kwmb2hry4f200j3hlvqg9c6f77zi4";
       };
       installPhase = "
         installPlugins ufraw-gimp

@@ -1041,6 +1041,7 @@ pythonPackages = python.modules // rec {
       pkgs.libpng
       pkgs.libjpeg
     ];
+  };
 
   gcovr = buildPythonPackage rec {
     name = "gcovr-2.4";

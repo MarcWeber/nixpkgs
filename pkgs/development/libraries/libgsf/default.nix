@@ -7,11 +7,11 @@ assert gnomeSupport -> gdk_pixbuf != null && gnome_vfs != null && libbonobo != n
   && glib != null;
 
 stdenv.mkDerivation rec {
-  name = "libgsf-1.14.23";
+  name = "libgsf-1.14.25";
 
   src = fetchurl {
-    url = mirror://gnome/sources/libgsf/1.14/libgsf-1.14.23.tar.xz;
-    sha256 = "bfc1c6178f5319d5e6d854c380ce26542f9a103a5ff31c9d25a834e0be52fb17";
+    url = "mirror://gnome/sources/libgsf/1.14/${name}.tar.xz";
+    sha256 = "127548f07e07951984fb139c3f89d65b9e471aefe6555387de03e1113944d1a2";
   };
 
   buildNativeInputs = [ intltool pkgconfig ];
@@ -28,8 +28,6 @@ stdenv.mkDerivation rec {
   preConfigure = ''sed -i 's/\<clone\>/cloneX/' tests/*.c'';
 
   doCheck = true;
-
-  patches = [ ./syscall-name-clash.patch ];
 
   meta = {
     homepage = http://www.gnome.org/projects/libgsf;

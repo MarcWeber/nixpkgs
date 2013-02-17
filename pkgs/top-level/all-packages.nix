@@ -229,7 +229,7 @@ let
   # just the plain stdenv.
   stdenv_32bit = lowPrio (
     if system == "x86_64-linux" then
-      overrideGCC stdenv gcc43_multi
+      overrideGCC stdenv gcc46_multi
     else
       stdenv);
 
@@ -418,6 +418,8 @@ let
     inherit pkgs;
     pkgs_i686 = pkgsi686Linux;
   };
+
+  apg = callPackage ../tools/security/apg { };
 
   xcodeenv = callPackage ../development/mobile/xcodeenv { };
 
@@ -759,6 +761,8 @@ let
   fox = callPackage ../development/libraries/fox/default.nix { };
   fox_1_6 = callPackage ../development/libraries/fox/fox-1.6.nix { };
 
+  fping = callPackage ../tools/networking/fping {};
+
   fprot = callPackage ../tools/security/fprot { };
 
   freeipmi = callPackage ../tools/system/freeipmi {};
@@ -1063,6 +1067,8 @@ let
 
   lxc = callPackage ../os-specific/linux/lxc { };
 
+  lzip = callPackage ../tools/compression/lzip { };
+
   lzma = xz;
 
   xz = callPackage ../tools/compression/xz { };
@@ -1098,6 +1104,8 @@ let
   mdbtools_git = callPackage ../tools/misc/mdbtools/git.nix { };
 
   minecraft = callPackage ../games/minecraft { };
+
+  minetest = callPackage ../games/minetest { };
 
   miniupnpc = callPackage ../tools/networking/miniupnpc { };
 
@@ -1206,8 +1214,6 @@ let
     inherit (pythonPackages) pysqlite;
   };
 
-  nss_myhostname = callPackage ../tools/networking/nss-myhostname {};
-
   nss_pam_ldapd = callPackage ../tools/networking/nss-pam-ldapd {};
 
   ntfs3g = callPackage ../tools/filesystems/ntfs-3g { };
@@ -1284,7 +1290,6 @@ let
   patchutils = callPackage ../tools/text/patchutils { };
 
   parted = callPackage ../tools/misc/parted { hurd = null; };
-  parted_2_3 = callPackage ../tools/misc/parted/2.3.nix { hurd = null; };
 
   hurdPartedCross =
     if crossSystem != null && crossSystem.config == "i586-pc-gnu"
@@ -2131,6 +2136,13 @@ let
     binutilsCross = null;
   }));
 
+  gcc46_multi = if system == "x86_64-linux" then lowPrio (
+      wrapGCCWith (import ../build-support/gcc-wrapper) glibc_multi (gcc46.gcc.override {
+      stdenv = overrideGCC stdenv (wrapGCCWith (import ../build-support/gcc-wrapper) glibc_multi gcc);
+      profiledCompiler = false;
+      enableMultilib = true;
+    })) else throw "Multilib gcc not supported on this system";
+
   gcc47_real = lowPrio (wrapGCC (callPackage ../development/compilers/gcc/4.7 {
     inherit noSysDirs;
     # I'm not sure if profiling with enableParallelBuilding helps a lot.
@@ -2481,7 +2493,7 @@ let
   jikes = callPackage ../development/compilers/jikes { };
 
   julia = callPackage ../development/compilers/julia {
-    pcre = pcre_8_30;
+    pcre = pcre_8_31;
     liblapack = liblapack.override {shared = true;};
     fftw = fftw.override {pthreads = true;};
     fftwSinglePrec = fftwSinglePrec.override {pthreads = true;};
@@ -3322,6 +3334,8 @@ let
 
   swigWithJava = swig;
 
+  swfmill = callPackage ../tools/video/swfmill { };
+
   swftools = callPackage ../tools/video/swftools { };
 
   texinfo49 = callPackage ../development/tools/misc/texinfo/4.9.nix { };
@@ -3426,17 +3440,13 @@ let
   boolstuff = callPackage ../development/libraries/boolstuff { };
 
   boost144 = callPackage ../development/libraries/boost/1.44.nix { };
-  boost146 = callPackage ../development/libraries/boost/1.46.nix { };
   boost147 = callPackage ../development/libraries/boost/1.47.nix { };
   boost149 = callPackage ../development/libraries/boost/1.49.nix { };
-  boost151 = callPackage ../development/libraries/boost/1.51.nix { };
-  boost152 = callPackage ../development/libraries/boost/1.52.nix { };
-  boost = boost152;
+  boost153 = callPackage ../development/libraries/boost/1.53.nix { };
+  boost = boost153;
 
-  boostHeaders149 = callPackage ../development/libraries/boost/1.49-headers.nix { };
-  boostHeaders151 = callPackage ../development/libraries/boost/1.51-headers.nix { };
-  boostHeaders152 = callPackage ../development/libraries/boost/1.52-headers.nix { };
-  boostHeaders = boostHeaders152;
+  boostHeaders153 = callPackage ../development/libraries/boost/1.53-headers.nix { };
+  boostHeaders = boostHeaders153;
 
   botan = callPackage ../development/libraries/botan { };
 
@@ -3848,7 +3858,7 @@ let
     libart = gnome.libart_lgpl;
   };
 
-  goffice_0_9 = callPackage ../development/libraries/goffice/0.9.nix {
+  goffice_0_10 = callPackage ../development/libraries/goffice/0.10.nix {
     inherit (gnome) libglade libgnomeui;
     gconf = gnome.GConf;
     libart = gnome.libart_lgpl;
@@ -4194,6 +4204,8 @@ let
   libdvdread = callPackage ../development/libraries/libdvdread { };
 
   libdwarf = callPackage ../development/libraries/libdwarf { };
+
+  libeatmydata = callPackage ../development/libraries/libeatmydata { };
 
   libebml = callPackage ../development/libraries/libebml { };
 
@@ -4618,7 +4630,9 @@ let
 
   mkvtoolnix = callPackage ../applications/video/mkvtoolnix { };
 
-  mlt = callPackage ../development/libraries/mlt { };
+  mlt = callPackage ../development/libraries/mlt {
+    ffmpeg = ffmpeg_1_1;
+  };
 
   libmpeg2 = callPackage ../development/libraries/libmpeg2 { };
 
@@ -4773,6 +4787,10 @@ let
     unicodeSupport = config.pcre.unicode or true;
   };
 
+  pcre_8_31 = callPackage ../development/libraries/pcre/8.31.nix {
+    unicodeSupport = config.pcre.unicode or true;
+  };
+
   pdf2xml = callPackage ../development/libraries/pdf2xml {} ;
 
   phonon = callPackage ../development/libraries/phonon { };
@@ -4839,8 +4857,6 @@ let
   };
 
   qt4 = pkgs.kde4.qt4;
-
-  qt47 = callPackage ../development/libraries/qt-4.x/4.7 { };
 
   qt48 = callPackage ../development/libraries/qt-4.x/4.8 {
     # GNOME dependencies are not used unless gtkStyle == true
@@ -5088,6 +5104,8 @@ let
     libpng = libpng12;
   };
 
+  wayland = callPackage ../development/libraries/wayland { };
+
   webkit =
     builderDefsPackage ../development/libraries/webkit {
       inherit (gnome) gtkdoc libsoup;
@@ -5325,6 +5343,11 @@ let
     python = python27;
   });
 
+  plone42Packages = recurseIntoAttrs (import ../development/web/plone {
+    inherit pkgs buildPythonPackage;
+    python = python27;
+  });
+
   foursuite = callPackage ../development/python-modules/4suite { };
 
   bsddb3 = callPackage ../development/python-modules/bsddb3 { };
@@ -5479,6 +5502,8 @@ let
   myserver = callPackage ../servers/http/myserver { };
 
   nginx = callPackage ../servers/http/nginx { };
+
+  petidomo = callPackage ../servers/mail/petidomo { };
 
   popa3d = callPackage ../servers/mail/popa3d { };
 
@@ -5916,15 +5941,6 @@ let
       ];
   };
 
-  linux_3_1 = makeOverridable (import ../os-specific/linux/kernel/linux-3.1.nix) {
-    inherit fetchurl stdenv perl mktemp module_init_tools ubootChooser;
-    kernelPatches =
-      [ #kernelPatches.fbcondecor_2_6_38
-        kernelPatches.sec_perm_2_6_24
-        # kernelPatches.aufs3_1
-      ];
-  };
-
   linux_3_2 = makeOverridable (import ../os-specific/linux/kernel/linux-3.2.nix) {
     inherit fetchurl stdenv perl mktemp module_init_tools ubootChooser;
     kernelPatches =
@@ -5941,15 +5957,6 @@ let
     '';
   };
 
-  linux_3_3 = makeOverridable (import ../os-specific/linux/kernel/linux-3.3.nix) {
-    inherit fetchurl stdenv perl mktemp module_init_tools ubootChooser;
-    kernelPatches =
-      [ #kernelPatches.fbcondecor_2_6_38
-        kernelPatches.sec_perm_2_6_24
-        # kernelPatches.aufs3_3
-      ];
-  };
-
   linux_3_4 = makeOverridable (import ../os-specific/linux/kernel/linux-3.4.nix) {
     inherit fetchurl stdenv perl mktemp module_init_tools ubootChooser;
     kernelPatches =
@@ -5959,34 +5966,6 @@ let
       ] ++ lib.optionals (platform.kernelArch == "mips")
       [ kernelPatches.mips_fpureg_emu
         kernelPatches.mips_fpu_sigill
-      ];
-  };
-
-  linux_3_5 = makeOverridable (import ../os-specific/linux/kernel/linux-3.5.nix) {
-    inherit fetchurl stdenv perl mktemp module_init_tools ubootChooser;
-    kernelPatches =
-      [
-        kernelPatches.sec_perm_2_6_24
-        # kernelPatches.aufs3_5
-        kernelPatches.perf3_5
-        kernelPatches.cifs_timeout_3_5_7
-      ] ++ lib.optionals (platform.kernelArch == "mips")
-      [ kernelPatches.mips_fpureg_emu
-        kernelPatches.mips_fpu_sigill
-        kernelPatches.mips_ext3_n32
-      ];
-  };
-
-  linux_3_6 = makeOverridable (import ../os-specific/linux/kernel/linux-3.6.nix) {
-    inherit fetchurl stdenv perl mktemp module_init_tools ubootChooser;
-    kernelPatches =
-      [
-        kernelPatches.sec_perm_2_6_24
-        # kernelPatches.aufs3_6
-      ] ++ lib.optionals (platform.kernelArch == "mips")
-      [ kernelPatches.mips_fpureg_emu
-        kernelPatches.mips_fpu_sigill
-        kernelPatches.mips_ext3_n32
       ];
   };
 
@@ -6118,13 +6097,9 @@ let
   linuxPackages_2_6_32 = recurseIntoAttrs (linuxPackagesFor linux_2_6_32 pkgs.linuxPackages_2_6_32);
   linuxPackages_2_6_35 = recurseIntoAttrs (linuxPackagesFor linux_2_6_35 pkgs.linuxPackages_2_6_35);
   linuxPackages_3_0 = recurseIntoAttrs (linuxPackagesFor linux_3_0 pkgs.linuxPackages_3_0);
-  linuxPackages_3_1 = recurseIntoAttrs (linuxPackagesFor linux_3_1 pkgs.linuxPackages_3_1);
   linuxPackages_3_2 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_2 pkgs.linuxPackages_3_2);
   linuxPackages_3_2_xen = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_2_xen pkgs.linuxPackages_3_2_xen);
-  linuxPackages_3_3 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_3 pkgs.linuxPackages_3_3);
   linuxPackages_3_4 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_4 pkgs.linuxPackages_3_4);
-  linuxPackages_3_5 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_5 pkgs.linuxPackages_3_5);
-  linuxPackages_3_6 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_6 pkgs.linuxPackages_3_6);
   linuxPackages_3_7 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_7 pkgs.linuxPackages_3_7);
 
   # The current default kernel / kernel modules.
@@ -6789,7 +6764,14 @@ let
 
   d4x = callPackage ../applications/misc/d4x { };
 
-  darcs = lib.setName "darcs-${haskellPackages.darcs.version}" haskellPackages.darcs;
+  darcs = haskellPackages.darcs.override {
+    # A variant of the Darcs derivation that containts only the executable and
+    # thus has no dependencies on other Haskell packages.
+    cabal = { mkDerivation = x: rec { final = haskellPackages.cabal.mkDerivation (self: (x final) // {
+	      isLibrary = false;
+	      configureFlags = "-f-library"; }); }.final;
+	    };
+  };
 
   darktable = callPackage ../applications/graphics/darktable {
     inherit (gnome) GConf libglade;
@@ -7053,6 +7035,10 @@ let
     inherit (gnome) libgnome libgnomeui vte;
   };
 
+  guitarix = callPackage ../applications/audio/guitarix {
+    fftw = fftwSinglePrec;
+  };
+
   wavesurfer = callPackage ../applications/misc/audio/wavesurfer { };
 
   wireshark = callPackage ../applications/networking/sniffers/wireshark { };
@@ -7185,7 +7171,7 @@ let
   };
 
   gnumeric = callPackage ../applications/office/gnumeric {
-    goffice = goffice_0_9;
+    goffice = goffice_0_10;
     inherit (gnome) libglade scrollkeeper;
   };
 
@@ -7467,9 +7453,7 @@ let
 
   merkaartor = callPackage ../applications/misc/merkaartor { };
 
-  meshlab = callPackage ../applications/graphics/meshlab {
-    qt = qt47;
-  };
+  meshlab = callPackage ../applications/graphics/meshlab { };
 
   mhwaveedit = callPackage ../applications/audio/mhwaveedit {};
 
@@ -7510,6 +7494,7 @@ let
 
   monotone = callPackage ../applications/version-management/monotone {
     lua = lua5;
+    boost = boost149;
   };
 
   monotoneViz = builderDefsPackage (import ../applications/version-management/monotone-viz/mtn-head.nix) {
@@ -7701,9 +7686,7 @@ let
 
   pythonmagick = callPackage ../applications/graphics/PythonMagick { };
 
-  qemu = callPackage ../applications/virtualization/qemu/0.15.nix { };
-
-  qemu_1_0 = callPackage ../applications/virtualization/qemu/1.0.nix { };
+  qemu = callPackage ../applications/virtualization/qemu { };
 
   qemuImage = callPackage ../applications/virtualization/qemu/linux-img { };
 
@@ -8041,14 +8024,14 @@ let
   wrapFirefox =
     { browser, browserName ? "firefox", desktopName ? "Firefox", nameSuffix ? ""
     , icon ? "${browser}/lib/${browser.name}/icons/mozicon128.png" }:
+    let
+      cfg = stdenv.lib.attrByPath [ browserName ] {} config;
+      enableAdobeFlash = cfg.enableAdobeFlash or true;
+      enableGnash = cfg.enableGnash or false;
+    in
     import ../applications/networking/browsers/firefox/wrapper.nix {
       inherit stdenv makeWrapper makeDesktopItem browser browserName desktopName nameSuffix icon;
       plugins =
-        let
-          cfg = stdenv.lib.attrByPath [ browserName ] {} config;
-          enableAdobeFlash = cfg.enableAdobeFlash or true;
-          enableGnash = cfg.enableGnash or false;
-        in
          assert !(enableGnash && enableAdobeFlash);
          ([ ]
           ++ lib.optional enableGnash gnash
@@ -8060,7 +8043,7 @@ let
           ++ lib.optional (cfg.enableGoogleTalkPlugin or false) google_talk_plugin
          );
       libs =
-        if config.browserName.enableQuakeLive or false
+        if cfg.enableQuakeLive or false
         then with xlibs; [ stdenv.gcc libX11 libXxf86dga libXxf86vm libXext libXt alsaLib zlib ]
         else [ ];
     };
@@ -8262,10 +8245,7 @@ let
 
   gnugo = callPackage ../games/gnugo { };
 
-  gparted = callPackage ../tools/misc/gparted {
-    parted = parted_2_3;
-    inherit (gnome) gnomedocutils;
-  };
+  gparted = callPackage ../tools/misc/gparted { };
 
   gsmartcontrol = callPackage ../tools/misc/gsmartcontrol {
     inherit (gnome) libglademm;
@@ -8460,10 +8440,10 @@ let
 
   enlightenment = callPackage ../desktops/enlightenment { };
 
-  # e17 = recurseIntoAttrs (
-  #   let callPackage = newScope pkgs.e17; in
-  #   import ../desktops/e17 { inherit callPackage pkgs; }
-  # );
+  e17 = recurseIntoAttrs (
+    let callPackage = newScope pkgs.e17; in
+    import ../desktops/e17 { inherit callPackage pkgs; }
+  );
 
   gnome2 = callPackage ../desktops/gnome-2 {
     callPackage = pkgs.newScope pkgs.gnome2;
@@ -9052,7 +9032,7 @@ let
 
   texLiveFull = lib.setName "texlive-full" (texLiveAggregationFun {
     paths = [ texLive texLiveExtra lmodern texLiveCMSuper texLiveLatexXColor
-              texLivePGF texLiveBeamer texLiveModerncv tipa ];
+              texLivePGF texLiveBeamer texLiveModerncv tipa tex4ht ];
   });
 
   /* Look in configurations/misc/raskin.nix for usage example (around revisions
@@ -9115,6 +9095,12 @@ let
 
   # Wine cannot be built in 64-bit; use a 32-bit build instead.
   wine = callPackage_i686 ../misc/emulators/wine { };
+
+  # winetricks is a shell script with no binary components. Safe to just use the current platforms
+  # build instead of the i686 specific build.
+  winetricks = callPackage ../misc/emulators/wine/winetricks.nix {
+    inherit (gnome2) zenity;
+  };
 
   x2x = callPackage ../tools/X11/x2x { };
 

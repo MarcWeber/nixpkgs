@@ -1,7 +1,7 @@
 { stdenv, fetchurl, zlib, libX11, libXext, libXft, freetype, libSM, libICE,
   libXt, libXrender, libXcursor, fontconfig, libuuid, glibc, libXi, xz
 # qt gui:
-, qt47, kde4
+, qt48, kde4
 # gtk gui
 , gtkLibs, cairo
 
@@ -27,7 +27,7 @@ let
   libsForGuis = {
       # Debug Dialog Toolkits with opera --full-version (see last line)
       # See: http://www.opera.com/support/usingopera/operaini/
-      qt  = [qt47 kde4.kdelibs];                      # "Dialog Toolkit" = 1
+      qt  = [qt48 kde4.kdelibs];                      # "Dialog Toolkit" = 1
       gtk = with gtkLibs; [gtk glib atk pango cairo]; # "Dialog Toolkit" = 2
       kde = [];                                       # "Dialog Toolkit" = 3 (not supported by nixpkgs yet)
   }; in
@@ -40,24 +40,25 @@ let
 
 stdenv.mkDerivation rec {
 
-  name = "opera-11.51-1087";
+  name = "opera-12.12-1707";
 
   builder = ./builder.sh;
 
   buildNativeInputs = [ xz ];
-  
+
   src =
     if stdenv.system == "i686-linux" then
       fetchurl {
-        url = "${mirror}/linux/1151/${name}.i386.linux.tar.xz";
-        sha256 = "e2da38a1775b59ebf09e3695505634a3df9655b8812e3b4fe3163d02488d4aad";
+        url = "${mirror}/linux/1212/${name}.i386.linux.tar.xz";
+        sha256 = "1jkrhxjxa5kz4bhyma0zlnsszdn84sq4pks3x8bfcayn12m6yxkz";
       }
     else if stdenv.system == "x86_64-linux" then
       fetchurl {
-        url = "${mirror}/linux/1151/${name}.x86_64.linux.tar.xz";
-        sha256 = "63a4fb2e480bd895384bfb8e2c8e71dc979354f0eb8423b552dc37089dc791ad";
+        url = "${mirror}/linux/1212/${name}.x86_64.linux.tar.xz";
+        sha256 = "0acizxgyqblcvl91dwmvi937fi1kw6whz5qgxyl1fkygbayji90v";
       }
     else throw "Opera is not supported on ${stdenv.system} (only i686-linux and x86_64 linux are supported)";
+
 
   dontStrip = 1;
   

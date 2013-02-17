@@ -118,10 +118,7 @@ defaultConfig = {
       cfgFile =  createPHPFpmConfig52 (cfg) (pool);
 in {
   # must be in /etc .., there is no command line flag for PHP 5.2
-  environment.etc = [{
-    source = cfgFile;
-    target = "php-fpm-5.2.conf";
-  }];
+  environment.etc."php-fpm-5.2.conf".source = cfgFile;
 
   systemd.services = 
     let name = "php-fpm-${id}";

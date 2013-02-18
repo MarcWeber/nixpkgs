@@ -348,11 +348,11 @@ let
 
   php_with_id = php // {
     id =
-       if idByConfig && builtins ? hash
+       if idByConfig && builtins ? hashString
        then # turn options into something hashable:
             let opts_s = lib.concatMapStrings (x: if x then "1" else "") (lib.attrVals options php);
             # you're never going to use that many php's at the same time, thus use a short hash
-            in "${php.version}-${builtins.substring 0 5 (builtins.hash "sha256" opts_s)}"
+            in "${php.version}-${builtins.substring 0 5 (builtins.hashString "sha256" opts_s)}"
        else # the hash of the store path depending on php version and all configuration details
             builtins.baseNameOf (builtins.unsafeDiscardStringContext php);
   };

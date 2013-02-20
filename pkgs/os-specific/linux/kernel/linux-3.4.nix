@@ -1,11 +1,11 @@
-args @ { stdenv, fetchurl, userModeLinux ? false, extraConfig ? ""
+args @ { stdenv, fetchurl, extraConfig ? ""
 , perl, mktemp, module_init_tools
 , ... }:
 
 let
   configWithPlatform = kernelPlatform :
     ''
-      # powermanagement and debugging for powertop
+      # Power management and debugging for powertop.
       DEBUG_KERNEL y
       PM_ADVANCED_DEBUG y
       PM_RUNTIME y
@@ -76,6 +76,8 @@ let
       HOSTAP_FIRMWARE_NVRAM y
       ATH9K_PCI y # Detect Atheros AR9xxx cards on PCI(e) bus
       ATH9K_AHB y # Ditto, AHB bus
+      B43_PHY_HT y
+      BCMA_HOST_PCI y
 
       # Some settings to make sure that fbcondecor works - in particular,
       # disable tileblitting and the drivers that need it.
@@ -146,8 +148,10 @@ let
       NFSD_V3 y
       NFSD_V3_ACL y
       NFSD_V4 y
+      NFS_FSCACHE y
       CIFS_XATTR y
       CIFS_POSIX y
+      CIFS_FSCACHE y
 
       # Security related features.
       STRICT_DEVMEM y # Filter access to /dev/mem
@@ -200,6 +204,7 @@ let
       THERMAL_HWMON y # Hardware monitoring support
       USB_DEBUG n
       USB_EHCI_ROOT_HUB_TT y # Root Hub Transaction Translators
+      USB_EHCI_TT_NEWSCHED y # Improved transaction translator scheduling
       X86_CHECK_BIOS_CORRUPTION y
       X86_MCE y
 
@@ -225,6 +230,12 @@ let
       FTRACE_SYSCALLS y
       SCHED_TRACER y
 
+      # Devtmpfs support.
+      DEVTMPFS y
+
+      # Easier debug of NFS issues
+      SUNRPC_DEBUG y
+
       ${if kernelPlatform ? kernelExtraConfig then kernelPlatform.kernelExtraConfig else ""}
       ${extraConfig}
     '';
@@ -233,8 +244,7 @@ in
 import ./generic.nix (
 
   rec {
-    version = "3.4";
-    modDirVersion = "3.4.0";
+    version = "3.4.31";
     testing = false;
 
     preConfigure = ''
@@ -243,7 +253,7 @@ import ./generic.nix (
 
     src = fetchurl {
       url = "mirror://kernel/linux/kernel/v3.x/${if testing then "testing/" else ""}linux-${version}.tar.xz";
-      sha256 = "ff3dee6a855873d12487a6f4070ec2f7996d073019171361c955639664baa0c6";
+      sha256 = "1148f77iab0p5j61v42a4jka4ndwnjpd6lkqhwiqs61lmv3m7j2r";
     };
 
     config = configWithPlatform stdenv.platform;
@@ -251,6 +261,8 @@ import ./generic.nix (
 
     features.iwlwifi = true;
     features.efiBootStub = true;
+    features.needsCifsUtils = true;
+    features.netfilterRPFilter = true;
   }
 
   // removeAttrs args ["extraConfig"]

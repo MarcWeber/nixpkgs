@@ -2,11 +2,11 @@
 , pkgconfig }:
 
 stdenv.mkDerivation rec {
-  name = "soprano-2.7.5";
+  name = "soprano-2.8.0";
 
   src = fetchurl {
     url = "mirror://sourceforge/soprano/${name}.tar.bz2";
-    sha256 = "0g9vi4z82dwz0hkg3b9gvi11akji1mzphjxwz3fw55213c0f0a3c";
+    sha256 = "1israssklrb4mhx2dgkfnabh21ll1jyis1c5c42rc9gi23mkb7ah";
   };
 
   patches = [ ./find-virtuoso.patch ];

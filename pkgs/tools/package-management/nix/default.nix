@@ -5,11 +5,11 @@
 }:
 
 stdenv.mkDerivation rec {
-  name = "nix-1.0";
+  name = "nix-1.3";
 
   src = fetchurl {
-    url = "http://hydra.nixos.org/build/2609700/download/4/${name}.tar.bz2";
-    sha256 = "27f1d4d2a5fb1951bfc9e706c0894a961aed1afe0d095e16eb8fbef94ee7ec17";
+    url = "http://nixos.org/releases/nix/${name}/${name}.tar.xz";
+    sha256 = "32cba96df0e02d6627f5625a441fdd4ea0db718dd5bfd50044cdfd3c606d4852";
   };
 
   buildNativeInputs = [ perl pkgconfig ];
@@ -26,13 +26,18 @@ stdenv.mkDerivation rec {
 
   configureFlags =
     ''
-      --with-store-dir=${storeDir} --localstatedir=${stateDir}
-      --with-dbi=${perlPackages.DBI}/lib/perl5/site_perl
-      --with-dbd-sqlite=${perlPackages.DBDSQLite}/lib/perl5/site_perl
+      --with-store-dir=${storeDir} --localstatedir=${stateDir} --sysconfdir=/etc
+      --with-dbi=${perlPackages.DBI}/${perl.libPrefix}
+      --with-dbd-sqlite=${perlPackages.DBDSQLite}/${perl.libPrefix}
+      --with-www-curl=${perlPackages.WWWCurl}/${perl.libPrefix}
       --disable-init-state
       --enable-gc
       CFLAGS=-O3 CXXFLAGS=-O3
     '';
+
+  makeFlags = "profiledir=$(out)/etc/profile.d";
+
+  installFlags = "sysconfdir=$(out)/etc";
 
   doInstallCheck = true;
 
@@ -45,14 +50,16 @@ stdenv.mkDerivation rec {
     configureFlags =
       ''
         --with-store-dir=${storeDir} --localstatedir=${stateDir}
-        --with-dbi=${perlPackages.DBI}/lib/perl5/site_perl
-        --with-dbd-sqlite=${perlPackages.DBDSQLite}/lib/perl5/site_perl
+        --with-dbi=${perlPackages.DBI}/${perl.libPrefix}
+        --with-dbd-sqlite=${perlPackages.DBDSQLite}/${perl.libPrefix}
+        --with-www-curl=${perlPackages.WWWCurl}/${perl.libPrefix}
         --disable-init-state
         --enable-gc
         CFLAGS=-O3 CXXFLAGS=-O3
       '' + stdenv.lib.optionalString (
           stdenv.cross ? nix && stdenv.cross.nix ? system
       ) ''--with-system=${stdenv.cross.nix.system}'';
+
     doInstallCheck = false;
   };
 

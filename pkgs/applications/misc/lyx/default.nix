@@ -1,28 +1,33 @@
-# I haven't put much effort into this expressions .. so some optional depencencies may be missing - Marc
 { fetchurl, stdenv, texLive, python, makeWrapper, pkgconfig
-, libX11, qt
+, libX11, qt4, enchant #, mythes, boost
 }:
 
 stdenv.mkDerivation rec {
-  version = "2.0.0";
+  version = "2.0.5.1";
   name = "lyx-${version}";
 
   src = fetchurl {
     url = "ftp://ftp.lyx.org/pub/lyx/stable/2.0.x/${name}.tar.xz";
-    sha256 = "a790951d6ed660b254e82d682b478665f119dd522ab4759fdeb5cd8d42f66f61";
+    sha256 = "18k9qbz40v6lqmkfcg98wvcv4wi4p36ach1jz3z2b15gbmv2gr9n";
   };
 
-  buildInputs = [texLive qt python makeWrapper pkgconfig ];
+  configureFlags = [
+    #"--without-included-boost"
+    /*  Boost is a huge dependency from which 1.4 MB of libs would be used.
+        Using internal boost stuff only increases executable by around 0.2 MB. */
+    #"--without-included-mythes" # such a small library isn't worth a separate package
+  ];
 
-  # don't ask me why it can't find libX11.so.6
-  postInstall = ''
-    wrapProgram $out/bin/lyx \
-      --prefix LD_LIBRARY_PATH ":" ${libX11}/lib
-  '';
+  buildInputs = [
+    texLive qt4 python makeWrapper pkgconfig
+    enchant # mythes boost
+  ];
 
-  meta = { 
-      description = "WYSIWYM frontend for LaTeX, DocBook, etc.";
-      homepage = "http://www.lyx.org";
-      license = "GPL2";
+  meta = {
+    description = "WYSIWYM frontend for LaTeX, DocBook, etc.";
+    homepage = "http://www.lyx.org";
+    license = "GPL2";
+    maintainers = [ stdenv.lib.maintainers.neznalek ];
+    platforms = stdenv.lib.platforms.linux;
   };
 }

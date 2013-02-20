@@ -1,45 +1,43 @@
-a :
-let
-  fetchurl = a.fetchurl;
-  fetchgit = a.fetchgit;
+{ stdenv, fetchgit, zlib, libuuid, acl, attr, e2fsprogs }:
 
-  version = a.lib.attrByPath ["version"] "0.19-20120328" a;
-  buildInputs = with a; [
-    zlib libuuid acl attr e2fsprogs
-  ];
-in
+let version = "0.20pre20121005"; in
 
-assert a.libuuid != null;
+stdenv.mkDerivation {
+  name = "btrfs-progs-${version}";
 
-rec {
-  srcDrv = fetchgit {
-    url="git://git.kernel.org/pub/scm/linux/kernel/git/mason/btrfs-progs.git" ;
-    rev="1957076ab4fefa47b6efed3da541bc974c83eed7";
-    sha256="566d863c5500652e999d0d6b823365fb06f2f8f9523e65e69eaa3e993e9b26e1";
+  src = fetchgit {
+    url = "git://git.kernel.org/pub/scm/linux/kernel/git/mason/btrfs-progs.git";
+    rev = "91d9eec1ff044394f2b98ee7fcb76713dd33b994";
+    sha256 = "72d4cd4fb23d876a17146d6231ad40a2151fa47c648485c54cf7478239b43764";
   };
 
-  src = srcDrv + "/";
+  patches = [
+    ./subvol-listing.patch
+    ./btrfs-receive-help-text.patch
+    ./btrfs-progs-Fix-the-receive-code-pathing.patch
+    ./btrfs-receive-lchown.patch
+  ];
 
-  inherit buildInputs;
-  configureFlags = [];
-  makeFlags = ["prefix=$out CFLAGS=-Os"];
+  buildInputs = [ zlib libuuid acl attr e2fsprogs ];
 
-  patches = [];
-  phaseNames = ["fixMakefile" "doEnsureBtrfsImage" "doMakeInstall"];
+  postPatch = ''
+    cp ${./btrfs-set-received-uuid.c} btrfs-set-received-uuid.c
+  '';
 
-  fixMakefile = a.fullDepEntry ''
-    sed -e 's@^progs = @progs=@g' -i Makefile
-  '' ["minInit" "doUnpack"];
+  postBuild = ''
+    gcc -O2 -luuid -o btrfs-set-received-uuid send-utils.o rbtree.o btrfs-list.o btrfs-set-received-uuid.c
+  '';
 
-  doEnsureBtrfsImage = a.fullDepEntry (''
-    if ! grep 'progs = ' Makefile | grep btrfs-image; then
-      sed -e 's/progs = \(.*\)\\/progs = \1btrfs-image \\/' -i Makefile
-    fi
-  '') ["minInit" "doUnpack"];
+  postInstall = ''
+    cp btrfs-set-received-uuid $out/bin
+  '';
 
-  name = "btrfs-progs-" + version;
+  makeFlags = "prefix=$(out)";
+
   meta = {
-    description = "BTRFS utilities";
-    maintainers = [a.lib.maintainers.raskin];
+    description = "Utilities for the btrfs filesystem";
+    homepage = https://btrfs.wiki.kernel.org/;
+    maintainers = [ stdenv.lib.maintainers.raskin ];
+    platforms = stdenv.lib.platforms.linux;
   };
 }

@@ -1,35 +1,42 @@
-{ stdenv, fetchurl, scons, which, boost, gnutar, v8 ? null, useV8 ? false}:
+{ stdenv, fetchurl, scons, which, v8, useV8 ? false}:
 
-assert useV8 -> v8 != null;
+with stdenv.lib;
 
+let installerPatch = fetchurl {
+      url = "https://jira.mongodb.org/secure/attachment/18160/SConscript.client.patch";
+      sha256 = "0n60fh2r8i7m6g113k0iw4adc8jv2by4ahrd780kxg47kzfgw06a";
+    };
+
+in
 stdenv.mkDerivation rec {
-  name = "mongodb-2.0.5";
+  name = "mongodb-2.2.0";
 
   src = fetchurl {
-    url = "http://downloads.mongodb.org/src/mongodb-src-r2.0.5.tar.gz";
-    sha256 = "0vnwphjn0iqgjrvfk18vridx5324zmmbrapp2d9rbqc9xg6jrpav";
+    url = http://downloads.mongodb.org/src/mongodb-src-r2.2.0.tar.gz;
+    sha256 = "12v0cpq9j2gmagr9pbw08karqwqgl4j9r223w7x7sx5cfvj2cih8";
   };
 
-  buildInputs = [scons which boost] ++ stdenv.lib.optional useV8 v8;
+  buildNativeInputs = [ scons which ];
+
+  patches = [ installerPatch ];
 
   enableParallelBuilding = true;
 
-  patchPhase = ''
-    substituteInPlace SConstruct --replace "Environment( MSVS_ARCH=msarch , tools = [\"default\", \"gch\"], toolpath = '.' )" "Environment( MSVS_ARCH=msarch , tools = [\"default\", \"gch\"], toolpath = '.', ENV = os.environ )"
-    substituteInPlace SConstruct --replace "../v8" "${v8}"
-    substituteInPlace SConstruct --replace "LIBPATH=[\"${v8}/\"]" "LIBPATH=[\"${v8}/lib\"]"
+  postPatch = ''
+    substituteInPlace SConstruct --replace "Environment( BUILD_DIR" "Environment( ENV = os.environ, BUILD_DIR"
+  '' + optionalString useV8 ''
+    substituteInPlace SConstruct --replace "#/../v8" "${v8}" \
+                                 --replace "[\"${v8}/\"]" "[\"${v8}/lib\"]"
   '';
 
   buildPhase = ''
-    export TERM=""
-    scons all --cc=`which gcc` --cxx=`which g++` --libpath=${boost}/lib --cpppath=${boost}/include ${if useV8 then "--usev8" else ""}
+    echo $PATH
+    scons all --cc=`which gcc` --cxx=`which g++` ${optionalString useV8 "--usev8"}
   '';
 
   installPhase = ''
-    scons install --cc=`which gcc` --cxx=`which g++` --libpath=${boost}/lib --cpppath=${boost}/include --full --prefix=$out
-    if [ -d $out/lib64 ]; then
-      mv $out/lib64 $out/lib
-    fi
+    scons install --cc=`which gcc` --cxx=`which g++` ${optionalString useV8 "--usev8"} --full --prefix=$out
+    rm -rf $out/lib64 # exact same files as installed in $out/lib
   '';
 
   meta = {
@@ -38,7 +45,6 @@ stdenv.mkDerivation rec {
     license = "AGPLv3";
 
     maintainers = [ stdenv.lib.maintainers.bluescreen303 ];
-    platforms = stdenv.lib.platforms.all;
+    platforms = stdenv.lib.platforms.linux;
   };
 }
-

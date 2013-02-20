@@ -2,13 +2,13 @@
 
 cabal.mkDerivation (self: {
   pname = "BNFC";
-  version = "2.4.2.0";
-  sha256 = "0nnalzsql1k5y3s93g5y2hy2gcdsrbi8r7cwzmdcy4vyy589pin0";
-  isLibrary = false;
+  version = "2.6.0.3";
+  sha256 = "0i38rwslkvnicnlxbrxybnwkgfin04lnr4q12lcvli4ldp2ylfjq";
+  isLibrary = true;
   isExecutable = true;
   buildDepends = [ mtl ];
   meta = {
-    homepage = "http://www.cse.chalmers.se/research/group/Language-technology/BNFC/";
+    homepage = "http://bnfc.digitalgrammars.com/";
     description = "A compiler front-end generator";
     license = "GPL";
     platforms = self.ghc.meta.platforms;

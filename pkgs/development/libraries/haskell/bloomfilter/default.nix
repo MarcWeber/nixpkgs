@@ -2,11 +2,11 @@
 
 cabal.mkDerivation (self: {
   pname = "bloomfilter";
-  version = "1.2.6.8";
-  sha256 = "0qv25dfyqbkswcbw1cxs4zcm8zl0xi5880zx6fab8ka6vnx2a5nf";
+  version = "1.2.6.10";
+  sha256 = "162vp9riwf5q2l1hnw3g157fpwnw185fk41hkgyf8qaavcrz6slv";
   buildDepends = [ deepseq ];
   meta = {
-    homepage = "http://www.serpentine.com/software/bloomfilter";
+    homepage = "https://github.com/bos/bloomfilter";
     description = "Pure and impure Bloom Filter implementations";
     license = self.stdenv.lib.licenses.bsd3;
     platforms = self.ghc.meta.platforms;

@@ -1,15 +1,14 @@
-{ cabal, cereal, certificate, cryptoApi, cryptocipher, cryptohash
-, mtl
+{ cabal, cereal, certificate, cryptohash, cryptoPubkey
+, cryptoRandomApi, mtl, network
 }:
 
 cabal.mkDerivation (self: {
   pname = "tls";
-  version = "0.9.5";
-  sha256 = "1nbfimyxi546n239brhw5lrb7907svvhvy5zgy1f853h17vnli5y";
-  isLibrary = true;
-  isExecutable = true;
+  version = "1.1.2";
+  sha256 = "1vg1mnz6cxxgs48pbpjp4hwyvsysxyzvjfy4p1vd23lwc32cdjqg";
   buildDepends = [
-    cereal certificate cryptoApi cryptocipher cryptohash mtl
+    cereal certificate cryptohash cryptoPubkey cryptoRandomApi mtl
+    network
   ];
   meta = {
     homepage = "http://github.com/vincenthz/hs-tls";

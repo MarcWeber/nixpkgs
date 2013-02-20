@@ -3,16 +3,17 @@
 , libxslt, tcl, tk, makeWrapper
 , svnSupport, subversionClient, perlLibs, smtpPerlLibs
 , guiSupport
+, withManual ? true
 , pythonSupport ? true
 , sendEmailSupport
 }:
 
 let
 
-  version = "1.7.10.4";
-  
+  version = "1.8.1";
+
   svn = subversionClient.override { perlBindings = true; };
-  
+
 in
 
 stdenv.mkDerivation {
@@ -20,14 +21,13 @@ stdenv.mkDerivation {
 
   src = fetchurl {
     url = "http://git-core.googlecode.com/files/git-${version}.tar.gz";
-    sha256 = "1pd8vd9bgvai3n7xw7b11i7gznjma2pb97d29k304wk89mj57kkp";
+    sha1 = "wfj2pbqf9l56014dm330wb13qgcwx3dc";
   };
 
   patches = [ ./docbook2texi.patch ];
 
   buildInputs = [curl openssl zlib expat gettext cpio makeWrapper]
-    ++ # documentation tools
-       [ asciidoc texinfo xmlto docbook2x
+    ++ stdenv.lib.optionals withManual [ asciidoc texinfo xmlto docbook2x
          docbook_xsl docbook_xml_dtd_45 libxslt ]
     ++ stdenv.lib.optionals guiSupport [tcl tk];
 
@@ -40,7 +40,7 @@ stdenv.mkDerivation {
 
   postInstall =
     ''
-      notSupported(){
+      notSupported() {
         echo -e "#\!/bin/sh\necho '`basename $1` not supported, $2'\nexit 1" > "$1"
         chmod +x $1
       }
@@ -72,11 +72,11 @@ stdenv.mkDerivation {
         for i in ${builtins.toString perlLibs} ${svn}; do
           gitperllib=$gitperllib:$i/lib/perl5/site_perl
         done
-        wrapProgram "$out/libexec/git-core/git-svn"     \
-                     --set GITPERLLIB "$gitperllib"     \
+        wrapProgram $out/libexec/git-core/git-svn     \
+                     --set GITPERLLIB "$gitperllib"   \
                      --prefix PATH : "${svn}/bin" ''
        else '' # replace git-svn by notification script
-        notSupported $out/bin/git-svn "reinstall with config git = { svnSupport = true } set"
+        notSupported $out/libexec/git-core/git-svn "reinstall with config git = { svnSupport = true } set"
        '')
 
    + (if sendEmailSupport then
@@ -85,13 +85,13 @@ stdenv.mkDerivation {
         for i in ${builtins.toString smtpPerlLibs}; do
           gitperllib=$gitperllib:$i/lib/perl5/site_perl
         done
-        wrapProgram "$out/libexec/git-core/git-send-email"     \
+        wrapProgram $out/libexec/git-core/git-send-email \
                      --set GITPERLLIB "$gitperllib" ''
        else '' # replace git-send-email by notification script
-        notSupported $out/bin/git-send-email "reinstall with config git = { sendEmailSupport = true } set"
+        notSupported $out/libexec/git-core/git-send-email "reinstall with config git = { sendEmailSupport = true } set"
        '')
 
-   + ''# Install man pages and Info manual
+   + stdenv.lib.optionalString withManual ''# Install man pages and Info manual
        make -j $NIX_BUILD_CORES -l $NIX_BUILD_CORES PERL_PATH="${perl}/bin/perl" cmd-list.made install install-info \
          -C Documentation ''
 
@@ -100,7 +100,7 @@ stdenv.mkDerivation {
        for prog in bin/gitk libexec/git-core/{git-gui,git-citool,git-gui--askpass}; do
          sed -i -e "s|exec 'wish'|exec '${tk}/bin/wish'|g" \
                 -e "s|exec wish|exec '${tk}/bin/wish'|g" \
-		"$out/$prog"
+                "$out/$prog"
        done
      '' else ''
        # Don't wrap Tcl/Tk, replace them by notification scripts

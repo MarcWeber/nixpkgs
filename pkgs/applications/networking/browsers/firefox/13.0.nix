@@ -1,7 +1,7 @@
 { stdenv, fetchurl, pkgconfig, gtk, pango, perl, python, zip, libIDL
 , libjpeg, libpng, zlib, cairo, dbus, dbus_glib, bzip2, xlibs
 , freetype, fontconfig, file, alsaLib, nspr, nss, libnotify
-, yasm, mesa, sqlite, unzip
+, yasm, mesa, sqlite, unzip, makeWrapper
 
 , # If you want the resulting program to call itself "Firefox" instead
   # of "Shiretoko" or whatever, enable this option.  However, those
@@ -15,14 +15,14 @@ assert stdenv.gcc ? libc && stdenv.gcc.libc != null;
 
 rec {
 
-  firefoxVersion = "13.0";
+  firefoxVersion = "13.0.1";
   
-  xulVersion = "13.0"; # this attribute is used by other packages
+  xulVersion = "13.0.1"; # this attribute is used by other packages
 
   
   src = fetchurl {
-    url = "http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${firefoxVersion}/source/firefox-${firefoxVersion}.source.tar.bz2";
-    sha1 = "f90608874a54883b9fbb90b8d6dd3dc75a305572";
+    url = "http://ftp.mozilla.org/pub/mozilla.org/firefox/releases/${firefoxVersion}/source/firefox-${firefoxVersion}.source.tar.bz2";
+    sha256 = "1qwvs3rdmrnkjnjvhi3vh4mjdpxr43zcm7llc6z5qws9n9yx15n1";
   };
   
   commonConfigureFlags =
@@ -33,7 +33,7 @@ rec {
       "--with-system-zlib"
       "--with-system-bz2"
       "--with-system-nspr"
-      # "--with-system-nss"
+      "--with-system-nss"
       # "--with-system-png" # <-- "--with-system-png won't work because the system's libpng doesn't have APNG support"
       # "--enable-system-cairo" # disabled for the moment because our Cairo is too old
       "--enable-system-sqlite"
@@ -54,9 +54,9 @@ rec {
       [ pkgconfig gtk perl zip libIDL libjpeg libpng zlib cairo bzip2
         python dbus dbus_glib pango freetype fontconfig xlibs.libXi
         xlibs.libX11 xlibs.libXrender xlibs.libXft xlibs.libXt file
-        alsaLib nspr /* nss */ libnotify xlibs.pixman yasm mesa
+        alsaLib nspr nss libnotify xlibs.pixman yasm mesa
         xlibs.libXScrnSaver xlibs.scrnsaverproto
-        xlibs.libXext xlibs.xextproto sqlite unzip
+        xlibs.libXext xlibs.xextproto sqlite unzip makeWrapper
       ];
 
     configureFlags =
@@ -108,10 +108,13 @@ rec {
               echo -e '#! /bin/sh\n"'"$i"'" "$@"' > "$out/bin/$(basename "$i")";
               chmod a+x "$out/bin/$(basename "$i")";
           fi;
-      done;
-      for i in $out/lib/$libDir/{xpcshell,plugin-container,*.so}; do
-              patchelf --set-rpath "$(patchelf --print-rpath "$i"):$out/lib/$libDir" $i || true
-      done;
+      done
+      for i in $out/lib/$libDir/*.so; do
+          patchelf --set-rpath "$(patchelf --print-rpath "$i"):$out/lib/$libDir" $i || true
+      done
+      for i in $out/lib/$libDir/{xpcshell,plugin-container}; do
+          wrapProgram $i --prefix LD_LIBRARY_PATH ':' "$out/lib/$libDir"
+      done
       rm -f $out/bin/run-mozilla.sh
     ''; # */
 
@@ -133,7 +136,7 @@ rec {
       
     buildInputs =
       [ pkgconfig gtk perl zip libIDL libjpeg zlib cairo bzip2 python
-        dbus dbus_glib pango freetype fontconfig alsaLib nspr libnotify
+        dbus dbus_glib pango freetype fontconfig alsaLib nspr nss libnotify
         xlibs.pixman yasm mesa sqlite file unzip
       ];
 

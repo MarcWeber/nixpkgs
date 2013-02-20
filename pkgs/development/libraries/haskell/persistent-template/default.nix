@@ -2,8 +2,8 @@
 
 cabal.mkDerivation (self: {
   pname = "persistent-template";
-  version = "0.9.0.2";
-  sha256 = "1x3xn5dxv41hbadb0riss046lcr3k0h4rg6cvk60x8zxblrswabw";
+  version = "1.1.2.1";
+  sha256 = "02sqrq847cxywj9hwixvi0bqq09kxr9w6lhn6kqg4ww0mw2add6s";
   buildDepends = [ aeson monadControl persistent text transformers ];
   meta = {
     homepage = "http://www.yesodweb.com/book/persistent";

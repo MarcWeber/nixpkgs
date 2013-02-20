@@ -1,10 +1,9 @@
-{ cabal, syb, symbol }:
+{ cabal }:
 
 cabal.mkDerivation (self: {
   pname = "srcloc";
-  version = "0.1.1.1";
-  sha256 = "131g83sa0kjwy4bz6hcaxplywqd0899sw5r5x0nr0bffkhk91k60";
-  buildDepends = [ syb symbol ];
+  version = "0.4.0";
+  sha256 = "00af562n4m3nwlhl86x8rx7hhpnhwaijin61wk574pp47bh2jg0k";
   meta = {
     homepage = "http://www.eecs.harvard.edu/~mainland/";
     description = "Data types for managing source code locations";

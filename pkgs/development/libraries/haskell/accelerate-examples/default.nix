@@ -7,8 +7,8 @@
 
 cabal.mkDerivation (self: {
   pname = "accelerate-examples";
-  version = "0.12.0.0";
-  sha256 = "08mkfr46vl8vgcsxvmbs499frvybfq0chbcj1chpb8rwy8w9fa9h";
+  version = "0.12.1.0";
+  sha256 = "0vlax90yy9h4ljm87ffmnqv881nr4ssbc968mbbwi2704hn4chhb";
   isLibrary = false;
   isExecutable = true;
   buildDepends = [
@@ -22,7 +22,7 @@ cabal.mkDerivation (self: {
     homepage = "http://www.cse.unsw.edu.au/~chak/project/accelerate/";
     description = "Examples using the Accelerate library";
     license = self.stdenv.lib.licenses.bsd3;
-    platforms = self.ghc.meta.platforms;
+    platforms = self.stdenv.lib.platforms.none;
     maintainers = [ self.stdenv.lib.maintainers.andres ];
   };
 })

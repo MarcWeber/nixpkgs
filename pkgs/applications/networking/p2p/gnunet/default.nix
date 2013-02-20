@@ -1,24 +1,21 @@
 { stdenv, fetchurl, libextractor, libmicrohttpd, libgcrypt
 , zlib, gmp, curl, libtool, adns, sqlite, pkgconfig
-, libxml2, ncurses, gettext, libunistring
-, gtkSupport ? false, gtk ? null, libglade ? null
+, libxml2, ncurses, gettext, libunistring, libidn
 , makeWrapper }:
 
-assert gtkSupport -> (gtk != null) && (libglade != null);
-
 stdenv.mkDerivation rec {
-  name = "gnunet-0.9.2";
+  name = "gnunet-0.9.5";
 
   src = fetchurl {
     url = "mirror://gnu/gnunet/${name}.tar.gz";
-    sha256 = "1sa7xc85l7lkd0s7vyxnqhnm7cngnycrvp7zc6yj4b3qjg5z3x94";
+    sha256 = "162bahbskhzc0b2pda7v36dckm3p5p9rnbv2w0fbl0xl2gln63aa";
   };
 
   buildInputs = [
     libextractor libmicrohttpd libgcrypt gmp curl libtool
-    zlib adns sqlite libxml2 ncurses
+    zlib adns sqlite libxml2 ncurses libidn
     pkgconfig gettext libunistring makeWrapper
-  ] ++ (if gtkSupport then [ gtk libglade ] else []);
+  ];
 
   preConfigure = ''
     # Brute force: since nix-worker chroots don't provide
@@ -39,6 +36,10 @@ stdenv.mkDerivation rec {
       echo "$i: replacing references to \`/tmp' by \`$TMPDIR'..."
       substituteInPlace "$i" --replace "/tmp" "$TMPDIR"
     done
+
+    # Ensure NSS installation works fine
+    configureFlags="$configureFlags --with-nssdir=$out/lib"
+    patchShebangs src/gns/nss/install-nss-plugin.sh
   '';
 
   doCheck = false;
@@ -75,7 +76,7 @@ stdenv.mkDerivation rec {
 
     license = "GPLv2+";
 
-    maintainers = [ stdenv.lib.maintainers.ludo ];
+    maintainers = with stdenv.lib.maintainers; [ ludo viric ];
     platforms = stdenv.lib.platforms.gnu;
   };
 }

@@ -26,7 +26,6 @@ with (import ./release-lib.nix);
   autoconf = all;
   automake110x = all;
   automake111x = all;
-  automake19x = all;
   avahi = allBut "i686-cygwin";  # Cygwin builds fail
   bash = all;
   bashInteractive = all;
@@ -50,7 +49,6 @@ with (import ./release-lib.nix);
   chatzilla = linux;
   cksfv = all;
   classpath = linux;
-  consolekit = linux;
   coreutils = all;
   cpio = all;
   cron = linux;
@@ -105,7 +103,7 @@ with (import ./release-lib.nix);
   ghdl = linux;
   ghostscript = linux;
   ghostscriptX = linux;
-  gimp = linux;
+  gimp_2_8 = linux;
   git = linux;
   gitFull = linux;
   glibc = linux;
@@ -137,8 +135,6 @@ with (import ./release-lib.nix);
   guile = linux;  # tests fail on Cygwin
   gv = linux;
   gzip = all;
-  hal = linux;
-  hal_info = linux;
   hddtemp = linux;
   hello = all;
   host = linux;
@@ -149,7 +145,6 @@ with (import ./release-lib.nix);
   icewm = linux;
   idutils = all;
   ifplugd = linux;
-  imagemagick = allBut "i686-cygwin";
   impressive = linux;
   inetutils = linux;
   inkscape = linux;
@@ -171,8 +166,6 @@ with (import ./release-lib.nix);
   libsmbios = linux;
   libtool = all;
   libtool_2 = all;
-  libxml2 = all;
-  libxslt = all;
   lout = linux;
   lsh = linux;
   lsof = linux;
@@ -217,7 +210,6 @@ with (import ./release-lib.nix);
   ntp = linux;
   ocaml = linux;
   octave = linux;
-  openoffice = linux;
   openssh = linux;
   openssl = all;
   pam_console = linux;
@@ -257,7 +249,6 @@ with (import ./release-lib.nix);
   rubber = allBut "i686-cygwin";
   ruby = all;
   rxvt_unicode = linux;
-  samba = linux;
   screen = linux ++ darwin;
   scrot = linux;
   sdparm = linux;
@@ -300,7 +291,6 @@ with (import ./release-lib.nix);
   tinycc = ["i686-linux"];
   uae = linux;
   udev = linux;
-  uml = ["i686-linux"];
   unrar = linux;
   upstart = linux;
   usbutils = linux;
@@ -352,7 +342,6 @@ with (import ./release-lib.nix);
     ecb = linux;
     emacsw3m = linux;
     emms = linux;
-    nxml = all;
   };
 
   emacs23Packages = emacs22Packages // {
@@ -360,8 +349,7 @@ with (import ./release-lib.nix);
   };
 
   firefox36Pkgs.firefox = linux;
-  firefox12Pkgs.firefox = linux;
-  firefox13Pkgs.firefox = linux;
+  firefox18Pkgs.firefox = linux;
 
   gnome = {
     gnome_panel = linux;
@@ -449,7 +437,7 @@ with (import ./release-lib.nix);
     xlsclients = linux;
     xmessage = linux;
     xorgserver = linux;
-    xprop = linux;    
+    xprop = linux;
     xrandr = linux;
     xrdb = linux;
     xset = linux;
@@ -475,4 +463,3 @@ with (import ./release-lib.nix);
   };
 
 } ))
-

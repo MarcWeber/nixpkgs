@@ -1,17 +1,18 @@
-{ cabal, blazeBuilder, blazeHtml, blazeMarkup, dataDefault
-, emailValidate, hamlet, network, persistent, shakespeareCss
-, shakespeareJs, text, time, transformers, wai, xssSanitize
-, yesodCore, yesodPersistent
+{ cabal, aeson, attoparsec, blazeBuilder, blazeHtml, blazeMarkup
+, cryptoApi, dataDefault, emailValidate, hamlet, network
+, persistent, shakespeareCss, shakespeareJs, text, time
+, transformers, wai, xssSanitize, yesodCore, yesodPersistent
 }:
 
 cabal.mkDerivation (self: {
   pname = "yesod-form";
-  version = "1.0.0.4";
-  sha256 = "1wc7nrsf7r9zs24q2amy1zij5sfycs1arnrf8g769c7gihjhdqfd";
+  version = "1.2.1.1";
+  sha256 = "1nb0sxg8ln6yiw1a7f896nfqhbrmywhcxcv658g21h8y26jhiizm";
   buildDepends = [
-    blazeBuilder blazeHtml blazeMarkup dataDefault emailValidate hamlet
-    network persistent shakespeareCss shakespeareJs text time
-    transformers wai xssSanitize yesodCore yesodPersistent
+    aeson attoparsec blazeBuilder blazeHtml blazeMarkup cryptoApi
+    dataDefault emailValidate hamlet network persistent shakespeareCss
+    shakespeareJs text time transformers wai xssSanitize yesodCore
+    yesodPersistent
   ];
   meta = {
     homepage = "http://www.yesodweb.com/";

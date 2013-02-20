@@ -1,12 +1,16 @@
-{ cabal, asn1Data, cryptoPubkeyTypes, mtl, pem, time }:
+{ cabal, asn1Data, cryptohash, cryptoPubkeyTypes, filepath, mtl
+, pem, time
+}:
 
 cabal.mkDerivation (self: {
   pname = "certificate";
-  version = "1.2.3";
-  sha256 = "0xn46327a50vj70d26gc4z2rn4l6qk77j7mkdwg1j2yh6mcn0n7a";
+  version = "1.3.5";
+  sha256 = "17g2alyib89y2k8jjg4b6jskz0ndpr92yi8hzra7vw7ygfi5mi4j";
   isLibrary = true;
   isExecutable = true;
-  buildDepends = [ asn1Data cryptoPubkeyTypes mtl pem time ];
+  buildDepends = [
+    asn1Data cryptohash cryptoPubkeyTypes filepath mtl pem time
+  ];
   meta = {
     homepage = "http://github.com/vincenthz/hs-certificate";
     description = "Certificates and Key Reader/Writer";

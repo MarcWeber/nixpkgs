@@ -11,7 +11,7 @@ with import ./trivial.nix;
 rec {
 
   hasType = x: isAttrs x && x ? _type;
-  typeOf = x: if hasType x then x._type else "";
+  typeOf = x: x._type or "";
 
   setType = typeName: value: value // {
     _type = typeName;
@@ -68,6 +68,14 @@ rec {
       merge = lib.concatStrings;
     };
 
+    # Like ‘string’, but add newlines between every value.  Useful for
+    # configuration file contents.
+    lines = mkOptionType {
+      name = "string";
+      check = lib.traceValIfNot builtins.isString;
+      merge = lib.concatStringsSep "\n";
+    };
+
     envVar = mkOptionType {
       name = "environment variable";
       inherit (string) check;
@@ -89,7 +97,7 @@ rec {
     path = mkOptionType {
       name = "path";
       # Hacky: there is no ‘isPath’ primop.
-      check = lib.traceValIfNot (x: builtins.substring 0 1 (toString x) == "/");
+      check = lib.traceValIfNot (x: builtins.unsafeDiscardStringContext (builtins.substring 0 1 (toString x)) == "/");
     };
 
     listOf = types.list;
@@ -157,7 +165,7 @@ rec {
     uniq = elemType: mkOptionType {
       inherit (elemType) name check iter fold docPath hasOptions;
       merge = list:
-        if tail list == [] then
+        if length list == 1 then
           head list
         else
           throw "Multiple definitions. Only one is allowed for this option.";
@@ -174,6 +182,20 @@ rec {
       check = x: builtins.isNull x || elemType.check x;
       iter = f: path: v: if v == null then v else elemType.iter f path v;
       fold = op: nul: v: if v == null then nul else elemType.fold op nul v;
+    };
+
+    functionTo = elemType: mkOptionType {
+      name = "function that evaluates to a(n) ${elemType.name}";
+      check = lib.traceValIfNot builtins.isFunction;
+      merge = fns:
+        args: elemType.merge (map (fn: fn args) fns);
+      # These are guesses, I don't fully understand iter, fold, delayOnGlobalEval
+      iter = f: path: v:
+        args: elemType.iter f path (v args);
+      fold = op: nul: v:
+        args: elemType.fold op nul (v args);
+      inherit (elemType) delayOnGlobalEval;
+      hasOptions = false;
     };
 
     # !!! this should be a type constructor that takes the options as

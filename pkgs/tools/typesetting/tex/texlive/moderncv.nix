@@ -1,9 +1,10 @@
 args: with args;
 rec {
-  name = "moderncv-1.0";
+  version = "1.3.0";
+  name = "moderncv-${version}";
   src = fetchurl {
-    url = "http://mirror.ctan.org/macros/latex/contrib/moderncv.zip";
-    sha256 = "0yq0ss3qnwk71rcxvch7r5phxfx00s3v80ddpbpc0a0rkh124w53";
+    url = "https://launchpad.net/moderncv/trunk/${version}/+download/moderncv-${version}.zip";
+    sha256 = "0wdj90shi04v97b2d6chhvm9qrp0bcvsm46441730ils1y74wisq";
   };
 
   buildInputs = [texLive unzip];

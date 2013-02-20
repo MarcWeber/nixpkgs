@@ -18,7 +18,7 @@ stdenv.mkDerivation rec {
       distutils_extra simplejson readline glance cheetah lockfile httplib2
       # !!! should libvirt be a build-time dependency?  Note that
       # libxml2Python is a dependency of libvirt.py. 
-      libvirt libxml2Python
+      libvirt libxml2Python urlgrabber
     ];
 
   buildInputs =
@@ -31,18 +31,11 @@ stdenv.mkDerivation rec {
 
   buildPhase = "python setup.py build";
 
-  PYTHON_EGG_CACHE = "`pwd`/.egg-cache";
-
-#      substituteInPlace nova/api/ec2/cloud.py \
-#        --replace 'sh genrootca.sh' $out/libexec/nova/genrootca.sh
-#    '';
-
   installPhase =
-    ''    
+    ''
        python setup.py install --prefix="$out";
+       wrapPythonPrograms
     '';
-
-  #checkPhase = "python setup.py test";
 
   meta = {
     homepage = http://virt-manager.org;

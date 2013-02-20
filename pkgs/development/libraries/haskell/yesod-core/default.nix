@@ -1,21 +1,22 @@
 { cabal, aeson, blazeBuilder, blazeHtml, blazeMarkup
 , caseInsensitive, cereal, clientsession, conduit, cookie, failure
-, fastLogger, hamlet, httpTypes, liftedBase, monadControl, parsec
-, pathPieces, random, resourcet, shakespeare, shakespeareCss
-, shakespeareI18n, shakespeareJs, text, time, transformers
-, transformersBase, vector, wai, waiExtra, waiLogger, yesodRoutes
+, fastLogger, hamlet, httpTypes, liftedBase, monadControl
+, monadLogger, parsec, pathPieces, random, resourcet, shakespeare
+, shakespeareCss, shakespeareI18n, shakespeareJs, text, time
+, transformers, transformersBase, vector, wai, waiExtra
+, yesodRoutes
 }:
 
 cabal.mkDerivation (self: {
   pname = "yesod-core";
-  version = "1.0.1.2";
-  sha256 = "1c9ay0xv2s1kcj92ai0bj1gbml4k4w62n2mw7c5r6m88k8wmxh6z";
+  version = "1.1.8";
+  sha256 = "03yk9ypd314830bk3jjwkzi87bn04lqkh6hq91izn1prvijjiqjm";
   buildDepends = [
     aeson blazeBuilder blazeHtml blazeMarkup caseInsensitive cereal
     clientsession conduit cookie failure fastLogger hamlet httpTypes
-    liftedBase monadControl parsec pathPieces random resourcet
-    shakespeare shakespeareCss shakespeareI18n shakespeareJs text time
-    transformers transformersBase vector wai waiExtra waiLogger
+    liftedBase monadControl monadLogger parsec pathPieces random
+    resourcet shakespeare shakespeareCss shakespeareI18n shakespeareJs
+    text time transformers transformersBase vector wai waiExtra
     yesodRoutes
   ];
   meta = {

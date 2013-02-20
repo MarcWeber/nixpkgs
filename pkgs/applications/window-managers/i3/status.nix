@@ -1,15 +1,15 @@
-{ fetchurl, stdenv, confuse, alsaLib, wirelesstools
+{ fetchurl, stdenv, confuse, yajl, alsaLib, wirelesstools
   }:
 
 stdenv.mkDerivation rec {
-  name = "i3status-2.4";
+  name = "i3status-2.6";
 
   src = fetchurl {
     url = "http://i3wm.org/i3status/${name}.tar.bz2";
-    sha256 = "620f3768dc4e9ea391ca5b5e358d018ca5d2820da1fce71a71664ca554778abd";
+    sha256 = "e7e710cc271887bcd22757269e1b00a5618fb53abdb3455140116b3d38797bce";
   };
 
-  buildInputs = [ confuse alsaLib wirelesstools ];
+  buildInputs = [ confuse yajl alsaLib wirelesstools ];
 
   makeFlags = "all";
   installFlags = "PREFIX=\${out}";

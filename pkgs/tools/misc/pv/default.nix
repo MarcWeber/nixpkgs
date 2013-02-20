@@ -1,11 +1,11 @@
 { stdenv, fetchurl } :
 
-stdenv.mkDerivation {
-  name = "pv-1.2.0";
+stdenv.mkDerivation rec {
+  name = "pv-1.3.4";
 
   src = fetchurl {
-    url = http://pipeviewer.googlecode.com/files/pv-1.2.0.tar.bz2;
-    sha256 = "0rn6rpiw7c16pgkhcslax9p1mxkxkmk6ivc9hjmsis7r69niyag3";
+    url = "http://www.ivarch.com/programs/sources/${name}.tar.bz2";
+    sha256 = "114b730pghgg4gv9d798817n3am88p2b0xgdavch1vhklzh33c16";
   };
 
   meta = {

@@ -10,15 +10,12 @@ let
     coreutils.hostDrv = nativePlatforms;
     dropbear.hostDrv = nativePlatforms;
     tigervnc.hostDrv = nativePlatforms;
-    #openoffice.hostDrv = nativePlatforms;
     wxGTK.hostDrv = nativePlatforms;
     #firefox = nativePlatforms;
     xorg = {
       #xorgserver.hostDrv = nativePlatforms;
     };
     nixUnstable.hostDrv = nativePlatforms;
-    linuxPackages_2_6_39.kernel.hostDrv = linux;
-    linuxPackages_3_3.kernel.hostDrv = linux;
     linuxPackages_3_4.kernel.hostDrv = linux;
   };
 

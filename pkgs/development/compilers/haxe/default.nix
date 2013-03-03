@@ -18,9 +18,14 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "haxe" version {
     # };
 
     "latest" = {
+
+    # preConfigure = ''
+    #   find . -name "*.hx" | xargs sed -i -e 's/neko.db.Connection/sys.db.Connection/' -e 's/neko.db.Manager/sys.db.Manager/' -e 's/neko.db.Object/sys.db.Object/'
+    # '';
+
     # REGION AUTO UPDATE: { name="haxe-unstable"; type="svn"; url="http://haxe.googlecode.com/svn/trunk"; }
-    src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-unstable-svn-5976.tar.bz2"; sha256 = "3d27c0ec3197990bec110dce45e411e1d683d3eef353f1b1a9be7a358dfb5cc3"; });
-    name = "haxe-unstable-svn-5976";
+    src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-unstable-svn-6195.tar.bz2"; sha256 = "93921ff4f25d426f60f3282c0b09595db63396f634e3926384ebfd33648a6e5d"; });
+    name = "haxe-unstable-svn-6195";
     # END
     #   name = "haxe-svn";
     #   src = fetchsvn {

@@ -24,8 +24,8 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "haxe" version {
     # '';
 
     # REGION AUTO UPDATE: { name="haxe-unstable"; type="svn"; url="http://haxe.googlecode.com/svn/trunk"; }
-    src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-unstable-svn-6195.tar.bz2"; sha256 = "93921ff4f25d426f60f3282c0b09595db63396f634e3926384ebfd33648a6e5d"; });
-    name = "haxe-unstable-svn-6195";
+    src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-unstable-svn-6366.tar.bz2"; sha256 = "5e31a317ca91449d36ae31e95a232523382a50e529c34b4eaa47eabc19e86d71"; });
+    name = "haxe-unstable-svn-6366";
     # END
     #   name = "haxe-svn";
     #   src = fetchsvn {
@@ -39,7 +39,7 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "haxe" version {
 
   prePatch = ''
     sed -i -e 's|com.class_path <- \[|&"'"$out/lib/haxe/std/"'";|' main.ml
-    export HAXE_LIBRARY_PATH=`pwd`/std
+    export HAXE_STD_PATH=`pwd`/std
   '';
 
   postBuild = ''

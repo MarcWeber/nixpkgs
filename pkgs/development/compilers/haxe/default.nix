@@ -24,8 +24,8 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "haxe" version {
     # '';
 
     # REGION AUTO UPDATE: { name="haxe-unstable"; type="svn"; url="http://haxe.googlecode.com/svn/trunk"; }
-    src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-unstable-svn-6195.tar.bz2"; sha256 = "93921ff4f25d426f60f3282c0b09595db63396f634e3926384ebfd33648a6e5d"; });
-    name = "haxe-unstable-svn-6195";
+    src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-unstable-svn-6387.tar.bz2"; sha256 = "18bcdf23d7ed32d0bafaf4a0acbc9715ea6c30ae22642cb8b797c870098835c0"; });
+    name = "haxe-unstable-svn-6387";
     # END
     #   name = "haxe-svn";
     #   src = fetchsvn {
@@ -39,17 +39,18 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "haxe" version {
 
   prePatch = ''
     sed -i -e 's|com.class_path <- \[|&"'"$out/lib/haxe/std/"'";|' main.ml
-    export HAXE_LIBRARY_PATH=`pwd`/std
+    export HAXE_STD_PATH=`pwd`/std
   '';
 
   postBuild = ''
     find std/tools -name '*.n' -delete
-    rm std/tools/haxedoc/haxedoc std/tools/haxelib/haxelib
   '';
 
   installPhase = ''
     install -vd "$out/bin" "$out/lib/haxe/std"
-    install -vt "$out/bin" haxe haxelib haxedoc
+    install -vt "$out/bin" haxe
+    make haxelib haxedoc
+    install -vt "$out/bin" haxelib haxedoc
     cp -vr std "$out/lib/haxe"
   '';
 

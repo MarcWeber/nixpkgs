@@ -189,11 +189,6 @@ let
         buildInputs = [ mysql];
       };
 
-      mcrypt = {
-        configureFlags = ["--with-mcrypt=${libmcrypt}"];
-        buildInputs = [ libmcrypt ];
-      };
-
       mysqli_embedded = {
         configureFlags = ["--enable-embedded-mysqli"];
         depends = "mysqli";
@@ -209,21 +204,9 @@ let
         configureFlags = ["--enable-bcmath"];
       };
 
-      zip = {
-        configureFlags = ["--enable-zip"];
-      };
-
       gd = {
         configureFlags = ["--with-gd=${gd}"];
         buildInputs = [gd libpng libjpeg ];
-      };
-
-      gettext = {
-        configureFlags = ["--with-gettext=${gettext}"];
-        preConfigure = ''
-          sed -i 's@for i in \$PHP_GETTEXT /usr/local /usr; do@for i in '"$buildNativeInputs"'; do@' configure
-        '';
-        buildInputs = [gettext stdenv.glibc /* libintl.h */];
       };
 
       soap = {
@@ -243,6 +226,14 @@ let
         configureFlags = ["--enable-mbstring"];
       };
 
+      gettext = {
+        configureFlags = ["--with-gettext=${gettext}"];
+        preConfigure = ''
+          sed -i 's@for i in \$PHP_GETTEXT /usr/local /usr; do@for i in '"$buildNativeInputs"'; do@' configure
+        '';
+        buildInputs = [gettext stdenv.glibc /* libintl.h */];
+      };
+
       fastcgi = {
         configureFlags = ["--enable-fastcgi"];
         assertion = lessThan53;
@@ -250,6 +241,37 @@ let
 
       tidy = {
         configureFlags = ["--with-tidy=${htmlTidy}"];
+      };
+
+      intl = {
+        configureFlags = ["--enable-intl"];
+        buildInputs = [icu];
+      };
+
+
+      exif = {
+        configureFlags = ["--enable-exif"];
+      };
+
+
+      xsl = {
+        configureFlags = ["--with-xsl=${libxslt}"];
+        buildInputs = [libxslt];
+      };
+
+      mcrypt = {
+        configureFlags = ["--with-mcrypt=${libmcrypt}"];
+        buildInputs = [ libmcrypt ];
+      };
+
+
+      bz2 = {
+        configureFlags = ["--with-bz2=${bzip2}"];
+        buildInputs = [bzip2];
+      };
+
+      zip = {
+        configureFlags = ["--enable-zip"];
       };
       /*
          php is build within this derivation in order to add the xdebug lines to the php.ini.

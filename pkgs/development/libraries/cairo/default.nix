@@ -22,7 +22,8 @@ stdenv.mkDerivation rec {
   };
 
   buildInputs =
-    [ pkgconfig x11 fontconfig xlibs.libXrender ]
+    [ pkgconfig x11 fontconfig ] 
+    ++ stdenv.lib.optional (!stdenv.isDarwin) xlibs.libXrender
     ++ stdenv.lib.optionals xcbSupport [ libxcb xcbutil ]
 
     # On non-GNU systems we need GNU Gettext for libintl.

@@ -50,7 +50,7 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "glib" version {
   # configure script looks for d-bus but it is only needed for tests
   buildInputs = [ libiconvOrNull ];
 
-  buildNativeInputs = [ perl pkgconfig gettext python ];
+  nativeBuildInputs = [ perl pkgconfig gettext python ];
 
   propagatedBuildInputs = [ pcre zlib libffi ];
 

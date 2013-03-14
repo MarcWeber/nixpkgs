@@ -68,6 +68,11 @@ pythonPackages = python.modules // rec {
     inherit python buildPythonPackage;
   };
 
+  pycrypto25 = import ../development/python-modules/pycrypto/2.5.nix {
+    inherit (pkgs) fetchurl stdenv gmp;
+    inherit python buildPythonPackage;
+  };
+
   pygobject = import ../development/python-modules/pygobject {
     inherit (pkgs) stdenv fetchurl pkgconfig glib;
     inherit python;
@@ -119,13 +124,13 @@ pythonPackages = python.modules // rec {
 
 
   alot = buildPythonPackage rec {
-    rev = "6b5f1a8bf68eecf4364f97c71ec177cf715c081e";
+    rev = "c765ebd6041a845a800cc9fd30705102ae2d040f";
     name = "alot-0.3.3_${rev}";
 
     src = fetchurl {
       url = "https://github.com/pazz/alot/tarball/${rev}";
       name = "${name}.tar.bz";
-      sha256 = "1l6b5gy0z549p54p2va1q7pxyiwb6ghqfy6gdm3kg1np9hw59rl4";
+      sha256 = "0yyp3nz5n1zfwf0l4rkkphq5l6prd988b57ighnmi2samzqa9yv4";
     };
 
     # error: invalid command 'test'
@@ -135,7 +140,7 @@ pythonPackages = python.modules // rec {
 
     postInstall = ''
       wrapProgram $out/bin/alot \
-        --prefix LD_LIBRARY_PATH : ${pkgs.notmuch}/lib:${pkgs.file511}/lib:${pkgs.gpgme}/lib
+        --prefix LD_LIBRARY_PATH : ${pkgs.notmuch}/lib:${pkgs.file}/lib:${pkgs.gpgme}/lib
     '';
 
     meta = {
@@ -275,12 +280,35 @@ pythonPackages = python.modules // rec {
     propagatedBuildInputs = [ logilab_common ];
   };
 
-  beautifulsoup = buildPythonPackage (rec {
-    name = "beautifulsoup-3.0.8";
+
+  beets = buildPythonPackage rec {
+    name = "beets-1.0.0";
 
     src = fetchurl {
-      url = "http://www.crummy.com/software/BeautifulSoup/download/3.x/BeautifulSoup-3.0.8.tar.gz";
-      sha256 = "1gasiy5lwbhsxw27g36d88n36xbj52434klisvqhljgckd4xqcy7";
+      url = "http://pypi.python.org/packages/source/b/beets/${name}.tar.gz";
+      md5 = "88ad09a93aa0d69ce813205cf23b2a6c";
+    };
+
+    # tests depend on $HOME setting
+    configurePhase = "export HOME=$TMPDIR";
+
+    propagatedBuildInputs = [ pyyaml unidecode mutagen munkres musicbrainzngs python.modules.sqlite3 python.modules.readline ];
+
+    meta = {
+      homepage = http://beets.radbox.org;
+      description = "Music tagger and library organizer";
+      license = pkgs.lib.licenses.mit;
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
+
+
+  beautifulsoup = buildPythonPackage (rec {
+    name = "beautifulsoup-3.2.1";
+
+    src = fetchurl {
+      url = "http://www.crummy.com/software/BeautifulSoup/download/3.x/BeautifulSoup-3.2.1.tar.gz";
+      sha256 = "1nshbcpdn0jpcj51x0spzjp519pkmqz0n0748j7dgpz70zlqbfpm";
     };
 
     # error: invalid command 'test'
@@ -288,10 +316,27 @@ pythonPackages = python.modules // rec {
 
     meta = {
       homepage = http://www.crummy.com/software/BeautifulSoup/;
-
       license = "bsd";
-
       description = "Undemanding HTML/XML parser";
+    };
+  });
+
+  beautifulsoup4 = buildPythonPackage (rec {
+    name = "beautifulsoup4-4.1.3";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/b/beautifulsoup4/${name}.tar.gz";
+      md5 = "c012adc06217b8532c446d181cc56586";
+    };
+
+    # invalid command 'test'
+    doCheck = false;
+
+    meta = {
+      homepage = http://crummy.com/software/BeautifulSoup/bs4/;
+      description = "HTML and XML parser";
+      license = stdenv.lib.licenses.mit;
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
     };
   });
 
@@ -402,7 +447,29 @@ pythonPackages = python.modules // rec {
    # It makes buildout useful in a nix profile, but this alters the default functionality
    patchPhase = ''
      sed -i "s/return (stdlib, site_paths)/return (stdlib, sys.path)/g" src/zc/buildout/easy_install.py
-   ''; 
+   '';
+
+   meta = {
+      homepage = http://www.buildout.org/;
+      description = "A software build and configuration system";
+    };
+  };
+
+
+  buildout152 = buildPythonPackage rec {
+    name = "buildout-${version}";
+    version = "1.5.2";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/z/zc.buildout/zc.${name}.tar.gz";
+      md5 = "87f7b3f8d13926c806242fd5f6fe36f7";
+    };
+
+   # TODO: consider if this patch should be an option
+   # It makes buildout useful in a nix profile, but this alters the default functionality
+   patchPhase = ''
+     sed -i "s/return (stdlib, site_paths)/return (stdlib, sys.path)/g" src/zc/buildout/easy_install.py
+   '';
 
    meta = {
       homepage = http://www.buildout.org/;
@@ -721,6 +788,61 @@ pythonPackages = python.modules // rec {
     };
   };
 
+  deluge = buildPythonPackage rec {
+    name = "deluge-1.3.6";
+
+    src = fetchurl {
+      url = "http://download.deluge-torrent.org/source/${name}.tar.gz";
+      md5 = "33557678bf2f320de670ddaefaea009d";
+    };
+
+    # TODO: gui, procsettitle
+    buildInputs = [ pkgs.libtorrentRasterbar twisted Mako chardet pyxdg pkgs.pyopenssl ];
+    propagatedBuildInputs = [ pkgs.libtorrentRasterbar twisted Mako chardet pyxdg pkgs.pyopenssl ];
+
+    meta = {
+      homepage = http://deluge-torrent.org;
+      description = "Torrent client";
+      license = "GPLv3";
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+      platforms = stdenv.lib.platforms.all;
+    };
+  };
+
+  pyxdg = buildPythonPackage rec {
+    name = "pyxdg-0.25";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/p/pyxdg/${name}.tar.gz";
+      md5 = "bedcdb3a0ed85986d40044c87f23477c";
+    };
+
+    # error: invalid command 'test'
+    doCheck = false;
+
+    meta = {
+      homepage = http://freedesktop.org/wiki/Software/pyxdg;
+      description = "Contains implementations of freedesktop.org standards";
+      license = "LGPLv2";
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
+
+  chardet = buildPythonPackage rec {
+    name = "chardet-2.1.1";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/c/chardet/${name}.tar.gz";
+      md5 = "295367fd210d20f3febda615a88e1ef0";
+    };
+
+    meta = {
+      homepage = https://github.com/erikrose/chardet;
+      description = "Universal encoding detector";
+      license = "LGPLv2";
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
 
   django = buildPythonPackage rec {
     name = "Django-${version}";
@@ -909,6 +1031,23 @@ pythonPackages = python.modules // rec {
   };
 
 
+  feedparser = buildPythonPackage (rec {
+    name = "feedparser-5.1.3";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/f/feedparser/${name}.tar.gz";
+      md5 = "f2253de78085a1d5738f626fcc1d8f71";
+    };
+
+    meta = {
+      homepage = http://code.google.com/p/feedparser/;
+      description = "Universal feed parser";
+      license = stdenv.lib.licenses.bsd2;
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  });
+
+
   flake8 = buildPythonPackage (rec {
     name = "flake8-1.7.0";
 
@@ -947,6 +1086,26 @@ pythonPackages = python.modules // rec {
       license = "BSD";
     };
   };
+
+
+  flexget = buildPythonPackage (rec {
+    name = "FlexGet-1.0.3353";
+
+    src = fetchurl {
+      url = "http://download.flexget.com/archive/${name}.tar.gz";
+      md5 = "cffc4e51b5c5efddb339d265524e46b8";
+    };
+
+    buildInputs = [ nose ];
+    propagatedBuildInputs = [ beautifulsoup4 pyrss2gen feedparser pynzb html5lib dateutil beautifulsoup flask jinja2 requests sqlalchemy pyyaml cherrypy progressbar ];
+
+    meta = {
+      homepage = http://flexget.com/;
+      description = "Multipurpose automation tool for content like torrents, ...";
+      license = stdenv.lib.licenses.mit;
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  });
 
 
   flup = buildPythonPackage (rec {
@@ -1177,6 +1336,21 @@ pythonPackages = python.modules // rec {
     };
   };
 
+  html5lib = buildPythonPackage (rec {
+    name = "html5lib-0.95";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/h/html5lib/${name}.tar.gz";
+      md5 = "fe607f9917d81763e842f818f23464ee";
+    };
+
+    meta = {
+      homepage = http://code.google.com/p/html5lib/;
+      description = "HTML parser based on WHAT-WG HTML5 specification";
+      license = stdenv.lib.licenses.mit;
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  });
 
   httplib2 = buildPythonPackage rec {
     name = "httplib2-0.7.7";
@@ -1372,12 +1546,12 @@ pythonPackages = python.modules // rec {
 
 
   magic = pkgs.stdenv.mkDerivation rec {
-    name = "python-${pkgs.file511.name}";
+    name = "python-${pkgs.file.name}";
 
-    src = pkgs.file511.src;
+    src = pkgs.file.src;
 
     patches = [ ../tools/misc/file/python.patch ];
-    buildInputs = [ python pkgs.file511 ];
+    buildInputs = [ python pkgs.file ];
 
     configurePhase = "cd python";
 
@@ -1412,6 +1586,43 @@ pythonPackages = python.modules // rec {
     meta = {
       description = "A Python crypto and SSL toolkit";
       homepage = http://chandlerproject.org/Projects/MeTooCrypto;
+    };
+  };
+
+
+  Mako = buildPythonPackage rec {
+    name = "Mako-0.7.3";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/M/Mako/${name}.tar.gz";
+      md5 = "daf7cc50f997533b573f9b40193139a2";
+    };
+
+    buildInputs = [ MarkupSafe nose ];
+    propagatedBuildInputs = [ MarkupSafe ];
+
+    meta = {
+      description = "Super-fast templating language.";
+      homepage = http://www.makotemplates.org;
+      license = "MIT";
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
+
+
+  MarkupSafe = buildPythonPackage rec {
+    name = "MarkupSafe-0.15";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/M/MarkupSafe/${name}.tar.gz";
+      md5 = "4e7c4d965fe5e033fa2d7bb7746bb186";
+    };
+
+    meta = {
+      description = "Implements a XML/HTML/XHTML Markup safe string";
+      homepage = http://dev.pocoo.org;
+      license = "BSD";
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
     };
   };
 
@@ -1561,6 +1772,43 @@ pythonPackages = python.modules // rec {
     meta = {
       homepage = https://github.com/iElectric/mr.bob.git;
       description = "A tool to generate code skeletons from templates";
+    };
+  };
+
+
+  munkres = buildPythonPackage rec {
+    name = "munkres-1.0.5.4";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/m/munkres/${name}.tar.gz";
+      md5 = "cb9d114fb523428bab4742e88bc83696";
+    };
+
+    # error: invalid command 'test'
+    doCheck = false;
+
+    meta = {
+      homepage = http://bmc.github.com/munkres/;
+      description = "Munkres algorithm for the Assignment Problem";
+      license = pkgs.lib.licenses.bsd3;
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
+
+
+  musicbrainzngs = buildPythonPackage rec {
+    name = "musicbrainzngs-0.2";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/m/musicbrainzngs/${name}.tar.gz";
+      md5 = "bc32aa1cf121f29c3ca1c06e9668865f";
+    };
+
+    meta = {
+      homepage = http://alastair/python-musicbrainz-ngs;
+      description = "Python bindings for musicbrainz NGS webservice";
+      license = pkgs.lib.licenses.bsd2;
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
     };
   };
 
@@ -2314,6 +2562,28 @@ pythonPackages = python.modules // rec {
     };
   };
 
+  pyglet = buildPythonPackage rec {
+    name = "pyglet-1.1.4";
+
+    src = fetchurl {
+      url = "http://pyglet.googlecode.com/files/${name}.tar.gz";
+      sha256 = "048n20d606i3njnzhajadnznnfm8pwchs43hxs50da9p79g2m6qx";
+    };
+
+    patchPhase = let
+      libs = [ pkgs.mesa pkgs.xlibs.libX11 pkgs.freetype pkgs.fontconfig ];
+      paths = pkgs.lib.concatStringsSep "," (map (l: "\"${l}/lib\"") libs);
+    in "sed -i -e 's|directories\.extend.*lib[^]]*|&,${paths}|' pyglet/lib.py";
+
+    doCheck = false;
+
+    meta = {
+      homepage = "http://www.pyglet.org/";
+      description = "A cross-platform windowing and multimedia library";
+      license = stdenv.lib.licenses.bsd3;
+    };
+  };
+
   pygments = buildPythonPackage rec {
     name = "Pygments-1.5";
 
@@ -2393,14 +2663,64 @@ pythonPackages = python.modules // rec {
     };
   };
 
+  pyrss2gen = buildPythonPackage (rec {
+    name = "PyRSS2Gen-1.0.0";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/P/PyRSS2Gen/${name}.tar.gz";
+      md5 = "eae2bc6412c5679c287ecc1a59588f75";
+    };
+
+    meta = {
+      homepage = http://www.dalkescientific.om/Python/PyRSS2Gen.html;
+      description = "Library for generating RSS 2.0 feeds";
+      license = stdenv.lib.licenses.bsd2;
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  });
+
+  pynzb = buildPythonPackage (rec {
+    name = "pynzb-0.1.0";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/p/pynzb/${name}.tar.gz";
+      md5 = "63c74a36348ac28aa99732dcb8be8c59";
+    };
+
+    meta = {
+      homepage = http://github.com/ericflo/pynzb;
+      description = "Unified API for parsing NZB files";
+      license = stdenv.lib.licenses.bsd3;
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  });
+
+  progressbar = buildPythonPackage (rec {
+    name = "progressbar-2.2";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/p/progressbar/${name}.tar.gz";
+      md5 = "8ea4e2c17a8ec9e7d153767c5f2a7b28";
+    };
+
+    # invalid command 'test'
+    doCheck = false;
+
+    meta = {
+      homepage = http://code.google.com/p/python-progressbar/;
+      description = "Text progressbar library for python";
+      license = stdenv.lib.licenses.lgpl3Plus;
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  });
 
   ldap = buildPythonPackage rec {
-    name = "python-ldap-2.4.3";
+    name = "python-ldap-2.4.10";
     namePrefix = "";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/p/python-ldap/${name}.tar.gz";
-      sha256 = "17aysa9b4zjw00ikjirf4m37xbp2ifj1g0zjs14xzqqib3nh1yw8";
+      sha256 = "0m6fm2alcb5v9xdcjv2nw2lhz9nnd3mnr5lrmf397hi4pw0pik37";
     };
 
     NIX_CFLAGS_COMPILE = "-I${pkgs.cyrus_sasl}/include/sasl";
@@ -2528,6 +2848,24 @@ pythonPackages = python.modules // rec {
       description = "Pyreport makes notes out of a python script.";
     };
   });
+
+
+  pyserial = buildPythonPackage rec {
+    name = "pyserial-2.6";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/p/pyserial/${name}.tar.gz";
+      md5 = "cde799970b7c1ce1f7d6e9ceebe64c98";
+    };
+
+    doCheck = false;
+
+    meta = {
+      homepage = "http://pyserial.sourceforge.net/";
+      license = stdenv.lib.licenses.psfl;
+      description = "Python serial port extension";
+    };
+  };
 
 
   pysqlite = buildPythonPackage (rec {
@@ -3114,11 +3452,11 @@ pythonPackages = python.modules // rec {
 
 
   sqlalchemy = buildPythonPackage {
-    name = "sqlalchemy-0.6.6";
+    name = "sqlalchemy-0.7.9";
 
     src = fetchurl {
-      url = mirror://sourceforge/sqlalchemy/0.6.6/SQLAlchemy-0.6.6.tar.gz;
-      sha256 = "0inj9b66pi447cw500mqn7d09dij20ic3k5bnyhj6rpdl2l83a0l";
+      url = mirror://sourceforge/sqlalchemy/0.7.9/SQLAlchemy-0.7.9.tar.gz;
+      md5 = "c4852d586d95a59fbc9358f4467875d5";
     };
 
     buildInputs = [ nose ];
@@ -3335,11 +3673,11 @@ pythonPackages = python.modules // rec {
 
 
   turses = buildPythonPackage (rec {
-    name = "turses-0.2.11";
+    name = "turses-0.2.12";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/t/turses/${name}.tar.gz";
-      sha256 = "0zd0fjb5rr5if8wp6kmi29wrkj7ypp4vz00xxb0if1kjrakczlvm";
+      sha256 = "016fw2ch1gy3rrlfjsdpd6y11mkrbjw4h84h7954k2vhc84l1gm0";
     };
 
     propagatedBuildInputs = [ oauth2 urwid tweepy ] ++ optional isPy26 argparse;
@@ -3358,11 +3696,11 @@ pythonPackages = python.modules // rec {
   });
 
   tweepy = buildPythonPackage (rec {
-    name = "tweepy-1.13";
+    name = "tweepy-2.0";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/t/tweepy/${name}.tar.gz";
-      sha256 = "1gaki8qvzi72jaj5xls51lc6fgs1xnm9c6jgpirwklpdn7y8wyy5";
+      sha256 = "1b95xcw11b5871gd4br78hxbvcq8y9f0i0sqga85dgg9hnmvdcx0";
     };
 
     meta = {
@@ -4060,7 +4398,7 @@ pythonPackages = python.modules // rec {
       url = "http://pypi.python.org/packages/source/z/zope.schema/zope.schema-4.2.2.tar.gz";
       md5 = "e7e581af8193551831560a736a53cf58";
     };
-    
+
     propagatedBuildInputs = [ zope_event zope_interface zope_testing ];
 
     # ignore circular dependency on zope_location
@@ -4339,6 +4677,23 @@ pythonPackages = python.modules // rec {
     };
   };
 
+
+  unidecode = buildPythonPackage rec {
+    name = "Unidecode-0.04.12";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/U/Unidecode/${name}.tar.gz";
+      md5 = "351dc98f4512bdd2e93f7a6c498730eb";
+    };
+
+    meta = {
+      homepage = http://pypi.python.org/pypi/Unidecode/;
+      description = "ASCII transliterations of Unicode text";
+      license = pkgs.lib.licenses.gpl2;
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
+
   txamqp = buildPythonPackage rec {
     name = "txamqp-${version}";
     version = "0.3";
@@ -4412,6 +4767,86 @@ pythonPackages = python.modules // rec {
       sha256 = "0w2xgq1hvbzk5gswl08a1bannjzi7z1kh4zcjsnvmjp3qz4v39z8";
     };
     propagatedBuildInputs = [wxPython lockfile serial xlib game];
+  };
+
+  pyspotify = buildPythonPackage rec {
+    name = "pyspotify-${version}";
+  
+    version = "1.10";
+  
+    src = fetchgit {
+      url = "https://github.com/mopidy/pyspotify.git";
+      rev = "refs/tags/v${version}";
+      sha256 = "1rvgrviwn6f037m8vq395chz6a1119dbsdhfwdbv5ambi0bak6ll";
+    };
+  
+    buildInputs = [ pkgs.libspotify ];
+  
+    # python zip complains about old timestamps
+    preConfigure = ''
+      find -print0 | xargs -0 touch
+    '';
+  
+    # There are no tests
+    doCheck = false;
+  
+    meta = {
+      homepage = http://pyspotify.mopidy.com;
+      description = "A Python interface to Spotify’s online music streaming service";
+      maintainers = [ stdenv.lib.maintainers.rickynils ];
+    };
+  };
+
+  pykka = buildPythonPackage rec {
+    name = "pykka-${version}";
+  
+    version = "1.1.0";
+  
+    src = fetchgit {
+      url = "https://github.com/jodal/pykka.git";
+      rev = "refs/tags/v${version}";
+      sha256 = "0w6bcaqkzwmd9habszlgjkp3kkhkna08s9aivnmna5hddsghfqmz";
+    };
+  
+    # python zip complains about old timestamps
+    preConfigure = ''
+      find -print0 | xargs -0 touch
+    '';
+  
+    # There are no tests
+    doCheck = false;
+  
+    meta = {
+      homepage = http://www.pykka.org;
+      description = "A Python implementation of the actor model";
+      maintainers = [ stdenv.lib.maintainers.rickynils ];
+    };
+  };
+
+  ws4py = buildPythonPackage rec {
+    name = "ws4py-${version}";
+  
+    version = "git-20130303";
+  
+    src = fetchgit {
+      url = "https://github.com/Lawouach/WebSocket-for-Python.git";
+      rev = "ace276500ca7e4c357595e3773be151d37bcd6e2";
+      sha256 = "04m4m3ncn7g4rb81xg5n28imns7rsq8d2w98gjpaib6vlmyly3g1";
+    };
+  
+    # python zip complains about old timestamps
+    preConfigure = ''
+      find -print0 | xargs -0 touch
+    '';
+  
+    # Tests depend on other packages
+    doCheck = false;
+  
+    meta = {
+      homepage = https://ws4py.readthedocs.org;
+      description = "A WebSocket package for Python";
+      maintainers = [ stdenv.lib.maintainers.rickynils ];
+    };
   };
 
 }; in pythonPackages

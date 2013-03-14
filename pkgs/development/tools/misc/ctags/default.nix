@@ -1,4 +1,4 @@
-{stdenv, fetchurl, sourceFromHead, automake, autoconf}:
+{ stdenv, fetchurl, fetchsvn, automake, autoconf}:
 
 stdenv.mkDerivation rec {
   name = "ctags-svn";
@@ -6,18 +6,17 @@ stdenv.mkDerivation rec {
   src = (fetchurl { url = "http://mawercer.de/~nix/repos/ctags-svn-804.tar.bz2"; sha256 = "9ab3b13f60ec285df4c33cae3b79b32aa1523ede734d0b5e0af47eeaaf58f2b4"; });
   # END
 
-  preConfigure = ''
-    autoheader
-    autoconf
-  '';
-
   buildInputs = [ automake autoconf ];
+
+  preConfigure = "autoreconf -i";
 
   # don't use $T(E)MP which is set to the build directory
   configureFlags="--enable-tmpdir=/tmp";
 
   meta = {
+    homepage = "http://ctags.sourceforge.net/";
     description = "Exuberant Ctags, a tool for fast source code browsing";
+    license = stdenv.lib.licenses.gpl2Plus;
 
     longDescription = ''
       Ctags generates an index (or tag) file of language objects found
@@ -28,9 +27,8 @@ stdenv.mkDerivation rec {
       programming languages are supported.
     '';
 
-    homepage = http://ctags.sourceforge.net/;
-
-    license = "GPLv2+";
+    platforms = stdenv.lib.platforms.unix;
+    maintainers = [ stdenv.lib.maintainers.simons ];
   };
 
 }

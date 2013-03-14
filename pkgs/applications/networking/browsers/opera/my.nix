@@ -44,7 +44,7 @@ stdenv.mkDerivation rec {
 
   builder = ./builder.sh;
 
-  buildNativeInputs = [ xz ];
+  nativeBuildInputs = [ xz ];
   
   src =
     if stdenv.system == "i686-linux" then

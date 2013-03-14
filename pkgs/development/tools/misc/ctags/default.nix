@@ -1,23 +1,26 @@
-{stdenv, fetchurl, sourceFromHead, automake, autoconf}:
+{ stdenv, fetchsvn, automake, autoconf}:
 
 stdenv.mkDerivation rec {
-  # REGION AUTO UPDATE:      { name="ctags"; type = "svn"; url = "https://ctags.svn.sourceforge.net/svnroot/ctags/trunk"; }
-  src = (fetchurl { url = "http://mawercer.de/~nix/repos/ctags-svn-785.tar.bz2"; sha256 = "34a3c0923b6f7102dcd9a39f37d2830ed99760e0746984fcf305e5b3a4564a26"; });
-  name = "ctags-svn-785";
-  # END
+  name = "ctags-${revision}";
+  revision = "804";
 
-  preConfigure = ''
-    autoheader
-    autoconf
-  '';
+  src = fetchsvn {
+    url = "http://ctags.svn.sourceforge.net/svnroot/ctags/trunk";
+    rev = revision;
+    sha256 = "16gln1mah2jqp32ki1z0187dwkbjx1xcnmyiardcq6c9w3p4qwcr";
+  };
 
   buildInputs = [ automake autoconf ];
+
+  preConfigure = "autoreconf -i";
 
   # don't use $T(E)MP which is set to the build directory
   configureFlags="--enable-tmpdir=/tmp";
 
   meta = {
+    homepage = "http://ctags.sourceforge.net/";
     description = "Exuberant Ctags, a tool for fast source code browsing";
+    license = stdenv.lib.licenses.gpl2Plus;
 
     longDescription = ''
       Ctags generates an index (or tag) file of language objects found
@@ -28,9 +31,8 @@ stdenv.mkDerivation rec {
       programming languages are supported.
     '';
 
-    homepage = http://ctags.sourceforge.net/;
-
-    license = "GPLv2+";
+    platforms = stdenv.lib.platforms.unix;
+    maintainers = [ stdenv.lib.maintainers.simons ];
   };
 
 }

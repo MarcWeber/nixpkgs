@@ -37,7 +37,7 @@ composableDerivation {} (fix: {
 
     configureFlags = ["--enable-gui=auto" "--with-features=${args.features}"];
 
-    buildNativeInputs = [ncurses pkgconfig]
+    nativeBuildInputs = [ncurses pkgconfig]
       ++ [ gtk libX11 libXext libSM libXpm libXt libXaw libXau libXmu glib 
            libICE ];
 
@@ -51,11 +51,11 @@ composableDerivation {} (fix: {
       // edf { name = "xsmp"; } #Disable XSMP session management
       // edf { name = "xsmp_interact"; } #Disable XSMP interaction
       // edf { name = "mzscheme"; } #Include MzScheme interpreter.
-      // edf { name = "perl"; feat = "perlinterp"; enable = { buildNativeInputs = [perl]; };} #Include Perl interpreter.
-      // edf { name = "python"; feat = "pythoninterp"; enable = { buildNativeInputs = [python]; }; } #Include Python interpreter.
-      // edf { name = "tcl"; enable = { buildNativeInputs = [tcl]; }; } #Include Tcl interpreter.
-      // edf { name = "ruby"; feat = "rubyinterp"; enable = { buildNativeInputs = [ruby]; };} #Include Ruby interpreter.
-      // edf { name = "lua" ; feat = "luainterp"; enable = { buildNativeInputs = [lua]; configureFlags = ["--with-lua-prefix=${args.lua}"];};}
+      // edf { name = "perl"; feat = "perlinterp"; enable = { nativeBuildInputs = [perl]; };} #Include Perl interpreter.
+      // edf { name = "python"; feat = "pythoninterp"; enable = { nativeBuildInputs = [python]; }; } #Include Python interpreter.
+      // edf { name = "tcl"; enable = { nativeBuildInputs = [tcl]; }; } #Include Tcl interpreter.
+      // edf { name = "ruby"; feat = "rubyinterp"; enable = { nativeBuildInputs = [ruby]; };} #Include Ruby interpreter.
+      // edf { name = "lua" ; feat = "luainterp"; enable = { nativeBuildInputs = [lua]; configureFlags = ["--with-lua-prefix=${args.lua}"];};}
       // edf { name = "cscope"; } #Include cscope interface.
       // edf { name = "workshop"; } #Include Sun Visual Workshop support.
       // edf { name = "netbeans"; } #Disable NetBeans integration support.
@@ -66,7 +66,7 @@ composableDerivation {} (fix: {
       // edf { name = "fontset"; } #Include X fontset output support.
       // edf { name = "acl"; } #Don't check for ACL support.
       // edf { name = "gpm"; } #Don't use gpm (Linux mouse daemon).
-      // edf { name = "nls"; enable = {buildNativeInputs = [gettext];}; } #Don't support NLS (gettext()).
+      // edf { name = "nls"; enable = {nativeBuildInputs = [gettext];}; } #Don't support NLS (gettext()).
       ;
 
   cfg = {
@@ -94,11 +94,11 @@ composableDerivation {} (fix: {
 
   postInstall = "
     rpath=`patchelf --print-rpath \$out/bin/vim`;
-    for i in $\buildNativeInputs; do
+    for i in \$nativeBuildInputs; do
       echo adding \$i/lib
       rpath=\$rpath:\$i/lib
     done
-    echo \$buildNativeInputs
+    echo \$nativeBuildInputs
     echo \$rpath
     patchelf --set-rpath \$rpath \$out/bin/{vim,gvim}
   ";

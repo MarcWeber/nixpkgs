@@ -5,7 +5,7 @@
 
 let
 
-  commonBuildInputs = [ pkgconfig glib libpng cairo libjpeg librsvg pango gtk intltool];
+  commonBuildInputs = [ glib libpng cairo libjpeg librsvg pango gtk intltool];
 
 in
 
@@ -47,6 +47,8 @@ in
     enableParalellBuilding = true;
 
     configureFlags = "--disable-docs"; # needs fonts otherwise  don't know how to pass them
+
+    nativeBuildInputs = [ pkgconfig ];
 
     meta = { 
       description = "Graph-based image processing framework";

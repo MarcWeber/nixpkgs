@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, scons, boost, pkgconfig, fftw, librdf_raptor2
+{ stdenv, fetchurl, fetchsvn, scons, boost, pkgconfig, fftw, librdf_raptor2
 , librdf_rasqal, jackaudio, flac, libsamplerate, alsaLib, libxml2
 , lilv, lv2, serd, sord, sratom, suil # these are probably optional
 , libxslt, libsndfile, libsigcxx, libusb, cairomm, glib, pango

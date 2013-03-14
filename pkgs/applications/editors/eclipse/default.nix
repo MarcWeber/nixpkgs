@@ -1,6 +1,7 @@
 { stdenv, fetchurl, patchelf, makeDesktopItem, makeWrapper
 , freetype, fontconfig, libX11, libXext, libXrender, zlib
 , glib, gtk, libXtst, jre
+, config
 }:
 
 assert stdenv ? glibc;
@@ -45,7 +46,7 @@ let
           --prefix PATH : ${jre}/bin \
           --prefix LD_LIBRARY_PATH : ${glib}/lib:${gtk}/lib:${libXtst}/lib \
           --add-flags "-configuration \$HOME/.eclipse/''${productId}_$productVersion/configuration" \
-          ${pkgs.lib.concatMapStrings (flag: " --add-flags ${pkgs.lib.escapeShellArg flag}") flags}
+          ${stdenv.lib.concatMapStrings (flag: " --add-flags ${stdenv.lib.escapeShellArg flag}") flags}
 
         # Create desktop item.
         mkdir -p $out/share/applications

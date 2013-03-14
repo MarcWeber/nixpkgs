@@ -33,9 +33,6 @@ with (import ./release-lib.nix);
   bc = all;
   binutils = linux;
   bind = linux;
-  bison23 = all;
-  bison24 = all;
-  bison25 = all;
   bitlbee = linux;
   bittorrent = linux;
   blender = linux;
@@ -75,7 +72,6 @@ with (import ./release-lib.nix);
   e2fsprogs = linux;
   ejabberd = linux;
   elinks = linux;
-  emacs22 = gtkSupported;
   emacs23 = gtkSupported;
   enscript = all;
   eprover = linux;
@@ -95,7 +91,6 @@ with (import ./release-lib.nix);
   gcc = linux;
   gcc33 = linux;
   gcc34 = linux;
-  gcc41 = linux;
   gcc42 = linux;
   gcc43_multi = ["x86_64-linux"];
   gcc44 = linux;
@@ -214,7 +209,6 @@ with (import ./release-lib.nix);
   openssl = all;
   pam_console = linux;
   pam_login = linux;
-  pam_unix2 = linux;
   pan = gtkSupported;
   par2cmdline = all;
   pavucontrol = linux;
@@ -231,7 +225,6 @@ with (import ./release-lib.nix);
   postfix = linux;
   ppl = all;
   procps = linux;
-  pwdutils = linux;
   pthreadmanpages = linux;
   pygtk = linux;
   pyqt4 = linux;
@@ -336,20 +329,17 @@ with (import ./release-lib.nix);
   zsh = linux;
   zsnes = ["i686-linux"];
 
-  emacs22Packages = {
+  emacs23Packages = {
     bbdb = linux;
     cedet = linux;
     ecb = linux;
     emacsw3m = linux;
     emms = linux;
-  };
-
-  emacs23Packages = emacs22Packages // {
     jdee = linux;
   };
 
   firefox36Pkgs.firefox = linux;
-  firefox18Pkgs.firefox = linux;
+  firefox19Pkgs.firefox = linux;
 
   gnome = {
     gnome_panel = linux;
@@ -457,7 +447,6 @@ with (import ./release-lib.nix);
     xfce4panel = linux;
     xfce4session = linux;
     xfce4settings = linux;
-    xfceutils = linux;
     xfdesktop = linux;
     xfwm4 = linux;
   };

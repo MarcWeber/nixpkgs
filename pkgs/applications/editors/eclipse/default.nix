@@ -1,23 +1,12 @@
 { stdenv, fetchurl, patchelf, makeDesktopItem, makeWrapper
 , freetype, fontconfig, libX11, libXext, libXrender, zlib
 , glib, gtk, libXtst, jre
-, pkgs, applyGlobalOverrides
 , config
 }:
 
 assert stdenv ? glibc;
 
 let
-
-  olderCairoSource = rec {
-    name = "cairo-1.12.2";
-    src = fetchurl {
-      url = "http://cairographics.org/releases/${name}.tar.xz";
-      sha1 = "bc2ee50690575f16dab33af42a2e6cdc6451e3f9";
-    };
-  };
-  p = applyGlobalOverrides (pkgs: { cairo = pkgs.lib.overrideDerivation pkgs.cairo (x: olderCairoSource); } );
-  inherit (p) glib gtk; # only these seem to depend on cairo
 
   buildEclipse =
     { name, src, description, dropins ? (config.eclipse.dropins or []), flags ? (config.eclipse.flags or [])}:
@@ -57,7 +46,7 @@ let
           --prefix PATH : ${jre}/bin \
           --prefix LD_LIBRARY_PATH : ${glib}/lib:${gtk}/lib:${libXtst}/lib \
           --add-flags "-configuration \$HOME/.eclipse/''${productId}_$productVersion/configuration" \
-          ${pkgs.lib.concatMapStrings (flag: " --add-flags ${pkgs.lib.escapeShellArg flag}") flags}
+          ${stdenv.lib.concatMapStrings (flag: " --add-flags ${stdenv.lib.escapeShellArg flag}") flags}
 
         # Create desktop item.
         mkdir -p $out/share/applications

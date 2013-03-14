@@ -1,4 +1,6 @@
-{ stdenv, fetchurl }:
+{ stdenv, fetchurl, disablePosixThreads ? false }:
+
+with stdenv.lib;
 
 stdenv.mkDerivation rec {
   name = "libmcrypt-2.5.8";
@@ -10,8 +12,11 @@ stdenv.mkDerivation rec {
 
   buildInputs = [];
 
+  configureFlags = optional disablePosixThreads
+    [ "--disable-posix-threads" ];
+
   meta = {
-    description = "library providing uniform interface to access several encryption algorithms";
+    description = "MCrypt is a replacement for the old crypt() package and crypt(1) command, with extensions.";
     homepage = http://mcrypt.sourceforge.net;
     license = "GPLv2.1";
     maintainers = [stdenv.lib.maintainers.marcweber];

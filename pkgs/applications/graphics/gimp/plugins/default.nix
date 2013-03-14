@@ -36,7 +36,7 @@ let
  libLQR = pluginDerivation {
     name = "liblqr-1-0.4.1";
     # required by lqrPlugin, you don't have to install this lib explicitely
-    buildInputs = [ gimp ] ++ gimp.buildNativeInputs;
+    buildInputs = [ gimp ] ++ gimp.nativeBuildInputs;
     src = fetchurl {
       url = http://registry.gimp.org/files/liblqr-1-0.4.1.tar.bz2;
       sha256 = "02g90wag7xi5rjlmwq8h0qs666b1i2sa90s4303hmym40il33nlz";
@@ -50,7 +50,7 @@ rec {
        Video
     */
     name = "gap-2.6.0";
-    buildInputs = [ gimp pkgconfig glib pkgs.intltool gimp.gtk ] ++ gimp.buildNativeInputs;
+    buildInputs = [ gimp pkgconfig glib pkgs.intltool gimp.gtk ] ++ gimp.nativeBuildInputs;
     src = fetchurl {
       url = ftp://ftp.gimp.org/pub/gimp/plug-ins/v2.6/gap/gimp-gap-2.6.0.tar.bz2;
       sha256 = "1jic7ixcmsn4kx2cn32nc5087rk6g8xsrz022xy11yfmgvhzb0ql";
@@ -74,7 +74,7 @@ rec {
        Filters/Generic/FFT Inverse
     */
     name = "fourier-0.4.1";
-    buildInputs = [ gimp pkgs.fftw  pkgconfig gimp.gtkLibs.glib] ++ gimp.buildNativeInputs;
+    buildInputs = [ gimp pkgs.fftw  pkgconfig gimp.gtkLibs.glib] ++ gimp.nativeBuildInputs;
     postInstall = "fail";
     preConfigure = ''
       NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags glib-2.0 fftw3 gimp-2.0)"
@@ -95,7 +95,7 @@ rec {
       Filters/Enhance/Smart remove selection
     */
     name = "resynthesizer-0.16";
-    buildInputs = [ gimp pkgs.fftw ] ++ gimp.buildNativeInputs;
+    buildInputs = [ gimp pkgs.fftw ] ++ gimp.nativeBuildInputs;
     src = fetchurl {
       url = http://www.logarithmic.net/pfh-files/resynthesizer/resynthesizer-0.16.tar.gz;
       sha256 = "1k90a1jzswxmajn56rdxa4r60v9v34fmqsiwfdxqcvx3yf4yq96x";
@@ -110,7 +110,7 @@ rec {
   # broken with current gimp:
   texturize = pluginDerivation {
     name = "texturize-2.1";
-    buildInputs = [ gimp ] ++ gimp.buildNativeInputs;
+    buildInputs = [ gimp ] ++ gimp.nativeBuildInputs;
     src = fetchurl {
       url = http://prdownloads.sourceforge.net/gimp-texturize/texturize-2.1_src.tgz;
       sha256 = "0cdjq25g3yfxx6bzx6nid21kq659s1vl9id4wxyjs2dhcv229cg3";
@@ -123,7 +123,7 @@ rec {
       Filters/Enhance/Wavelet sharpen
     */
     name = "wavelet-sharpen-0.1.2";
-    buildInputs = [ gimp ] ++ gimp.buildNativeInputs;
+    buildInputs = [ gimp ] ++ gimp.nativeBuildInputs;
     src = fetchurl {
       url = http://registry.gimp.org/files/wavelet-sharpen-0.1.2.tar.gz;
       sha256 = "0vql1k67i21g5ivaa1jh56rg427m0icrkpryrhg75nscpirfxxqw";
@@ -136,7 +136,7 @@ rec {
        Layer/Liquid Rescale
     */
     name = "lqr-plugin-0.6.1";
-    buildInputs = [ pkgconfig libLQR gimp ] ++ gimp.buildNativeInputs;
+    buildInputs = [ pkgconfig libLQR gimp ] ++ gimp.nativeBuildInputs;
     src = fetchurl {
       url = http://registry.gimp.org/files/gimp-lqr-plugin-0.6.1.tar.bz2;
       sha256 = "00hklkpcimcbpjly4rjhfipaw096cpy768g9wixglwrsyqhil7l9";
@@ -155,7 +155,7 @@ rec {
             pkgconfig imagemagick pkgconfig gimp pkgs.fftwSinglePrec pkgs.ffmpeg pkgs.fftw pkgs.openexr
             pkgs.opencv pkgs.perl
           ] 
-          ++ gimp.buildNativeInputs;
+          ++ gimp.nativeBuildInputs;
       src = fetchurl {
         url = mirror://sourceforge/project/gmic/gmic_1.5.0.0.tar.gz;
         sha256 = "0swl1zav16zc3w8p1ckq6821wmyqgc9hwiyw6m2y34dw436c227m";
@@ -185,7 +185,7 @@ rec {
   
       buildInputs = [pkgs.lcms pkgs.gtk pkgs.gtkimageview pkgs.gettext pkgs.bzip2 pkgs.zlib pkgs.libjpeg
                     pkgs.cfitsio pkgs.exiv2 pkgs.lcms
-            gimp] ++ gimp.buildNativeInputs;
+            gimp] ++ gimp.nativeBuildInputs;
         # --enable-mime - install mime files, see README for more information
         # --enable-extras - build extra (dcraw, nikon-curve) executables
         # --enable-dst-correction - enable DST correction for file timestamps.

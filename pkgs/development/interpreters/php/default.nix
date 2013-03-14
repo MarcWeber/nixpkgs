@@ -6,6 +6,9 @@
 , openldap, cyrus_sasl
 , systemd
 , version ? "5.3.18" # latest stable
+, icu
+, libxslt
+, bzip2
 
 # options
 
@@ -229,7 +232,7 @@ let
       gettext = {
         configureFlags = ["--with-gettext=${gettext}"];
         preConfigure = ''
-          sed -i 's@for i in \$PHP_GETTEXT /usr/local /usr; do@for i in '"$buildNativeInputs"'; do@' configure
+          sed -i 's@for i in \$PHP_GETTEXT /usr/local /usr; do@for i in '"$nativeBuildInputs"'; do@' configure
         '';
         buildInputs = [gettext stdenv.glibc /* libintl.h */];
       };

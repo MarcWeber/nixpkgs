@@ -36,7 +36,7 @@ let
  libLQR = pluginDerivation {
     name = "liblqr-1-0.4.1";
     # required by lqrPlugin, you don't have to install this lib explicitely
-    buildInputs = [ gimp ] ++ gimp.buildNativeInputs;
+    buildInputs = [ gimp ] ++ gimp.nativeBuildInputs;
     src = fetchurl {
       url = http://registry.gimp.org/files/liblqr-1-0.4.1.tar.bz2;
       sha256 = "02g90wag7xi5rjlmwq8h0qs666b1i2sa90s4303hmym40il33nlz";
@@ -74,7 +74,7 @@ rec {
        Filters/Generic/FFT Inverse
     */
     name = "fourier-0.4.1";
-    buildInputs = [ gimp pkgs.fftw  pkgconfig gimp.gtkLibs.glib] ++ gimp.buildNativeInputs;
+    buildInputs = [ gimp pkgs.fftw  pkgconfig gimp.gtkLibs.glib] ++ gimp.nativeBuildInputs;
     postInstall = "fail";
     preConfigure = ''
       NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags glib-2.0 fftw3 gimp-2.0)"
@@ -155,7 +155,7 @@ rec {
             pkgconfig imagemagick pkgconfig gimp pkgs.fftwSinglePrec pkgs.ffmpeg pkgs.fftw pkgs.openexr
             pkgs.opencv pkgs.perl
           ] 
-          ++ gimp.buildNativeInputs;
+          ++ gimp.nativeBuildInputs;
       src = fetchurl {
         url = mirror://sourceforge/project/gmic/gmic_1.5.0.0.tar.gz;
         sha256 = "0swl1zav16zc3w8p1ckq6821wmyqgc9hwiyw6m2y34dw436c227m";
@@ -185,7 +185,7 @@ rec {
   
       buildInputs = [pkgs.lcms pkgs.gtk pkgs.gtkimageview pkgs.gettext pkgs.bzip2 pkgs.zlib pkgs.libjpeg
                     pkgs.cfitsio pkgs.exiv2 pkgs.lcms
-            gimp] ++ gimp.buildNativeInputs;
+            gimp] ++ gimp.nativeBuildInputs;
         # --enable-mime - install mime files, see README for more information
         # --enable-extras - build extra (dcraw, nikon-curve) executables
         # --enable-dst-correction - enable DST correction for file timestamps.

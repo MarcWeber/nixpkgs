@@ -5,6 +5,9 @@ stdenv.mkDerivation rec {
 
   enableParalellBuilding = true;
 
+  # If you have trouble have a look at gentoo patches or bug tracker first -
+  # looks like nobody is maintaining openjade anymore
+  # https://openjade.svn.sourceforge.net/svnroot/openjade/trunk
   src = fetchurl {
     url = "mirror://sourceforge/openjade/${name}.tar.gz";
     sha256 = "1l92sfvx1f0wmkbvzv1385y1gb3hh010xksi1iyviyclrjb7jb8x";

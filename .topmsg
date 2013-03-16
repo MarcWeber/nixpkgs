@@ -3,4 +3,6 @@ Subject: [PATCH] experimental/marc
 
 top git driven merge of topic branches I use
 
+disable zprofilehack because I have nixos patch multiple shell support
+
 Signed-off-by: Marc Weber <marco-oweber@gmx.de>

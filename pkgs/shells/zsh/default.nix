@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, ncurses, coreutils, zprofileHack ? true }:
+{ stdenv, fetchurl, ncurses, coreutils, zprofileHack ? false }:
 
 let
 

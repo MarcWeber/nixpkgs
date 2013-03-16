@@ -31,6 +31,9 @@ let
       fi
     fi
     EOF
+
+    $out/bin/zsh -c "zcompile $out/etc/zprofile"
+    mv $out/etc/zprofile $out/etc/zprofile_zwc_is_used
     '';
 
 in
@@ -55,8 +58,6 @@ stdenv.mkDerivation {
     tar xf ${documentation} -C $out/share
     mkdir -p $out/etc/
     ${stdenv.lib.optionalString zprofileHack zprofileHackStr}
-    $out/bin/zsh -c "zcompile $out/etc/zprofile"
-    mv $out/etc/zprofile $out/etc/zprofile_zwc_is_used
   '';
   # XXX: patch zsh to take zwc if newer _or equal_
 

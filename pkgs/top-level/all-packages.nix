@@ -8143,8 +8143,6 @@ let
 
   libxpdf = callPackage ../applications/misc/xpdf/libxpdf.nix { };
 
-  linuxtv_dvb_apps = callPackage ../applications/video/linuxtv-dvb-apps { };
-
   xpra = callPackage ../tools/X11/xpra {
     inherit (pythonPackages) notify;
   };

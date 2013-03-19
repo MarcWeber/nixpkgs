@@ -9126,6 +9126,8 @@ let
 
   vice = callPackage ../misc/emulators/vice { };
 
+  vimPlugins = callPackage ../misc/vim-plugins { };
+
   vimprobable2 = callPackage ../applications/networking/browsers/vimprobable2 {
     inherit (gnome) libsoup;
     webkit = webkit_gtk2;

@@ -47,6 +47,8 @@ stdenv.mkDerivation rec {
     platforms = stdenv.lib.platforms.all;
   };
 
+  patches = [ ./1.9-hook.patch ];
+
   passthru = rec {
     majorVersion = "1.9";
     minorVersion = "3";

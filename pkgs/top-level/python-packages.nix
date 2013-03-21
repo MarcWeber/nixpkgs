@@ -1183,12 +1183,14 @@ pythonPackages = python.modules // rec {
     # PORTMIDI and PORTTIME still missing
     patchPhase = ''
       sed -i 's@raw_input(.*@"1"@' config_unix.py
+      sed -i 's@linux/videodev.h@libv4l1-videodev.h@' src/camera.h
       unset patchPhase
       patchPhase
     '';
     installCommand = "python setup.py install --prefix=$out";
 
     propagatedBuildInputs = [
+      pkgs.libv4l
       pkgs.SDL 
       pkgs.SDL_mixer
       pkgs.SDL_gfx

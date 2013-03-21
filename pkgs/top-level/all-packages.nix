@@ -8944,6 +8944,8 @@ let
 
   lilypond = callPackage ../misc/lilypond { };
 
+  logkeys = callPackage ../misc/logkeys { };
+
   martyr = callPackage ../development/libraries/martyr { };
 
   maven = maven3;

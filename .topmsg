@@ -1,8 +1,6 @@
 From: Marc Weber <marco-oweber@gmx.de>
-Subject: [PATCH] experimental/marc
+Subject: [PATCH] experimental/x-updates
 
-top git driven merge of topic branches I use
-
-disable zprofilehack because I have nixos patch multiple shell support
+merge x-updates
 
 Signed-off-by: Marc Weber <marco-oweber@gmx.de>

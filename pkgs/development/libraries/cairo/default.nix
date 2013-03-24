@@ -1,29 +1,28 @@
 { postscriptSupport ? true
 , pdfSupport ? true
 , pngSupport ? true
-, xcbSupport ? false
+, xcbSupport ? true # no longer experimental since 1.12
 , gobjectSupport ? true, glib
 , stdenv, fetchurl, pkgconfig, x11, fontconfig, freetype, xlibs
-, zlib, libpng, pixman, libxcb ? null, xcbutil ? null
+, expat
+, zlib, libpng, pixman
 , gettext, libiconvOrEmpty
 }:
 
 assert postscriptSupport -> zlib != null;
 assert pngSupport -> libpng != null;
-assert xcbSupport -> libxcb != null && xcbutil != null;
 
 stdenv.mkDerivation rec {
-  name = "cairo-1.12.4";
+  name = "cairo-1.12.14";
 
   # when updating check Eclipse, maybe the older version there can be removed then
   src = fetchurl {
     url = "http://cairographics.org/releases/${name}.tar.xz";
-    sha1 = "f4158981ed01e73c94fb8072074b17feee61a68b";
+    sha256 = "04xcykglff58ygs0dkrmmnqljmpjwp2qgwcz8sijqkdpz7ix3l4n";
   };
 
-  buildInputs =
-    [ pkgconfig x11 fontconfig ] 
-    ++ stdenv.lib.optional (!stdenv.isDarwin) xlibs.libXrender
+  buildInputs = with xlibs;
+    [ pkgconfig x11 fontconfig libXrender expat ]
     ++ stdenv.lib.optionals xcbSupport [ libxcb xcbutil ]
 
     # On non-GNU systems we need GNU Gettext for libintl.
@@ -42,15 +41,9 @@ stdenv.mkDerivation rec {
     ++ stdenv.lib.optional xcbSupport "--enable-xcb"
     ++ stdenv.lib.optional pdfSupport "--enable-pdf";
 
-  preConfigure = ''
-    # Work around broken `Requires.private' that prevents Freetype
-    # `-I' flags to be propagated.
-    sed -i "src/cairo.pc.in" \
-        -es'|^Cflags:\(.*\)$|Cflags: \1 -I${freetype}/include/freetype2 -I${freetype}/include|g'
-  ''
-
+  preConfigure =
   # On FreeBSD, `-ldl' doesn't exist.
-  + (stdenv.lib.optionalString stdenv.isFreeBSD
+    (stdenv.lib.optionalString stdenv.isFreeBSD
        '' for i in "util/"*"/Makefile.in" boilerplate/Makefile.in
           do
             cat "$i" | sed -es/-ldl//g > t

@@ -1,7 +1,7 @@
 { stdenv, fetchurl, SDL, cmake, gettext, ilmbase, libXi, libjpeg, libXext,
 libpng, libsamplerate, libtiff, mesa, openal, openexr, openjpeg, boost,
 python, zlib,
-version ? "2.63a"
+version ? "2.65a"
 }:
 
 stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "blender" version {
@@ -38,14 +38,14 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "blender" version {
     #   };
     # };
 
-    "2.63a" = rec  {
+    "2.65a" = rec  {
       name = "blender-2.63a";
       enableParallelBuilding = true;
       NIX_CFLAGS_COMPILE = "-I${ilmbase}/include/OpenEXR -I${python}/include/${python.libPrefix} -I${openexr}";
 
       src = fetchurl {
         url = "http://download.blender.org/source/${name}.tar.gz";
-        sha256 = "c479b1abfe5fd8a1a5d04b8d21fdbc0fc960d7855b24785b888c09792bca4c1a";
+        sha256 = "1p7nszbqsn48s6jrj0bqav7q52gj82rpv1w5lhh64v092m3v9jpq";
       };
     };
 
@@ -58,8 +58,16 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "blender" version {
     "-DOPENEXR_INC=${openexr}/include/OpenEXR"
     "-DWITH_OPENCOLLADA=OFF"
     "-DWITH_INSTALL_PORTABLE=OFF"
-    "-DPYTHON_LIBPATH=${python}/lib"
-  ];
+    "-DPYTHON_LIBRARY=${python}/lib"
+    "-DPYTHON_INCLUDE_DIR=${python}/include/${python.libPrefix}"
+    "-DOPENJPEG_INCLUDE_DIR=${openjpeg}/include"
+    "-DWITH_CYCLES=0" # would need openimageio
+  ]; # ToDo?: more options available
+
+  NIX_CFLAGS_COMPILE = "-I${openjpeg}/include/${openjpeg.incDir} -I${ilmbase}/include/OpenEXR";
+  NIX_CFLAGS_LINK = "-lpython3";
+
+  enableParallelBuilding = true;
 
   meta = {
     description = "3D Creation/Animation/Publishing System";

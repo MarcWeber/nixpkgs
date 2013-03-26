@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, pkgconfig
+{ stdenv, fetchurl
 , bzip2
 , db4
 , gdbm
@@ -20,7 +20,6 @@ let
   version = "${majorVersion}.0";
 
   buildInputs = filter (p: p != null) [
-    pkgconfig # ToDo?: system expat, libffi libmpcdec
     zlib bzip2 gdbm sqlite db4 readline ncurses openssl tcl tk libX11 xproto
   ];
 in
@@ -29,8 +28,8 @@ stdenv.mkDerivation {
   inherit majorVersion version;
 
   src = fetchurl {
-    url = "http://www.python.org/ftp/python/${version}/Python-${version}.tar.xz";
-    sha256 = "1mxvyl890br2wk4dn8giw3ihajjsh2ljg59qnas63vx8hll4v689";
+    url = "http://www.python.org/ftp/python/${version}/Python-${version}.tar.bz2";
+    sha256 = "1ybdf7wc8pfw51rf7xcywfw27n6l97qyzd1ibpq151q5dkyi7h8m";
   };
 
   preConfigure = ''

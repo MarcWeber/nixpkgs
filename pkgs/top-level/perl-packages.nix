@@ -2057,10 +2057,10 @@ rec {
   };
 
   GD = buildPerlPackage rec {
-    name = "GD-2.45";
+    name = "GD-2.49";
     src = fetchurl {
       url = "mirror://cpan/authors/id/L/LD/LDS/${name}.tar.gz";
-      sha256 = "1p84585b4iyqa21hbqni0blj8fzd917ynd3y1hwh3mrmyfqj178x";
+      sha256 = "03wwvhvni22cs7arai7d3wkb2qfa9p20grrb32hdxv41nqxqpihh";
     };
 
     buildInputs = [ pkgs.gd pkgs.libjpeg pkgs.zlib pkgs.freetype
@@ -4176,6 +4176,14 @@ rec {
     src = fetchurl {
       url = mirror://cpan/authors/id/S/SA/SAMV/Set-Object-1.26.tar.gz;
       sha256 = "1hx3wrw8xkvaggacc8zyn86hfi3079ahmia1n8vsw7dglp1bbhmj";
+    };
+  };
+
+  SGMLSpm = buildPerlPackage {
+    name = "SGMLSpm-1.1";
+    src = fetchurl {
+      url = mirror://cpan/authors/id/R/RA/RAAB/SGMLSpm-1.1.tar.gz;
+      sha256 = "1gdjf3mcz2bxir0l9iljxiz6qqqg3a9gg23y5wjg538w552r432m";
     };
   };
 

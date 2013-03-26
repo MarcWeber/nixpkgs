@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, kernel, xlibs, which, imake
+{ stdenv, fetchurl, kernelDev, xlibs, which, imake
 , mesa # for fgl_glxgears
 , libXxf86vm, xf86vidmodeproto # for fglrx_gamma
 , xorg, makeWrapper, glibc, patchelf
@@ -44,7 +44,9 @@ stdenv.mkDerivation rec {
       unzip
     ];
 
-  inherit kernel glibc /* glibc only used for setting interpreter */;
+  kernel = kernelDev;
+
+  inherit glibc /* glibc only used for setting interpreter */;
 
   LD_LIBRARY_PATH = stdenv.lib.concatStringsSep ":"
     [ "${xorg.libXrandr}/lib"

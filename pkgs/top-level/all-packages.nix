@@ -2752,13 +2752,13 @@ let
   urweb = callPackage ../development/compilers/urweb { };
   urwebHG = callPackage ../development/compilers/urweb { version = "hg"; };
 
-  vala = vala17;
+  vala = vala19;
 
   vala15 = callPackage ../development/compilers/vala/15.2.nix { };
 
   vala16 = callPackage ../development/compilers/vala/16.1.nix { };
 
-  vala17 = callPackage ../development/compilers/vala/default.nix { };
+  vala19 = callPackage ../development/compilers/vala/default.nix { };
 
   visualcpp = callPackage ../development/compilers/visual-c++ { };
 
@@ -2916,7 +2916,9 @@ let
 
   pure = callPackage ../development/interpreters/pure {};
 
-  python3 = hiPrio (callPackage ../development/interpreters/python/3.3 { });
+  python3 = python32;
+  python32 = callPackage ../development/interpreters/python/3.2 { };
+  python33 = callPackage ../development/interpreters/python/3.3 { };
 
   python = python27;
   python26 = callPackage ../development/interpreters/python/2.6 { };
@@ -3724,8 +3726,6 @@ let
 
   gav = callPackage ../games/gav { };
 
-  GConf3 = callPackage ../development/libraries/GConf/3.x.nix { };
-
   gdome2 = callPackage ../development/libraries/gdome2 {
     inherit (gnome) gtkdoc;
   };
@@ -3952,25 +3952,32 @@ let
       gtkmm;
   };
 
-  glib = callPackage ../development/libraries/glib/2.34.x.nix { };
+  glib = callPackage ../development/libraries/glib { };
   glibmm = callPackage ../development/libraries/glibmm { };
 
   glib_networking = callPackage ../development/libraries/glib-networking {};
 
-  atk = callPackage ../development/libraries/atk/2.6.x.nix { };
+  atk = callPackage ../development/libraries/atk { };
   atkmm = callPackage ../development/libraries/atkmm { };
 
-  cairo = callPackage ../development/libraries/cairo { };
+  cairo = callPackage ../development/libraries/cairo {
+    pixman = pixman_cairo; # it's recommended to be in sync
+  };
+  pixman_cairo = callPackage ../development/libraries/pixman { };
   cairomm = callPackage ../development/libraries/cairomm { };
   cairo_1_12_2 = callPackage ../development/libraries/cairo/1.12.2.nix { };
 
-  pango = callPackage ../development/libraries/pango/1.30.x.nix { };
+  pango = callPackage ../development/libraries/pango { };
   pangomm = callPackage ../development/libraries/pangomm/2.28.x.nix { };
 
-  gdk_pixbuf = callPackage ../development/libraries/gdk-pixbuf/2.26.x.nix { };
+  pangox_compat = callPackage ../development/libraries/pangox-compat { };
 
-  gtk2 = callPackage ../development/libraries/gtk+/2.24.x.nix { };
-  gtk3 = lowPrio (callPackage ../development/libraries/gtk+/3.2.x.nix { });
+  gdk_pixbuf = callPackage ../development/libraries/gdk-pixbuf { };
+
+  gtk2 = callPackage ../development/libraries/gtk+/2.x.nix { };
+  gtk3 = lowPrio (callPackage ../development/libraries/gtk+/3-default.nix {
+    inherit (gnome3) at_spi2_atk;
+  });
   gtk = pkgs.gtk2;
 
   gtkmm = callPackage ../development/libraries/gtkmm/2.x.nix { };
@@ -4058,8 +4065,7 @@ let
 
   inteltbb = callPackage ../development/libraries/intel-tbb { };
 
-  intltool = gnome.intltool;
-  intltool_standalone = callPackage ../development/tools/misc/intltool {};
+  intltool = callPackage ../development/tools/misc/intltool { };
 
   irrlicht3843 = callPackage ../development/libraries/irrlicht { };
 
@@ -4157,7 +4163,7 @@ let
 
   libcm = callPackage ../development/libraries/libcm { };
 
-  libcroco = callPackage ../development/libraries/libcroco {};
+  inherit (gnome3) libcroco;
 
   libctemplate = callPackage ../development/libraries/libctemplate { };
 
@@ -4229,11 +4235,9 @@ let
   libgit2 = callPackage ../development/libraries/libgit2 { };
 
   libgnome_keyring = callPackage ../development/libraries/libgnome-keyring { };
-  libgnome_keyring3 = callPackage ../development/libraries/libgnome-keyring/3.x.nix { };
+  libgnome_keyring3 = gnome3.libgnome_keyring;
 
   libgtop = callPackage ../development/libraries/libgtop {};
-
-  libgweather = callPackage ../development/libraries/libgweather {};
 
   liblo = callPackage ../development/libraries/liblo { };
 
@@ -4325,9 +4329,7 @@ let
 
   libspectre = callPackage ../development/libraries/libspectre { };
 
-  libgsf = callPackage ../development/libraries/libgsf {
-    inherit (gnome) gnome_vfs libbonobo;
-  };
+  libgsf = callPackage ../development/libraries/libgsf { };
 
   libiconv = callPackage ../development/libraries/libiconv { };
 
@@ -4352,9 +4354,9 @@ let
 
   libiptcdata = callPackage ../development/libraries/libiptcdata { };
 
-  libjpeg = callPackage ../development/libraries/libjpeg { };
-
+  libjpeg_original = callPackage ../development/libraries/libjpeg { };
   libjpeg_turbo = callPackage ../development/libraries/libjpeg-turbo { };
+  libjpeg = libjpeg_turbo;
 
   libjpeg62 = callPackage ../development/libraries/libjpeg/62.nix {
     libtool = libtool_1_5;
@@ -4445,6 +4447,9 @@ let
   libpng = callPackage ../development/libraries/libpng { };
   libpng_apng = callPackage ../development/libraries/libpng/libpng-apng.nix { };
   libpng12 = callPackage ../development/libraries/libpng/12.nix { };
+  libpng15 = callPackage ../development/libraries/libpng/15.nix { };
+
+  libpaper = callPackage ../development/libraries/libpaper { };
 
   libproxy = callPackage ../development/libraries/libproxy { };
 
@@ -4452,7 +4457,9 @@ let
 
   libqalculate = callPackage ../development/libraries/libqalculate { };
 
-  librsvg = callPackage ../development/libraries/librsvg { };
+  librsvg = callPackage ../development/libraries/librsvg {
+    gtk2 = null; gtk3 = null; # neither gtk version by default
+  };
 
   librsync = callPackage ../development/libraries/librsync { };
 
@@ -4513,7 +4520,7 @@ let
 
   libva = callPackage ../development/libraries/libva { };
 
-  libvdpau = callPackage ../development/libraries/libvdpau { inherit (xlibs) libX11; };
+  libvdpau = callPackage ../development/libraries/libvdpau { };
 
   libvirt = callPackage ../development/libraries/libvirt { };
 
@@ -4590,13 +4597,14 @@ let
 
   liquidwar = builderDefsPackage ../games/liquidwar {
     inherit (xlibs) xproto libX11 libXrender;
-    inherit gmp mesa libjpeg libpng
+    inherit gmp mesa libjpeg
       expat gettext perl
       SDL SDL_image SDL_mixer SDL_ttf
       curl sqlite
       libogg libvorbis
       ;
-   guile = guile_1_8;
+    guile = guile_1_8;
+    libpng = libpng15; # 0.0.13 needs libpng 1.2--1.5
   };
 
   log4cxx = callPackage ../development/libraries/log4cxx { };
@@ -4614,10 +4622,10 @@ let
 
   mesaSupported = lib.elem system lib.platforms.mesaPlatforms;
 
+  mesa_noglu = callPackage ../development/libraries/mesa { };
+  mesa = if stdenv.isDarwin then darwinX11AndOpenGL
+    else callPackage ../development/libraries/mesa-glu { }; # mesa *with* GL/glu.h
   darwinX11AndOpenGL = callPackage ../os-specific/darwin/native-x11-and-opengl { };
-
-  mesa = if stdenv.isDarwin then darwinX11AndOpenGL else
-    callPackage ../development/libraries/mesa { };
 
   metaEnvironment = recurseIntoAttrs (let callPackage = newScope pkgs.metaEnvironment; in rec {
     sdfLibrary    = callPackage ../development/libraries/sdf-library { aterm = aterm28; };
@@ -4804,6 +4812,10 @@ let
   policykit = callPackage ../development/libraries/policykit { };
 
   poppler = callPackage ../development/libraries/poppler {
+    gtkSupport = true;
+    qt4Support = false;
+  };
+  poppler_0_18 = callPackage ../development/libraries/poppler/0.18.nix {
     gtkSupport = true;
     qt4Support = false;
   };
@@ -6199,7 +6211,9 @@ let
 
   nettools = callPackage ../os-specific/linux/net-tools { };
 
-  neverball = callPackage ../games/neverball { };
+  neverball = callPackage ../games/neverball {
+    libpng = libpng15;
+  };
 
   numactl = callPackage ../os-specific/linux/numactl { };
 
@@ -6526,7 +6540,7 @@ let
 
   gnome_user_docs = callPackage ../data/documentation/gnome-user-docs { };
 
-  gsettings_desktop_schemas = callPackage ../data/misc/gsettings-desktop-schemas {};
+  inherit (gnome3) gsettings_desktop_schemas;
 
   hicolor_icon_theme = callPackage ../data/misc/hicolor-icon-theme { };
 
@@ -6702,9 +6716,9 @@ let
     gnutls = gnutls2;
   };
 
-  blender = callPackage ../applications/misc/blender {
+  blender = callPackage  ../applications/misc/blender {
+    python = python33; # 2.65a doesn't accept lower
     inherit (xlibs) libXi;
-    python = python3;
   };
   blender_2_63 = blender;
 
@@ -6766,7 +6780,6 @@ let
   compiz = callPackage ../applications/window-managers/compiz {
     inherit (gnome) GConf ORBit2 metacity;
     boost = boost149; # https://bugs.launchpad.net/compiz/+bug/1131864
-    intltool = intltool_standalone;
   };
 
   coriander = callPackage ../applications/video/coriander {
@@ -7012,13 +7025,7 @@ let
 
   keepassx = callPackage ../applications/misc/keepassx { };
 
-  # FIXME: Evince and other GNOME/GTK+ apps (e.g., Viking) provide
-  # `share/icons/hicolor/icon-theme.cache'.  Arbitrarily give this one a
-  # higher priority.
-  evince = hiPrio (callPackage ../applications/misc/evince {
-    inherit (gnome) gnomedocutils gnomeicontheme libgnome
-      libgnomeui libglade scrollkeeper;
-  });
+  inherit (gnome3) evince;
 
   evolution_data_server = newScope (gnome) ../servers/evolution-data-server { };
 
@@ -7161,8 +7168,8 @@ let
   gmrun = callPackage ../applications/misc/gmrun {};
 
   gnucash = callPackage ../applications/office/gnucash {
-    inherit (gnome) libgnomeui libgtkhtml gtkhtml libbonoboui libgnomeprint;
-    gconf = gnome.GConf;
+    inherit (gnome2) libgnomeui libgtkhtml gtkhtml libbonoboui libgnomeprint libglade libart_lgpl;
+    gconf = gnome2.GConf;
     guile = guile_1_8;
     slibGuile = slibGuile.override { scheme = guile_1_8; };
   };
@@ -7434,6 +7441,7 @@ let
         freefont_ttf xorg.fontmiscmisc xorg.fontbhttf
       ];
     };
+    poppler = poppler_0_18;
   };
 
   lingot = callPackage ../applications/audio/lingot {
@@ -8520,6 +8528,11 @@ let
   }  // pkgs.gtkLibs // {
     # Backwards compatibility;
     inherit (pkgs) libsoup libwnck gtk_doc gnome_doc_utils;
+  };
+
+  gnome3 = callPackage ../desktops/gnome-3 {
+    callPackage = pkgs.newScope pkgs.gnome3;
+    self = pkgs.gnome3;
   };
 
   gnome = recurseIntoAttrs gnome2;

@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, pkgconfig, gettext, x11, glib, cairo, libpng, fontconfig, harfbuzz }:
+{ stdenv, fetchurl, pkgconfig, gettext, x11, glib, cairo, libpng, harfbuzz, fontconfig }:
 
 stdenv.mkDerivation rec {
   name = "pango-1.32.5"; #.6 needs a not-yet-stable fontconfig

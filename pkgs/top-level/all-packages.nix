@@ -1913,7 +1913,11 @@ let
 
   youtubeDL = callPackage ../tools/misc/youtube-dl { inherit (haskellPackages) pandoc; };
 
-  zbar = callPackage ../tools/graphics/zbar {};
+  zbar = callPackage ../tools/graphics/zbar {
+    pygtk = lib.overrideDerivation pygtk (x: {
+      gtk = gtk2;
+    });
+  };
 
   zdelta = callPackage ../tools/compression/zdelta { };
 
@@ -2213,7 +2217,7 @@ let
       stdenv = overrideGCC stdenv (wrapGCCWith (import ../build-support/gcc-wrapper) glibc_multi gcc.gcc);
       profiledCompiler = false;
       enableMultilib = true;
-    })) else throw "Multilib gcc not supported on this system";
+    })) else throw "Multilib gcc not supported on ‘${system}’";
 
   gcc47_real = lowPrio (wrapGCC (callPackage ../development/compilers/gcc/4.7 {
     inherit noSysDirs;
@@ -2916,9 +2920,7 @@ let
 
   pure = callPackage ../development/interpreters/pure {};
 
-  python3 = python32;
-  python32 = callPackage ../development/interpreters/python/3.2 { };
-  python33 = callPackage ../development/interpreters/python/3.3 { };
+  python3 = hiPrio (callPackage ../development/interpreters/python/3.3 { });
 
   python = python27;
   python26 = callPackage ../development/interpreters/python/2.6 { };
@@ -4557,6 +4559,8 @@ let
   libx86 = builderDefsPackage ../development/libraries/libx86 {};
 
   libxdg_basedir = callPackage ../development/libraries/libxdg-basedir { };
+
+  libxkbcommon = callPackage ../development/libraries/libxkbcommon { };
 
   libxklavier = callPackage ../development/libraries/libxklavier { };
 
@@ -7389,7 +7393,7 @@ let
   jwm = callPackage ../applications/window-managers/jwm { };
 
   k3d = callPackage ../applications/graphics/k3d {
-    inherit (pkgs.gnome) gtkglext;
+    inherit (pkgs.gnome2) gtkglext;
   };
 
   keepnote = callPackage ../applications/office/keepnote {
@@ -8054,6 +8058,12 @@ let
   };
 
   weechat = callPackage ../applications/networking/irc/weechat { };
+
+  weston = callPackage ../applications/window-managers/weston {
+    cairo = cairo.override {
+      glSupport = true;
+    };
+  };
 
   wings = callPackage ../applications/graphics/wings { };
 

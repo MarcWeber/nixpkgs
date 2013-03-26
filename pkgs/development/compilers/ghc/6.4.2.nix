@@ -25,6 +25,6 @@ stdenv.mkDerivation {
 
   meta = {
     description = "The Glasgow Haskell Compiler";
-    platforms = ghc.meta.platforms;
+    inherit (ghc.meta) license platforms;
   };
 }

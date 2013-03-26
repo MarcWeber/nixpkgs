@@ -23,7 +23,7 @@ stdenv.mkDerivation {
 
   installPhase =
     ''
-      o=$out/sgml/dtd/docbook-4.1
+      o=$out/sgml/dtd/docbook-3.1
       mkdir -p $o
       cd $o
       unzip ${src}

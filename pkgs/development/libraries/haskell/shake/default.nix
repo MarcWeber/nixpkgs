@@ -4,8 +4,8 @@
 
 cabal.mkDerivation (self: {
   pname = "shake";
-  version = "0.9.1";
-  sha256 = "19jpnf7794ii1v0rfafmcrs71flwz6hmz72ng529ll12iy64xwkv";
+  version = "0.10.1";
+  sha256 = "0k8hk5aw5xk4aq7g8yjlkn1rjhcdy3jd5mna9phjs23kmfsmayk6";
   isLibrary = true;
   isExecutable = true;
   buildDepends = [
@@ -17,5 +17,6 @@ cabal.mkDerivation (self: {
     description = "Build system library, like Make, but more accurate dependencies";
     license = self.stdenv.lib.licenses.bsd3;
     platforms = self.ghc.meta.platforms;
+    maintainers = [ self.stdenv.lib.maintainers.simons ];
   };
 })

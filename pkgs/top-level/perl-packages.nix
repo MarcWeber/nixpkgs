@@ -3031,10 +3031,14 @@ rec {
   };
 
   ModuleFind = buildPerlPackage {
-    name = "Module-Find-0.06";
+    name = "Module-Find-0.11";
     src = fetchurl {
-      url = mirror://cpan/authors/id/C/CR/CRENZ/Module-Find-0.06.tar.gz;
-      sha256 = "1394jk0rn2zmchpl11kim69xh5h5yzg96jdlf76fqrk3dcn0y2ip";
+      url = mirror://cpan/authors/id/C/CR/CRENZ/Module-Find-0.11.tar.gz;
+      sha256 = "15ykcwplbqh5hc0fw4cx6g0f22zr0hrfkdkv1s34n9yg574dq3b5";
+    };
+    meta = {
+      description = "Find and use installed modules in a (sub)category";
+      license = "perl";
     };
   };
 
@@ -4172,6 +4176,14 @@ rec {
     src = fetchurl {
       url = mirror://cpan/authors/id/S/SA/SAMV/Set-Object-1.26.tar.gz;
       sha256 = "1hx3wrw8xkvaggacc8zyn86hfi3079ahmia1n8vsw7dglp1bbhmj";
+    };
+  };
+
+  SGMLSpm = buildPerlPackage {
+    name = "SGMLSpm-1.1";
+    src = fetchurl {
+      url = mirror://cpan/authors/id/R/RA/RAAB/SGMLSpm-1.1.tar.gz;
+      sha256 = "1gdjf3mcz2bxir0l9iljxiz6qqqg3a9gg23y5wjg538w552r432m";
     };
   };
 

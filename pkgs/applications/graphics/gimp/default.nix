@@ -28,7 +28,7 @@ let
              
   */
 
-  p = if version == "git" 
+  p = if false /*if version == "git"*/
   then applyGlobalOverrides (pkgs: { glib = pkgs.glib.override { version = "2.33.3"; }; } )
   else pkgs; # applyGlobalOverrides (pkgs: { glib = pkgs.glib.override { version = "2.33.3"; }; } );
 
@@ -129,9 +129,9 @@ let
       # don't ask me why !?
       sed -i 's@gegl >= 0.1.6@gegl-2.0 >= 0.1.6@' configure
       '';
-      # REGION AUTO UPDATE: { name="gimp"; type="git"; url="git://git.gnome.org/gimp"; groups = "gimp"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-79ddf.tar.bz2"; sha256 = "491d23c2bd808160b2d3fa027ba6f7998c2b595066137217efb73abaa9181710"; });
-      name = "gimp-git-79ddf";
+      # REGION AUTO UPDATE: { name="gimp"; type="git"; url="git://git.gnome.org/gimp"; groups = "gimp_group"; }
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-38dba.tar.bz2"; sha256 = "783709723f2c349002e30ab14e9145d9a5791017b761c2cb95ddd0f6f559f58a"; });
+      name = "gimp-git-38dba";
       # END
 
       passthru = {

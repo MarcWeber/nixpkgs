@@ -63,12 +63,57 @@ rec {
       if builtins.isAttrs ff then (ff //
         { override = newArgs:
             makeOverridable f (origArgs // (if builtins.isFunction newArgs then newArgs origArgs else newArgs));
-          origArgs = origArgs;
+          deepOverride = newArgs:
+            makeOverridable f (lib.overrideExisting (lib.mapAttrs (deepOverrider newArgs) origArgs) newArgs);
         })
       else ff;
 
+  deepOverrider = newArgs: name: x: if builtins.isAttrs x then (
+    if x ? deepOverride then (x.deepOverride newArgs) else
+    if x ? override then (x.override newArgs) else
+    x) else x;
+
+
+  /* Call the package function in the file `fn' with the required
+    arguments automatically.  The function is called with the
+    arguments `args', but any missing arguments are obtained from
+    `autoArgs'.  This function is intended to be partially
+    parameterised, e.g.,
+
+      callPackage = callPackageWith pkgs;
+      pkgs = {
+        libfoo = callPackage ./foo.nix { };
+        libbar = callPackage ./bar.nix { };
+      };
+
+    If the `libbar' function expects an argument named `libfoo', it is
+    automatically passed as an argument.  Overrides or missing
+    arguments can be supplied in `args', e.g.
+
+      libbar = callPackage ./bar.nix {
+        libfoo = null;
+        enableX11 = true;
+      };
+  */
   callPackageWith = autoArgs: fn: args:
     let f = if builtins.isFunction fn then fn else import fn; in
     makeOverridable f ((builtins.intersectAttrs (builtins.functionArgs f) autoArgs) // args);
 
+  /* Add attributes to each output of a derivation without changing the derivation itself */
+  addPassthru = drv: passthru:
+    let
+      outputs = drv.outputs or [ "out" ];
+
+      commonAttrs = drv // (builtins.listToAttrs outputsList) //
+        ({ all = map (x: x.value) outputsList; }) // passthru;
+
+      outputToAttrListElement = outputName:
+        { name = outputName;
+          value = commonAttrs // {
+            inherit (builtins.getAttr outputName drv) outPath drvPath type outputName;
+          };
+        };
+
+      outputsList = map outputToAttrListElement outputs;
+  in builtins.getAttr drv.outputName commonAttrs;
 }

@@ -45,6 +45,39 @@ let
 
 in
 rec {
+
+  # http://members.ozemail.com.au/~hodsond/degrain.html
+  degrain = pluginDerivation {
+    name = "degrain";
+    buildInputs = [ pkgconfig gimp ] ++ gimp.nativeBuildInputs;
+    src = fetchurl {
+      url = http://members.ozemail.com.au/~hodsond/degrain.c;
+      sha256 = "132r8kc6jm8giqsc9ahic7m35ca2k0k74bgmcr04r8dv5a1afkan";
+    };
+    unpackPhase = "cp $src degrain.c";
+    buildPhase = "gimptool-2.0 --build degrain.c";
+    installPhase = "installPlugins degrain";
+  };
+
+  fourier = pluginDerivation {
+    /* menu:
+       Filters/Generic/FFT Forward
+       Filters/Generic/FFT Inverse
+    */
+    name = "fourier-0.4.1";
+    buildInputs = [ gimp pkgs.fftw  pkgconfig gimp.gtkLibs.glib] ++ gimp.nativeBuildInputs;
+    postInstall = "fail";
+    preConfigure = ''
+      NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags glib-2.0 fftw3 gimp-2.0)"
+      NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l glib-2.0 gimp-2.0 fftw3)"
+    '';
+    installPhase = "installPlugins fourier";
+    src = fetchurl {
+      url = http://people.via.ecp.fr/~remi/soft/gimp/fourier-0.4.1.tar.gz;
+      sha256 = "1pr3y3zl9w8xs1circdrxpr98myz9m8wfzy022al79z4pdanwvs1";
+    };
+  };
+
   gap = pluginDerivation {
     /* menu:
        Video
@@ -68,23 +101,15 @@ rec {
     };
   };
 
-  fourier = pluginDerivation {
-    /* menu:
-       Filters/Generic/FFT Forward
-       Filters/Generic/FFT Inverse
-    */
-    name = "fourier-0.4.1";
-    buildInputs = [ gimp pkgs.fftw  pkgconfig gimp.gtkLibs.glib] ++ gimp.nativeBuildInputs;
-    postInstall = "fail";
-    preConfigure = ''
-      NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags glib-2.0 fftw3 gimp-2.0)"
-      NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l glib-2.0 gimp-2.0 fftw3)"
-    '';
-    installPhase = "installPlugins fourier";
+  # http://registry.gimp.org/node/25342
+  h_localdenoise3 = pluginDerivation {
+    name = "harrys-denoise3";
     src = fetchurl {
-      url = http://people.via.ecp.fr/~remi/soft/gimp/fourier-0.4.1.tar.gz;
-      sha256 = "1pr3y3zl9w8xs1circdrxpr98myz9m8wfzy022al79z4pdanwvs1";
+      url = http://registry.gimp.org/files/h_localdenoise3.scm;
+      sha256 = "0c2r20ljz9a2n3fjs24yax5183g07661vvdn2lkag0k0bmbf155j";
     };
+    unpackPhase = "cp $src h_localdenoise3.scm";
+    installPhase = "installScripts h_localdenoise3.scm";
   };
 
   resynthesizer = pluginDerivation {
@@ -167,6 +192,7 @@ rec {
   let imagemagick = pkgs.imagemagickBig; # maybe the non big version is enough?
   in pluginDerivation {
       name = "gmic-1.5.5.0";
+      enableParallelBuilding = true;
       buildInputs = [
             pkgconfig imagemagick pkgconfig gimp pkgs.fftwSinglePrec pkgs.ffmpeg pkgs.fftw pkgs.openexr
             pkgs.opencv pkgs.perl
@@ -176,6 +202,7 @@ rec {
         url = mirror://sourceforge/project/gmic/gmic_1.5.5.0.tar.gz;
         sha256 = "05f4l69lgmhf9ss6z5816ggpnl8vhn9zvr5ny5g95f3sn89krdii";
       };
+      postUnpack = "sourceRoot=$sourceRoot/src";
       preConfigure = ''
         NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags opencv ImageMagick OpenEXR)"
         NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l opencv ImageMagick OpenEXR)"

@@ -118,6 +118,22 @@ rec {
     installPhase = "installPlugins src/texturize";
   };
 
+  waveletDenoise = pluginDerivation {
+    name = "wavelet-denoise-0.3.1";
+    src = fetchurl {
+      url = http://registry.gimp.org/files/wavelet-denoise-0.3.1.tar.gz;
+      sha256 = "0frqh8sc78qxlhj00xw4wyq3d645z0sidzhi3ljnqra1lvq6q3a3";
+    };
+
+    preConfigure = ''
+      export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -I ${gimp}/include/gimp-2.0 $(pkg-config --cflags gegl-0.2)"
+    '';
+    buildInputs = [gimp] ++ gimp.nativeBuildInputs ++ [ pkgconfig pkgs.gettext ];
+    installPhase = "
+      installPlugins src/wavelet-denoise
+    ";
+  };
+
   waveletSharpen = pluginDerivation {
     /* menu:
       Filters/Enhance/Wavelet sharpen
@@ -150,15 +166,15 @@ rec {
   gmic =
   let imagemagick = pkgs.imagemagickBig; # maybe the non big version is enough?
   in pluginDerivation {
-      name = "gmic-1.5.0.0";
+      name = "gmic-1.5.5.0";
       buildInputs = [
             pkgconfig imagemagick pkgconfig gimp pkgs.fftwSinglePrec pkgs.ffmpeg pkgs.fftw pkgs.openexr
             pkgs.opencv pkgs.perl
           ] 
           ++ gimp.nativeBuildInputs;
       src = fetchurl {
-        url = mirror://sourceforge/project/gmic/gmic_1.5.0.0.tar.gz;
-        sha256 = "0swl1zav16zc3w8p1ckq6821wmyqgc9hwiyw6m2y34dw436c227m";
+        url = mirror://sourceforge/project/gmic/gmic_1.5.5.0.tar.gz;
+        sha256 = "05f4l69lgmhf9ss6z5816ggpnl8vhn9zvr5ny5g95f3sn89krdii";
       };
       preConfigure = ''
         NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags opencv ImageMagick OpenEXR)"

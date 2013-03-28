@@ -122,7 +122,7 @@ let
         p.pango p.cairo
         p.libpng 
       ];
-      enableParallelBuilding = false; # compilation fails (git version of 2011-01)
+      enableParallelBuilding = true; # compilation fails (git version of 2011-01)
 
       preConfigure = ''
       ./autogen.sh
@@ -130,8 +130,8 @@ let
       sed -i 's@gegl >= 0.1.6@gegl-2.0 >= 0.1.6@' configure
       '';
       # REGION AUTO UPDATE: { name="gimp"; type="git"; url="git://git.gnome.org/gimp"; groups = "gimp_group"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-38dba.tar.bz2"; sha256 = "783709723f2c349002e30ab14e9145d9a5791017b761c2cb95ddd0f6f559f58a"; });
-      name = "gimp-git-38dba";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-fd34f.tar.bz2"; sha256 = "44a9f3b7216f19310693ed514a5c8be0062a24c5eb8c43a9241d8ad073c16f97"; });
+      name = "gimp-git-fd34f";
       # END
 
       passthru = {

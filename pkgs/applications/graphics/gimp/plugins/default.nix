@@ -45,6 +45,51 @@ let
 
 in
 rec {
+
+  # http://members.ozemail.com.au/~hodsond/degrain.html
+  degrain = pluginDerivation {
+    name = "degrain";
+    buildInputs = [ pkgconfig gimp ] ++ gimp.nativeBuildInputs;
+    src = fetchurl {
+      url = http://members.ozemail.com.au/~hodsond/degrain.c;
+      sha256 = "132r8kc6jm8giqsc9ahic7m35ca2k0k74bgmcr04r8dv5a1afkan";
+    };
+    unpackPhase = "cp $src degrain.c";
+    buildPhase = "gimptool-2.0 --build degrain.c";
+    installPhase = "installPlugins degrain";
+  };
+
+  egisonoisereduction = pluginDerivation {
+    name = "degrain";
+    buildInputs = [ pkgconfig gimp ] ++ gimp.nativeBuildInputs;
+    src = fetchurl {
+      url = http://registry.gimp.org/files/Eg-ISONoiseReduction.scm;
+      sha256 = "0fv9wnd5mgbqb09m4rk2nfw65rc7rly1bmjb5bx7z0lnxx8iwdhr";
+    };
+    unpackPhase = "cp $src Eg-ISONoiseReduction.scm";
+    buildPhase = ":";
+    installPhase = "installScripts Eg-ISONoiseReduction.scm";
+  };
+
+  fourier = pluginDerivation {
+    /* menu:
+       Filters/Generic/FFT Forward
+       Filters/Generic/FFT Inverse
+    */
+    name = "fourier-0.4.1";
+    buildInputs = [ gimp pkgs.fftw  pkgconfig gimp.gtkLibs.glib] ++ gimp.nativeBuildInputs;
+    postInstall = "fail";
+    preConfigure = ''
+      NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags glib-2.0 fftw3 gimp-2.0)"
+      NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l glib-2.0 gimp-2.0 fftw3)"
+    '';
+    installPhase = "installPlugins fourier";
+    src = fetchurl {
+      url = http://people.via.ecp.fr/~remi/soft/gimp/fourier-0.4.1.tar.gz;
+      sha256 = "1pr3y3zl9w8xs1circdrxpr98myz9m8wfzy022al79z4pdanwvs1";
+    };
+  };
+
   gap = pluginDerivation {
     /* menu:
        Video
@@ -68,23 +113,15 @@ rec {
     };
   };
 
-  fourier = pluginDerivation {
-    /* menu:
-       Filters/Generic/FFT Forward
-       Filters/Generic/FFT Inverse
-    */
-    name = "fourier-0.4.1";
-    buildInputs = [ gimp pkgs.fftw  pkgconfig gimp.gtkLibs.glib] ++ gimp.nativeBuildInputs;
-    postInstall = "fail";
-    preConfigure = ''
-      NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags glib-2.0 fftw3 gimp-2.0)"
-      NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l glib-2.0 gimp-2.0 fftw3)"
-    '';
-    installPhase = "installPlugins fourier";
+  # http://registry.gimp.org/node/25342
+  h_localdenoise3 = pluginDerivation {
+    name = "harrys-denoise3";
     src = fetchurl {
-      url = http://people.via.ecp.fr/~remi/soft/gimp/fourier-0.4.1.tar.gz;
-      sha256 = "1pr3y3zl9w8xs1circdrxpr98myz9m8wfzy022al79z4pdanwvs1";
+      url = http://registry.gimp.org/files/h_localdenoise3.scm;
+      sha256 = "0c2r20ljz9a2n3fjs24yax5183g07661vvdn2lkag0k0bmbf155j";
     };
+    unpackPhase = "cp $src h_localdenoise3.scm";
+    installPhase = "installScripts h_localdenoise3.scm";
   };
 
   resynthesizer = pluginDerivation {
@@ -165,22 +202,77 @@ rec {
   # it can be made to compile the gimp plugin only though..
   gmic =
   let imagemagick = pkgs.imagemagickBig; # maybe the non big version is enough?
+      zart = false;
   in pluginDerivation {
       name = "gmic-1.5.5.0";
+      enableParallelBuilding = true;
+      propagatedBuildInputs = [ imagemagick ];
       buildInputs = [
-            pkgconfig imagemagick pkgconfig gimp pkgs.fftwSinglePrec pkgs.ffmpeg pkgs.fftw pkgs.openexr
+            pkgconfig pkgconfig gimp pkgs.fftwSinglePrec pkgs.ffmpeg pkgs.fftw pkgs.openexr
             pkgs.opencv pkgs.perl
           ] 
-          ++ gimp.nativeBuildInputs;
+          ++ gimp.nativeBuildInputs
+          ++ (pkgs.lib.optionals zart [
+            pkgs.qt4
+            pkgs.fftw
+            # TODO
+            # opencv_2_1
+            # libcvaux2.1
+            # libcvaux-dev
+            # libhighgui2.1
+          ]);
       src = fetchurl {
         url = mirror://sourceforge/project/gmic/gmic_1.5.5.0.tar.gz;
         sha256 = "05f4l69lgmhf9ss6z5816ggpnl8vhn9zvr5ny5g95f3sn89krdii";
       };
+      postUnpack = "sourceRoot=$sourceRoot/src";
       preConfigure = ''
         NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags opencv ImageMagick OpenEXR)"
         NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l opencv ImageMagick OpenEXR)"
+      ''
+      + (pkgs.lib.optionalString (!zart) ''
+        sed -i '/$(MAKE) zart/d' Makefile
+      '');
+      installPhase = "installPlugins gmic_gimp";
+      meta = { 
+        description = "script language for image processing which comes with its open-source interpreter";
+        homepage = http://gmic.sourceforge.net/repository.shtml;
+        license = "CeCILL FREE SOFTWARE LICENSE AGREEMENT";
+        /*
+        The purpose of this Free Software license agreement is to grant users
+        the right to modify and redistribute the software governed by this
+        license within the framework of an open source distribution model.
+        [ ... ] */
+      };
+  };
+
+
+  # this is more than a gimp plugin !
+  # it can be made to compile the gimp plugin only though..
+  gmicCVS =
+  let imagemagick = pkgs.imagemagickBig; # maybe the non big version is enough?
+  in pluginDerivation {
+      enableParallelBuilding = true;
+      propagatedBuildInputs = [ imagemagick ];
+      buildInputs = [
+            pkgconfig pkgconfig gimp pkgs.fftwSinglePrec pkgs.ffmpeg pkgs.fftw pkgs.openexr
+            pkgs.opencv pkgs.perl
+          ] 
+          ++ gimp.nativeBuildInputs;
+
+      # REGION AUTO UPDATE: { name="gmic"; type = "cvs"; cvsRoot = ":pserver:anonymous@gmic.cvs.sourceforge.net:/cvsroot/gmic"; module="gmic"; }
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gmic-cvs-F_13-43-56.tar.bz2"; sha256 = "a69f3fa828d8892645db8534310243c472fc98cd2b9c0acbf61d3fbeba626407"; });
+      name = "gmic-cvs-F_13-43-56";
+      # END
+      postUnpack = "sourceRoot=$sourceRoot/src";
+      preConfigure = ''
+        NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags opencv ImageMagick OpenEXR)"
+        NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l opencv ImageMagick OpenEXR)"
+
+        # I don't want to build zart
+        sed -i '/$(MAKE) zart/d' Makefile
       '';
-      installPhase = "installPlugins src/gmic_gimp";
+      installPhase = "installPlugins gmic_gimp";
       meta = { 
         description = "script language for image processing which comes with its open-source interpreter";
         homepage = http://gmic.sourceforge.net/repository.shtml;

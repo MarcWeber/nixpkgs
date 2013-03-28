@@ -35,6 +35,8 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "haxe" version {
     };
 } {
 
+  # TODO: think about merging master changes (separate ocaml libs)
+
   buildInputs = [ocaml zlib neko];
 
   prePatch = ''

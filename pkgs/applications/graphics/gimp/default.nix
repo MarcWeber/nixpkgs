@@ -65,11 +65,10 @@ let
         let gegl_ = p.gegl.override { version = "0.1.6"; }; in
         commonBuildInputs ++ [ gegl_ gegl_.babl p.libpng12 ];
 
-      enableParallelBuilding = false;
+      configureFlags = [ "--disable-print" ];
 
-#       preConfigure = ''
-#         sed -i 's@gegl >= \([0-9]\.[0-9]\.[0-9]\)@gegl-0.2 >= \1@' configure
-#       '';
+
+      enableParallelBuilding = false;
 
       # plugins want to find the header files. Adding the includes to
       # NIX_CFLAGS_COMPILE is faster than patching them all ..
@@ -103,6 +102,7 @@ let
     #     scriptDir = "share/gimp/2.0/scripts";
     #   };
     # };
+
     "2.8.0" = {
       src = fetchurl {
         url = "ftp://ftp.gimp.org/pub/gimp/v2.8/gimp-2.8.0.tar.bz2";
@@ -153,8 +153,6 @@ let
       inherit (p) gtkLibs;
       inherit (p.gtkLibs) gtk;
     }; # used by gimp plugins
-
-    configureFlags = [ "--disable-print" ];
 
     # "screenshot" needs this.
     NIX_LDFLAGS = "-rpath ${p.xlibs.libX11}/lib";

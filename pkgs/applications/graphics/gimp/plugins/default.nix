@@ -57,8 +57,13 @@ let
       buildInputs = [
             pkgconfig pkgconfig gimp pkgs.fftwSinglePrec pkgs.ffmpeg pkgs.fftw pkgs.openexr
             pkgs.opencv pkgs.perl
-          ]
-          ++ gimp.nativeBuildInputs;
+          ] 
+          ++ gimp.nativeBuildInputs
+          ++ (pkgs.lib.optionals zart [
+            pkgs.qt4
+            pkgs.fftw
+            pkgs.opencv_2_1
+          ]);
 
       inherit src name;
       postUnpack = "sourceRoot=$sourceRoot/src";

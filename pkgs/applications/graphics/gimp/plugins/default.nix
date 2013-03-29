@@ -43,6 +43,53 @@ let
     };
   };
 
+  qmakeQt4 = pkgs.writeScriptBin "qmake-qt4" ''
+  #!/bin/sh
+  ${pkgs.qt4}/bin/qmake
+  '';
+
+  gmicDerivation = {zart ? false, src, name}: # zart builds but segfaults for some reason.
+  let imagemagick = pkgs.imagemagickBig; # maybe the non big version is enough?
+      zart = true;
+  in pluginDerivation {
+      enableParallelBuilding = true;
+      propagatedBuildInputs = [ imagemagick ];
+      buildInputs = [
+            pkgconfig pkgconfig gimp pkgs.fftwSinglePrec pkgs.ffmpeg pkgs.fftw pkgs.openexr
+            pkgs.opencv pkgs.perl
+          ]
+          ++ gimp.nativeBuildInputs;
+
+      inherit src name;
+      postUnpack = "sourceRoot=$sourceRoot/src";
+      preConfigure = ''
+        NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags opencv ImageMagick OpenEXR)"
+        NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l opencv ImageMagick OpenEXR)"
+      ''
+      + (if zart then ''
+         sed -i -e 's/qmake-qt4/qmake/' ../zart/Makefile Makefile
+       '' else ''
+         sed -i '/$(MAKE) zart/d' Makefile
+       '');
+      installPhase = "
+        installPlugins gmic_gimp
+      " + (pkgs.lib.optionalString zart ''
+        ensureDir $out/bin
+        cp ../zart/zart $out/bin
+      '')
+      ;
+      meta = {
+        description = "script language for image processing which comes with its open-source interpreter";
+        homepage = http://gmic.sourceforge.net/repository.shtml;
+        license = "CeCILL FREE SOFTWARE LICENSE AGREEMENT";
+        /*
+        The purpose of this Free Software license agreement is to grant users
+        the right to modify and redistribute the software governed by this
+        license within the framework of an open source distribution model.
+        [ ... ] */
+      };
+  };
+
 in
 rec {
 
@@ -104,7 +151,7 @@ rec {
       sed -e 's,^\(GIMP_PLUGIN_DIR=\).*,\1'"$out/${gimp.name}-plugins", \
        -e 's,^\(GIMP_DATA_DIR=\).*,\1'"$out/share/${gimp.name}", -i configure
     '';
-    meta = { 
+    meta = {
       description = "The GIMP Animation Package";
       homepage = http://www.gimp.org;
       # The main code is given in GPLv3, but it has ffmpeg in it, and I think ffmpeg license
@@ -201,119 +248,50 @@ rec {
   # this is more than a gimp plugin !
   # it can be made to compile the gimp plugin only though..
   gmic =
-  let imagemagick = pkgs.imagemagickBig; # maybe the non big version is enough?
-      zart = false;
-  in pluginDerivation {
+    gmicDerivation {
       name = "gmic-1.5.5.0";
-      enableParallelBuilding = true;
-      propagatedBuildInputs = [ imagemagick ];
-      buildInputs = [
-            pkgconfig pkgconfig gimp pkgs.fftwSinglePrec pkgs.ffmpeg pkgs.fftw pkgs.openexr
-            pkgs.opencv pkgs.perl
-          ] 
-          ++ gimp.nativeBuildInputs
-          ++ (pkgs.lib.optionals zart [
-            pkgs.qt4
-            pkgs.fftw
-            # TODO
-            # opencv_2_1
-            # libcvaux2.1
-            # libcvaux-dev
-            # libhighgui2.1
-          ]);
       src = fetchurl {
         url = mirror://sourceforge/project/gmic/gmic_1.5.5.0.tar.gz;
         sha256 = "05f4l69lgmhf9ss6z5816ggpnl8vhn9zvr5ny5g95f3sn89krdii";
       };
-      postUnpack = "sourceRoot=$sourceRoot/src";
-      preConfigure = ''
-        NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags opencv ImageMagick OpenEXR)"
-        NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l opencv ImageMagick OpenEXR)"
-      ''
-      + (pkgs.lib.optionalString (!zart) ''
-        sed -i '/$(MAKE) zart/d' Makefile
-      '');
-      installPhase = "installPlugins gmic_gimp";
-      meta = { 
-        description = "script language for image processing which comes with its open-source interpreter";
-        homepage = http://gmic.sourceforge.net/repository.shtml;
-        license = "CeCILL FREE SOFTWARE LICENSE AGREEMENT";
-        /*
-        The purpose of this Free Software license agreement is to grant users
-        the right to modify and redistribute the software governed by this
-        license within the framework of an open source distribution model.
-        [ ... ] */
-      };
-  };
+    };
 
-
-  # this is more than a gimp plugin !
-  # it can be made to compile the gimp plugin only though..
-  gmicCVS =
-  let imagemagick = pkgs.imagemagickBig; # maybe the non big version is enough?
-  in pluginDerivation {
-      enableParallelBuilding = true;
-      propagatedBuildInputs = [ imagemagick ];
-      buildInputs = [
-            pkgconfig pkgconfig gimp pkgs.fftwSinglePrec pkgs.ffmpeg pkgs.fftw pkgs.openexr
-            pkgs.opencv pkgs.perl
-          ] 
-          ++ gimp.nativeBuildInputs;
-
+  gmicCVS = gmicDerivation {
       # REGION AUTO UPDATE: { name="gmic"; type = "cvs"; cvsRoot = ":pserver:anonymous@gmic.cvs.sourceforge.net:/cvsroot/gmic"; module="gmic"; }
       src = (fetchurl { url = "http://mawercer.de/~nix/repos/gmic-cvs-F_13-43-56.tar.bz2"; sha256 = "a69f3fa828d8892645db8534310243c472fc98cd2b9c0acbf61d3fbeba626407"; });
       name = "gmic-cvs-F_13-43-56";
       # END
-      postUnpack = "sourceRoot=$sourceRoot/src";
-      preConfigure = ''
-        NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags opencv ImageMagick OpenEXR)"
-        NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l opencv ImageMagick OpenEXR)"
-
-        # I don't want to build zart
-        sed -i '/$(MAKE) zart/d' Makefile
-      '';
-      installPhase = "installPlugins gmic_gimp";
-      meta = { 
-        description = "script language for image processing which comes with its open-source interpreter";
-        homepage = http://gmic.sourceforge.net/repository.shtml;
-        license = "CeCILL FREE SOFTWARE LICENSE AGREEMENT";
-        /*
-        The purpose of this Free Software license agreement is to grant users
-        the right to modify and redistribute the software governed by this
-        license within the framework of an open source distribution model.
-        [ ... ] */
-      };
   };
 
-   # this is more than a gimp plugin !
-    # either load the raw image with gimp (and the import dialog will popup)
-    # or use the binary
-    ufraw = pluginDerivation {
-      name = "ufraw-0.18";
-  
-      buildInputs = [pkgs.lcms pkgs.gtk pkgs.gtkimageview pkgs.gettext pkgs.bzip2 pkgs.zlib pkgs.libjpeg
-                    pkgs.cfitsio pkgs.exiv2 pkgs.lcms
-            gimp] ++ gimp.nativeBuildInputs;
-        # --enable-mime - install mime files, see README for more information
-        # --enable-extras - build extra (dcraw, nikon-curve) executables
-        # --enable-dst-correction - enable DST correction for file timestamps.
-        # --enable-contrast - enable the contrast setting option.
-        # --enable-interp-none: enable 'None' interpolation (mostly for debugging).
-        # --with-lensfun: use the lensfun library - experimental feature, read this before using it.
-        # --with-prefix=PREFIX - use also PREFIX as an input prefix for the build
-        # --with-dosprefix=PREFIX - PREFIX in the the prefix in dos format (needed only for ms-window
-      configureFlags = "--enable-extras --enable-dst-correction --enable-contrast";
-  
-      src = fetchurl {
-        url = "mirror://sourceforge/ufraw/ufraw-0.18.tar.gz";
-        sha256 = "01cjdc748vamjpaw2sbm8a9kwmb2hry4f200j3hlvqg9c6f77zi4";
-      };
-      installPhase = "
-        installPlugins ufraw-gimp
-        ensureDir $out/bin
-        cp ufraw $out/bin
-      ";
+  # this is more than a gimp plugin !
+  # either load the raw image with gimp (and the import dialog will popup)
+  # or use the binary
+  ufraw = pluginDerivation {
+    name = "ufraw-0.18";
+
+    buildInputs = [pkgs.lcms pkgs.gtk pkgs.gtkimageview pkgs.gettext pkgs.bzip2 pkgs.zlib pkgs.libjpeg
+                  pkgs.cfitsio pkgs.exiv2 pkgs.lcms
+          gimp] ++ gimp.nativeBuildInputs;
+      # --enable-mime - install mime files, see README for more information
+      # --enable-extras - build extra (dcraw, nikon-curve) executables
+      # --enable-dst-correction - enable DST correction for file timestamps.
+      # --enable-contrast - enable the contrast setting option.
+      # --enable-interp-none: enable 'None' interpolation (mostly for debugging).
+      # --with-lensfun: use the lensfun library - experimental feature, read this before using it.
+      # --with-prefix=PREFIX - use also PREFIX as an input prefix for the build
+      # --with-dosprefix=PREFIX - PREFIX in the the prefix in dos format (needed only for ms-window
+    configureFlags = "--enable-extras --enable-dst-correction --enable-contrast";
+
+    src = fetchurl {
+      url = "mirror://sourceforge/ufraw/ufraw-0.18.tar.gz";
+      sha256 = "01cjdc748vamjpaw2sbm8a9kwmb2hry4f200j3hlvqg9c6f77zi4";
     };
+    installPhase = "
+      installPlugins ufraw-gimp
+      ensureDir $out/bin
+      cp ufraw $out/bin
+    ";
+  };
 
 
   gimplensfun = pluginDerivation rec {

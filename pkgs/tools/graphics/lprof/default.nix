@@ -36,7 +36,7 @@ stdenv.mkDerivation {
 
   installPhase = ":";
 
-  patches = [ /pr/gentoo-portage/media-gfx/lprof/files/lcms-1.17.patch ];
+  patches = [ ./lcms-1.17.patch ];
 
   meta = {
     description = "Little CMS ICC profile construction set";

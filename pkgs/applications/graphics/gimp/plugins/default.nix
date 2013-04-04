@@ -48,7 +48,7 @@ let
   ${pkgs.qt4}/bin/qmake
   '';
 
-  gmicDerivation = {zart ? false, src, name}: # zart builds but segfaults for some reason.
+  gmicDerivation = {zart ? false, src, name, runQmake ? false}: # zart builds but segfaults for some reason.
   let imagemagick = pkgs.imagemagickBig; # maybe the non big version is enough?
       zart = true;
   in pluginDerivation {
@@ -62,7 +62,6 @@ let
           ++ (pkgs.lib.optionals zart [
             pkgs.qt4
             pkgs.fftw
-            pkgs.opencv_2_1
           ]);
 
       inherit src name;
@@ -71,7 +70,9 @@ let
         NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags opencv ImageMagick OpenEXR)"
         NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l opencv ImageMagick OpenEXR)"
       ''
-      + (if zart then ''
+      + (if zart then 
+        stdenv.lib.optionalString runQmake "( cd ../zart; qmake; )"
+        + ''
          sed -i -e 's/qmake-qt4/qmake/' ../zart/Makefile Makefile
        '' else ''
          sed -i '/$(MAKE) zart/d' Makefile
@@ -262,6 +263,7 @@ rec {
     };
 
   gmicCVS = gmicDerivation {
+      runQmake = true;
       # REGION AUTO UPDATE: { name="gmic"; type = "cvs"; cvsRoot = ":pserver:anonymous@gmic.cvs.sourceforge.net:/cvsroot/gmic"; module="gmic"; }
       src = (fetchurl { url = "http://mawercer.de/~nix/repos/gmic-cvs-F_13-43-56.tar.bz2"; sha256 = "a69f3fa828d8892645db8534310243c472fc98cd2b9c0acbf61d3fbeba626407"; });
       name = "gmic-cvs-F_13-43-56";

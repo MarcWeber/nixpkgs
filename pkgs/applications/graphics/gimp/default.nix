@@ -30,6 +30,10 @@ let
 
 
       If versions differ in two many ways the new gimp versions should be put into a separate file.
+
+
+    >= gimp-2.8 supports GPU acceleration, you have to export GEGL_USE_OPENCL=yes
+
   */
 
   p = if false /*if version == "git"*/

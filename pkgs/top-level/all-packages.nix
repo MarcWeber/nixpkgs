@@ -579,7 +579,7 @@ let
 
   cfdg = builderDefsPackage ../tools/graphics/cfdg {
     inherit libpng bison flex;
-    ffmpeg = ffmpeg_1_1;
+    ffmpeg = ffmpeg_1;
   };
 
   checkinstall = callPackage ../tools/package-management/checkinstall { };
@@ -3700,7 +3700,7 @@ let
     vpxSupport = !stdenv.isMips;
   };
 
-  ffmpeg_1_1 = callPackage ../development/libraries/ffmpeg/1.1.nix {
+  ffmpeg_1 = callPackage ../development/libraries/ffmpeg/1.x.nix {
     vpxSupport = !stdenv.isMips;
   };
 
@@ -4677,7 +4677,7 @@ let
   mkvtoolnix = callPackage ../applications/video/mkvtoolnix { };
 
   mlt = callPackage ../development/libraries/mlt {
-    ffmpeg = ffmpeg_1_1;
+    ffmpeg = ffmpeg_1;
   };
 
   libmpeg2 = callPackage ../development/libraries/libmpeg2 { };
@@ -5599,7 +5599,7 @@ let
 
   OVMF = callPackage ../applications/virtualization/OVMF { };
 
-  postgresql = postgresql83;
+  postgresql = postgresql92;
 
   postgresql83 = callPackage ../servers/sql/postgresql/8.3.x.nix { };
 
@@ -7248,6 +7248,8 @@ let
 
   gqview = callPackage ../applications/graphics/gqview { };
 
+  gmpc = callPackage ../applications/audio/gmpc { };
+
   gmtk = callPackage ../applications/networking/browsers/mozilla-plugins/gmtk {
     inherit (gnome) GConf;
   };
@@ -7491,6 +7493,8 @@ let
 
   mhwaveedit = callPackage ../applications/audio/mhwaveedit {};
 
+  mid2key = callPackage ../applications/audio/mid2key { };
+
   midori = builderDefsPackage (import ../applications/networking/browsers/midori) {
     inherit imagemagick intltool python pkgconfig webkit libxml2
       which gettext makeWrapper file libidn sqlite docutils libnotify
@@ -7561,12 +7565,14 @@ let
 
   ncmpcpp = callPackage ../applications/audio/ncmpcpp { };
 
+  normalize = callPackage ../applications/audio/normalize { };
+
   mplayer = callPackage ../applications/video/mplayer {
     pulseSupport = config.pulseaudio or false;
   };
 
   mplayer2 = callPackage ../applications/video/mplayer2 {
-    ffmpeg = ffmpeg_1_1;
+    ffmpeg = ffmpeg_1;
   };
 
   MPlayerPlugin = browser:
@@ -7815,6 +7821,8 @@ let
     usePulseAudio = config.pulseaudio or true;
   };
 
+  skype_call_recorder = callPackage ../applications/networking/instant-messengers/skype-call-recorder { };
+
   st = callPackage ../applications/misc/st { };
 
   dropbox = callPackage ../applications/networking/dropbox { };
@@ -8048,7 +8056,7 @@ let
   };
 
   vlc = callPackage ../applications/video/vlc {
-    ffmpeg = ffmpeg_1_1;
+    ffmpeg = ffmpeg_1;
   };
 
   vnstat = callPackage ../applications/networking/vnstat { };
@@ -8294,9 +8302,15 @@ let
 
   crrcsim = callPackage ../games/crrcsim {};
 
+  dhewm3 = callPackage ../games/dhewm3 {};
+
   drumkv1 = callPackage ../applications/audio/drumkv1 { };
 
   dwarf_fortress = callPackage_i686 ../games/dwarf-fortress { };
+
+  d1x_rebirth = callPackage ../games/d1x-rebirth { };
+
+  d2x_rebirth = callPackage ../games/d2x-rebirth { };
 
   eduke32 = callPackage ../games/eduke32 {
     stdenv = overrideGCC stdenv gcc47;
@@ -9180,6 +9194,8 @@ let
   texLiveModerncv = builderDefsPackage (import ../tools/typesetting/tex/texlive/moderncv.nix) {
     inherit texLive unzip;
   };
+
+  thinkfan = callPackage ../tools/system/thinkfan { };
 
   vice = callPackage ../misc/emulators/vice { };
 

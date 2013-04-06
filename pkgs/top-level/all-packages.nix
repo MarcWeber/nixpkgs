@@ -4651,8 +4651,12 @@ let
   mesaSupported = lib.elem system lib.platforms.mesaPlatforms;
 
   mesa_noglu = callPackage ../development/libraries/mesa { };
+  mesa_glu = callPackage ../development/libraries/mesa-glu { };
   mesa = if stdenv.isDarwin then darwinX11AndOpenGL
-    else callPackage ../development/libraries/mesa-glu { }; # mesa *with* GL/glu.h
+    else buildEnv {
+      name = "mesa-${mesa_noglu.version}";
+      paths = [ mesa_glu mesa_noglu ];
+    };
   darwinX11AndOpenGL = callPackage ../os-specific/darwin/native-x11-and-opengl { };
 
   metaEnvironment = recurseIntoAttrs (let callPackage = newScope pkgs.metaEnvironment; in rec {
@@ -5185,12 +5189,14 @@ let
   wxGTK = wxGTK28;
 
   wxGTK28 = callPackage ../development/libraries/wxGTK-2.8 {
-    inherit (gnome) GConf;
+    #inherit (gnome) GConf; # disable gstreamer until orbit gets fixed for new glib
+    GConf = null; gstreamer = null; gst_plugins_base = null;
     withMesa = lib.elem system lib.platforms.mesaPlatforms;
   };
 
   wxGTK29 = callPackage ../development/libraries/wxGTK-2.9/default.nix {
-    inherit (gnome) GConf;
+    #inherit (gnome) GConf; # disable gstreamer until orbit gets fixed for new glib
+    GConf = null; gstreamer = null; gst_plugins_base = null;
     withMesa = lib.elem system lib.platforms.mesaPlatforms;
   };
 
@@ -6707,8 +6713,8 @@ let
   };
 
   blender = callPackage  ../applications/misc/blender {
-    python = python33; # 2.65a doesn't accept lower
     inherit (xlibs) libXi;
+    python = python3;
   };
   blender_2_63 = blender;
 
@@ -8703,6 +8709,8 @@ let
   };
 
   oxygen_gtk = callPackage ../misc/themes/gtk2/oxygen-gtk { };
+
+  gnome_themes_standard = callPackage ../misc/themes/gnome-themes-standard { };
 
   xfce = xfce4_10;
   xfce4_10 = recurseIntoAttrs (import ../desktops/xfce { inherit pkgs newScope; });

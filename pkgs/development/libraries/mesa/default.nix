@@ -2,7 +2,7 @@
 , libXxf86vm, libXfixes, libXdamage, glproto, dri2proto, libX11, libxcb, libXext
 , libXt, udev, enableTextureFloats ? false, enableR600LlvmCompiler ? false
 , python, libxml2Python, autoconf, automake, libtool, llvm, writeText
-, wayland }:
+, libffi, wayland }:
 
 if ! stdenv.lib.lists.elem stdenv.system stdenv.lib.platforms.mesaPlatforms then
   throw "unsupported platform for Mesa"
@@ -12,7 +12,7 @@ let
   version = "9.1.1";
 in
 stdenv.mkDerivation {
-  name = "mesa-${version}";
+  name = "mesa-noglu-${version}";
 
   src = fetchurl {
     url = "ftp://ftp.freedesktop.org/pub/mesa/${version}/MesaLib-${version}.tar.bz2";
@@ -35,14 +35,14 @@ stdenv.mkDerivation {
   buildInputs = [
     autoconf automake libtool intltool expat libxml2Python udev llvm
     libdrm libXxf86vm libXfixes libXdamage glproto dri2proto libX11 libXext libxcb libXt
-    wayland
+    libffi wayland
   ];
 
   nativeBuildInputs = [ pkgconfig python makedepend file flex bison ];
 
   enableParallelBuilding = true;
 
-  passthru = { inherit libdrm; };
+  passthru = { inherit libdrm; inherit version; };
 
   meta = {
     description = "An open source implementation of OpenGL";

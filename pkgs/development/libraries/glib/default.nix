@@ -1,6 +1,6 @@
 { stdenv, fetchurl, pkgconfig, gettext, perl, libiconvOrNull, zlib, libffi
-, python, pcre 
-, version ? "2.34.3"
+, python, pcre, libelf
+, version ? "2.36.0"
 }:
 
 # TODO:
@@ -43,11 +43,20 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "glib" version {
       };
     };
 
-} 
-({
+
+    "2.36.0" = rec {
+      name = "glib-2.36.0";
+
+      src = fetchurl {
+        url = "mirror://gnome/sources/glib/2.36/${name}.tar.xz";
+        sha256 = "09xjkg5kaz4j0m25jizvz7ra48bmdawibykzri5igicjhsz8lnj5";
+      };
+    };
+
+} { 
 
   # configure script looks for d-bus but it is only needed for tests
-  buildInputs = [ libiconvOrNull ];
+  buildInputs = [ libiconvOrNull libelf ];
 
   nativeBuildInputs = [ perl pkgconfig gettext python ];
 
@@ -87,4 +96,3 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "glib" version {
     '' sed -i configure -e's/glib_have_cocoa=yes/glib_have_cocoa=no/g'
     '';
 }))
-)

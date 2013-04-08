@@ -177,6 +177,22 @@ rec {
     installPhase = "installScripts h_localdenoise3.scm";
   };
 
+  refocus-it = pluginDerivation {
+    name = "refocus-it-2.0.0";
+    buildInputs = [ gimp
+
+      pkgs.perl
+      pkgs.perlPackages.XMLParser
+      pkgconfig
+    ] ++ gimp.nativeBuildInputs;
+    src = fetchurl {
+      url = mirror://sourceforge/refocus-it/refocus-it/2.0.0/refocus-it-2.0.0.tar.gz;
+      sha256 = "15y0im93i3qjjbf162rp0m974zvlxmjfyf2y1san0b5bbpxf8i53";
+    };
+    # translations are not installed yet
+    installPhase = "installPlugins gimp-plugin/gimp_plugin-refocus-it";
+  };
+
   resynthesizer = pluginDerivation {
     /* menu:
       Filters/Map/Resynthesize
@@ -274,7 +290,7 @@ rec {
   # either load the raw image with gimp (and the import dialog will popup)
   # or use the binary
   ufraw = pluginDerivation {
-    name = "ufraw-0.18";
+    name = "ufraw-0.19.2";
 
     buildInputs = [pkgs.lcms pkgs.gtk pkgs.gtkimageview pkgs.gettext pkgs.bzip2 pkgs.zlib pkgs.libjpeg
                   pkgs.cfitsio pkgs.exiv2 pkgs.lcms
@@ -290,8 +306,8 @@ rec {
     configureFlags = "--enable-extras --enable-dst-correction --enable-contrast";
 
     src = fetchurl {
-      url = "mirror://sourceforge/ufraw/ufraw-0.18.tar.gz";
-      sha256 = "01cjdc748vamjpaw2sbm8a9kwmb2hry4f200j3hlvqg9c6f77zi4";
+      url = "mirror://sourceforge/ufraw/ufraw-0.19.2.tar.gz";
+      sha256 = "1lxba7pb3vcsq94dwapg9bk9mb3ww6r3pvvcyb0ah5gh2sgzxgkk";
     };
     installPhase = "
       installPlugins ufraw-gimp

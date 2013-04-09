@@ -7,15 +7,16 @@ let
 
   /*
      HOWTO install & use gimp plugins:
-     install (gimp.withPlugins ["fourier" ...]) into your profile
-     Then goto edit -> preferences -> folders -> Plug-Ins and add ~/.nix-profile/gimp-$version-plugins
-     Pay attention: This hardwires the gimp's builtin plugin path into your
-     ~/.gimp-$VERSION/.gimprc :(
 
-     complete list of plugins see ./plugins/default.nix
+     all installable plugins are found in ./plugins/default.nix
+
+     Install using config.nix: (gimp.withPlugins ["fourier" ...])
+     otherwise install gimp_VERSION.plugins.PLUGIN_NAME
+
+     After opening gimp goto edit -> preferences -> folders -> Plug-Ins and add ~/.nix-profile/gimp-$version-plugins
+     Pay attention: This hardwires the gimp's builtin plugin path into your ~/.gimp-$VERSION/.gimprc :(
 
      I didn't came up with a easier way within reasonable time.
-     This would require reading a lot of source.
 
      ISSUES: If the store paths changes some paths in ~/.gimp-$VERSION/ are bad.
              Eg this can cause gimp failing opening .jpeg files !
@@ -23,9 +24,12 @@ let
              TODO: create a script which checks for changing store paths and
              fixing this on the fly ?
 
-      are these env vars of value?
-      GIMP2_DIRECTORY GIMP2_PLUGINDIR ...?
-             
+      The followhing env vars could be of interest:
+      GIMP2_DIRECTORY
+      GIMP2_PLUGINDIR
+
+
+      If versions differ in two many ways the new gimp versions should be put into a separate file.
   */
 
   p = if false /*if version == "git"*/
@@ -50,6 +54,7 @@ let
   inherit (p) stdenv fetchurl sourceFromHead;
 
   gimp = stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "gimp" version {
+    # version specific attributes
     "2.6.12" = {
       src = fetchurl {
         url = "ftp://ftp.gtk.org/pub/gimp/v2.6/gimp-2.6.12.tar.bz2";
@@ -60,11 +65,10 @@ let
         let gegl_ = p.gegl.override { version = "0.1.6"; }; in
         commonBuildInputs ++ [ gegl_ gegl_.babl p.libpng12 ];
 
-      enableParallelBuilding = false;
+      configureFlags = [ "--disable-print" ];
 
-#       preConfigure = ''
-#         sed -i 's@gegl >= \([0-9]\.[0-9]\.[0-9]\)@gegl-0.2 >= \1@' configure
-#       '';
+
+      enableParallelBuilding = false;
 
       # plugins want to find the header files. Adding the includes to
       # NIX_CFLAGS_COMPILE is faster than patching them all ..
@@ -74,7 +78,6 @@ let
       '';
 
       passthru = {
-        versionUsedInName= "2.6";
         pluginDir = "lib/gimp/2.0/plug-ins";
         scriptDir = "share/gimp/2.0/scripts";
       };
@@ -86,7 +89,7 @@ let
     #     md5 = "4932a0a1645ecd5b23ea6155ddda013d";
     #   };
     #   enableParallelBuilding = false; # compilation fails (git version of 2011-01)
-    #   buildInputs = 
+    #   buildInputs =
     #     let gegl_ = p.gegl.override { version = "0.1.6"; }; in
     #     commonBuildInputs ++ [ gegl_ gegl_.babl p.libpng ];
 
@@ -95,11 +98,11 @@ let
     #   # '';
 
     #   passthru = {
-    #     versionUsedInName= "2.7";
     #     pluginDir = "lib/gimp/2.0/plug-ins";
     #     scriptDir = "share/gimp/2.0/scripts";
     #   };
     # };
+
     "2.8.0" = {
       src = fetchurl {
         url = "ftp://ftp.gimp.org/pub/gimp/v2.8/gimp-2.8.0.tar.bz2";
@@ -108,7 +111,6 @@ let
       buildInputs = commonBuildInputs ++ commonBuildInputs28 ++ [ p.babl p.gegl p.libpng ];
 
       passthru = {
-        versionUsedInName= "2.7";
         pluginDir = "lib/gimp/2.0/plug-ins";
         scriptDir = "share/gimp/2.0/scripts";
       };
@@ -120,9 +122,9 @@ let
         ( p.gegl.override { version = "git"; } )
         p.autoconf p.automake111x p.gnome.gtkdoc p.libxslt p.libtool
         p.pango p.cairo
-        p.libpng 
+        p.libpng
       ];
-      enableParallelBuilding = false; # compilation fails (git version of 2011-01)
+      enableParallelBuilding = true;
 
       preConfigure = ''
       ./autogen.sh
@@ -130,27 +132,27 @@ let
       sed -i 's@gegl >= 0.1.6@gegl-2.0 >= 0.1.6@' configure
       '';
       # REGION AUTO UPDATE: { name="gimp"; type="git"; url="git://git.gnome.org/gimp"; groups = "gimp_group"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-38dba.tar.bz2"; sha256 = "783709723f2c349002e30ab14e9145d9a5791017b761c2cb95ddd0f6f559f58a"; });
-      name = "gimp-git-38dba";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-fd34f.tar.bz2"; sha256 = "44a9f3b7216f19310693ed514a5c8be0062a24c5eb8c43a9241d8ad073c16f97"; });
+      name = "gimp-git-fd34f";
       # END
 
       passthru = {
-        versionUsedInName= "2.7";
         pluginDir = "lib/gimp/2.0/plug-ins";
         scriptDir = "share/gimp/2.0/scripts";
       };
     };
 
-  } {
-  
+  }
+  {
+
+    # shared derivation attributes:
+
     name = "gimp-${version}";
-    
+
     passthru = {
       inherit (p) gtkLibs;
       inherit (p.gtkLibs) gtk;
     }; # used by gimp plugins
-
-    configureFlags = [ "--disable-print" ];
 
     # "screenshot" needs this.
     NIX_LDFLAGS = "-rpath ${p.xlibs.libX11}/lib";

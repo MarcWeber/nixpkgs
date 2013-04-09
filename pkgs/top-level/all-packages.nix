@@ -135,7 +135,15 @@ let
   # The package compositions.  Yes, this isn't properly indented.
   pkgsFun = pkgs: __overrides:
     with helperFunctions;
-    let defaultScope = pkgs // pkgs.xorg; in
+    let defaultScope = pkgs // pkgs.xorg;
+
+        # provide deepOverride function which overrides everything by
+        # pkgsDeepOverride before overridding with overrider.
+        # See webkit example - updated implementation of
+        # http://wiki.nixos.org/w/index.php?title=Escape_from_dependency_hell
+        # probably this is obsoleted by applyGlobalOverrides. See webkit
+        deepOverride = deepOverrides: pkgsFun pkgs (deepOverrides // __overrides);
+    in
     helperFunctions // rec {
 
   # `__overrides' is a magic attribute that causes the attributes in
@@ -448,6 +456,8 @@ let
 
   inherit (androidenv) androidsdk_4_1;
 
+  anyterm = callPackage ../tools/networking/anyterm { };
+
   aria = builderDefsPackage (import ../tools/networking/aria) { };
 
   aria2 = callPackage ../tools/networking/aria2 { };
@@ -492,6 +502,8 @@ let
 
   catdoc = callPackage ../tools/text/catdoc { };
 
+  dhex = callPackage ../tools/misc/dhex { };
+
   dlx = callPackage ../misc/emulators/dlx { };
 
   eggdrop = callPackage ../tools/networking/eggdrop { };
@@ -501,6 +513,8 @@ let
   mcrl = callPackage ../tools/misc/mcrl { };
 
   mcrl2 = callPackage ../tools/misc/mcrl2 { };
+
+  slowhttptest = callPackage ../tools/misc/slowhttptest { };
 
   syslogng = callPackage ../tools/system/syslog-ng { };
   rsyslog = callPackage ../tools/system/rsyslog { };
@@ -1642,6 +1656,8 @@ let
 
   tarsnap = callPackage ../tools/backup/tarsnap { };
 
+  task = callPackage ../tools/misc/task { };
+
   tcpdump = callPackage ../tools/networking/tcpdump { };
 
   teamviewer = callPackage_i686 ../applications/networking/remote/teamviewer { };
@@ -1926,6 +1942,10 @@ let
   bashCompletion = callPackage ../shells/bash-completion { };
 
   dash = callPackage ../shells/dash { };
+
+  fish = callPackage ../shells/fish { };
+
+  ipython = callPackage ../shells/ipython { };
 
   tcsh = callPackage ../shells/tcsh { };
 
@@ -2703,6 +2723,8 @@ let
   sdcc = callPackage ../development/compilers/sdcc {
     boost = boost149; # sdcc 3.2.0 fails to build with boost 1.53
   };
+
+  smlnj = callPackage_i686 ../development/compilers/smlnj { };
 
   stalin = callPackage ../development/compilers/stalin { };
 
@@ -4534,6 +4556,8 @@ let
 
   libxslt = callPackage ../development/libraries/libxslt { };
 
+  libxml_xml_dtd_xhtml = callPackage ../data/sgml+xml/schemas/xml-dtd/xhtml { };
+
   libxtc_dxtn = callPackage ../development/libraries/libxtc_dxtn { };
 
   libixp_for_wmii = lowPrio (import ../development/libraries/libixp_for_wmii {
@@ -4689,6 +4713,7 @@ let
     automake = automake111x;
     ftgl = ftgl212;
   };
+  opencascadeCommunityFork = callPackage ../development/libraries/opencascade/opencascade-git-community-fork.nix { };
 
   opencascade_oce = callPackage ../development/libraries/opencascade/oce.nix { };
 
@@ -5590,6 +5615,8 @@ let
   });
   squid = squids.squid31; # has ipv6 support
 
+  tinyproxy = callPackage ../servers/tinyproxy { };
+
   tomcat5 = callPackage ../servers/http/tomcat/5.0.nix { };
 
   tomcat6 = callPackage ../servers/http/tomcat/6.0.nix { };
@@ -5622,9 +5649,12 @@ let
     inherit fetchurl stdenv pkgconfig postgresql curl openssl zlib;
   });
 
+
   zabbix20 = recurseIntoAttrs (import ../servers/monitoring/zabbix/2.0.nix {
     inherit fetchurl stdenv pkgconfig postgresql curl openssl zlib gettext;
   });
+
+  ziproxy = callPackage ../servers/ziproxy { };
 
 
   ### OS-SPECIFIC
@@ -6501,6 +6531,8 @@ let
   tipa = callPackage ../data/fonts/tipa { };
 
   ttf_bitstream_vera = callPackage ../data/fonts/ttf-bitstream-vera { };
+
+  ttf2eot = callPackage ../data/fonts/ttf-to-eot { };
 
   tzdata = callPackage ../data/misc/tzdata { };
 
@@ -7560,6 +7592,11 @@ let
   opera = callPackage ../applications/networking/browsers/opera {
     inherit (pkgs.kde4) kdelibs;
   };
+  opera_my = callPackage ../applications/networking/browsers/opera/my.nix { };
+  # TODO merge with upstream opera to support HTML 5 viedos?
+  # testpages:
+  # http://www.planetoftunes.com/web_site/videoforweb/html5_example/index.html
+  # http://www.youtube.com/html5
 
   opusTools = callPackage ../applications/audio/opus-tools { };
 
@@ -7609,6 +7646,8 @@ let
   pidginotr = callPackage ../applications/networking/instant-messengers/pidgin-plugins/otr { };
 
   pidginsipe = callPackage ../applications/networking/instant-messengers/pidgin-plugins/sipe { };
+
+  pidginPlugins = callPackage ../applications/networking/instant-messengers/pidgin-plugins { };
 
   pinfo = callPackage ../applications/misc/pinfo { };
 
@@ -7870,6 +7909,8 @@ let
     enableX11 = config.unison.enableX11 or true;
   };
 
+  umtsmon = callPackage ../applications/misc/umtsmon { };
+
   uucp = callPackage ../tools/misc/uucp { };
 
   uwimap = callPackage ../tools/networking/uwimap { };
@@ -7899,7 +7940,8 @@ let
 
   vimHugeX = vim_configurable;
 
-  vim_configurable = import ../applications/editors/vim/configurable.nix {
+  vim_configurable = callPackage (import ../applications/editors/vim/configurable.nix) {
+    vimNox = false;
     inherit (pkgs) fetchurl stdenv ncurses pkgconfig gettext composableDerivation lib config;
     inherit (pkgs.xlibs) libX11 libXext libSM libXpm libXt libXaw libXau libXmu libICE;
     inherit (pkgs) glib gtk;
@@ -7912,6 +7954,8 @@ let
     # optional features by flags
     flags = [ "python" "X11" ]; # only flag "X11" by now
   };
+  vimLatest = vim_configurable.override { source = "latest"; };
+  vimNox = vim_configurable.override { source = "vim-nox"; };
 
   virtviewer = callPackage ../applications/virtualization/virt-viewer {};
   virtmanager = callPackage ../applications/virtualization/virt-manager {
@@ -8868,6 +8912,8 @@ let
   lazylist = callPackage ../tools/typesetting/tex/lazylist { };
 
   lilypond = callPackage ../misc/lilypond { };
+
+  logkeys = callPackage ../misc/logkeys { };
 
   martyr = callPackage ../development/libraries/martyr { };
 

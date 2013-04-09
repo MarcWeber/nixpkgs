@@ -12,8 +12,8 @@ in
   stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "gegl" version {
     git = let babl_ =babl.override { version = "git"; }; in {
       # REGION AUTO UPDATE: { name="gegl"; type="git"; url="git://git.gnome.org/gegl"; groups = "gimp_group"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gegl-git-7fb0c.tar.bz2"; sha256 = "109310899afbd676ba649e23573210a053622c7fc96fd2ecc0282a35875bf012"; });
-      name = "gegl-git-7fb0c";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gegl-git-76dbe.tar.bz2"; sha256 = "d089fa58bf1bf6fbcb00f669ef30027cbb5f46e84331a65ddad5acd48a78cc31"; });
+      name = "gegl-git-76dbe";
       # END
       buildInputs = commonBuildInputs ++ [
         babl_

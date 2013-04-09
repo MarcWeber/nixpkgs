@@ -42,6 +42,7 @@ stdenv.mkDerivation rec {
       xlibs.libXrandr which imake makeWrapper
       patchelf
       unzip
+      mesa
     ];
 
   kernel = kernelDev;

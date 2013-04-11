@@ -5,7 +5,7 @@
 , freetype, writeText
 , openldap, cyrus_sasl
 , systemd
-, version ? "5.3.18" # latest stable
+, version ? "5.3.24" # latest stable
 , icu
 , libxslt
 , bzip2
@@ -339,7 +339,8 @@ let
      md5 = lib.maybeAttr version (throw "unkown php version ${version}") {
       # does not built, due to patch?
       # "5.4.5" = "ffcc7f4dcf2b79d667fe0c110e6cb724";
-      "5.4.7" = "9cd421f1cc8fa8e7f215e44a1b06199f";
+      # "5.4.7" = "9cd421f1cc8fa8e7f215e44a1b06199f";
+      "5.4.14" = "cfdc044be2c582991a1fe0967898fa38";
 
       # those older versions are likely to be buggy - there should be no reason to compile them
       # "5.3.3" = "21ceeeb232813c10283a5ca1b4c87b48";
@@ -347,11 +348,12 @@ let
       # "5.3.14" = "7caac4f71e2f21426c11ac153e538392";
       # "5.3.15" = "5cfcfd0fa4c4da7576f397073e7993cc";
       # "5.3.17" = "29ee79c941ee85d6c1555c176f12f7ef";
-      "5.3.18" = "52539c19d0f261560af3c030143dfa8f";
+      # "5.3.18" = "52539c19d0f261560af3c030143dfa8f";
+      "5.3.24" = "9820604df98c648297dcd31ffb8214e8";
 
       # 5.2 is no longer supported. However PHP 5.2 -> 5.3 has had many
       # incompatibilities which is why it may be useful to continue supporting it
-      # while also warning about it.
+      # You should use 5.3.x if possible
       "5.2.17" = "b27947f3045220faf16e4d9158cbfe13";
      };
      name = "php-${version}.tar.bz2";

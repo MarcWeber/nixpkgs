@@ -7571,6 +7571,8 @@ let
 
   ncmpcpp = callPackage ../applications/audio/ncmpcpp { };
 
+  nip2 = callPackage ../applications/graphics/nips2 { };
+
   normalize = callPackage ../applications/audio/normalize { };
 
   mplayer = callPackage ../applications/video/mplayer {
@@ -8015,6 +8017,8 @@ let
   };
 
   vbindiff = callPackage ../applications/editors/vbindiff { };
+
+  vips = callPackage ../applications/graphics/vips { };
 
   vdpauinfo = callPackage ../tools/X11/vdpauinfo { };
 

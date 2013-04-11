@@ -6450,6 +6450,10 @@ let
 
   docbook_xsl_ns = callPackage ../data/sgml+xml/stylesheets/xslt/docbook-xsl-ns { };
 
+  docbook_sgml_utils = callPackage ../data/sgml+xml/schemas/xml-dtd/docbook-sgml-utils { };
+
+  docbook_dsssl = callPackage ../data/sgml+xml/schemas/xml-dtd/docbook-dsssl { };
+
   dosemu_fonts = callPackage ../data/fonts/dosemu-fonts { };
 
   freefont_ttf = callPackage ../data/fonts/freefont-ttf { };
@@ -8856,6 +8860,10 @@ let
   cups_pdf_filter = callPackage ../misc/cups/pdf-filter.nix { };
 
   gutenprint = callPackage ../misc/drivers/gutenprint { };
+  gutenprintCVS = callPackage ../misc/drivers/gutenprint { 
+    gimp = gimp_2_6;
+    version = "cvs";
+  };
 
   gutenprintBin = callPackage ../misc/drivers/gutenprint/bin.nix { };
 

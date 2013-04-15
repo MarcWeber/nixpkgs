@@ -1589,6 +1589,10 @@ let
 
   siege = callPackage ../tools/networking/siege {};
 
+  silc_client = callPackage ../applications/networking/instant-messengers/silc-client { };
+
+  silc_server = callPackage ../servers/silc-server { };
+
   sleuthkit = callPackage ../tools/system/sleuthkit {};
 
   slimrat = callPackage ../tools/networking/slimrat {
@@ -3631,7 +3635,9 @@ let
   dbus_java       = callPackage ../development/libraries/java/dbus-java { };
   dbus_python     = callPackage ../development/python-modules/dbus { };
   # Should we deprecate these? Currently there are many references.
-  dbus_tools = dbus.tools; dbus_libs = dbus.libs;
+  dbus_tools = dbus.tools;
+  dbus_libs = dbus.libs;
+  dbus_daemon = dbus.daemon;
 
   dclib = callPackage ../development/libraries/dclib { };
 
@@ -4375,7 +4381,7 @@ let
 
   libjpeg_original = callPackage ../development/libraries/libjpeg { };
   libjpeg_turbo = callPackage ../development/libraries/libjpeg-turbo { };
-  libjpeg = libjpeg_turbo;
+  libjpeg = if stdenv.isDarwin then libjpeg_original else libjpeg_turbo;
 
   libjpeg62 = callPackage ../development/libraries/libjpeg/62.nix {
     libtool = libtool_1_5;
@@ -5180,14 +5186,12 @@ let
   wxGTK = wxGTK28;
 
   wxGTK28 = callPackage ../development/libraries/wxGTK-2.8 {
-    #inherit (gnome) GConf; # disable gstreamer until orbit gets fixed for new glib
-    GConf = null; gstreamer = null; gst_plugins_base = null;
+    inherit (gnome) GConf;
     withMesa = lib.elem system lib.platforms.mesaPlatforms;
   };
 
   wxGTK29 = callPackage ../development/libraries/wxGTK-2.9/default.nix {
-    #inherit (gnome) GConf; # disable gstreamer until orbit gets fixed for new glib
-    GConf = null; gstreamer = null; gst_plugins_base = null;
+    inherit (gnome) GConf;
     withMesa = lib.elem system lib.platforms.mesaPlatforms;
   };
 
@@ -5362,11 +5366,13 @@ let
   # regardless.
   python26Packages = import ./python-packages.nix {
     inherit pkgs;
+    inherit (lib) lowPrio;
     python = python26;
   };
 
   python27Packages = recurseIntoAttrs (import ./python-packages.nix {
     inherit pkgs;
+    inherit (lib) lowPrio;
     python = python27;
   });
 
@@ -7280,6 +7286,8 @@ let
 
   hexedit = callPackage ../applications/editors/hexedit { };
 
+  hipchat = callPackage_i686 ../applications/networking/instant-messengers/hipchat { };
+
   homebank = callPackage ../applications/office/homebank { };
 
   htmldoc = callPackage ../applications/misc/htmldoc {
@@ -7359,6 +7367,8 @@ let
   iptraf = callPackage ../applications/networking/iptraf { };
 
   irssi = callPackage ../applications/networking/irc/irssi { };
+
+  irssi_fish = callPackage ../applications/networking/irc/irssi/fish { };
 
   bip = callPackage ../applications/networking/irc/bip { };
 

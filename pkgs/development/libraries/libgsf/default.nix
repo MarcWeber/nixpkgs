@@ -22,6 +22,11 @@ stdenv.mkDerivation rec {
   propagatedBuildInputs = [ libxml2 glib ]
     ++ stdenv.lib.optionals gnomeSupport [ libbonobo ];
 
+  enableParalellBuilding = true;
+
+  # newest glib causes name collision on "clone", so rename functions in tests
+  preConfigure = ''sed -i 's/\<clone\>/cloneX/' tests/*.c'';
+
   doCheck = true;
 
   meta = {

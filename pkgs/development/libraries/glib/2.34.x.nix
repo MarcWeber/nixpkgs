@@ -1,5 +1,7 @@
 { stdenv, fetchurl, pkgconfig, gettext, perl, libiconvOrNull, zlib, libffi
-, python, pcre }:
+, python, pcre 
+, version ? "2.34.0"
+}:
 
 # TODO:
 # * Add gio-module-fam
@@ -11,13 +13,39 @@
 #     Reminder: add 'sed -e 's@python2\.[0-9]@python@' -i
 #       $out/bin/gtester-report' to postInstall if this is solved
 
-stdenv.mkDerivation (rec {
-  name = "glib-2.34.0";
 
-  src = fetchurl {
-    url = "mirror://gnome/sources/glib/2.34/${name}.tar.xz";
-    sha256 = "f69b112f8848be35139d9099b62bc81649241f78f6a775516f0d4c9b47f65144";
-  };
+stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "glib" version {
+    # "2.30.3" = {
+    #     name = "glib-2.30.3";
+
+    #     src = fetchurl {
+    #       url = mirror://gnome/sources/glib/2.30/glib-2.30.3.tar.xz;
+    #       sha256 = "09yxfajynbw78kji48z384lylp67kihfi1g78qrrjif4f5yb5jz6";
+    #     };
+    # };
+
+    # "2.33.3" = {
+    #     name = "glib-2.33.3";
+
+    #     enableParalellBuilding = true;
+
+    #     src = fetchurl {
+    #       url = mirror://gnome/sources/glib/2.33/glib-2.33.3.tar.xz;
+    #       sha256 = "4ae2695dff7f075e746c5dbcbed9e5f7afb7b11918201dc8e82609a610db0990";
+    #     };
+    # };
+
+    "2.34.0" = rec {
+      name = "glib-2.34.0";
+
+      src = fetchurl {
+        url = "mirror://gnome/sources/glib/2.34/${name}.tar.xz";
+        sha256 = "f69b112f8848be35139d9099b62bc81649241f78f6a775516f0d4c9b47f65144";
+      };
+    };
+
+} 
+({
 
   # configure script looks for d-bus but it is only needed for tests
   buildInputs = [ libiconvOrNull ];
@@ -52,9 +80,7 @@ stdenv.mkDerivation (rec {
     platforms = stdenv.lib.platforms.linux;
   };
 }
-
 //
-
 (stdenv.lib.optionalAttrs stdenv.isDarwin {
   # XXX: Disable the NeXTstep back-end because stdenv.gcc doesn't support
   # Objective-C.
@@ -62,3 +88,4 @@ stdenv.mkDerivation (rec {
     '' sed -i configure -e's/glib_have_cocoa=yes/glib_have_cocoa=no/g'
     '';
 }))
+)

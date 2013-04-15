@@ -1682,6 +1682,7 @@ let
 
   udftools = callPackage ../tools/filesystems/udftools {};
 
+  # eventually merge with gimpPlugins.ufraw ?
   ufraw = callPackage ../applications/graphics/ufraw { };
 
   unetbootin = callPackage ../tools/cd-dvd/unetbootin { };
@@ -3460,6 +3461,8 @@ let
   babl_0_0_22 = callPackage ../development/libraries/babl/0_0_22.nix { };
 
   babl = callPackage ../development/libraries/babl { };
+  babl_0_1_4 = babl.override { version = "0.1.4"; };
+  bablGit = babl.override { version = "git"; };
 
   beecrypt = callPackage ../development/libraries/beecrypt { };
 
@@ -3715,9 +3718,9 @@ let
 
   gdbm = callPackage ../development/libraries/gdbm { };
 
-  gegl = callPackage ../development/libraries/gegl {
-    #  avocodec avformat librsvg
-  };
+  gegl = callPackage ../development/libraries/gegl { };
+  gegl_0_1_6 = gegl.override { version = "0.1.6"; };
+  geglGit = gegl.override { version = "git"; };
 
   gegl_0_0_22 = callPackage ../development/libraries/gegl/0_0_22.nix {
     #  avocodec avformat librsvg
@@ -7071,16 +7074,10 @@ let
 
   get_iplayer = callPackage ../applications/misc/get_iplayer {};
 
-  gimp_2_6 = callPackage ../applications/graphics/gimp {
-    inherit (gnome) libart_lgpl;
-  };
-
-  gimp_2_8 = callPackage ../applications/graphics/gimp/2.8.nix {
-    inherit (gnome) libart_lgpl;
-    webkit = null;
-  };
-
-  gimp = gimp_2_6;
+  gimp = callPackage ../applications/graphics/gimp { inherit pkgs applyGlobalOverrides; };
+  gimp_2_6 = gimp.override { version = "2.6.12"; };
+  gimp_2_8 = gimp.override { version = "2.8.0"; };
+  gimpGit = gimp.override { version = "git"; };
 
   gimpPlugins = recurseIntoAttrs (import ../applications/graphics/gimp/plugins {
     inherit pkgs gimp;

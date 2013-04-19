@@ -1,23 +1,52 @@
 {stdenv, fetchurl
 , glib, polkit, pkgconfig, intltool, gusb, libusb1, lcms2, sqlite, systemd, dbus
+
+, automake, autoconf, libtool, gtk_doc, which, gobjectIntrospection
+, version ? "git"
 }:
 
-stdenv.mkDerivation {
-  name = "colord-0.1.33";
-  enableParallelBuilding = true;
+# colord wants to write to the etc/colord.conf and var/run/colord/mapping.db
+# thus they get symlinked to /etc and /var
 
-  # git clone git://gitorious.org/colord/master.git
-  # git clone git://git.gnome.org/gnome-color-manager
-  src = fetchurl {
-    url = http://www.freedesktop.org/software/colord/releases/colord-0.1.32.tar.xz;
-    sha256 = "1smbkh4z1c2jjwxg626f12sslv7ff3yzak1zqrc493cl467ll0y7";
+stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "colord" version {
+  "0.1.33" = {
+    name = "colord-0.1.33";
+    src = fetchurl {
+      url = http://www.freedesktop.org/software/colord/releases/colord-0.1.32.tar.xz;
+      sha256 = "1smbkh4z1c2jjwxg626f12sslv7ff3yzak1zqrc493cl467ll0y7";
+    };
   };
+  "git" = {
+    # REGION AUTO UPDATE: { name="colord"; type="git"; url="git://github.com/hughsie/colord.git"; }
+    src = (fetchurl { url = "http://mawercer.de/~nix/repos/colord-git-11dca.tar.bz2"; sha256 = "218152dcfb326e0739dc5cd2d815f0238df64b526bdfca006b6a4c3e563c385a"; });
+    name = "colord-git-11dca";
+    # END
+
+    # *.gir files: GI_TYPELIB_PATH does not work, but '.' is searched, so using current directory
+    preConfigure = ''
+      ./autogen.sh
+      cp ${gusb}/share/gir-1.0/*.gir lib/colord
+    '';
+    buildInputs = [ automake autoconf libtool gtk_doc which gobjectIntrospection];
+  };
+} {
+
+  enableParallelBuilding = true;
 
   preConfigure = ''
     configureFlags="$configureFlags --with-udevrulesdir=$out/lib/udev/rules.d --with-systemdsystemunitdir=$out/lib/udev/rules.d"
   '';
 
   buildInputs = [glib polkit pkgconfig intltool gusb libusb1 lcms2 sqlite systemd dbus];
+
+  postInstall = ''
+    sed -i '/usb_id\|usb-db/d' $out/lib/udev/rules.d/69-cd-sensors.rules
+    mv $out/etc/colord.conf{,.default}
+    ln -s /etc/colord.conf $out/etc/colord.conf
+    for x in mapping.db storage.db; do
+      ln -s /var/run/colord/$x $out/var/lib/colord/$x
+    done
+  '';
 
   meta = {
     description = "system service that makes it easy to manage, install and generate color profiles to accurately color manage input and output devices";
@@ -26,4 +55,4 @@ stdenv.mkDerivation {
     maintainers = [stdenv.lib.maintainers.marcweber];
     platforms = stdenv.lib.platforms.linux;
   };
-}
+})

@@ -39,7 +39,11 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "gobject-introspection" vers
 
 } {
 
-  buildInputs = [ flex bison glib pkgconfig python gdk_pixbuf ];
+  buildInputs = [ flex bison glib pkgconfig python
+
+    # break cyclic dependency:
+    (gdk_pixbuf.override { gobjectIntrospection = null; })
+  ];
   propagatedBuildInputs = [ libffi ];
 
   # Tests depend on cairo, which is undesirable (it pulls in lots of

@@ -46,6 +46,7 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "gobject-introspection" vers
   # other dependencies).
   configureFlags = "--disable-tests";
 
+  setupHook = ./setup-hook.sh;
 
   postInstall = "rm -rf $out/share/gtk-doc";
 

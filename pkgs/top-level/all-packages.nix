@@ -597,6 +597,8 @@ let
   colord = callPackage ../tools/misc/colord { };
 
 
+  colorhug_client = callPackage ../tools/misc/colorhug-client { };
+
   gusb = callPackage ../development/libraries/gusb { 
     inherit (gnome) gtkdoc;
   };

@@ -1,11 +1,13 @@
 { stdenv, fetchurl, pkgconfig, python, libxml2Python, libxslt, which, libX11, gnome3
-, intltool, gnome_doc_utils}:
+, intltool, gnome_doc_utils, xorg, gsettings_desktop_schemas, xkeyboard_config}:
 
 stdenv.mkDerivation rec {
 
   majorVersion = "3.5";
   minorVersion = "3";
   name = "gnome-desktop-${majorVersion}.${minorVersion}";
+
+  enableParallelBuilding = true;
 
   src = fetchurl {
     url = "mirror://gnome/sources/gnome-desktop/${majorVersion}/${name}.tar.xz";
@@ -14,5 +16,8 @@ stdenv.mkDerivation rec {
 
   configureFlags = "--disable-scrollkeeper";
   buildInputs = [ pkgconfig python libxml2Python libxslt which libX11
-                  gnome3.gtk gnome3.glib intltool gnome_doc_utils ];
+                  gnome3.gtk gnome3.glib intltool gnome_doc_utils
+                  xorg.libXrandr xorg.libxkbfile
+                  gsettings_desktop_schemas xkeyboard_config
+                  ];
 }

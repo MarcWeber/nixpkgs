@@ -3,7 +3,7 @@
 rec {
   inherit (pkgs) fetchurl_gnome glib gtk3 atk pango;
   gtk = gtk3;
-  orbit = pkgs.gnome2.ORBit2;
+  inherit (pkgs.gnome2) gnome_common ORBit2;
 
   inherit (lib) lowPrio hiPrio appendToName makeOverridable;
 
@@ -51,5 +51,7 @@ rec {
 
   # scrollkeeper replacement
   rarian = callPackage ./desktop/rarian { };
+
+  gnome_color_manager = callPackage ./desktop/gnome-color-manager { };
 
 }

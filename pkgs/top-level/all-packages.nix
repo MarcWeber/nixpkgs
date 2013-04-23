@@ -596,6 +596,7 @@ let
 
   colord = callPackage ../tools/misc/colord { };
 
+  colord_gtk = callPackage ../tools/misc/colord_gtk { };
 
   colorhug_client = callPackage ../tools/misc/colorhug-client { };
 
@@ -3199,6 +3200,8 @@ let
 
   ddd = callPackage ../development/tools/misc/ddd { };
 
+  dispcalgui = callPackage ../tools/graphics/dispcalgui { };
+
   distcc = callPackage ../development/tools/misc/distcc { };
 
   # distccWrapper: wrapper that works as gcc or g++
@@ -4178,6 +4181,7 @@ let
   libcaca = callPackage ../development/libraries/libcaca { };
 
   libcanberra = callPackage ../development/libraries/libcanberra { };
+  libcanberra_gtk3 = callPackage ../development/libraries/libcanberra { gtk = gtk3; };
 
   libcdaudio = callPackage ../development/libraries/libcdaudio { };
 

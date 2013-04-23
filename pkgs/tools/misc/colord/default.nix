@@ -22,12 +22,10 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "colord" version {
     name = "colord-git-11dca";
     # END
 
-    # *.gir files: GI_TYPELIB_PATH does not work, but '.' is searched, so using current directory
     preConfigure = ''
       ./autogen.sh
-      cp ${gusb}/share/gir-1.0/*.gir lib/colord
     '';
-    buildInputs = [ automake autoconf libtool gtk_doc which gobjectIntrospection];
+    buildInputs = [ automake autoconf libtool gtk_doc which gobjectIntrospection ];
   };
 } {
 
@@ -43,9 +41,8 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "colord" version {
     sed -i '/usb_id\|usb-db/d' $out/lib/udev/rules.d/69-cd-sensors.rules
     mv $out/etc/colord.conf{,.default}
     ln -s /etc/colord.conf $out/etc/colord.conf
-    for x in mapping.db storage.db; do
-      ln -s /var/run/colord/$x $out/var/lib/colord/$x
-    done
+    rm -fr $out/var/lib/colord
+    ln -s /var/lib/colord $out/var/lib/colord
   '';
 
   meta = {

@@ -2,3 +2,6 @@ From: Marc Weber <marco-oweber@gmx.de>
 Subject: [PATCH] experimental/color-management
 
 colorhug related additional packages
+- fixes gnome_desktop
+- fixes gobjectIntrospection .gir files
+- ...

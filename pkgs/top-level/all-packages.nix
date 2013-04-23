@@ -2897,7 +2897,6 @@ let
   perl = if system != "i686-cygwin" then perl516 else sysPerl;
 
   php = callPackage ../development/interpreters/php { };
-  # php 5.2 is no longer supported officially. It works - but use at your own risk!
   php5_2 = php.override { version = "5.2.17"; };
   php5_2fpm = php5_3.override { version ="5.2.17"; sapi = "fpm"; }; # experimental patch
 

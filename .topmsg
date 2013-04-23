@@ -1,15 +1,12 @@
 From: Marc Weber <marco-oweber@gmx.de>
 Subject: [PATCH] experimental/multiple-versions-in-one-file
 
-dependencies:
-This PHP topic branch depends on experimental/multiple-versions-in-one-file.
-
 purpose:
   PHP: fpm support (including patches for systemd socket activation)
   nixos systemd unit implementation
   keep old PHP-5.2 working even though its horrible outdated.
 
-TODO:
-  think about permissions of sockets
+keep everything in one file, because most code is the same, eg the code to build
+extensions (apc, xdebug, ..)
 
 Signed-off-by: Marc Weber <marco-oweber@gmx.de>

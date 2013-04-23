@@ -18,7 +18,6 @@ assert glSupport -> mesa != null;
 stdenv.mkDerivation rec {
   name = "cairo-1.12.14";
 
-  # when updating check Eclipse, maybe the older version there can be removed then
   src = fetchurl {
     url = "http://cairographics.org/releases/${name}.tar.xz";
     sha256 = "04xcykglff58ygs0dkrmmnqljmpjwp2qgwcz8sijqkdpz7ix3l4n";
@@ -29,9 +28,6 @@ stdenv.mkDerivation rec {
     ++ stdenv.lib.optional (!stdenv.isDarwin) libXrender
     ++ stdenv.lib.optionals xcbSupport [ libxcb xcbutil ]
     ++ stdenv.lib.optionals glSupport [ mesa ]
-
-    # On non-GNU systems we need GNU Gettext for libintl.
-    ++ stdenv.lib.optional (!stdenv.isLinux) gettext
 
     ++ libiconvOrEmpty;
 

@@ -449,10 +449,18 @@ let
 
   xcodeenv = callPackage ../development/mobile/xcodeenv { };
 
-  titaniumenv = import ../development/mobile/titaniumenv {
+  titaniumenv_2_1 = import ../development/mobile/titaniumenv {
+    inherit pkgs;
+    pkgs_i686 = pkgsi686Linux;
+    version = "2.1";
+  };
+
+  titaniumenv_3_1 = import ../development/mobile/titaniumenv {
     inherit pkgs;
     pkgs_i686 = pkgsi686Linux;
   };
+
+  titaniumenv = titaniumenv_3_1;
 
   inherit (androidenv) androidsdk_4_1;
 
@@ -712,7 +720,6 @@ let
 
   docbook2x = callPackage ../tools/typesetting/docbook2x {
     inherit (perlPackages) XMLSAX XMLParser XMLNamespaceSupport;
-    libiconv = if stdenv.isDarwin then libiconv else null;
   };
 
   dosfstools = callPackage ../tools/filesystems/dosfstools { };
@@ -870,13 +877,9 @@ let
     guile = guile_1_8;
   };
 
-  gnugrep =
-    # Use libiconv only on non-GNU platforms (we can't test with
-    # `stdenv ? glibc' at this point.)
-    let gnu = stdenv.isLinux; in
-      callPackage ../tools/text/gnugrep {
-        libiconv = if gnu then null else libiconv;
-      };
+  gnugrep = callPackage ../tools/text/gnugrep {
+    libiconv = libiconvOrNull;
+  };
 
   gnulib = callPackage ../development/tools/gnulib { };
 
@@ -1231,6 +1234,8 @@ let
     mtutils = callPackage ../tools/text/multitran/mtutils { };
   });
 
+  munge = callPackage ../tools/security/munge { };
+
   muscleframework = callPackage ../tools/security/muscleframework { };
 
   muscletool = callPackage ../tools/security/muscletool { };
@@ -1314,7 +1319,9 @@ let
 
   odt2txt = callPackage ../tools/text/odt2txt { };
 
-  offlineimap = callPackage ../tools/networking/offlineimap { };
+  offlineimap = callPackage ../tools/networking/offlineimap {
+    inherit (pythonPackages) sqlite3;
+  };
 
   opendbx = callPackage ../development/libraries/opendbx { };
 
@@ -1588,6 +1595,10 @@ let
   shebangfix = callPackage ../tools/misc/shebangfix { };
 
   siege = callPackage ../tools/networking/siege {};
+
+  silc_client = callPackage ../applications/networking/instant-messengers/silc-client { };
+
+  silc_server = callPackage ../servers/silc-server { };
 
   sleuthkit = callPackage ../tools/system/sleuthkit {};
 
@@ -2497,7 +2508,8 @@ let
   haskellPackages_ghc742_profiling    = recurseIntoAttrs (haskell.packages_ghc742.profiling);
   haskellPackages_ghc742              = recurseIntoAttrs (haskell.packages_ghc742.highPrio);
   haskellPackages_ghc761              =                   haskell.packages_ghc761;
-  haskellPackages_ghc762              = recurseIntoAttrs (haskell.packages_ghc762);
+  haskellPackages_ghc762              =                   haskell.packages_ghc762;
+  haskellPackages_ghc763              = recurseIntoAttrs  haskell.packages_ghc763;
   # Reasonably current HEAD snapshot.
   haskellPackages_ghcHEAD             =                   haskell.packages_ghcHEAD;
 
@@ -3076,6 +3088,8 @@ let
   autoconf = callPackage ../development/tools/misc/autoconf { };
 
   autoconf213 = callPackage ../development/tools/misc/autoconf/2.13.nix { };
+ 
+  autocutsel = callPackage ../tools/X11/autocutsel{ };
 
   automake = automake112x;
 
@@ -3350,7 +3364,11 @@ let
   pkgconfig = forceNativeDrv (callPackage ../development/tools/misc/pkgconfig { });
   pkgconfigUpstream = lowPrio (pkgconfig.override { vanilla = true; });
 
-  premake = callPackage ../development/tools/misc/premake { };
+  premake3 = callPackage ../development/tools/misc/premake/3.nix { };
+
+  premake4 = callPackage ../development/tools/misc/premake { };
+
+  premake = premake4;
 
   pstack = callPackage ../development/tools/misc/gdb/pstack.nix { };
 
@@ -4027,6 +4045,8 @@ let
 
   gts = callPackage ../development/libraries/gts { };
 
+  gvfs = callPackage ../development/libraries/gvfs { };
+
   gwenhywfar = callPackage ../development/libraries/gwenhywfar { };
 
   # TODO : Add MIT Kerberos and let admin choose.
@@ -4366,6 +4386,9 @@ let
 
   libiconvOrLibc = if libiconvOrNull == null then gcc.libc else libiconv;
 
+  # On non-GNU systems we need GNU Gettext for libintl.
+  libintlOrEmpty = stdenv.lib.optional (!stdenv.isLinux) gettext;
+
   libid3tag = callPackage ../development/libraries/libid3tag { };
 
   libidn = callPackage ../development/libraries/libidn { };
@@ -4461,6 +4484,8 @@ let
   libosip = callPackage ../development/libraries/osip {};
 
   libotr = callPackage ../development/libraries/libotr { };
+
+  libotr_3_2 = callPackage ../development/libraries/libotr/3.2.nix { };
 
   libp11 = callPackage ../development/libraries/libp11 { };
 
@@ -5349,17 +5374,28 @@ let
   # regardless.
   python26Packages = import ./python-packages.nix {
     inherit pkgs;
+    inherit (lib) lowPrio;
     python = python26;
   };
 
   python27Packages = recurseIntoAttrs (import ./python-packages.nix {
     inherit pkgs;
+    inherit (lib) lowPrio;
     python = python27;
   });
 
-  plone43Packages = recurseIntoAttrs (import ../development/web/plone {
+  plone41Packages = recurseIntoAttrs (import ../development/web/plone/4.1.6.nix {
     inherit pkgs;
-    python = python27;
+    pythonPackages = python27Packages;
+  });
+
+  plone42Packages = recurseIntoAttrs (import ../development/web/plone/4.2.5.nix {
+    inherit pkgs;
+    pythonPackages = python27Packages;
+  });
+
+  plone43Packages = recurseIntoAttrs (import ../development/web/plone/4.3.0.nix {
+    inherit pkgs;
     pythonPackages = python27Packages;
   });
 
@@ -6220,6 +6256,8 @@ let
     config = config.pcmciaUtils.config or null;
   };
 
+  plymouth = callPackage ../os-specific/linux/plymouth { };
+
   pmount = callPackage ../os-specific/linux/pmount { };
 
   pmutils = callPackage ../os-specific/linux/pm-utils { };
@@ -6332,7 +6370,9 @@ let
   udev145 = callPackage ../os-specific/linux/udev/145.nix { };
   udev = pkgs.systemd;
 
-  udisks = callPackage ../os-specific/linux/udisks { };
+  udisks1 = callPackage ../os-specific/linux/udisks/1-default.nix { };
+  udisks2 = callPackage ../os-specific/linux/udisks/2-default.nix { };
+  udisks = udisks1;
 
   untie = callPackage ../os-specific/linux/untie { };
 
@@ -6686,6 +6726,7 @@ let
     # For some reason, TLS support is broken when using GnuTLS 3.0 (can't
     # connect to jabber.org, for instance.)
     gnutls = gnutls2;
+    libotr = libotr_3_2;
   };
 
   blender = callPackage ../applications/misc/blender {
@@ -6824,6 +6865,8 @@ let
       ghostscript jasper xz;
     inherit (xlibs) libX11;
   };
+
+  doodle = callPackage ../applications/search/doodle { };
 
   dunst = callPackage ../applications/misc/dunst { };
 
@@ -7111,6 +7154,8 @@ let
     jre = jdk;
   };
 
+  freenet = callPackage ../applications/networking/p2p/freenet { };
+
   freepv = callPackage ../applications/graphics/freepv { };
 
   xfontsel = callPackage ../applications/misc/xfontsel { };
@@ -7205,7 +7250,7 @@ let
   gphoto2 = callPackage ../applications/misc/gphoto2 { };
 
   gphoto2fs = builderDefsPackage ../applications/misc/gphoto2/gphotofs.nix {
-    inherit libgphoto2 fuse pkgconfig glib;
+    inherit libgphoto2 fuse pkgconfig glib libtool;
   };
 
   graphicsmagick = callPackage ../applications/graphics/graphicsmagick { };
@@ -7271,6 +7316,8 @@ let
   hello = callPackage ../applications/misc/hello/ex-2 { };
 
   hexedit = callPackage ../applications/editors/hexedit { };
+
+  hipchat = callPackage_i686 ../applications/networking/instant-messengers/hipchat { };
 
   homebank = callPackage ../applications/office/homebank { };
 
@@ -7351,6 +7398,10 @@ let
   iptraf = callPackage ../applications/networking/iptraf { };
 
   irssi = callPackage ../applications/networking/irc/irssi { };
+
+  irssi_fish = callPackage ../applications/networking/irc/irssi/fish { };
+
+  irssi_otr = callPackage ../applications/networking/irc/irssi/otr { };
 
   bip = callPackage ../applications/networking/irc/bip { };
 
@@ -7438,9 +7489,7 @@ let
   links = callPackage ../applications/networking/browsers/links { };
 
   ledger = callPackage ../applications/office/ledger/2.6.3.nix { };
-  ledger3 = callPackage ../applications/office/ledger/3.0.nix {
-    boost = boost149;
-  };
+  ledger3 = callPackage ../applications/office/ledger/3.0.nix { };
 
   links2 = callPackage ../applications/networking/browsers/links2 { };
 
@@ -7811,6 +7860,9 @@ let
   skype = callPackage_i686 ../applications/networking/instant-messengers/skype {
     usePulseAudio = config.pulseaudio or true;
   };
+
+  skype4pidgin = callPackage ../applications/networking/instant-messengers/pidgin-plugins/skype4pidgin { };
+
 
   skype_call_recorder = callPackage ../applications/networking/instant-messengers/skype-call-recorder { };
 
@@ -8548,17 +8600,25 @@ let
 
   gnome = recurseIntoAttrs gnome2;
 
-  kde4 = recurseIntoAttrs pkgs.kde47;
+  kde4 = recurseIntoAttrs pkgs.kde48;
 
   kde47 = kdePackagesFor (pkgs.kde47 // {
       boost = boost149;
       eigen = eigen2;
+      libotr = libotr_3_2;
     }) ../desktops/kde-4.7;
 
   kde48 = kdePackagesFor (pkgs.kde48 // {
       boost = boost149;
       eigen = eigen2;
+      libotr = libotr_3_2;
     }) ../desktops/kde-4.8;
+
+  kde410 = kdePackagesFor (pkgs.kde410 // {
+      boost = boost149;
+      eigen = eigen2;
+      libotr = libotr_3_2;
+    }) ../desktops/kde-4.10;
 
   kdePackagesFor = self: dir:
     let callPackageOrig = callPackage; in
@@ -8984,6 +9044,8 @@ let
 
   gxemul = callPackage ../misc/gxemul { };
 
+  hatari = callPackage ../misc/emulators/hatari { };
+
   hplip = callPackage ../misc/drivers/hplip { };
 
   # using the new configuration style proposal which is unstable
@@ -9228,5 +9290,7 @@ let
   misc = import ../misc/misc.nix { inherit pkgs stdenv; };
 
   bullet = callPackage ../development/libraries/bullet {};
+
+  dart = callPackage ../development/interpreters/dart { };
 
 }; in pkgs

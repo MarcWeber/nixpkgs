@@ -89,6 +89,16 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
     ghc = ghc; # refers to ghcPlain
   };
 
+  # The normal GHC wrapper doesn't create links to the documentation in
+  # ~/.nix-profile. Having this second wrapper allows us to remedy the
+  # situation without re-building all Haskell packages. At the next
+  # stdenv-updates merge, this second wrapper will go away.
+
+  ghcUserEnvWrapper = pkgs.appendToName "new" (callPackage ../development/compilers/ghc/wrapper.nix {
+    ghc = ghc; # refers to ghcPlain
+    forUserEnv = true;
+  });
+
   # An experimental wrapper around ghcPlain that does not automatically
   # pick up packages from the profile, but instead has a fixed set of packages
   # in its global database. The set of packages can be specified as an
@@ -104,16 +114,13 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   cabal = callPackage ../build-support/cabal {
     enableLibraryProfiling = enableLibraryProfiling;
+    enableCheckPhase = pkgs.stdenv.lib.versionOlder "7.4" self.ghc.ghcVersion;
   };
 
   # A variant of the cabal build driver that disables unit testing.
   # Useful for breaking cycles, where the unit test of a package A
   # depends on package B, which has A as a regular build input.
-  cabalNoTest = {
-    mkDerivation = x: rec {
-      final = self.cabal.mkDerivation (self: (x final) // { doCheck = false; });
-    }.final;
-  };
+  cabalNoTest = self.cabal.override { enableCheckPhase = false; };
 
   # Convenience helper function.
   disableTest = x: x.override { cabal = self.cabalNoTest; };
@@ -150,7 +157,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
     regexBase    = self.regexBase_0_93_2;       # 7.6 ok
     regexCompat  = self.regexCompat_0_95_1;     # 7.6 ok
     regexPosix   = self.regexPosix_0_95_2;      # 7.6 ok
-    split        = self.split_0_2_1_3;          # 7.6 ok
+    split        = self.split_0_2_2;            # 7.6 ok
     stm          = self.stm_2_4_2;              # 7.6 ok
     syb          = self.syb_0_4_0;              # 7.6 ok
     text         = self.text_0_11_2_3;          # 7.6 ok
@@ -440,7 +447,13 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   # Haskell libraries.
 
-  Agda = callPackage ../development/libraries/haskell/Agda {};
+  acidState = callPackage ../development/libraries/haskell/acid-state {};
+
+  Agda = callPackage ../development/libraries/haskell/Agda {
+    hashable = self.hashable_1_1_2_5;
+    hashtables = self.hashtables.override { hashable = self.hashable_1_1_2_5; };
+    unorderedContainers = self.unorderedContainers.override { hashable = self.hashable_1_1_2_5; };
+  };
 
   accelerate = callPackage ../development/libraries/haskell/accelerate {};
 
@@ -607,6 +620,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   ChasingBottoms = callPackage ../development/libraries/haskell/ChasingBottoms {};
 
+  checkers = callPackage ../development/libraries/haskell/checkers {};
+
   citeprocHs = callPackage ../development/libraries/haskell/citeproc-hs {};
 
   cipherAes = callPackage ../development/libraries/haskell/cipher-aes {};
@@ -684,7 +699,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   cuda_0_4_1_1 = callPackage ../development/libraries/haskell/cuda/0.4.1.1.nix {
     inherit (pkgs.linuxPackages) nvidia_x11;
   };
-  cuda_0_5_0_1 = callPackage ../development/libraries/haskell/cuda/0.5.0.1.nix {
+  cuda_0_5_0_2 = callPackage ../development/libraries/haskell/cuda/0.5.0.2.nix {
     inherit (pkgs.linuxPackages) nvidia_x11;
   };
   cuda = self.cuda_0_4_1_1;
@@ -992,16 +1007,14 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   happstackHamlet = callPackage ../development/libraries/haskell/happstack/happstack-hamlet.nix {};
 
   hashable_1_1_2_5 = callPackage ../development/libraries/haskell/hashable/1.1.2.5.nix {};
-  hashable_1_2_0_5 = callPackage ../development/libraries/haskell/hashable/1.2.0.5.nix {};
-  hashable = self.hashable_1_1_2_5;
+  hashable_1_2_0_6 = callPackage ../development/libraries/haskell/hashable/1.2.0.6.nix {};
+  hashable = self.hashable_1_2_0_6;
 
   hashedStorage = callPackage ../development/libraries/haskell/hashed-storage {};
 
   hashtables = callPackage ../development/libraries/haskell/hashtables {};
 
-  haskeline_0_6_4_7 = callPackage ../development/libraries/haskell/haskeline/0.6.4.7.nix {};
-  haskeline_0_7_0_3 = callPackage ../development/libraries/haskell/haskeline/0.7.0.3.nix {};
-  haskeline = self.haskeline_0_7_0_3;
+  haskeline = callPackage ../development/libraries/haskell/haskeline {};
 
   haskelineClass = callPackage ../development/libraries/haskell/haskeline-class {};
 
@@ -1472,7 +1485,9 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   ppm = callPackage ../development/libraries/haskell/ppm {};
 
-  prettyShow = callPackage ../development/libraries/haskell/pretty-show {};
+  prettyShow_1_2 = callPackage ../development/libraries/haskell/pretty-show/1.2.nix {};
+  prettyShow_1_5 = callPackage ../development/libraries/haskell/pretty-show/1.5.nix {};
+  prettyShow = self.prettyShow_1_5;
 
   punycode = callPackage ../development/libraries/haskell/punycode {};
 
@@ -1599,6 +1614,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   safe = callPackage ../development/libraries/haskell/safe {};
 
+  safecopy = callPackage ../development/libraries/haskell/safecopy {};
+
   SafeSemaphore = callPackage ../development/libraries/haskell/SafeSemaphore {};
 
   scotty = callPackage ../development/libraries/haskell/scotty {};
@@ -1708,8 +1725,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   SMTPClient = callPackage ../development/libraries/haskell/SMTPClient {};
 
   split_0_2_1_1 = callPackage ../development/libraries/haskell/split/0.2.1.1.nix {};
-  split_0_2_1_3 = callPackage ../development/libraries/haskell/split/0.2.1.3.nix {};
-  split = self.split_0_2_1_3;
+  split_0_2_2 = callPackage ../development/libraries/haskell/split/0.2.2.nix {};
+  split = self.split_0_2_2;
 
   stbImage = callPackage ../development/libraries/haskell/stb-image {};
 
@@ -1774,8 +1791,6 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   testFrameworkTh = callPackage ../development/libraries/haskell/test-framework-th {};
 
   testFrameworkThPrime = callPackage ../development/libraries/haskell/test-framework-th-prime {};
-
-  testpack = callPackage ../development/libraries/haskell/testpack {};
 
   texmath = callPackage ../development/libraries/haskell/texmath {};
 
@@ -1895,6 +1910,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   waiAppStatic = callPackage ../development/libraries/haskell/wai-app-static {};
 
   waiExtra = callPackage ../development/libraries/haskell/wai-extra {};
+
+  waiHandlerLaunch = callPackage ../development/libraries/haskell/wai-handler-launch {};
 
   waiLogger = callPackage ../development/libraries/haskell/wai-logger {};
 

@@ -7,7 +7,7 @@
 , stdenv, fetchurl, pkgconfig, x11, fontconfig, freetype, xlibs
 , expat
 , zlib, libpng, pixman, libxcb ? null, xcbutil ? null, mesa ? null
-, gettext, libiconvOrEmpty
+, libiconvOrEmpty, libintlOrEmpty
 }:
 
 assert postscriptSupport -> zlib != null;
@@ -28,7 +28,7 @@ stdenv.mkDerivation rec {
     ++ stdenv.lib.optional (!stdenv.isDarwin) libXrender
     ++ stdenv.lib.optionals xcbSupport [ libxcb xcbutil ]
     ++ stdenv.lib.optionals glSupport [ mesa ]
-
+    ++ libintlOrEmpty
     ++ libiconvOrEmpty;
 
   propagatedBuildInputs =

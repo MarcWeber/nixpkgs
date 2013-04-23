@@ -4862,18 +4862,14 @@ let
 
   policykit = callPackage ../development/libraries/policykit { };
 
-  poppler = callPackage ../development/libraries/poppler {
-    gtkSupport = true;
-    qt4Support = false;
-  };
-  poppler_0_18 = callPackage ../development/libraries/poppler/0.18.nix {
-    gtkSupport = true;
-    qt4Support = false;
-  };
+  poppler = let popplers = callPackage ../development/libraries/poppler { };
+    in popplers // popplers.poppler_glib;
+  popplerQt4 = poppler.poppler_qt4;
 
-  popplerQt4 = poppler.override {
-    gtkSupport = false;
-    qt4Support = true;
+  poppler_0_18 = callPackage ../development/libraries/poppler/0.18.nix {
+    glibSupport = true;
+    gtk3Support = false;
+    qt4Support  = false;
   };
 
   popt = callPackage ../development/libraries/popt { };
@@ -5716,11 +5712,12 @@ let
   xinetd = callPackage ../servers/xinetd { };
 
   xorg = recurseIntoAttrs (import ../servers/x11/xorg/default.nix {
-    inherit fetchurl fetchsvn stdenv pkgconfig freetype fontconfig
+    inherit fetchurl fetchsvn stdenv pkgconfig intltool freetype fontconfig
       libxslt expat libdrm libpng zlib perl mesa
       xkeyboard_config dbus libuuid openssl gperf m4
       autoconf libtool xmlto asciidoc udev flex bison python mtdev;
     automake = automake110x;
+    pixman = pixman_cairo;
   });
 
   xorgReplacements = callPackage ../servers/x11/xorg/replacements.nix { };

@@ -2956,7 +2956,6 @@ let
   pure = callPackage ../development/interpreters/pure {};
 
   python3 = hiPrio (callPackage ../development/interpreters/python/3.3 { });
-  python33 = callPackage ../development/interpreters/python/3.3 { };
 
   python = python27;
   python26 = callPackage ../development/interpreters/python/2.6 { };
@@ -6741,7 +6740,7 @@ let
     libotr = libotr_3_2;
   };
 
-  blender = callPackage ../applications/misc/blender {
+  blender = callPackage  ../applications/misc/blender {
     inherit (xlibs) libXi;
     python = python3;
   };
@@ -7611,6 +7610,8 @@ let
 
   ncmpcpp = callPackage ../applications/audio/ncmpcpp { };
 
+  nip2 = callPackage ../applications/graphics/nips2 { };
+
   normalize = callPackage ../applications/audio/normalize { };
 
   mplayer = callPackage ../applications/video/mplayer {
@@ -7872,6 +7873,8 @@ let
 
   skype_call_recorder = callPackage ../applications/networking/instant-messengers/skype-call-recorder { };
 
+  smart-deblur = callPackage ../applications/graphics/smart-deblur { };
+
   st = callPackage ../applications/misc/st { };
 
   dropbox = callPackage ../applications/networking/dropbox { };
@@ -8057,6 +8060,8 @@ let
 
   vbindiff = callPackage ../applications/editors/vbindiff { };
 
+  vips = callPackage ../applications/graphics/vips { };
+
   vdpauinfo = callPackage ../tools/X11/vdpauinfo { };
 
   veracity = callPackage ../applications/version-management/veracity {};
@@ -8127,11 +8132,9 @@ let
       glSupport = true;
     };
   };
-    
-  wings = callPackage ../applications/graphics/wings {
-    erlang = erlangR14B04;
-    esdl = esdl.override { erlang = erlangR14B04; };
-  };
+
+  # TODO: merge with master?
+  wings = callPackage ../applications/graphics/wings { };
 
   wmname = callPackage ../applications/misc/wmname { };
 

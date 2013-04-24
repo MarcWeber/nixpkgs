@@ -1,5 +1,5 @@
 { stdenv, fetchurl, pkgconfig, gettext, perl, libiconvOrNull, zlib, libffi
-, python, pcre, libelf 
+, python, pcre, libelf
 , version ? "2.36.0"
 }:
 
@@ -26,9 +26,9 @@ let
   '';
 in
 stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "glib" version {
+
     # "2.30.3" = {
     #     name = "glib-2.30.3";
-
     #     src = fetchurl {
     #       url = mirror://gnome/sources/glib/2.30/glib-2.30.3.tar.xz;
     #       sha256 = "09yxfajynbw78kji48z384lylp67kihfi1g78qrrjif4f5yb5jz6";
@@ -46,12 +46,12 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "glib" version {
     #     };
     # };
 
-    "2.34.0" = rec {
-      name = "glib-2.34.0";
+    "2.34.3" = rec {
+      name = "glib-2.34.3";
 
       src = fetchurl {
         url = "mirror://gnome/sources/glib/2.34/${name}.tar.xz";
-        sha256 = "f69b112f8848be35139d9099b62bc81649241f78f6a775516f0d4c9b47f65144";
+        sha256 = "19sq4rhl2vr8ikjvl8qh51vr38yqfhbkb3imi2s6ac5rgkwcnpw5";
       };
     };
 

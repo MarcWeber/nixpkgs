@@ -3,6 +3,10 @@
 , glib, kbd, libxslt, coreutils, libgcrypt, sysvtools, docbook_xsl
 }:
 
+# note: systemd contains udev which contained gudev
+
+assert stdenv.gcc.libc or null != null;
+
 stdenv.mkDerivation rec {
   version = "201";
   name = "systemd-${version}";

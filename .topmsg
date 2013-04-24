@@ -1,6 +1,4 @@
 From: Marc Weber <marco-oweber@gmx.de>
-Subject: [PATCH] experimental/x-updates
+Subject: [PATCH] experimental/color-management
 
-merge x-updates
-
-Signed-off-by: Marc Weber <marco-oweber@gmx.de>
+colorhug related additional packages

@@ -602,6 +602,13 @@ let
 
   ciopfs = callPackage ../tools/filesystems/ciopfs { };
 
+  colord = callPackage ../tools/misc/colord { };
+
+
+  gusb = callPackage ../development/libraries/gusb { 
+    inherit (gnome) gtkdoc;
+  };
+
   colordiff = callPackage ../tools/text/colordiff { };
 
   connect = callPackage ../tools/networking/connect { };

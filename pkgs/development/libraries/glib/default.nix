@@ -103,7 +103,9 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "glib" version {
     platforms = stdenv.lib.platforms.linux;
   };
 }
+
 //
+
 (stdenv.lib.optionalAttrs stdenv.isDarwin {
   # XXX: Disable the NeXTstep back-end because stdenv.gcc doesn't support
   # Objective-C.

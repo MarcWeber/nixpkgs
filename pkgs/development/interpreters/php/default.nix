@@ -46,6 +46,35 @@
 , lessThan54 ? builtins.lessThan (builtins.compareVersions version "5.4") 0
 }:
 
+/* version specific notes:
+   5.2: no longer maintained - use at your own risk. php-fpm patch requires an
+        /etc/php-fpm-5.2.conf file. fpm support is experimental - also options
+        may no longer build
+
+        Yes - we should discussing removing this version- however you never know when
+        you need it - it still works - and there are customer still running old
+        code ..
+
+   5.3, 5.4: maintained officially. Everything which does not work is a bug
+
+  Having all versions in one file can be considered "complicated" - but I feel
+  more code is shared - so I think its the simplest way - unless configuration
+  changes dramatically
+
+  The php derivation also has special names:
+
+  apc                   : PHP cache, might be included in PHP 6 eventually, so you might prefer this over xcache
+  xcache                : another cache implementation
+  xdebug                : module required to debug PHP - seems to build for all PHP versions
+  system_fpm_config     : provides nixos config values providing the same "API" for PHP 5.2 and 5.3
+                          See nixos module for details
+
+  id                    : something uniq identifying PHP configure options. Its
+                          used by the nixos module to find out which pools may
+                          be controlled by the same daemon. Eg to reduce security risks you
+                          can have special extensions enabled for some projects only.
+*/
+
 let
 
   libxml2 = if lessThan53 then pkgs.libxml2.override { version = "2.7.8"; } else pkgs.libxml2;

@@ -25,10 +25,10 @@ rec {
 
 
   ack = buildPerlPackage rec {
-    name = "ack-1.92";
+    name = "ack-2.02";
     src = fetchurl {
       url = "mirror://cpan/authors/id/P/PE/PETDANCE/${name}.tar.gz";
-      sha256 = "8689156cb0639ff60adee47fc4b77e656cf0fc58e6c123ee6c481d9d48e99b88";
+      sha256 = "de5560f2ce6334f3f83bef4ee942fdb09b792f05cf534fe67be3cb0431bf758f";
     };
     propagatedBuildInputs = [ FileNext ];
     meta = {
@@ -36,6 +36,10 @@ rec {
       homepage = http://betterthangrep.com/;
       license = "free";  # Artistic 2.0
     };
+    # t/swamp/{0,perl-without-extension} are datafiles for the test
+    # t/ack-show-types.t, but the perl generic builder confuses them
+    # for scripts and purifies them, making the test fail.
+    preCheck = "sed -i '1s,.*,#!/usr/bin/perl -w,' t/swamp/0 t/swamp/perl-without-extension";
   };
 
   AlgorithmAnnotate = buildPerlPackage {
@@ -338,10 +342,10 @@ rec {
   };
 
   CatalystActionREST = buildPerlPackage {
-    name = "Catalyst-Action-REST-1.06";
+    name = "Catalyst-Action-REST-1.07";
     src = fetchurl {
-      url = mirror://cpan/authors/id/B/BO/BOBTFISH/Catalyst-Action-REST-1.06.tar.gz;
-      sha256 = "0z72cf8zgmwmcqlhkawz9fikc0g44972sidfs16x7rwdhzavd01k";
+      url = mirror://cpan/authors/id/B/BO/BOBTFISH/Catalyst-Action-REST-1.07.tar.gz;
+      sha256 = "0c893iia1bmqlrknylaqhc9ln1xqz7yw9z639rxmyjyidx5b4q0d";
     };
     propagatedBuildInputs = [ CatalystRuntime ClassInspector ConfigGeneral DataSerializer DataTaxi FreezeThaw HTMLParser JSONXS LWPUserAgent Moose MROCompat namespaceautoclean ParamsValidate PHPSerialization URIFind XMLSimple YAMLSyck ];
     meta = {
@@ -1541,13 +1545,15 @@ rec {
   };
 
   DBIxClass = buildPerlPackage {
-    name = "DBIx-Class-0.08204";
+    name = "DBIx-Class-0.08210";
     src = fetchurl {
-      url = mirror://cpan/authors/id/G/GE/GETTY/DBIx-Class-0.08204.tar.gz;
-      sha256 = "0pghq6b60fyffb233hdk9qi47wcbf2sgp08679v9nxh4i5qp49gx";
+      url = mirror://cpan/authors/id/R/RI/RIBASUSHI/DBIx-Class-0.08210.tar.gz;
+      sha256 = "0sajw5j3zpgf44zaif5sp98xpkdfmzfn76c8anljfx48qh7r22y4";
     };
     buildInputs = [ DBDSQLite PackageStash TestException TestWarn ];
     propagatedBuildInputs = [ ClassAccessorGrouped ClassC3Componentised ClassInspector ClassMethodModifiers ConfigAny ContextPreserve DataCompare DataDumperConcise DataPage DBI DevelGlobalDestruction HashMerge ModuleFind Moo MROCompat namespaceclean PathClass ScopeGuard SQLAbstract strictures SubName TryTiny ];
+    # !!! tests broken with latest sqlite, see http://lists.scsys.co.uk/pipermail/dbix-class/2013-April/011271.html
+    doCheck = false;
     meta = {
       homepage = http://www.dbix-class.org/;
       description = "Extensible and flexible object <-> relational mapper";
@@ -1996,10 +2002,10 @@ rec {
   };
 
   FileNext = buildPerlPackage rec {
-    name = "File-Next-1.06";
+    name = "File-Next-1.12";
     src = fetchurl {
       url = "mirror://cpan/authors/id/P/PE/PETDANCE/${name}.tar.gz";
-      sha256 = "36cc0a4e5e4e44e04f7bea6f7453db517acc1a1b35a2b5fe5bc14cea0f560662";
+      sha256 = "cc3afd8eaf6294aba93b8152a269cc36a9df707c6dc2c149aaa04dabd869e60a";
     };
   };
 

@@ -1804,7 +1804,6 @@ in
     gigolo = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
     gtk_xfce_engine = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
     gvfs = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
-    libgdu = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
     libxfce4ui = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
     libxfce4util = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
     libxfcegui4 = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
@@ -1938,7 +1937,6 @@ in
     xmessage = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
     xmodmap = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
     xorgserver = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
-    xorgserver_1_13_0 = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
     xpr = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
     xprop = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
     xrandr = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };

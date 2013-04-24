@@ -373,7 +373,6 @@ in
   gcj44 = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
   gcj46 = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
   gcl = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
-  GConf3 = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
   gdb = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
   gdbCross = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
   gdk_pixbuf = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
@@ -1033,7 +1032,6 @@ in
   libgpod = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
   libgsf = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
   libgtop = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
-  libgweather = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
   libimobiledevice = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
   libinfinity = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
   liblapack = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
@@ -1939,7 +1937,6 @@ in
     xmessage = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
     xmodmap = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
     xorgserver = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
-    xorgserver_1_13_0 = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
     xpr = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
     xprop = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };
     xrandr = { type = "job"; systems = ["x86_64-linux"]; schedulingPriority = 4; };

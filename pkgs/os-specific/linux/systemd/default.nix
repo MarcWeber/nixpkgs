@@ -27,7 +27,7 @@ stdenv.mkDerivation rec {
       ./0008-Don-t-try-to-unmount-nix-or-nix-store.patch
     ] ++ stdenv.lib.optional stdenv.isArm ./libc-bug-accept4-arm.patch;
 
-  buildInputs =
+  buildInputs = assert stdenv.gcc.libc or null != null; # assertion here, so it doesn't trigger on passthru.headers
     [ pkgconfig intltool gperf libcap dbus.libs kmod xz pam acl
       /* cryptsetup */ libuuid m4 glib libxslt libgcrypt docbook_xsl
     ];

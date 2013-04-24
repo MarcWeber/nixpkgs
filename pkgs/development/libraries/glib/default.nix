@@ -13,10 +13,22 @@
 #     Reminder: add 'sed -e 's@python2\.[0-9]@python@' -i
 #       $out/bin/gtester-report' to postInstall if this is solved
 
+let
+  # some packages don't get "Cflags" from pkgconfig correctly
+  # and then fail to build when directly including like <glib/...>
+  flattenInclude = ''
+    for dir in $out/include/*; do
+      cp -r $dir/* "$out/include/"
+      rm -r "$dir"
+      ln -s . "$dir"
+    done
+    ln -sr -t "$out/include/" $out/lib/*/include/* 2>/dev/null || true
+  '';
+in
 stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "glib" version {
+
     # "2.30.3" = {
     #     name = "glib-2.30.3";
-
     #     src = fetchurl {
     #       url = mirror://gnome/sources/glib/2.30/glib-2.30.3.tar.xz;
     #       sha256 = "09yxfajynbw78kji48z384lylp67kihfi1g78qrrjif4f5yb5jz6";
@@ -53,7 +65,7 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "glib" version {
       };
     };
 
-} { 
+} {
 
   # configure script looks for d-bus but it is only needed for tests
   buildInputs = [ libiconvOrNull libelf ];
@@ -66,9 +78,12 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "glib" version {
 
   enableParallelBuilding = true;
 
-  passthru.gioModuleDir = "lib/gio/modules";
-
   postInstall = ''rm -rvf $out/share/gtk-doc'';
+
+  passthru = {
+     gioModuleDir = "lib/gio/modules";
+     inherit flattenInclude;
+  };
 
   meta = {
     description = "GLib, a C library of programming buildings blocks";
@@ -88,7 +103,9 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "glib" version {
     platforms = stdenv.lib.platforms.linux;
   };
 }
+
 //
+
 (stdenv.lib.optionalAttrs stdenv.isDarwin {
   # XXX: Disable the NeXTstep back-end because stdenv.gcc doesn't support
   # Objective-C.

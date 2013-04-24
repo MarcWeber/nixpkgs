@@ -1,18 +1,18 @@
 { stdenv, fetchurl, xlibs, flex, bison, mesa, alsaLib
 , ncurses, libpng, libjpeg, lcms, freetype, fontconfig, fontforge
-, libxml2, libxslt, openssl, gnutls, cups
+, libxml2, libxslt, openssl, gnutls, cups, libdrm
 }:
 
 assert stdenv.isLinux;
 assert stdenv.gcc.gcc != null;
 
 stdenv.mkDerivation rec {
-  version = "1.5.25";
+  version = "1.5.28";
   name = "wine-${version}";
 
   src = fetchurl {
     url = "mirror://sourceforge/wine/${name}.tar.bz2";
-    sha256 = "0812ryv1v0gqr13vmvjci09k89qhcr1qs0n052z4zw0vpipjd4rx";
+    sha256 = "0ik02c11bp1glafcw82drkmjp8lxrkycvas3jlrvf1rv46blpy0b";
   };
 
   gecko = fetchurl {
@@ -32,7 +32,7 @@ stdenv.mkDerivation rec {
   # them to the RPATH so that the user doesn't have to set them in
   # LD_LIBRARY_PATH.
   NIX_LDFLAGS = map (path: "-rpath ${path}/lib ") [
-    freetype fontconfig stdenv.gcc.gcc mesa mesa.libdrm
+    freetype fontconfig stdenv.gcc.gcc mesa libdrm
     xlibs.libXinerama xlibs.libXrender xlibs.libXrandr
     xlibs.libXcursor xlibs.libXcomposite libpng libjpeg
     openssl gnutls cups

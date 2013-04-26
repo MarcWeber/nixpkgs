@@ -50,6 +50,17 @@ stdenv.mkDerivation (rec {
      inherit flattenInclude;
   };
 
+
+ postConfigure =
+  # https://bugzilla.gnome.org/show_bug.cgi?id=698
+  "sed '/SANE_MALLOC_PROTOS/s,^,//,' -i config.h"
+  + (
+     # XXX: Disable the NeXTstep back-end because stdenv.gcc doesn't support
+     # Objective-C.
+    stdenv.lib.optionalString stdenv.isDarwin
+    '' sed -i configure -e's/glib_have_cocoa=yes/glib_have_cocoa=no/g'
+  '');
+
   meta = {
     description = "GLib, a C library of programming buildings blocks";
 
@@ -67,14 +78,4 @@ stdenv.mkDerivation (rec {
     maintainers = with stdenv.lib.maintainers; [raskin urkud];
     platforms = stdenv.lib.platforms.linux;
   };
-}
-
-//
-
-(stdenv.lib.optionalAttrs stdenv.isDarwin {
-  # XXX: Disable the NeXTstep back-end because stdenv.gcc doesn't support
-  # Objective-C.
-  postConfigure =
-    '' sed -i configure -e's/glib_have_cocoa=yes/glib_have_cocoa=no/g'
-    '';
-}))
+})

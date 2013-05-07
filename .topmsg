@@ -3,7 +3,12 @@ Subject: [PATCH] tmp/gtk3
 
 gtk3 related updates:
 pygtk is now contained in pygobject
-gobjectIntrospection now creates interface files
+gobjectIntrospection now creates interface files:
+- typelib files
+- gir files
+typelib files are compressed gir files
+Eventually multiple derivation outputs should be used, because uncompressed gir
+xml files are huge (30% of the final gobject gtk derivation for instance)
 
 this makes it possible to compile:
 - gnome color manager (colord)

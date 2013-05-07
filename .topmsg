@@ -1,6 +1,11 @@
 From: Marc Weber <marco-oweber@gmx.de>
-Subject: [PATCH] tmp/x-updates-fixes
+Subject: [PATCH] tmp/gtk3
 
-- keep tigervnc building by using older xorg source (patches etc are fine)
+gtk3 related updates:
+pygtk is now contained in pygobject
+gobjectIntrospection now creates interface files
 
-fixing some problems found in x-updates
+this makes it possible to compile:
+- gnome color manager (colord)
+- dispcalgui
+- mypaint (git version)

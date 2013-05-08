@@ -1,16 +1,5 @@
 From: Marc Weber <marco-oweber@gmx.de>
-Subject: [PATCH] tmp/gtk3
+Subject: [PATCH] tmp/colord
 
-gtk3 related updates:
-pygtk is now contained in pygobject
-gobjectIntrospection now creates interface files:
-- typelib files
-- gir files
-typelib files are compressed gir files
-Eventually multiple derivation outputs should be used, because uncompressed gir
-xml files are huge (30% of the final gobject gtk derivation for instance)
+adding colord
 
-this makes it possible to compile:
-- gnome color manager (colord)
-- dispcalgui
-- mypaint (git version)

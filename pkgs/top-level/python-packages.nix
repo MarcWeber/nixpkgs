@@ -629,11 +629,12 @@ pythonPackages = python.modules // rec {
 
 
   cherrypy = buildPythonPackage (rec {
-    name = "cherrypy-3.1.2";
+    name = "cherrypy-${version}";
+    version = "3.2.2";
 
     src = fetchurl {
-      url = "http://download.cherrypy.org/cherrypy/3.1.2/CherryPy-3.1.2.tar.gz";
-      sha256 = "1xlvanhnxgvwd7vvypbafyl6yqfkpnwa9rs9k3058z84gd86bz8d";
+      url = "http://download.cherrypy.org/cherrypy/${version}/CherryPy-${version}.tar.gz";
+      sha256 = "14dn129h69wj0h8yr0bjwbrk8kygl6mkfnxc5m3fxhlm4xb8hnnw";
     };
 
     # error: invalid command 'test'
@@ -1476,6 +1477,22 @@ pythonPackages = python.modules // rec {
     };
   };
 
+  doxypy = buildPythonPackage rec {
+    name = "doxypy-0.4.2";
+
+    src = fetchurl {
+      url = "http://code.foosel.org/files/${name}.tar.gz";
+      sha256 = "1afmb30zmy7942b53qa5vd3js883wwqqls35n8xfb3rnj0qnll8g";
+    };
+
+    meta = {
+      homepage = http://code.foosel.org/doxypy;
+      description = "An input filter for Doxygen";
+    };
+
+    doCheck = false;
+  };
+
 
   dtopt = buildPythonPackage rec {
     name = "dtopt-0.1";
@@ -1645,11 +1662,11 @@ pythonPackages = python.modules // rec {
 
 
   foolscap = buildPythonPackage (rec {
-    name = "foolscap-0.6.1";
+    name = "foolscap-0.6.4";
 
     src = fetchurl {
       url = "http://foolscap.lothar.com/releases/${name}.tar.gz";
-      sha256 = "8b3e4fc678c5c41483b3130666583a1c3909713adcd325204daded7b67171ed5";
+      sha256 = "16cddyk5is0gjfn0ia5n2l4lhdzvbjzlx6sfpy7ddjd3d3fq7ckl";
     };
 
     propagatedBuildInputs = [ twisted pkgs.pyopenssl ];
@@ -2029,6 +2046,28 @@ pythonPackages = python.modules // rec {
     meta = {
       description = "A unified interface to many cloud providers";
       homepage = http://incubator.apache.org/libcloud/;
+    };
+  });
+
+
+  limnoria = buildPythonPackage (rec {
+    name = "limnoria-20130327";
+
+    src = fetchurl {
+      url = https://pypi.python.org/packages/source/l/limnoria/limnoria-2013-03-27T16:32:26+0100.tar.gz;
+      name = "limnoria-2013-03-27.tar.gz";
+      sha256 = "0xfaa6h8css3yhsmx5vcffizrz6mvmgm46q7449z3hq7g3793184";
+    };
+
+    propagatedBuildInputs = [ python.modules.sqlite3 ];
+
+    doCheck = false;
+
+    meta = with stdenv.lib; {
+      description = "A modified version of Supybot, an IRC bot";
+      homepage = http://supybot.fr.cr;
+      license = licenses.bsd3;
+      maintainers = [ maintainers.goibhniu ];
     };
   });
 

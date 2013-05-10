@@ -9,19 +9,6 @@
 
 with stdenv.lib;
 
-let
-
-  # tigervnc depends on xorg server sources. It only compiles with older 1.13.0 soruce?
-  xorgserver_src = fetchurl {
-    url = mirror://xorg/individual/xserver/xorg-server-1.13.0.tar.bz2;
-    sha256 = "12pjis236ss3402cg1iy749cylajjp27m3j2jbwd8yh8075r32sl";
-  };
-  # patches didn't change
-  xorgserver_patches = xorgserver.patches;
-  xorgserver_nativeBuildInputs = xorgserver.nativeBuildInputs;
-
-in
-
 stdenv.mkDerivation rec {
   # Release version = "1.2.0";
   revision = 5005;
@@ -54,7 +41,7 @@ stdenv.mkDerivation rec {
 
   # I don't know why I can't use in the script
   # this:  ${concatStringsSep " " (map (f: "${f}") xorgserver.patches)}
-  xorgPatches = xorgserver_patches;
+  xorgPatches = xorgserver.patches;
 
   dontUseCmakeBuildDir = "yes";
 
@@ -62,7 +49,7 @@ stdenv.mkDerivation rec {
     export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -fpermissive -Wno-error=int-to-pointer-cast"
 
     # Build Xvnc
-    tar xf ${xorgserver_src}
+    tar xf ${xorgserver.src}
     cp -R xorg*/* unix/xserver
     pushd unix/xserver
     for a in $xorgPatches
@@ -99,7 +86,7 @@ stdenv.mkDerivation rec {
     [ autoconf automake cvs utilmacros fontutil libtool flex bison
       cmake
     ]
-      ++ xorgserver_nativeBuildInputs;
+      ++ xorgserver.nativeBuildInputs;
 
   propagatedNativeBuildInputs = xorgserver.propagatedNativeBuildInputs;
 

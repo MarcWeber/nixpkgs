@@ -1,5 +1,9 @@
 { stdenv, fetchurl, glib, flex, bison, pkgconfig, libffi, python, gdk_pixbuf }:
 
+# now that gobjectIntrospection creates large .gir files (eg gtk3 case)
+# it may be worth thinking about using multiple derivation outputs
+# In that case its about 6MB which could be separated
+
 stdenv.mkDerivation rec {
   name = "gobject-introspection-1.36.0";
 

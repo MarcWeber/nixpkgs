@@ -7631,6 +7631,7 @@ let
   mupdf = callPackage ../applications/misc/mupdf { };
 
   mypaint = callPackage ../applications/graphics/mypaint { };
+  mypaintGit = (mypaint.override { version = "git"; }).deepOverride { gtk = gtk3; };
 
   mythtv = callPackage ../applications/video/mythtv { };
 

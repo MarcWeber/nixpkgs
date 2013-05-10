@@ -586,10 +586,6 @@ let
 
   colord = callPackage ../tools/misc/colord { };
 
-  gusb = callPackage ../development/libraries/gusb {
-    inherit (gnome) gtkdoc;
-  };
-
   colordiff = callPackage ../tools/text/colordiff { };
 
   connect = callPackage ../tools/networking/connect { };
@@ -3927,6 +3923,10 @@ let
   gst_python = callPackage ../development/libraries/gstreamer/gst-python {};
 
   gnonlin = callPackage ../development/libraries/gstreamer/gnonlin {};
+
+  gusb = callPackage ../development/libraries/gusb {
+    inherit (gnome) gtkdoc;
+  };
 
   qt_gstreamer = callPackage ../development/libraries/gstreamer/qt-gstreamer {};
 

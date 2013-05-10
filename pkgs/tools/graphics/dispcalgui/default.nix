@@ -1,4 +1,4 @@
-{stdenv, fetchsvn, pythonPackages, xorg, pkgconfig, makeWrapper}:
+{stdenv, fetchsvn, pythonPackages, xorg, pkgconfig, makeWrapper, argyllcms}:
 
 /* is known to segfault when calibrating on ati proprietary hardware */
 
@@ -19,6 +19,9 @@ pythonPackages.buildPythonPackage {
     export HOME=`pwd`/home
     sed -i 's@X11/extensions/dpms.h@xcb/dpms.h@' dispcalGUI/RealDisplaySizeMM.c
     sed -i "s@/etc/udev/rules.d@$out/etc/udev/rules.d@" setup.py dispcalGUI/setup.py
+
+    # make it always look for argyllcms binaries in the argyllcms/bin store path
+    sed -i 's@""" Find a single Argyll utility. Return the full path. """@return "'${argyllcms}'/bin/%s" % name@' dispcalGUI/worker.py
   '';
 
   buildInputs = [
@@ -32,6 +35,7 @@ pythonPackages.buildPythonPackage {
 
     makeWrapper
     pythonPackages.numpy
+    pythonPackages.wxPython
   ];
 
   postInstall = ''

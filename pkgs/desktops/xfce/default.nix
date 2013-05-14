@@ -24,7 +24,7 @@ xfce_self = rec { # the lines are very long but it seems better than the even-od
   libxfcegui4     = callPackage ./core/libxfcegui4.nix { };
   thunar          = callPackage ./core/thunar.nix { };
   thunar_volman   = callPackage ./core/thunar-volman.nix { }; # ToDo: probably inside Thunar now
-  tumbler         = callPackage ./core/tumbler.nix { }; # ToDo: segfaults after some work
+  tumbler         = callPackage ./core/tumbler.nix { };
   xfce4panel      = callPackage ./core/xfce4-panel.nix { }; # ToDo: impure plugins from /run/current-system/sw/lib/xfce4
   xfce4session    = callPackage ./core/xfce4-session.nix { };
   xfce4settings   = callPackage ./core/xfce4-settings.nix { };
@@ -35,7 +35,7 @@ xfce_self = rec { # the lines are very long but it seems better than the even-od
   xfwm4           = callPackage ./core/xfwm4.nix { };
 
   xfce4_appfinder = callPackage ./core/xfce4-appfinder.nix { };
-
+  xfce4_dev_tools = callPackage ./core/xfce4-dev-tools.nix { }; # only if autotools are needed
 
   #### APPLICATIONS         from "mirror://xfce/src/apps/${p_name}/${ver_maj}/${name}.tar.bz2"
 

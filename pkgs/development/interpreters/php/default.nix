@@ -231,13 +231,18 @@ let
         configureFlags = ["--with-pdo-mysql=${mysql}"];
         buildInputs = [ mysql ];
       };
-    
+
       bcmath = {
         configureFlags = ["--enable-bcmath"];
       };
 
       gd = {
-        configureFlags = ["--with-gd=${gd}"];
+        configureFlags =
+          if lessThan54 then
+            # ok: ["--with-gd=${gd}"];
+            # does this work with 5.3?
+            ["--with-gd=shared --with-freetype-dir=${freetype} --with-png-dir=${libpng}"]
+          else ["--with-gd --with-freetype-dir=${freetype} --with-png-dir=${libpng}"];
         buildInputs = [gd libpng libjpeg ];
       };
 

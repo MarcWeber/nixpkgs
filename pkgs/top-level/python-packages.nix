@@ -91,6 +91,11 @@ pythonPackages = python.modules // rec {
     inherit python;
   };
 
+  pygobject3 = import ../development/python-modules/pygobject/3.nix {
+    inherit (pkgs) stdenv fetchurl pkgconfig glib gobjectIntrospection cairo;
+    inherit python pycairo;
+  };
+
   pygtk = import ../development/python-modules/pygtk {
     inherit (pkgs) fetchurl stdenv pkgconfig glib gtk;
     inherit python buildPythonPackage pygobject pycairo;
@@ -629,11 +634,12 @@ pythonPackages = python.modules // rec {
 
 
   cherrypy = buildPythonPackage (rec {
-    name = "cherrypy-3.1.2";
+    name = "cherrypy-${version}";
+    version = "3.2.2";
 
     src = fetchurl {
-      url = "http://download.cherrypy.org/cherrypy/3.1.2/CherryPy-3.1.2.tar.gz";
-      sha256 = "1xlvanhnxgvwd7vvypbafyl6yqfkpnwa9rs9k3058z84gd86bz8d";
+      url = "http://download.cherrypy.org/cherrypy/${version}/CherryPy-${version}.tar.gz";
+      sha256 = "14dn129h69wj0h8yr0bjwbrk8kygl6mkfnxc5m3fxhlm4xb8hnnw";
     };
 
     # error: invalid command 'test'
@@ -857,6 +863,24 @@ pythonPackages = python.modules // rec {
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/p/python-dateutil/python-${name}.tar.gz";
       sha256 = "1vlx0lpsxjxz64pz87csx800cwfqznjyr2y7nk3vhmzhkwzyqi2c";
+    };
+
+    propagatedBuildInputs = [ pythonPackages.six ];
+
+    meta = {
+      description = "Powerful extensions to the standard datetime module";
+      homepage = http://pypi.python.org/pypi/python-dateutil;
+      license = "BSD-style";
+    };
+  });
+
+  # Buildbot 0.8.7p1 needs dateutil==1.5
+  dateutil_1_5 = buildPythonPackage (rec {
+    name = "dateutil-1.5";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/p/python-dateutil/python-${name}.tar.gz";
+      sha256 = "02dhw57jf5kjcp7ng1if7vdrbnlpb9yjmz7wygwwvf3gni4766bg";
     };
 
     propagatedBuildInputs = [ pythonPackages.six ];
@@ -1302,6 +1326,12 @@ pythonPackages = python.modules // rec {
     propagatedBuildInputs = with pkgs; [
       pyGtkGlade libtorrentRasterbar twisted Mako chardet pyxdg pyopenssl
     ];
+ 
+    postInstall = ''
+       cp -R deluge/data/share $out/share
+       cp -R deluge/data/pixmaps $out/share/
+       cp -R deluge/data/icons $out/share/
+    '';
 
     meta = {
       homepage = http://deluge-torrent.org;
@@ -1476,6 +1506,22 @@ pythonPackages = python.modules // rec {
     };
   };
 
+  doxypy = buildPythonPackage rec {
+    name = "doxypy-0.4.2";
+
+    src = fetchurl {
+      url = "http://code.foosel.org/files/${name}.tar.gz";
+      sha256 = "1afmb30zmy7942b53qa5vd3js883wwqqls35n8xfb3rnj0qnll8g";
+    };
+
+    meta = {
+      homepage = http://code.foosel.org/doxypy;
+      description = "An input filter for Doxygen";
+    };
+
+    doCheck = false;
+  };
+
 
   dtopt = buildPythonPackage rec {
     name = "dtopt-0.1";
@@ -1488,6 +1534,24 @@ pythonPackages = python.modules // rec {
     meta = {
       description = "Add options to doctest examples while they are running";
       homepage = http://pypi.python.org/pypi/dtopt;
+    };
+  };
+
+
+  elpy = buildPythonPackage rec {
+    name = "elpy-1.0.1";
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/e/elpy/elpy-1.0.1.tar.gz";
+      md5 = "5453f085f7871ed8fc11d51f0b68c785";
+    };
+    buildInputs = [  ];
+    propagatedBuildInputs = [ flake8 ];
+
+    doCheck = false; # there are no tests
+
+    meta = {
+      description = "Backend for the elpy Emacs mode";
+      homepage = "https://github.com/jorgenschaefer/elpy";
     };
   };
 
@@ -1645,11 +1709,11 @@ pythonPackages = python.modules // rec {
 
 
   foolscap = buildPythonPackage (rec {
-    name = "foolscap-0.6.1";
+    name = "foolscap-0.6.4";
 
     src = fetchurl {
       url = "http://foolscap.lothar.com/releases/${name}.tar.gz";
-      sha256 = "8b3e4fc678c5c41483b3130666583a1c3909713adcd325204daded7b67171ed5";
+      sha256 = "16cddyk5is0gjfn0ia5n2l4lhdzvbjzlx6sfpy7ddjd3d3fq7ckl";
     };
 
     propagatedBuildInputs = [ twisted pkgs.pyopenssl ];
@@ -2063,6 +2127,28 @@ pythonPackages = python.modules // rec {
     meta = {
       description = "A unified interface to many cloud providers";
       homepage = http://incubator.apache.org/libcloud/;
+    };
+  });
+
+
+  limnoria = buildPythonPackage (rec {
+    name = "limnoria-20130327";
+
+    src = fetchurl {
+      url = https://pypi.python.org/packages/source/l/limnoria/limnoria-2013-03-27T16:32:26+0100.tar.gz;
+      name = "limnoria-2013-03-27.tar.gz";
+      sha256 = "0xfaa6h8css3yhsmx5vcffizrz6mvmgm46q7449z3hq7g3793184";
+    };
+
+    propagatedBuildInputs = [ python.modules.sqlite3 ];
+
+    doCheck = false;
+
+    meta = with stdenv.lib; {
+      description = "A modified version of Supybot, an IRC bot";
+      homepage = http://supybot.fr.cr;
+      license = licenses.bsd3;
+      maintainers = [ maintainers.goibhniu ];
     };
   });
 
@@ -4621,8 +4707,7 @@ pythonPackages = python.modules // rec {
       md5 = "a1266d4db421963fd3deb172c6689e4b";
     };
 
-    buildInputs = [ pkgs.unzip ] ++ optionals isPy26 [ pythonPackages.ordereddict
-                                                       pythonPackages.unittest2 ];
+    buildInputs = [ pkgs.unzip ] ++ optionals isPy26 [ pythonPackages.ordereddict ];
 
     # XXX: skipping two tests fails in python2.6
     doCheck = ! isPy26;
@@ -4633,6 +4718,7 @@ pythonPackages = python.modules // rec {
       six
       beautifulsoup4
       waitress
+      unittest2
       mock
       pyquery
       wsgiproxy2

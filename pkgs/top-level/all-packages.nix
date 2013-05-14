@@ -139,6 +139,9 @@ let
   # eventually.
   inherit __overrides pkgs;
 
+  # Make some arguments passed to all-packages.nix available
+  inherit system stdenvType platform;
+
 
   # We use `callPackage' to be able to omit function arguments that
   # can be obtained from `pkgs' or `pkgs.xorg' (i.e. `defaultScope').
@@ -184,6 +187,7 @@ let
   inherit lib config stdenvAdapters;
 
   inherit (lib) lowPrio hiPrio appendToName makeOverridable;
+  inherit (misc) versionedDerivation;
 
   # Applying this to an attribute set will cause nix-env to look
   # inside the set for derivations.
@@ -491,6 +495,8 @@ let
 
   btrfsProgs = callPackage ../tools/filesystems/btrfsprogs { };
 
+  byobu = callPackage ../tools/misc/byobu { };
+
   catdoc = callPackage ../tools/text/catdoc { };
 
   dlx = callPackage ../misc/emulators/dlx { };
@@ -766,6 +772,8 @@ let
   figlet = callPackage ../tools/misc/figlet { };
 
   file = callPackage ../tools/misc/file { };
+
+  filegive = callPackage ../tools/networking/filegive { };
 
   fileschanged = callPackage ../tools/misc/fileschanged { };
 
@@ -1251,11 +1259,15 @@ let
 
   networkmanager = callPackage ../tools/networking/network-manager { };
 
+  networkmanager_openvpn = callPackage ../tools/networking/network-manager/openvpn.nix { };
+
   networkmanager_pptp = callPackage ../tools/networking/network-manager/pptp.nix { };
 
   networkmanager_pptp_gnome = networkmanager_pptp.override { withGnome = true; };
 
   networkmanagerapplet = newScope gnome ../tools/networking/network-manager-applet { };
+
+  pa_applet = callPackage ../tools/audio/pa-applet { };
 
   nilfs_utils = callPackage ../tools/filesystems/nilfs-utils {};
 
@@ -1455,6 +1467,8 @@ let
 
   pwgen = callPackage ../tools/security/pwgen { };
 
+  pwnat = callPackage ../tools/networking/pwnat { };
+
   pydb = callPackage ../development/tools/pydb { };
 
   pystringtemplate = callPackage ../development/python-modules/stringtemplate { };
@@ -1482,6 +1496,8 @@ let
   privateer = callPackage ../games/privateer { };
 
   rtmpdump = callPackage ../tools/video/rtmpdump { };
+
+  reaverwps = callPackage ../tools/networking/reaver-wps {};
 
   recutils = callPackage ../tools/misc/recutils { };
 
@@ -1693,6 +1709,8 @@ let
 
   udftools = callPackage ../tools/filesystems/udftools {};
 
+  udptunnel = callPackage ../tools/networking/udptunnel { };
+
   ufraw = callPackage ../applications/graphics/ufraw { };
 
   unetbootin = callPackage ../tools/cd-dvd/unetbootin { };
@@ -1801,6 +1819,8 @@ let
   units = callPackage ../tools/misc/units { };
 
   unrar = callPackage ../tools/archivers/unrar { };
+
+  xarchive = callPackage ../tools/archivers/xarchive { };
 
   unarj = callPackage ../tools/archivers/unarj { };
 
@@ -2500,6 +2520,8 @@ let
 
   go = callPackage ../development/compilers/go { };
 
+  go_1_1 = callPackage ../development/compilers/go/1.1.nix { };
+
   gprolog = callPackage ../development/compilers/gprolog { };
 
   gwt240 = callPackage ../development/compilers/gwt/2.4.0.nix { };
@@ -3055,7 +3077,7 @@ let
   autoconf = callPackage ../development/tools/misc/autoconf { };
 
   autoconf213 = callPackage ../development/tools/misc/autoconf/2.13.nix { };
- 
+
   autocutsel = callPackage ../tools/X11/autocutsel{ };
 
   automake = automake112x;
@@ -3092,6 +3114,11 @@ let
   bison = callPackage ../development/tools/parsing/bison { };
 
   buildbot = callPackage ../development/tools/build-managers/buildbot {
+    inherit (pythonPackages) twisted jinja2 sqlalchemy sqlalchemy_migrate;
+    dateutil = pythonPackages.dateutil_1_5;
+  };
+
+  buildbotSlave = callPackage ../development/tools/build-managers/buildbot-slave {
     inherit (pythonPackages) twisted;
   };
 
@@ -3304,6 +3331,8 @@ let
     licenseAccepted = (config.neoload.accept_license or false);
   };
 
+  ninja = callPackage ../development/tools/build-managers/ninja { };
+
   noweb = callPackage ../development/tools/literate-programming/noweb { };
 
   omake = callPackage ../development/tools/ocaml/omake { };
@@ -3387,6 +3416,8 @@ let
   swfmill = callPackage ../tools/video/swfmill { };
 
   swftools = callPackage ../tools/video/swftools { };
+
+  tcptrack = callPackage ../development/tools/misc/tcptrack { };
 
   texinfo413 = callPackage ../development/tools/misc/texinfo/4.13a.nix { };
   texinfo49 = callPackage ../development/tools/misc/texinfo/4.9.nix { };
@@ -4085,6 +4116,8 @@ let
 
   jama = callPackage ../development/libraries/jama { };
 
+  jansson = callPackage ../development/libraries/jansson { };
+
   jbig2dec = callPackage ../development/libraries/jbig2dec { };
 
   jetty_gwt = callPackage ../development/libraries/java/jetty-gwt { };
@@ -4112,6 +4145,8 @@ let
   lesstif = callPackage ../development/libraries/lesstif { };
 
   lesstif93 = callPackage ../development/libraries/lesstif-0.93 { };
+
+  leveldb = callPackage ../development/libraries/leveldb { };
 
   levmar = callPackage ../development/libraries/levmar { };
 
@@ -4148,6 +4183,8 @@ let
   libcaca = callPackage ../development/libraries/libcaca { };
 
   libcanberra = callPackage ../development/libraries/libcanberra { };
+
+  libcello = callPackage ../development/libraries/libcello {};
 
   libcdaudio = callPackage ../development/libraries/libcdaudio { };
 
@@ -4790,6 +4827,10 @@ let
 
   pangoxsl = callPackage ../development/libraries/pangoxsl { };
 
+  pcl = callPackage ../development/libraries/pcl {
+    vtk = vtkWithQt4;
+  };
+
   pcre = callPackage ../development/libraries/pcre {
     unicodeSupport = config.pcre.unicode or true;
   };
@@ -4999,23 +5040,27 @@ let
 
   srtp = callPackage ../development/libraries/srtp {};
 
-  sqlite = lowPrio (callPackage ../development/libraries/sqlite {
+  sqlite_3_7_16 = lowPrio (callPackage ../development/libraries/sqlite/3.7.16.nix {
     readline = null;
     ncurses = null;
   });
 
-  sqlite36 = callPackage ../development/libraries/sqlite/3.6.x.nix {
+  sqlite_3_7_14 = lowPrio (callPackage ../development/libraries/sqlite/3.7.14.nix {
     readline = null;
     ncurses = null;
-  };
+  });
+
+  sqlite = sqlite_3_7_16;
 
   sqliteInteractive = appendToName "interactive" (sqlite.override {
     inherit readline ncurses;
   });
 
-  sqliteFull = lowPrio (callPackage ../development/libraries/sqlite/full.nix {
+  sqliteFull = lowPrio (callPackage ../development/libraries/sqlite/3.7.9-full.nix {
     inherit readline ncurses;
   });
+
+  stlink = callPackage ../development/tools/misc/stlink { };
 
   stlport = callPackage ../development/libraries/stlport { };
 
@@ -5383,6 +5428,8 @@ let
 
   pygobject = pythonPackages.pygobject;
 
+  pygobject3 = pythonPackages.pygobject3;
+
   pygtk = pythonPackages.pygtk;
 
   pyGtkGlade = pythonPackages.pyGtkGlade;
@@ -5730,7 +5777,13 @@ let
 
   bcm43xx = callPackage ../os-specific/linux/firmware/bcm43xx { };
 
-  bluez = callPackage ../os-specific/linux/bluez { };
+  bluez4 = callPackage ../os-specific/linux/bluez {
+    pygobject = pygobject3;
+  };
+
+  bluez5 = lowPrio (callPackage ../os-specific/linux/bluez/bluez5.nix { });
+
+  bluez = bluez4;
 
   beret = callPackage ../games/beret { };
 
@@ -5921,6 +5974,14 @@ let
       ];
   };
 
+  linux_3_2_apparmor = linux_3_2.override {
+    kernelPatches = [ kernelPatches.apparmor_3_2 ];
+    extraConfig = ''
+      SECURITY_APPARMOR y
+      DEFAULT_SECURITY_APPARMOR y
+    '';
+  };
+
   linux_3_2_xen = linux_3_2.override {
     extraConfig = ''
       XEN_DOM0 y
@@ -5967,8 +6028,7 @@ let
       ];
   };
 
-  # low-priority because it is RC
-  linux_3_9 = lowPrio (makeOverridable (import ../os-specific/linux/kernel/linux-3.9.nix) {
+  linux_3_9 = makeOverridable (import ../os-specific/linux/kernel/linux-3.9.nix) {
     inherit fetchurl stdenv perl mktemp bc module_init_tools ubootChooser;
     kernelPatches =
       [
@@ -5978,7 +6038,7 @@ let
         kernelPatches.mips_fpu_sigill
         kernelPatches.mips_ext3_n32
       ];
-  });
+  };
 
   /* Linux kernel modules are inherently tied to a specific kernel.  So
      rather than provide specific instances of those packages for a
@@ -6083,6 +6143,7 @@ let
     virtualbox = callPackage ../applications/virtualization/virtualbox {
       stdenv = stdenv_32bit;
       inherit (gnome) libIDL;
+      enableExtensionPack = config.virtualbox.enableExtensionPack or false;
     };
 
     virtualboxGuestAdditions = callPackage ../applications/virtualization/virtualbox/guest-additions { };
@@ -6093,13 +6154,15 @@ let
   # Build the kernel modules for the some of the kernels.
   linuxPackages_3_0 = recurseIntoAttrs (linuxPackagesFor linux_3_0 linuxPackages_3_0);
   linuxPackages_3_2 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_2 linuxPackages_3_2);
+  linuxPackages_3_2_apparmor = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_2_apparmor linuxPackages_3_2_apparmor);
   linuxPackages_3_2_xen = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_2_xen linuxPackages_3_2_xen);
   linuxPackages_3_4 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_4 linuxPackages_3_4);
   linuxPackages_3_6_rpi = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_6_rpi linuxPackages_3_6_rpi);
   linuxPackages_3_7 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_7 linuxPackages_3_7);
   linuxPackages_3_8 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_8 linuxPackages_3_8);
+  linuxPackages_3_9 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_9 linuxPackages_3_9);
   # Update this when adding a new version!
-  linuxPackages_latest = pkgs.linuxPackages_3_8;
+  linuxPackages_latest = pkgs.linuxPackages_3_9;
 
   # The current default kernel / kernel modules.
   linux = linuxPackages.kernel;
@@ -7814,6 +7877,8 @@ let
 
   st = callPackage ../applications/misc/st { };
 
+  bittorrentSync = callPackage ../applications/networking/bittorrentsync { };
+
   dropbox = callPackage ../applications/networking/dropbox { };
 
   dropbox-cli = callPackage ../applications/networking/dropbox-cli { };
@@ -8112,6 +8177,7 @@ let
         if cfg.enableQuakeLive or false
         then with xlibs; [ stdenv.gcc libX11 libXxf86dga libXxf86vm libXext libXt alsaLib zlib ]
         else [ ];
+      gtk_modules = [ libcanberra ];
     };
 
   x11vnc = callPackage ../tools/X11/x11vnc { };
@@ -8571,6 +8637,8 @@ let
     in kde4 // {
       inherit kde4;
 
+      wrapper = callPackage ../build-support/kdewrapper {};
+
       recurseForRelease = true;
 
       akunambol = callPackage ../applications/networking/sync/akunambol { };
@@ -8593,8 +8661,6 @@ let
 
       kbibtex = callPackage ../applications/office/kbibtex { };
 
-      kbluetooth = callPackage ../tools/bluetooth/kbluetooth { };
-
       kde_wacomtablet = callPackage ../applications/misc/kde-wacomtablet { };
 
       kdenlive = callPackage ../applications/video/kdenlive { };
@@ -8614,12 +8680,6 @@ let
       kmymoney = callPackage ../applications/office/kmymoney { };
 
       kipi_plugins = callPackage ../applications/graphics/kipi-plugins { };
-
-      koffice = callPackage ../applications/office/koffice {
-        boost = boost149;
-      };
-
-      konq_plugins = callPackage ../applications/networking/browsers/konq-plugins { };
 
       konversation = callPackage ../applications/networking/irc/konversation { };
 
@@ -8663,6 +8723,8 @@ let
 
       rekonq = callPackage ../applications/networking/browsers/rekonq { };
 
+      kwebkitpart = callPackage ../applications/networking/browsers/kwebkitpart { };
+
       rsibreak = callPackage ../applications/misc/rsibreak { };
 
       semnotes = callPackage ../applications/misc/semnotes { };
@@ -8699,6 +8761,11 @@ let
   xplanet = callPackage ../applications/science/astronomy/xplanet { };
 
   gravit = callPackage ../applications/science/astronomy/gravit { };
+
+  spyder = callPackage ../applications/science/spyder {
+    inherit (pythonPackages) pyflakes rope sphinx numpy scipy matplotlib; # recommended
+    inherit (pythonPackages) ipython pylint pep8; # optional
+  };
 
   stellarium = callPackage ../applications/science/astronomy/stellarium { };
 
@@ -8798,6 +8865,8 @@ let
 
   cvc3 = callPackage ../applications/science/logic/cvc3 {};
 
+  ekrhyper = callPackage ../applications/science/logic/ekrhyper {};
+
   eprover = callPackage ../applications/science/logic/eprover {
     texLive = texLiveAggregationFun {
       paths = [
@@ -8841,6 +8910,8 @@ let
   minisat = callPackage ../applications/science/logic/minisat {};
 
   opensmt = callPackage ../applications/science/logic/opensmt { };
+
+  otter = callPackage ../applications/science/logic/otter {};
 
   picosat = callPackage ../applications/science/logic/picosat {};
 
@@ -9016,10 +9087,13 @@ let
     stateDir = config.nix.stateDir or "/nix/var";
   };
 
+  nixUnstable = nixStable;
+  /*
   nixUnstable = callPackage ../tools/package-management/nix/unstable.nix {
     storeDir = config.nix.storeDir or "/nix/store";
     stateDir = config.nix.stateDir or "/nix/var";
   };
+  */
 
   nut = callPackage ../applications/misc/nut { };
 

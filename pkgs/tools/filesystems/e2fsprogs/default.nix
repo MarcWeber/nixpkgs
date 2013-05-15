@@ -1,7 +1,7 @@
 { stdenv, fetchurl, pkgconfig, libuuid, versionedDerivation
 , version ? "1.42.7"
 }:
-versionedDerivation {
+versionedDerivation "e2fsprogs" version {
   "1.42.7" = rec {
     name = "e2fsprogs-1.42.7";
 

@@ -354,7 +354,6 @@ rec {
   # discussion: nixpkgs: pull/310
   mergeAttrsByVersion = name: version: attrsByVersion: base:
     mergeAttrsByFuncDefaultsClean [ { name = "${name}-${version}"; } base (maybeAttr version (throw "bad version ${version} for ${name}") attrsByVersion)];
->>>>>>> refs/top-bases/experimental/updates
 
   # sane defaults (same name as attr name so that inherit can be used)
   mergeAttrBy = # { buildInputs = concatList; [...]; passthru = mergeAttr; [..]; }

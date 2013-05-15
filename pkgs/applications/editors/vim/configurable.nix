@@ -78,6 +78,7 @@ composableDerivation {} (fix: {
     cscopeSupport    = config.vim.cscope or false;
     # add .nix filetype detection and minimal syntax highlighting support
     ftNixSupport     = config.vim.ftNix or true;
+    netbeansSupport = config.netbeans or true; # eg envim is using it
   };
 
   #--enable-gui=OPTS     X11 GUI default=auto OPTS=auto/no/gtk/gtk2/gnome/gnome2/motif/athena/neXtaw/photon/carbon

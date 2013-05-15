@@ -468,7 +468,9 @@ let
 
   inherit (androidenv) androidsdk_4_1;
 
-  anyterm = callPackage ../tools/networking/anyterm { };
+  anyterm = callPackage ../tools/networking/anyterm {
+    boost = boost149;
+  };
 
   aria = builderDefsPackage (import ../tools/networking/aria) { };
 

@@ -1,0 +1,66 @@
+diff --git a/bin/get-drbl-conf-param b/bin/get-drbl-conf-param
+index 6c4f2b1..7c34828 100755
+--- a/bin/get-drbl-conf-param
++++ b/bin/get-drbl-conf-param
+@@ -6,7 +6,10 @@
+ export LC_ALL=C
+ # Source DRBL setting
+ DRBL_SCRIPT_PATH="${DRBL_SCRIPT_PATH:-/usr/share/drbl}"
+-. /etc/drbl/drbl.conf
++
++
++DRBL_DRBL_CONF_PATH="${DRBL_DRBL_CONF_PATH:-/etc/drbl/drbl.conf}"
++. "$DRBL_DRBL_CONF_PATH"
+ wanted=$1
+ 
+ eval return_var=\$$wanted
+diff --git a/scripts/sbin/drbl-conf-functions b/scripts/sbin/drbl-conf-functions
+index 029e649..470034d 100755
+--- a/scripts/sbin/drbl-conf-functions
++++ b/scripts/sbin/drbl-conf-functions
+@@ -10,12 +10,14 @@
+ # Load DRBL setting and functions
+ DRBL_SCRIPT_PATH="${DRBL_SCRIPT_PATH:-/usr/share/drbl}"
+ 
++DRBL_DRBL_CONF_PATH="${DRBL_DRBL_CONF_PATH:-/etc/drbl/drbl.conf}"
++
+ # Source DRBL setting
+-if [ ! -f "/etc/drbl/drbl.conf" ]; then
+-  echo "File /etc/drbl/drbl.conf not found! Program terminated!" 
++if [ ! -f "$DRBL_DRBL_CONF_PATH" ]; then
++  echo "File $DRBL_DRBL_CONF_PATH not found! Program terminated!" 
+   exit 1
+ fi
+-. /etc/drbl/drbl.conf
++. "$DRBL_DRBL_CONF_PATH"
+ 
+ # check if drbl-functions exists
+ if [ ! -f "$DRBL_SCRIPT_PATH/sbin/drbl-functions" ]; then
+diff --git a/scripts/sbin/drbl-functions b/scripts/sbin/drbl-functions
+index c217440..996a5eb 100755
+--- a/scripts/sbin/drbl-functions
++++ b/scripts/sbin/drbl-functions
+@@ -10,7 +10,8 @@
+ 
+ # Source DRBL setting
+ DRBL_SCRIPT_PATH="${DRBL_SCRIPT_PATH:-/usr/share/drbl}"
+-. /etc/drbl/drbl.conf
++DRBL_DRBL_CONF_PATH="${DRBL_DRBL_CONF_PATH:-/etc/drbl/drbl.conf}"
++. "$DRBL_DRBL_CONF_PATH"
+ 
+ # Append a default search path.
+ # To make it like: 
+diff --git a/scripts/sbin/drbl-ssi-client-prepare b/scripts/sbin/drbl-ssi-client-prepare
+index 86589a9..917a728 100755
+--- a/scripts/sbin/drbl-ssi-client-prepare
++++ b/scripts/sbin/drbl-ssi-client-prepare
+@@ -23,7 +23,8 @@ jobs_for_clonezilla_box() {
+ for im in /opt /var/spool/mail /var/lib/rpm /var/lib/dpkg; do
+   # Use subshell to avoid some parameter to be overwriten
+   (
+-    . /etc/drbl/drbl.conf
++    DRBL_DRBL_CONF_PATH="${DRBL_DRBL_CONF_PATH:-/etc/drbl/drbl.conf}"
++    . "$DRBL_DRBL_CONF_PATH"
+     # If $ocsroot is happened to be /opt/xxx or /var/spool/mail/xxx... we have
+     # to avoid that to be commented, since we need the $ocsroot as clonezilla
+     # image dir.

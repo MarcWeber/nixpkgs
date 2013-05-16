@@ -603,6 +603,8 @@ let
 
   clamav = callPackage ../tools/security/clamav { };
 
+  clonezilla = callPackage ../tools/backup/clonezilla { };
+
   cloc = callPackage ../tools/misc/cloc {
     inherit (perlPackages) perl AlgorithmDiff RegexpCommon;
   };
@@ -710,6 +712,8 @@ let
   dotnetfx35 = callPackage ../development/libraries/dotnetfx35 { };
 
   dotnetfx40 = callPackage ../development/libraries/dotnetfx40 { };
+
+  drbl = callPackage ../tools/misc/drbl { };
 
   dropbear = callPackage ../tools/networking/dropbear {
     enableStatic = true;

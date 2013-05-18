@@ -390,7 +390,7 @@ let
       # "5.3.17" = "29ee79c941ee85d6c1555c176f12f7ef";
       # "5.3.18" = "52539c19d0f261560af3c030143dfa8f";
       # "5.3.24" = "9820604df98c648297dcd31ffb8214e8";
-      "5.3.25" = "9820604df98c648297dcd31ffb8214e8";
+      "5.3.25" = "347625ed7fbf2fe1f1c70b0f879fee2a";
 
       # 5.2 is no longer supported. However PHP 5.2 -> 5.3 has had many
       # incompatibilities which is why it may be useful to continue supporting it

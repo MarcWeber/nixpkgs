@@ -142,11 +142,11 @@ pythonPackages = python.modules // rec {
 
 
   almir = buildPythonPackage rec {
-    name = "almir-0.1.7";
+    name = "almir-0.1.8";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/a/almir/${name}.zip";
-      md5 = "daea15c898487a2bded1ae6ef78633e5";
+      md5 = "9a1f3c72a039622ca72b74be7a1cd37e";
     };
 
     buildInputs = [
@@ -1002,6 +1002,24 @@ pythonPackages = python.modules // rec {
         stdenv.lib.maintainers.iElectric
       ];
       platforms = stdenv.lib.platforms.all;
+    };
+  };
+
+
+  pudb = buildPythonPackage rec {
+    name = "pudb-2013.1";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/p/pudb/${name}.tar.gz";
+      md5 = "f94922aba7f862f13886457dc3fadc6a";
+    };
+
+    propagatedBuildInputs = [ pythonPackages.pygments pythonPackages.urwid ];
+
+    meta = with stdenv.lib; {
+      description = "A full-screen, console-based Python debugger";
+      license = licenses.mit;
+      platforms = platforms.all;
     };
   };
 
@@ -2973,11 +2991,11 @@ pythonPackages = python.modules // rec {
 
 
   pg8000 = buildPythonPackage rec {
-    name = "pg8000-1.08";
+    name = "pg8000-1.09";
 
     src = fetchurl {
-      url = "http://pybrary.net/pg8000/dist/${name}.tar.gz";
-      md5 = "2e8317a22d0e09a6f12e98ddf3bb75fd";
+      url = "http://pg8000.googlecode.com/files/${name}.zip";
+      sha256 = "0kdc4rg47k1qkq22inghd50xlxjdkfcilym8mxff8wy4h091xykw";
     };
 
     buildInputs = [ pkgs.unzip ];
@@ -3071,6 +3089,46 @@ pythonPackages = python.modules // rec {
       description = "A library to manipulate gettext files (po and mo files)";
       homepage = "http://bitbucket.org/izi/polib/";
       license = pkgs.lib.licenses.mit;
+    };
+  };
+
+
+  powerline = buildPythonPackage rec {
+    rev = "72ea6730ead85fc19b983bd70173d15e6caa4965";
+    name = "powerline-beta_${rev}";
+
+    src = fetchurl {
+      url = "https://github.com/Lokaltog/powerline/tarball/${rev}";
+      name = "${name}.tar.bz";
+      sha256 = "08sr8ymhphh7rsn2gcmpdz3kzd04b7w3k4pc35h8w60jvg9i449s";
+    };
+
+    propagatedBuildInputs = [ pkgs.git pkgs.mercurial pkgs.bazaar pythonPackages.psutil pythonPackages.pygit2 ];
+
+    # error: This is still beta and some tests still fail
+    doCheck = false;
+
+    postInstall = ''
+      install -dm755 "$out/share/fonts/OTF/"
+      install -dm755 "$out/etc/fonts/conf.d"
+      install -m644 "font/PowerlineSymbols.otf" "$out/share/fonts/OTF/PowerlineSymbols.otf"
+      install -m644 "font/10-powerline-symbols.conf" "$out/etc/fonts/conf.d/10-powerline-symbols.conf"
+
+      install -dm755 "$out/share/vim/vimfiles/plugin"
+      install -m644 "powerline/bindings/vim/plugin/powerline.vim" "$out/share/vim/vimfiles/plugin/powerline.vim"
+
+      install -dm755 "$out/share/zsh/site-contrib"
+      install -m644 "powerline/bindings/zsh/powerline.zsh" "$out/share/zsh/site-contrib/powerline.zsh"
+
+      install -dm755 "$out/share/tmux"
+      install -m644 "powerline/bindings/tmux/powerline.conf" "$out/share/tmux/powerline.conf"
+    '';
+
+    meta = {
+      homepage = https://github.com/Lokaltog/powerline;
+      description = "The ultimate statusline/prompt utility.";
+      license = with stdenv.lib.licenses; mit;
+      platforms = with stdenv.lib.platforms; all; 
     };
   };
 
@@ -3204,6 +3262,25 @@ pythonPackages = python.modules // rec {
       description = "Python bindings for PortAudio";
       homepage = "http://people.csail.mit.edu/hubert/pyaudio/";
       license = stdenv.lib.licenses.mit;
+    };
+  };
+
+
+  pygit2 = buildPythonPackage rec {
+    name = "pygit2-0.18.1";
+
+    src = fetchurl {
+      url = "https://pypi.python.org/packages/source/p/pygit2/${name}.tar.gz";
+      md5 = "8d27f84509a96d6791a6c393ae67d7c8";
+    };
+
+    propagatedBuildInputs = [ pkgs.libgit2 ];
+
+    meta = {
+      homepage = https://pypi.python.org/pypi/pygit2;
+      description = "Pygit2 is a set of Python bindings to the libgit2 shared library.";
+      license = with stdenv.lib.licenses; gpl2;
+      platforms = with stdenv.lib.platforms; all;
     };
   };
 

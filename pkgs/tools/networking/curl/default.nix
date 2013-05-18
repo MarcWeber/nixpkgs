@@ -2,6 +2,7 @@
 , zlibSupport ? false, zlib ? null
 , sslSupport ? false, openssl ? null
 , scpSupport ? false, libssh2 ? null
+, gssSupport ? false, gss ? null
 , linkStatic ? false
 }:
 
@@ -20,15 +21,21 @@ stdenv.mkDerivation rec {
   # Zlib and OpenSSL must be propagated because `libcurl.la' contains
   # "-lz -lssl", which aren't necessary direct build inputs of
   # applications that use Curl.
-  propagatedBuildInputs =
-    stdenv.lib.optional zlibSupport zlib ++
-    stdenv.lib.optional sslSupport openssl;
+  propagatedBuildInputs = with stdenv.lib;
+    optional zlibSupport zlib ++
+    optional gssSupport gss ++
+    optional sslSupport openssl;
 
-  configureFlags = ''
-    ${if sslSupport then "--with-ssl=${openssl}" else "--without-ssl"}
-    ${if scpSupport then "--with-libssh2=${libssh2}" else "--without-libssh2"}
-    ${if linkStatic then "--enable-static --disable-shared" else ""}
+  preConfigure = ''
+    sed -e 's|/usr/bin|/no-such-path|g' -i.bak configure
   '';
+  configureFlags = [
+      ( if sslSupport then "--with-ssl=${openssl}" else "--without-ssl" )
+      ( if scpSupport then "--with-libssh2=${libssh2}" else "--without-libssh2" )
+    ]
+    ++ stdenv.lib.optional gssSupport "--with-gssapi=${gss}"
+    ++ stdenv.lib.optionals linkStatic [ "--enable-static" "--disable-shared" ]
+  ;
 
   dontDisableStatic = linkStatic;
 
@@ -50,17 +57,13 @@ stdenv.mkDerivation rec {
       --with-random /dev/urandom
     '';
 
-    dontStrip = stdenv.cross.libc == "msvcrt";
-
+  } // lib.optionalAttrs (stdenv.cross.libc == "msvcrt") {
+    dontStrip = true;
   };
 
   passthru = {
     inherit sslSupport openssl;
   };
-
-  preConfigure = ''
-    sed -e 's|/usr/bin|/no-such-path|g' -i.bak configure
-  '';
 
   meta = {
     homepage = "http://curl.haxx.se/";

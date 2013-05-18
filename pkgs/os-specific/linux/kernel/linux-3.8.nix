@@ -215,8 +215,8 @@ let
       # Linux Containers
       RT_GROUP_SCHED? y
       CGROUP_DEVICE? y
-      CGROUP_MEM_RES_CTLR? y
-      CGROUP_MEM_RES_CTLR_SWAP? y
+      MEMCG? y
+      MEMCG_SWAP? y
       DEVPTS_MULTIPLE_INSTANCES? y
 
       # Enable staging drivers.  These are somewhat experimental, but
@@ -238,6 +238,9 @@ let
       DEVTMPFS y
 
       # Media support
+      MEDIA_SUPPORT y
+      MEDIA_DIGITAL_TV_SUPPORT y
+
       MEDIA_CAMERA_SUPPORT? y
       MEDIA_RC_SUPPORT? y
       MEDIA_USB_SUPPORT y

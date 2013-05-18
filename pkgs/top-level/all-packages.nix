@@ -799,7 +799,10 @@ let
 
   fortune = callPackage ../tools/misc/fortune { };
 
-  fox = callPackage ../development/libraries/fox/default.nix { };
+  fox = callPackage ../development/libraries/fox/default.nix {
+    libpng = libpng12;
+  };
+
   fox_1_6 = callPackage ../development/libraries/fox/fox-1.6.nix { };
 
   fping = callPackage ../tools/networking/fping {};
@@ -955,6 +958,10 @@ let
   };
 
   gzip = callPackage ../tools/compression/gzip { };
+
+  partclone = callPackage ../tools/backup/partclone { };
+
+  partimage = callPackage ../tools/backup/partimage { };
 
   pigz = callPackage ../tools/compression/pigz { };
 
@@ -1359,6 +1366,8 @@ let
   par2cmdline = callPackage ../tools/networking/par2cmdline { };
 
   parallel = callPackage ../tools/misc/parallel { };
+
+  parcellite = callPackage ../tools/misc/parcellite { };
 
   patchutils = callPackage ../tools/text/patchutils { };
 
@@ -2922,11 +2931,14 @@ let
   php5_2 = php.override { version = "5.2.17"; };
   php5_2fpm = php5_3.override { version ="5.2.17"; sapi = "fpm"; }; # experimental patch
 
-  php5_3 = php.override { version = "5.3.24"; }; 
+  php5_3 = php.override { version = "5.3.25"; }; 
   php5_3fpm = php5_3.override { sapi = "fpm"; };
 
-  php5_4 = php.override { version = "5.4.14";  gdSupport = false; }; # gd support fails for 5.4.x ?
+  php5_4 = php.override { version = "5.4.15"; };
   php5_4fpm = php5_4.override { sapi = "fpm"; };
+
+  php5_5 = php.override { version = "5.5.0RC1"; };
+  php5_5fpm = php5_4.override { sapi = "fpm"; };
 
   # use php.apc/xcache/Xdebug instead
   # php_apc = callPackage ../development/libraries/php-apc { };
@@ -3801,6 +3813,8 @@ let
   ggz_base_libs = callPackage ../development/libraries/ggz_base_libs {};
 
   giblib = callPackage ../development/libraries/giblib { };
+
+  libgit2 = callPackage ../development/libraries/git2 { };
 
   glew = callPackage ../development/libraries/glew { };
 
@@ -5503,6 +5517,10 @@ let
   dictDBCollector = import ../servers/dict/dictd-db-collector.nix {
     inherit stdenv lib dict;
   };
+
+  dictdWiktionary = callPackage ../servers/dict/dictd-wiktionary.nix {};
+
+  dictdWordnet = callPackage ../servers/dict/dictd-wordnet.nix {};
 
   dovecot = callPackage ../servers/mail/dovecot { };
 
@@ -7576,6 +7594,8 @@ let
 
   mmex = callPackage ../applications/office/mmex { };
 
+  monkeysAudio = callPackage ../applications/audio/monkeys-audio { };
+
   monodevelop = callPackage ../applications/editors/monodevelop {
     inherit (gnome) gnome_vfs libbonobo libglade libgnome GConf;
     mozilla = firefox;
@@ -8218,7 +8238,9 @@ let
 
   xen = callPackage ../applications/virtualization/xen { };
 
-  xfe = callPackage ../applications/misc/xfe { };
+  xfe = callPackage ../applications/misc/xfe {
+    fox = fox_1_6;
+  };
 
   xfig = callPackage ../applications/graphics/xfig { };
 
@@ -9065,7 +9087,7 @@ let
 
   lazylist = callPackage ../tools/typesetting/tex/lazylist { };
 
-  lilypond = callPackage ../misc/lilypond { };
+  lilypond = callPackage ../misc/lilypond { guile = guile_1_8; };
 
   martyr = callPackage ../development/libraries/martyr { };
 

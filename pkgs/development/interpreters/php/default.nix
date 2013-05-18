@@ -5,7 +5,7 @@
 , freetype, writeText
 , openldap, cyrus_sasl
 , systemd
-, version ? "5.3.24" # latest stable
+, version ? "5.3.25" # latest stable
 , icu
 , libxslt
 , bzip2
@@ -44,6 +44,7 @@
 
 , lessThan53 ? builtins.lessThan (builtins.compareVersions version "5.3") 0 # you're not supposed to pass this
 , lessThan54 ? builtins.lessThan (builtins.compareVersions version "5.4") 0
+, lessThan55 ? builtins.lessThan (builtins.compareVersions version "5.5") 0
 }:
 
 /* version specific notes:
@@ -369,12 +370,17 @@ let
   '';
 
    src = fetchurl {
-     url = "http://nl.php.net/get/php-${version}.tar.bz2/from/this/mirror";
+     url = 
+       if lessThan55 then "http://nl.php.net/get/php-${version}.tar.bz2/from/this/mirror"
+        else "http://downloads.php.net/dsp/php-${version}.tar.bz2";
      md5 = lib.maybeAttr version (throw "unkown php version ${version}") {
+      "5.5.0RC1" = "0b8eaea490888bc7881f60f54798f1cb";
+
       # does not built, due to patch?
       # "5.4.5" = "ffcc7f4dcf2b79d667fe0c110e6cb724";
       # "5.4.7" = "9cd421f1cc8fa8e7f215e44a1b06199f";
-      "5.4.14" = "cfdc044be2c582991a1fe0967898fa38";
+      # "5.4.14" = "cfdc044be2c582991a1fe0967898fa38";
+      "5.4.15" = "145ea5e845e910443ff1eddb3dbcf56a";
 
       # those older versions are likely to be buggy - there should be no reason to compile them
       # "5.3.3" = "21ceeeb232813c10283a5ca1b4c87b48";
@@ -383,7 +389,8 @@ let
       # "5.3.15" = "5cfcfd0fa4c4da7576f397073e7993cc";
       # "5.3.17" = "29ee79c941ee85d6c1555c176f12f7ef";
       # "5.3.18" = "52539c19d0f261560af3c030143dfa8f";
-      "5.3.24" = "9820604df98c648297dcd31ffb8214e8";
+      # "5.3.24" = "9820604df98c648297dcd31ffb8214e8";
+      "5.3.25" = "9820604df98c648297dcd31ffb8214e8";
 
       # 5.2 is no longer supported. However PHP 5.2 -> 5.3 has had many
       # incompatibilities which is why it may be useful to continue supporting it

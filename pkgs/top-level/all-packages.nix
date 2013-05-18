@@ -824,7 +824,10 @@ let
 
   fortune = callPackage ../tools/misc/fortune { };
 
-  fox = callPackage ../development/libraries/fox/default.nix { };
+  fox = callPackage ../development/libraries/fox/default.nix {
+    libpng = libpng12;
+  };
+
   fox_1_6 = callPackage ../development/libraries/fox/fox-1.6.nix { };
 
   fping = callPackage ../tools/networking/fping {};
@@ -980,6 +983,10 @@ let
   };
 
   gzip = callPackage ../tools/compression/gzip { };
+
+  partclone = callPackage ../tools/backup/partclone { };
+
+  partimage = callPackage ../tools/backup/partimage { };
 
   pigz = callPackage ../tools/compression/pigz { };
 
@@ -1384,6 +1391,8 @@ let
   par2cmdline = callPackage ../tools/networking/par2cmdline { };
 
   parallel = callPackage ../tools/misc/parallel { };
+
+  parcellite = callPackage ../tools/misc/parcellite { };
 
   patchutils = callPackage ../tools/text/patchutils { };
 
@@ -3835,6 +3844,8 @@ let
 
   giblib = callPackage ../development/libraries/giblib { };
 
+  libgit2 = callPackage ../development/libraries/git2 { };
+
   glew = callPackage ../development/libraries/glew { };
 
   glfw = callPackage ../development/libraries/glfw { };
@@ -5539,6 +5550,10 @@ let
   dictDBCollector = import ../servers/dict/dictd-db-collector.nix {
     inherit stdenv lib dict;
   };
+
+  dictdWiktionary = callPackage ../servers/dict/dictd-wiktionary.nix {};
+
+  dictdWordnet = callPackage ../servers/dict/dictd-wordnet.nix {};
 
   dovecot = callPackage ../servers/mail/dovecot { };
 
@@ -7613,6 +7628,8 @@ let
 
   mmex = callPackage ../applications/office/mmex { };
 
+  monkeysAudio = callPackage ../applications/audio/monkeys-audio { };
+
   monodevelop = callPackage ../applications/editors/monodevelop {
     inherit (gnome) gnome_vfs libbonobo libglade libgnome GConf;
     mozilla = firefox;
@@ -8267,7 +8284,9 @@ let
 
   xen = callPackage ../applications/virtualization/xen { };
 
-  xfe = callPackage ../applications/misc/xfe { };
+  xfe = callPackage ../applications/misc/xfe {
+    fox = fox_1_6;
+  };
 
   xfig = callPackage ../applications/graphics/xfig { };
 
@@ -9114,7 +9133,7 @@ let
 
   lazylist = callPackage ../tools/typesetting/tex/lazylist { };
 
-  lilypond = callPackage ../misc/lilypond { };
+  lilypond = callPackage ../misc/lilypond { guile = guile_1_8; };
 
   logkeys = callPackage ../misc/logkeys { };
 

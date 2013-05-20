@@ -7472,6 +7472,7 @@ let
   inkscape = callPackage ../applications/graphics/inkscape {
     inherit (pythonPackages) lxml;
   };
+  inkscapeDev = inkscape.override { version = "dev"; };
 
   ion3 = callPackage ../applications/window-managers/ion-3 {
     lua = lua5;

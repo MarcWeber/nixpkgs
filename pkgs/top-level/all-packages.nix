@@ -6754,9 +6754,12 @@ let
     libotr = libotr_3_2;
   };
 
-  blender = callPackage  ../applications/misc/blender {
-    python = python3;
+  blender = callPackage ../applications/misc/blender {
+    inherit (xlibs) libXi;
+    python = python2;
   };
+  blender_2_63 = blender;
+
 
   bristol = callPackage ../applications/audio/bristol { };
 

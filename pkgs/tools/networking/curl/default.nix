@@ -57,7 +57,7 @@ stdenv.mkDerivation rec {
       --with-random /dev/urandom
     '';
 
-  } // lib.optionalAttrs (stdenv.cross.libc == "msvcrt") {
+  } // stdenv.lib.optionalAttrs (stdenv.cross.libc == "msvcrt") {
     dontStrip = true;
   };
 

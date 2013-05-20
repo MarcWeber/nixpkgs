@@ -5214,6 +5214,8 @@ let
       inherit libpng;
     };
 
+  wildmidi = callPackage ../development/libraries/wildmidi { };
+
   wvstreams = callPackage ../development/libraries/wvstreams { };
 
   wxGTK = wxGTK28;
@@ -6583,6 +6585,8 @@ let
 
   freefont_ttf = callPackage ../data/fonts/freefont-ttf { };
 
+  freepats = callPackage ../data/misc/freepats { };
+
   gentium = callPackage ../data/fonts/gentium {};
 
   gnome_user_docs = callPackage ../data/documentation/gnome-user-docs { };
@@ -7814,6 +7818,8 @@ let
   qemu = callPackage ../applications/virtualization/qemu { };
 
   qemuImage = callPackage ../applications/virtualization/qemu/linux-img { };
+
+  qmmp = callPackage ../applications/audio/qmmp { };
 
   qsampler = callPackage ../applications/audio/qsampler { };
 

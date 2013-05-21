@@ -1,36 +1,48 @@
-{ stdenv, fetchurl, curl, dataenc, findutils, ghc, git, hS3, hslogger, HTTP, hxt
-, ikiwiki, json, libuuid, MissingH, monadControl, mtl, network, pcreLight, perl
-, QuickCheck, rsync, SHA, testpack, utf8String, which, liftedBase, coreutils
-, IfElse, bloomfilter, editDistance, openssh, stm, hinotify
+{ stdenv, fetchurl, perl, which, ikiwiki, ghc, aeson, async, blazeBuilder
+, bloomfilter, bup, caseInsensitive, clientsession, cryptoApi, curl, dataDefault
+, dataenc, DAV, dbus, dns, editDistance, extensibleExceptions, filepath, git
+, gnupg1, gnutls, hamlet, hinotify, hS3, hslogger, httpConduit, httpTypes, HUnit
+, IfElse, json, liftedBase, lsof, MissingH, monadControl, mtl, network
+, networkInfo, networkMulticast, networkProtocolXmpp, openssh, QuickCheck
+, random, regexCompat, rsync, SafeSemaphore, SHA, stm, text, time, transformers
+, transformersBase, utf8String, uuid, wai, waiLogger, warp, xmlConduit, xmlTypes
+, yesod, yesodDefault, yesodForm, yesodStatic, regexTdfa
 }:
 
 let
-  version = "3.20120629";
+  version = "4.20130501";
 in
 stdenv.mkDerivation {
   name = "git-annex-${version}";
 
   src = fetchurl {
-    url = "http://git.kitenet.net/?p=git-annex.git;a=snapshot;sf=tgz;h=refs/tags/${version}";
-    sha256 = "0dajcmx1sn3rqlba5b66lkiwji849gxzcb5d8666in21g7lc1ccs";
+    url = "https://github.com/joeyh/git-annex/tarball/${version}";
+    sha256 = "1280sdj3d3s3k5a1znzl7xzzyncv9kz522bprhwb9if03v6xh2kl";
     name = "git-annex-${version}.tar.gz";
   };
 
-  buildInputs = [
-    curl dataenc findutils ghc git hS3 hslogger HTTP hxt ikiwiki json
-    libuuid MissingH monadControl mtl network pcreLight perl QuickCheck
-    rsync SHA testpack utf8String which liftedBase IfElse bloomfilter
-    editDistance openssh stm hinotify
-  ];
+  buildInputs = [ ghc aeson async blazeBuilder bloomfilter bup ikiwiki
+    caseInsensitive clientsession cryptoApi curl dataDefault dataenc DAV dbus
+    dns editDistance extensibleExceptions filepath git gnupg1 gnutls hamlet
+    hinotify hS3 hslogger httpConduit httpTypes HUnit IfElse json liftedBase
+    lsof MissingH monadControl mtl network networkInfo networkMulticast
+    networkProtocolXmpp openssh QuickCheck random regexCompat rsync
+    SafeSemaphore SHA stm text time transformers transformersBase utf8String
+    uuid wai waiLogger warp xmlConduit xmlTypes yesod yesodDefault yesodForm
+    yesodStatic which perl regexTdfa ];
 
-  checkTarget = "test";
+  configurePhase = ''
+    makeFlagsArray=( PREFIX=$out CABAL=./Setup )
+    patchShebangs .
+    ghc -O2 --make Setup
+    ./Setup configure -ftestsuite -f-android -fproduction -fdns -fxmpp -fpairing -fwebapp -fassistant -fdbus -finotify -fwebdav -fs3
+  '';
+
   doCheck = true;
-
-  # The 'add_url' test fails because it attempts to use the network.
-  preConfigure = ''
-    makeFlagsArray=( PREFIX=$out )
-    sed -i -e 's|#!/usr/bin/perl|#!${perl}/bin/perl|' mdwn2man
-    sed -i -e 's|"cp |"${coreutils}/bin/cp |' -e 's|"rm -f |"${coreutils}/bin/rm -f |' test.hs
+  checkPhase = ''
+    export HOME="$NIX_BUILD_TOP/tmp"
+    mkdir "$HOME"
+    ./git-annex test
   '';
 
   meta = {

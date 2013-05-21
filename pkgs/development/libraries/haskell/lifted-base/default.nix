@@ -1,11 +1,17 @@
-{ cabal, baseUnicodeSymbols, monadControl, transformersBase }:
+{ cabal, baseUnicodeSymbols, HUnit, monadControl, testFramework
+, testFrameworkHunit, transformers, transformersBase
+}:
 
 cabal.mkDerivation (self: {
   pname = "lifted-base";
-  version = "0.1.2";
-  sha256 = "0js94dlfy2wjl026jcj2l399ly4zgw0cgxkmil6lsm34gcy9vrvq";
+  version = "0.2.0.5";
+  sha256 = "1an7wlz31szccbypbrh59i3py210mh7jbfi0zaizd32q0im1573r";
   buildDepends = [
     baseUnicodeSymbols monadControl transformersBase
+  ];
+  testDepends = [
+    HUnit monadControl testFramework testFrameworkHunit transformers
+    transformersBase
   ];
   meta = {
     homepage = "https://github.com/basvandijk/lifted-base";

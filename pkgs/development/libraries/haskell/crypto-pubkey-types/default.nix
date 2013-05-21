@@ -1,10 +1,10 @@
-{ cabal, cryptoApi }:
+{ cabal, asn1Types }:
 
 cabal.mkDerivation (self: {
   pname = "crypto-pubkey-types";
-  version = "0.1.1";
-  sha256 = "0chlz01nlxnh9bk5b97vm6q6ai0ifybkdaynwibj8px418mmbkib";
-  buildDepends = [ cryptoApi ];
+  version = "0.3.2";
+  sha256 = "12gzx4mj8rc243vvjkzvrxnj2f7x3z86yfgahx3my5vsaw4bix2h";
+  buildDepends = [ asn1Types ];
   meta = {
     homepage = "http://github.com/vincenthz/hs-crypto-pubkey-types";
     description = "Generic cryptography Public keys algorithm types";

@@ -1,7 +1,15 @@
 a :  
 let 
   fetchurl = a.fetchurl;
-  s= import ./src-for-default.nix;
+  s= # Generated upstream information
+  rec {
+    baseName="sbcl";
+    version="1.1.7";
+    name="${baseName}-${version}";
+    hash="1g2z1p1qk9pdz1p2fbmy3bhwqq0li5vwy0vymkkxcwrhqnw5h8n8";
+    url="mirror://sourceforge/project/sbcl/sbcl/1.1.7/sbcl-1.1.7-source.tar.bz2";
+    sha256="1g2z1p1qk9pdz1p2fbmy3bhwqq0li5vwy0vymkkxcwrhqnw5h8n8";
+  };
   buildInputs = with a; [
     clisp makeWrapper
   ];
@@ -13,7 +21,7 @@ rec {
   configureFlags = [];
 
   /* doConfigure should be removed if not needed */
-  phaseNames = ["setVars" "doFixNewer" "doFixTests" "setVersion" "doBuild" "doInstall" "doWrap"];
+  phaseNames = ["setVars" "doFixNewer" "doFixTests" "setVersion" "doPatch" "doBuild" "doInstall" "doWrap"];
 
   setVars = a.fullDepEntry (''
     export INSTALL_ROOT=$out
@@ -73,13 +81,13 @@ rec {
   '') ["doBuild" "minInit" "addInputs"];
 
   inherit(s) name;
+  inherit(s) version;
   meta = {
     description = "Lisp compiler";
     homepage = "http://www.sbcl.org";
     license = "bsd";
     maintainers = [a.lib.maintainers.raskin];
     platforms = with a.lib.platforms; all;
+    inherit(s) version;
   };
 }
-
-

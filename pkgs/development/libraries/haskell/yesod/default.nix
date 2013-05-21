@@ -1,23 +1,31 @@
-{ cabal, attoparsec, blazeBuilder, blazeHtml, blazeMarkup, Cabal
-, filepath, hamlet, httpTypes, monadControl, parsec, shakespeareCss
-, shakespeareJs, shakespeareText, systemFileio, systemFilepath, tar
-, text, time, transformers, unixCompat, unorderedContainers, wai
-, waiExtra, warp, yaml, yesodAuth, yesodCore, yesodForm, yesodJson
-, yesodPersistent, zlib
+{ cabal, aeson, attoparsec, base64Bytestring, blazeBuilder
+, blazeHtml, blazeMarkup, Cabal, conduit, fileEmbed, filepath
+, fsnotify, ghcPaths, hamlet, httpConduit, httpReverseProxy
+, httpTypes, liftedBase, monadControl, network, networkConduit
+, optparseApplicative, parsec, projectTemplate, resourcet
+, shakespeare, shakespeareCss, shakespeareJs, shakespeareText
+, split, systemFileio, systemFilepath, tar, text, time
+, transformers, unixCompat, unorderedContainers, wai, waiExtra
+, warp, yaml, yesodAuth, yesodCore, yesodDefault, yesodForm
+, yesodJson, yesodPersistent, zlib
 }:
 
 cabal.mkDerivation (self: {
   pname = "yesod";
-  version = "1.1.0.1";
-  sha256 = "03r4w2pax8ikdk3ah744pninpk82cylkccg69dl2xr2546m2alh2";
+  version = "1.1.9.3";
+  sha256 = "16w96lyd0z9slhzggbvmb23yfr3jkwywpmp15kbilwn7ghjlkm41";
   isLibrary = true;
   isExecutable = true;
   buildDepends = [
-    attoparsec blazeBuilder blazeHtml blazeMarkup Cabal filepath hamlet
-    httpTypes monadControl parsec shakespeareCss shakespeareJs
-    shakespeareText systemFileio systemFilepath tar text time
+    aeson attoparsec base64Bytestring blazeBuilder blazeHtml
+    blazeMarkup Cabal conduit fileEmbed filepath fsnotify ghcPaths
+    hamlet httpConduit httpReverseProxy httpTypes liftedBase
+    monadControl network networkConduit optparseApplicative parsec
+    projectTemplate resourcet shakespeare shakespeareCss shakespeareJs
+    shakespeareText split systemFileio systemFilepath tar text time
     transformers unixCompat unorderedContainers wai waiExtra warp yaml
-    yesodAuth yesodCore yesodForm yesodJson yesodPersistent zlib
+    yesodAuth yesodCore yesodDefault yesodForm yesodJson
+    yesodPersistent zlib
   ];
   meta = {
     homepage = "http://www.yesodweb.com/";

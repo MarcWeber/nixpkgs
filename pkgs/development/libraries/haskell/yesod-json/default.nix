@@ -1,16 +1,17 @@
-{ cabal, aeson, attoparsecConduit, blazeBuilder, conduit, safe
-, shakespeareJs, text, transformers, vector, wai, waiExtra
-, yesodCore, yesodRoutes
+{ cabal, aeson, attoparsecConduit, blazeBuilder, conduit, hspec
+, safe, shakespeareJs, text, transformers, vector, wai, waiExtra
+, waiTest, yesodCore, yesodRoutes
 }:
 
 cabal.mkDerivation (self: {
   pname = "yesod-json";
-  version = "1.1.0";
-  sha256 = "13dbajs51nyrvch13xz05h6jrnhc097s0iykw5z43x05a6xwj20n";
+  version = "1.1.2.2";
+  sha256 = "1bl4rs3biv2man0n8ijldil32lyswjqk5ykz0nv06qsaaafjpc3g";
   buildDepends = [
     aeson attoparsecConduit blazeBuilder conduit safe shakespeareJs
     text transformers vector wai waiExtra yesodCore yesodRoutes
   ];
+  testDepends = [ hspec text waiTest yesodCore ];
   meta = {
     homepage = "http://www.yesodweb.com/";
     description = "Generate content for Yesod using the aeson package";

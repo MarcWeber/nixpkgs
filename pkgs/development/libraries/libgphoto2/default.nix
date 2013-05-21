@@ -1,22 +1,32 @@
-{stdenv, fetchurl, pkgconfig, libusb, libtool, libexif, libjpeg, gettext}:
+{ stdenv, fetchurl, pkgconfig, libusb1, libtool, libexif, libjpeg, gettext, libxml2 }:
 
 stdenv.mkDerivation rec {
-  name = "libgphoto2-2.4.11";
+  name = "libgphoto2-2.5.2";
 
   src = fetchurl {
     url = "mirror://sourceforge/gphoto/${name}.tar.bz2";
-    sha256 = "08y40mqy714cg0160lny13z9kyxm63m3ksg8hljy5pspxanbn5ji";
+    sha256 = "0f1818l1vs5fbmrihzyv3qasddbqi3r01jik5crrxddwalsi2bd3";
   };
-  
-  buildNativeInputs = [ pkgconfig gettext ];
-  buildInputs = [ libtool libjpeg ];
+
+  nativeBuildInputs = [ pkgconfig gettext ];
+  buildInputs = [ libtool libjpeg libxml2 ];
 
   # These are mentioned in the Requires line of libgphoto's pkg-config file.
-  propagatedBuildInputs = [ libusb libexif ];
+  propagatedBuildInputs = [ libusb1 libexif ];
+
+  NIX_CFLAGS_COMPILE = "-I${libxml2}/include/libxml2"; # bogus detection again
 
   meta = {
     homepage = http://www.gphoto.org/proj/libgphoto2/;
     description = "A library for accessing digital cameras";
-    license = "LGPL 2.1";
+    longDescription = ''
+      This is the library backend for gphoto2. It contains the code for PTP,
+      MTP, and other vendor specific protocols for controlling and transferring data
+      from digital cameras.
+    '';
+    # XXX: the homepage claims LGPL, but several src files are lgpl21Plus
+    license = stdenv.lib.licenses.lgpl21Plus;
+    platforms = with stdenv.lib.platforms; unix;
+    maintainers = with stdenv.lib.maintainers; [ jcumming ];
   };
 }

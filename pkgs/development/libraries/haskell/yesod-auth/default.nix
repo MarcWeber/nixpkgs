@@ -1,20 +1,21 @@
-{ cabal, aeson, authenticate, blazeHtml, blazeMarkup, hamlet
-, httpConduit, liftedBase, mimeMail, persistent, persistentTemplate
-, pureMD5, pwstoreFast, random, SHA, shakespeareCss, text
-, transformers, unorderedContainers, wai, yesodCore, yesodForm
-, yesodJson, yesodPersistent
+{ cabal, aeson, authenticate, blazeHtml, blazeMarkup, fileEmbed
+, hamlet, httpConduit, httpTypes, liftedBase, mimeMail, network
+, persistent, persistentTemplate, pureMD5, pwstoreFast, random, SHA
+, shakespeareCss, shakespeareJs, text, transformers
+, unorderedContainers, wai, yesodCore, yesodForm, yesodJson
+, yesodPersistent
 }:
 
 cabal.mkDerivation (self: {
   pname = "yesod-auth";
-  version = "1.1.1";
-  sha256 = "03zywcdv8kb0h8hpdg1zb3c10s6y6j3gg64n8w970f0izi93haxv";
+  version = "1.1.7";
+  sha256 = "0vsgpvmsmdzbwj5l862bzm21ld3adkmbwgkffbpjr4yylbvvyvrn";
   buildDepends = [
-    aeson authenticate blazeHtml blazeMarkup hamlet httpConduit
-    liftedBase mimeMail persistent persistentTemplate pureMD5
-    pwstoreFast random SHA shakespeareCss text transformers
-    unorderedContainers wai yesodCore yesodForm yesodJson
-    yesodPersistent
+    aeson authenticate blazeHtml blazeMarkup fileEmbed hamlet
+    httpConduit httpTypes liftedBase mimeMail network persistent
+    persistentTemplate pureMD5 pwstoreFast random SHA shakespeareCss
+    shakespeareJs text transformers unorderedContainers wai yesodCore
+    yesodForm yesodJson yesodPersistent
   ];
   meta = {
     homepage = "http://www.yesodweb.com/";

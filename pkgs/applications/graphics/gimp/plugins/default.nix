@@ -50,7 +50,7 @@ let
 
   gmicDerivation = {zart ? false, src, name, runQmake ? false}: # zart builds but segfaults for some reason.
   let imagemagick = pkgs.imagemagickBig; # maybe the non big version is enough?
-      zart = true;
+      zart = false;
   in pluginDerivation {
       enableParallelBuilding = true;
       propagatedBuildInputs = [ imagemagick ];

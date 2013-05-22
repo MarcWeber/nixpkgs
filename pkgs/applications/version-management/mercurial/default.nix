@@ -1,14 +1,13 @@
 # allAttrs may contain {etxensionname}Support = true flags adds extensions to
-# $out/etc/hgrc unless plain = true is passed.
+# $out/etc/mercurial/hgrc unless plain = true is passed.
 
 # Its not perfect, because for each set of extensions a new store path
 # containing mercurial will be created. (TODO) Its about 7MB
 # However due to nix-store --optimise it might be not that bad.
 # Building mercurial is very fast.
 
-# You can configure extensions in multiple ways:
-# way 1) install (mercurial.withExtensions ["hggit" "attic"]), see all-packages.nix examples
-# way 2) set hg.{extensionname}Support = true in ~/.nixpkgs/config.nix
+# You can configure extensions this way:
+# install (mercurial.withExtensions ["hggit" "attic"]), see all-packages.nix examples
 
 allAttrs@{ stdenv, fetchurl, python, makeWrapper, docutils, unzip, config
 , tk ? null, curses
@@ -26,12 +25,12 @@ let
 
   cfg = name: default:
     let n = "${name}Support";
-    in !plain && (/*getConfig ["mercurial" n] default ||*/ maybeAttr n default allAttrs);
+    in !plain && /*(maybeAttr n default (config.mercurial || {}) ||*/ maybeAttr n default allAttrs;
 
   svnPythonSupport = subversion.override { pythonBindings = true; };
 
   # Usually you put these extensions into your ~/.hgrc.
-  # You can enable them (add them to $out/etc/hgrc) as shown at the top of this file
+  # You can enable them (add them to $out/etc/mercurial/hgrc) as shown at the top of this file
   packagedExtensions = {
     attic = { # seems to include the functionality of hg shelve extension and be more powerful
       hgrcExt = "hgattic = ${mercurialExtensions.attic}/hgext/attic.py";

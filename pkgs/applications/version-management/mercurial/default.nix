@@ -1,18 +1,22 @@
-a@{ stdenv, fetchurl, python, makeWrapper, docutils, unzip
+# allAttrs may contain {etxensionname}Support = true flags adds extensions to
+# $out/etc/hgrc unless plain = true is passed.
+
+# Its not perfect, because for each set of extensions a new store path
+# containing mercurial will be created. (TODO) Its about 7MB
+# However due to nix-store --optimise it might be not that bad.
+# Building mercurial is very fast.
+
+# You can configure extensions in multiple ways:
+# way 1) install (mercurial.withExtensions ["hggit" "attic"]), see all-packages.nix examples
+# way 2) set hg.{extensionname}Support = true in ~/.nixpkgs/config.nix
+
+allAttrs@{ stdenv, fetchurl, python, makeWrapper, docutils, unzip, config
 , tk ? null, curses
 
 , subversion, pkgs
-, plain ? false # no plugins, used by mercurialExtensions.hgsubversion
+, plain ? false # true = no plugins
 , ... # for all extSupport flags, see withExtensions in passthru and cfg
 }:
-
-/* design notes:
-   it may look like being a bad idea making the etc/hgrc depending on
-   configuration options because for each configuration a new derivation has to
-   be built. However building mercurial is *very* fast and many files can be
-   shared by hard links (Maybe a wrapper derivation would be a better idea -
-   but also more complex
- */
 
 let
   inherit (stdenv.lib) optional concatLists concatStrings mapAttrsFlatten maybeAttr optionalString;
@@ -22,15 +26,12 @@ let
 
   cfg = name: default:
     let n = "${name}Support";
-    in !plain && (/*getConfig ["mercurial" n] default ||*/ maybeAttr n default a);
+    in !plain && (/*getConfig ["mercurial" n] default ||*/ maybeAttr n default allAttrs);
 
   svnPythonSupport = subversion.override { pythonBindings = true; };
 
   # Usually you put these extensions into your ~/.hgrc.
-  # By enabling them they'll be added to the derivation global hgrc so that
-  # they "just work"
-  # Enable them by adding into your nixpkgs configuration file:
-  # mercurial.nameSupport = true;
+  # You can enable them (add them to $out/etc/hgrc) as shown at the top of this file
   packagedExtensions = {
     attic = { # seems to include the functionality of hg shelve extension and be more powerful
       hgrcExt = "hgattic = ${mercurialExtensions.attic}/hgext/attic.py";
@@ -64,16 +65,14 @@ let
     histedit = {
       hgrcExt = "histedit = ${mercurialExtensions.histedit}/lib/python2.7/site-packages/hg_histedit.py";
     };
-    # track subversion repositories
-    # TODO test (does it still work?)
-    # the test in mercurialExtensions.hgsubversion fails
-    # hgsubversion = {
-    #   hgrcExt = "hgsubversion =";
-    #   PYTHONPATH = "$(toPythonPath ${svnPythonSupport}):$(toPythonPath ${mercurialExtensions.hgsubversion})";
-    #   test = ''
-    #     hg help hgsubversion ";
-    #   '';
-    # };
+    # the test in mercurialExtensions.hgsubversion is very slow..
+    hgsubversion = {
+      hgrcExt = "hgsubversion =";
+      PYTHONPATH = "$(toPythonPath ${svnPythonSupport}):$(toPythonPath ${mercurialExtensions.hgsubversion})";
+      test = ''
+        hg help hgsubversion
+      '';
+    };
 
     # builtin anyway. If you have any reason not to enable them by default tell me.
     graphlog   = { enable = true; hgrcExt = "graphlog ="; };
@@ -175,6 +174,7 @@ stdenv.mkDerivation {
     pythonPackages = [ /*ssl*/ curses ];
     availableExtensions = builtins.attrNames packagedExtensions;
     withExtensions = extensionNames: 
+          # override {extensionname}Support = true for each name in extensionNames list
           pkgs.mercurial.override (builtins.listToAttrs (map (e: {name = "${e}Support"; value = true;}) extensionNames));
   };
 

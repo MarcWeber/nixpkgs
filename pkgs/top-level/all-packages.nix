@@ -7557,7 +7557,6 @@ let
     inherit pkgs;
   };
 
-  mercurialPlain = mercurial.override { plain = true; };
   mercurialFull =
     lowPrio (appendToName "full" (pkgs.mercurial.withExtensions ["gui"]));
   mercurialWithAllExt =

@@ -38,6 +38,8 @@
 , ttfSupport ? true
 , ldapSupport ? true
 
+, gdShared ? true
+
 , fpmSystemdSocketActivationPatchSupport ? true
 
 , idByConfig ? true # if true the php.id value will only depend on php configuration, not on the store path, eg dependencies
@@ -239,7 +241,7 @@ let
 
       gd = {
         configureFlags =
-          if lessThan54 then
+          if gdShared then
             # ok: ["--with-gd=${gd}"];
             # does this work with 5.3?
             ["--with-gd=shared --with-freetype-dir=${freetype} --with-png-dir=${libpng}"]

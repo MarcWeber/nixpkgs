@@ -1,9 +1,43 @@
 {fetchurl, stdenv, python, cmake}: {
-  
+
+# Note: Marc Weber thinks that github.com/MarcWeber/vim-addon-manager is the
+# easiest way to manager your Vim environment
+
+/*
+    sample bootstrapping bash function for vim-addon-manager:
+
+    vim-install-vam () {
+    mkdir -p ~/.vim/vim-addons && git clone --depth=1 git://github.com/MarcWeber/vim-addon-manager.git ~/.vim/vim-addons/vim-addon-manager && cat >> ~/.vimrc <<EOF
+    set nocompatible
+    set hidden
+    filetype indent plugin on | syn on
+    fun ActivateAddons()
+      let g:vim_addon_manager = {}
+      let g:vim_addon_manager.log_to_buf =1
+      set runtimepath+=~/.vim/vim-addons/vim-addon-manager
+      call vam#ActivateAddons([])
+    endf
+    call ActivateAddons()
+    " experimental: run after gui has been started [3]
+    " option1:  au VimEnter * call Activate()
+    " option2:  au GUIEnter * call Activate()
+    EOF
+    }
+*/
+
+# Exceptions: complicated plugins requiring dependencies, such as YouCompleteMe
+# vim-addon-manager still can be used, install vimPlugins.YouCompleteMe into
+# your user profile, then symlink ~/.nix-profiles/vim-plugins/YouCompleteMe to
+# ~/.vim/vim-addons/YouCompleteMe, and VAM will pick it up
+
+# you may feel different about it.
+
+
+
   YouCompleteMe = stdenv.mkDerivation {
     # REGION AUTO UPDATE: { name="youcompleteme"; type="git"; url="git://github.com/Valloric/YouCompleteMe"; }
-    src = (fetchurl { url = "http://mawercer.de/~nix/repos/youcompleteme-git-f0ead.tar.bz2"; sha256 = "26fdeaeb6ab1e5d1209a22bea3e1631f337eacc2d2e8eeb0e708d2419ccabc55"; });
-    name = "youcompleteme-git-f0ead";
+    src = (fetchurl { url = "http://mawercer.de/~nix/repos/youcompleteme-git-97306.tar.bz2"; sha256 = "b9b892f5a723370c2034491dc72a4ca722c6cf1e5de4d60501141bba151bc719"; });
+    name = "youcompleteme-git-97306";
     # END
     buildInputs = [ python cmake] ;
 
@@ -22,15 +56,16 @@
     '';
 
     # TODO: implement proper install phase rather than keeping everything in store
+    # TODO: support llvm based C completion, See README of git repository
     installPhase = ":";
 
-    # meta = {
-    #   description = "<++>";
-    #   homepage = <++>;
-    #   license = stdenv.lib.licenses.;
-    #   maintainers = [stdenv.lib.maintainers.marcweber];
-    #   platforms = stdenv.lib.platforms.linux;
-    # };
+    meta = {
+      description = "fastest non utf-8 aware word and C completion engine for Vim";
+      homepage = http://github.com/Valloric/YouCompleteMe;
+      license = stdenv.lib.licenses.gpl3;
+      maintainers = [stdenv.lib.maintainers.marcweber];
+      platforms = stdenv.lib.platforms.linux;
+    };
   };
 
 }

@@ -1,0 +1,19 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] tmp/x-updates-fixes
+
+- keep tigervnc building by using older xorg source (patches etc are fine)
+
+- glib: apply fix found by Vladimír Čunát
+  This eg prevents skype from segfaulting
+
+TODO:
+
+tested:
+  ati proprietary (works)
+  skype
+  blender
+  compiling my system
+
+to test:
+  KDE
+  xfce

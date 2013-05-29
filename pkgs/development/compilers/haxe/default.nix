@@ -17,6 +17,7 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "haxe" version {
     #   };
     # };
 
+
     "latest" = {
 
     # preConfigure = ''
@@ -66,3 +67,4 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "haxe" version {
     platforms = stdenv.lib.platforms.linux;
   };
 })
+

@@ -385,6 +385,8 @@ let
 
   aespipe = callPackage ../tools/security/aespipe { };
 
+  ahcpd = callPackage ../tools/networking/ahcpd { };
+
   aircrackng = callPackage ../tools/networking/aircrack-ng { };
 
   analog = callPackage ../tools/admin/analog {};
@@ -476,6 +478,8 @@ let
   axel = callPackage ../tools/networking/axel { };
 
   azureus = callPackage ../tools/networking/p2p/azureus { };
+
+  babeld = callPackage ../tools/networking/babeld { };
 
   banner = callPackage ../games/banner {};
 
@@ -580,6 +584,8 @@ let
   };
 
   chkrootkit = callPackage ../tools/security/chkrootkit { };
+
+  chrony = callPackage ../tools/networking/chrony { };
 
   cksfv = callPackage ../tools/networking/cksfv { };
 
@@ -1054,6 +1060,8 @@ let
 
   jnettop = callPackage ../tools/networking/jnettop { };
 
+  jq = callPackage ../development/tools/jq {};
+
   jscoverage = callPackage ../development/tools/misc/jscoverage { };
 
   jwhois = callPackage ../tools/networking/jwhois { };
@@ -1153,6 +1161,8 @@ let
 
   memtest86plus = callPackage ../tools/misc/memtest86/plus.nix { };
 
+  meo = callPackage ../tools/security/meo { };
+
   mc = callPackage ../tools/misc/mc { };
 
   mcabber = callPackage ../applications/networking/instant-messengers/mcabber { };
@@ -1164,6 +1174,8 @@ let
   mdbtools = callPackage ../tools/misc/mdbtools { };
 
   mdbtools_git = callPackage ../tools/misc/mdbtools/git.nix { };
+
+  megatools = callPackage ../tools/networking/megatools { };
 
   minecraft = callPackage ../games/minecraft { };
 
@@ -1352,6 +1364,8 @@ let
   openvpn = callPackage ../tools/networking/openvpn { };
 
   optipng = callPackage ../tools/graphics/optipng { };
+
+  oslrd = callPackage ../tools/networking/oslrd { };
 
   ossec = callPackage ../tools/security/ossec {};
 
@@ -1739,6 +1753,8 @@ let
   };
 
   vde2 = callPackage ../tools/networking/vde2 { };
+
+  vboot_reference = callPackage ../tools/system/vboot_reference { };
 
   verilog = callPackage ../applications/science/electronics/verilog {};
 
@@ -2528,9 +2544,11 @@ let
 
   fsharp = callPackage ../development/compilers/fsharp {};
 
-  go = callPackage ../development/compilers/go { };
+  go_1_0 = callPackage ../development/compilers/go { };
 
   go_1_1 = callPackage ../development/compilers/go/1.1.nix { };
+
+  go = go_1_1;
 
   gprolog = callPackage ../development/compilers/gprolog { };
 
@@ -2602,6 +2620,10 @@ let
       then stdenvAdapters.overrideGCC stdenv gccApple
       else stdenv;
   };
+
+  mentorToolchains = recurseIntoAttrs (
+    callPackage_i686 ../development/compilers/mentor {}
+  );
 
   mitscheme = callPackage ../development/compilers/mit-scheme { };
 
@@ -2877,8 +2899,8 @@ let
   };
 
   erlangR14B04 = callPackage ../development/interpreters/erlang/R14B04.nix { };
-  erlangR15B02 = callPackage ../development/interpreters/erlang/R15B02.nix { };
-  erlang = erlangR15B02;
+  erlangR15B03 = callPackage ../development/interpreters/erlang/R15B03.nix { };
+  erlang = erlangR15B03;
 
   groovy = callPackage ../development/interpreters/groovy { };
 
@@ -3547,6 +3569,8 @@ let
 
   bwidget = callPackage ../development/libraries/bwidget { };
 
+  c-ares = callPackage ../development/libraries/c-ares { };
+
   caelum = callPackage ../development/libraries/caelum { };
 
   scmccid = callPackage ../development/libraries/scmccid { };
@@ -4070,6 +4094,8 @@ let
 
   hsqldb = callPackage ../development/libraries/java/hsqldb { };
 
+  http_parser = callPackage ../development/libraries/http_parser { inherit (pythonPackages) gyp; };
+
   hunspell = callPackage ../development/libraries/hunspell { };
 
   hwloc = callPackage ../development/libraries/hwloc {
@@ -4188,6 +4214,8 @@ let
   libbluedevil = callPackage ../development/libraries/libbluedevil { };
 
   libbluray = callPackage ../development/libraries/libbluray { };
+
+  libbs2b = callPackage ../development/libraries/audio/libbs2b { };
 
   libcaca = callPackage ../development/libraries/libcaca { };
 
@@ -4326,11 +4354,15 @@ let
 
   libgcrypt = callPackage ../development/libraries/libgcrypt { };
 
+  libgcrypt_git = lowPrio (callPackage ../development/libraries/libgcrypt/git.nix { });
+
   libgdiplus = callPackage ../development/libraries/libgdiplus { };
 
   libgpgerror = callPackage ../development/libraries/libgpg-error { };
 
   libgphoto2 = callPackage ../development/libraries/libgphoto2 { };
+
+  libgphoto2_4 = callPackage ../development/libraries/libgphoto2/2.4.nix { };
 
   libgpod = callPackage ../development/libraries/libgpod {
     inherit (pkgs.pythonPackages) mutagen;
@@ -4846,6 +4878,8 @@ let
 
   pdf2xml = callPackage ../development/libraries/pdf2xml {} ;
 
+  pdf2htmlex = callPackage ../development/libraries/pdf2htmlex {} ;
+
   phonon = callPackage ../development/libraries/phonon { };
 
   phonon_backend_gstreamer = callPackage ../development/libraries/phonon-backend-gstreamer { };
@@ -4853,6 +4887,8 @@ let
   phonon_backend_vlc = callPackage ../development/libraries/phonon-backend-vlc { };
 
   physfs = callPackage ../development/libraries/physfs { };
+
+  pkcs11helper = callPackage ../development/libraries/pkcs11helper { };
 
   plib = callPackage ../development/libraries/plib { };
 
@@ -5630,6 +5666,8 @@ let
     gdSupport = true;
   };
 
+  munin = callPackage ../servers/monitoring/munin { };
+
   nagiosPluginsOfficial = callPackage ../servers/monitoring/nagios/plugins/official { };
 
   net_snmp = callPackage ../servers/monitoring/net-snmp { };
@@ -5789,6 +5827,8 @@ let
   b43Firmware_5_1_138 = callPackage ../os-specific/linux/firmware/b43-firmware/5.1.138.nix { };
 
   b43FirmwareCutter = callPackage ../os-specific/linux/firmware/b43-firmware-cutter { };
+
+  batctl = callPackage ../os-specific/linux/batman-adv/batctl.nix { };
 
   bcm43xx = callPackage ../os-specific/linux/firmware/bcm43xx { };
 
@@ -6068,6 +6108,8 @@ let
 
     acpi_call = callPackage ../os-specific/linux/acpi-call {};
 
+    batman_adv = callPackage ../os-specific/linux/batman-adv {};
+
     bbswitch = callPackage ../os-specific/linux/bbswitch {};
 
     ati_drivers_x11 = callPackage ../os-specific/linux/ati-drivers { };
@@ -6137,6 +6179,8 @@ let
        Let's have it uncommented and finish it..
     */
     ndiswrapper = callPackage ../os-specific/linux/ndiswrapper { };
+
+    netatop = callPackage ../os-specific/linux/netatop { };
 
     perf = callPackage ../os-specific/linux/kernel/perf.nix { };
 
@@ -7138,7 +7182,7 @@ let
 
   firefoxWrapper = wrapFirefox { browser = pkgs.firefox; };
 
-  firefoxPkgs = pkgs.firefox20Pkgs;
+  firefoxPkgs = pkgs.firefox21Pkgs;
 
   firefox36Pkgs = callPackage ../applications/networking/browsers/firefox/3.6.nix {
     inherit (gnome) libIDL;
@@ -7159,12 +7203,12 @@ let
 
   firefox19Wrapper = lowPrio (wrapFirefox { browser = firefox19Pkgs.firefox; });
 
-  firefox20Pkgs = callPackage ../applications/networking/browsers/firefox/20.0.nix {
+  firefox21Pkgs = callPackage ../applications/networking/browsers/firefox/21.0.nix {
     inherit (gnome) libIDL;
     inherit (pythonPackages) pysqlite;
   };
 
-  firefox20Wrapper = lowPrio (wrapFirefox { browser = firefox20Pkgs.firefox; });
+  firefox21Wrapper = lowPrio (wrapFirefox { browser = firefox21Pkgs.firefox; });
 
   flac = callPackage ../applications/audio/flac { };
 
@@ -7266,13 +7310,11 @@ let
     inherit (gnome) libglade scrollkeeper;
   };
 
-  gnunet08 = callPackage ../applications/networking/p2p/gnunet/0.8.nix {
-    inherit (gnome) libglade;
-    guile = guile_1_8;
-    gtkSupport = config.gnunet.gtkSupport or true;
-  };
-
   gnunet = callPackage ../applications/networking/p2p/gnunet { };
+
+  gnunet_svn = lowPrio (callPackage ../applications/networking/p2p/gnunet/svn.nix {
+    libgcrypt = libgcrypt_git;
+  });
 
   gocr = callPackage ../applications/graphics/gocr { };
 
@@ -7896,7 +7938,11 @@ let
 
   skype_call_recorder = callPackage ../applications/networking/instant-messengers/skype-call-recorder { };
 
-  st = callPackage ../applications/misc/st { };
+  st = callPackage ../applications/misc/st {
+    conf = config.st.conf or null;
+  };
+
+  sxiv = callPackage ../applications/graphics/sxiv { };
 
   bittorrentSync = callPackage ../applications/networking/bittorrentsync { };
 
@@ -8636,12 +8682,14 @@ let
       boost = boost149;
       eigen = eigen2;
       libotr = libotr_3_2;
+      libgphoto2 = libgphoto2_4;
     }) ../desktops/kde-4.7;
 
   kde48 = kdePackagesFor (pkgs.kde48 // {
       boost = boost149;
       eigen = eigen2;
       libotr = libotr_3_2;
+      libgphoto2 = libgphoto2_4;
     }) ../desktops/kde-4.8;
 
   kde410 = kdePackagesFor (pkgs.kde410 // {
@@ -8952,6 +9000,8 @@ let
 
   ### SCIENCE / ELECTRONICS
 
+  eagle = callPackage_i686 ../applications/science/electronics/eagle { };
+
   caneda = callPackage ../applications/science/electronics/caneda { };
 
   gtkwave = callPackage ../applications/science/electronics/gtkwave { };
@@ -8980,6 +9030,11 @@ let
   wxmaxima = callPackage ../applications/science/math/wxmaxima { };
 
   pari = callPackage ../applications/science/math/pari {};
+
+  R = callPackage ../applications/science/math/R {
+    inherit (xlibs) libX11 libXt;
+    texLive = texLiveAggregationFun { paths = [ texLive texLiveExtra ]; };
+  };
 
   singular = callPackage ../applications/science/math/singular {};
 
@@ -9049,17 +9104,7 @@ let
 
   freestyle = callPackage ../misc/freestyle { };
 
-  gajim = builderDefsPackage (import ../applications/networking/instant-messengers/gajim) {
-    inherit perl intltool pyGtkGlade gettext pkgconfig makeWrapper pygobject
-      pyopenssl gtkspell libsexy pycrypto aspell pythonDBus pythonSexy
-      docutils gtk farstream gst_plugins_bad gstreamer gst_ffmpeg gst_python;
-    dbus = dbus.libs;
-    inherit (gnome) libglade;
-    inherit (xlibs) libXScrnSaver libXt xproto libXext xextproto libX11
-      scrnsaverproto;
-    inherit (pythonPackages) pyasn1;
-    python = pythonFull;
-  };
+  gajim = callPackage ../applications/networking/instant-messengers/gajim { };
 
   gensgs = callPackage_i686 ../misc/emulators/gens-gs { };
 

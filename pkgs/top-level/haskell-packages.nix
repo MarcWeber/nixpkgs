@@ -660,7 +660,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   };
 
   carray = callPackage ../development/libraries/haskell/carray {};
-  
+
   caseInsensitive_1_0_0_1 = callPackage ../development/libraries/haskell/case-insensitive/1.0.0.1.nix {};
   caseInsensitive_1_0_0_2 = callPackage ../development/libraries/haskell/case-insensitive/1.0.0.2.nix {};
   caseInsensitive = self.caseInsensitive_1_0_0_2;
@@ -821,7 +821,15 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   derive = callPackage ../development/libraries/haskell/derive {};
 
+  dependentMap = callPackage ../development/libraries/haskell/dependent-map {};
+
+  dependentSum = callPackage ../development/libraries/haskell/dependent-sum {};
+
+  dependentSumTemplate = callPackage ../development/libraries/haskell/dependent-sum-template {};
+
   derp = callPackage ../development/libraries/haskell/derp {};
+
+  dice = callPackage ../development/libraries/haskell/dice {};
 
   diagrams = callPackage ../development/libraries/haskell/diagrams/diagrams.nix {};
   diagramsCairo = callPackage ../development/libraries/haskell/diagrams/cairo.nix {};
@@ -1199,6 +1207,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   hspecMeta = callPackage ../development/libraries/haskell/hspec-meta {};
 
+  hstatsd = callPackage ../development/libraries/haskell/hstatsd {};
+
   hsyslog = callPackage ../development/libraries/haskell/hsyslog {};
 
   html_1_0_1_2 = callPackage ../development/libraries/haskell/html/1.0.1.2.nix {};
@@ -1271,6 +1281,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   jsonTypes = callPackage ../development/libraries/haskell/jsonTypes {};
 
   kansasLava = callPackage ../development/libraries/haskell/kansas-lava {};
+
+  knob = callPackage ../development/libraries/haskell/knob {};
 
   languageC_0_4_2   = callPackage ../development/libraries/haskell/language-c/0.4.2.nix {};
   languageC_0_3_2_1 = callPackage ../development/libraries/haskell/language-c/0.3.2.1.nix {};
@@ -1346,6 +1358,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   mimeTypes = callPackage ../development/libraries/haskell/mime-types {};
 
+  misfortune = callPackage ../development/libraries/haskell/misfortune {};
+
   MissingH = callPackage ../development/libraries/haskell/MissingH {};
 
   mmap = callPackage ../development/libraries/haskell/mmap {};
@@ -1396,6 +1410,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   mtl = self.mtl_2_1_2;
 
   mtlparse = callPackage ../development/libraries/haskell/mtlparse {};
+
+  mueval = callPackage ../development/libraries/haskell/mueval {};
 
   multiarg = callPackage ../development/libraries/haskell/multiarg {};
 
@@ -1541,6 +1557,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   polyparse = callPackage ../development/libraries/haskell/polyparse {};
 
   poolConduit = callPackage ../development/libraries/haskell/pool-conduit {};
+
+  pop3client = callPackage ../development/libraries/haskell/pop3-client {};
 
   postgresqlLibpq = callPackage ../development/libraries/haskell/postgresql-libpq {
     inherit (pkgs) postgresql;
@@ -1710,6 +1728,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   skein = callPackage ../development/libraries/haskell/skein {};
 
   smallcheck = callPackage ../development/libraries/haskell/smallcheck {};
+
+  smtpMail = callPackage ../development/libraries/haskell/smtp-mail {};
 
   snap = callPackage ../development/libraries/haskell/snap/snap.nix {};
 

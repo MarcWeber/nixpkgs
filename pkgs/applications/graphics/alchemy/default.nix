@@ -25,7 +25,7 @@ stdenv.mkDerivation {
   meta = {
     description = "drawing application";
     homepage = http://al.chemy.org/;
-    license = stdenv.lib.licenses.gpl;
+    license = stdenv.lib.licenses.gpl3Plus;
     maintainers = [stdenv.lib.maintainers.marcweber];
     platforms = stdenv.lib.platforms.linux;
   };

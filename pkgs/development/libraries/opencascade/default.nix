@@ -1,10 +1,10 @@
 {stdenv, fetchurl, mesa, tcl, tk, file, libXmu, qt4, ftgl, freetype}:
 
 stdenv.mkDerivation rec {
-  name = "opencascade-6.5.4";
+  name = "opencascade-6.6.0";
   src = fetchurl {
-    url = http://files.opencascade.com/OCCT/OCC_6.5.4_release/OpenCASCADE654.tar.gz;
-    sha256 = "1di08mc0wly4cdi3rh9kj52bk0bfpyk6dy03c9yfnv04i7z03kmy";
+    url = http://files.opencascade.com/OCCT/OCC_6.6.0_release/OpenCASCADE660.tgz;
+    sha256 = "0q2xn915w9skv9sj74lxnyv9g3b0yi1j04majyzxk6sv4nra97z3";
   };
 
   buildInputs = [ mesa tcl tk file libXmu ];

@@ -135,7 +135,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   # GHC version, change the "preferences function" for that GHC version
   # in haskell-defaults.nix.
 
-  # NOTE: 2012.4.0.0 is the current default.
+  # NOTE: 2013.2.0.0 is the current default.
 
   haskellPlatformArgs_future = self : {
     inherit (self) cabal ghc;
@@ -589,8 +589,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   bimap = callPackage ../development/libraries/haskell/bimap {};
 
-  binary_hackage = callPackage ../development/libraries/haskell/binary {};
-  binary = self.binary_hackage; # core package since ghc-7.2.1
+  binary = callPackage ../development/libraries/haskell/binary {};
 
   binaryShared = callPackage ../development/libraries/haskell/binary-shared {};
 
@@ -1072,8 +1071,6 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   hamlet = callPackage ../development/libraries/haskell/hamlet {};
 
-  happstackUtil = callPackage ../development/libraries/haskell/happstack/happstack-util.nix {};
-
   happstackServer = callPackage ../development/libraries/haskell/happstack/happstack-server.nix {};
 
   happstackHamlet = callPackage ../development/libraries/haskell/happstack/happstack-hamlet.nix {};
@@ -1146,7 +1143,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   heist = callPackage ../development/libraries/haskell/heist {};
 
-  HFuse = callPackage ../development/libraries/haskell/hfuse {};
+  HFuse = callPackage ../development/libraries/haskell/HFuse {};
 
   highlightingKate = callPackage ../development/libraries/haskell/highlighting-kate {};
 
@@ -1377,8 +1374,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   monadLogger = callPackage ../development/libraries/haskell/monad-logger {};
 
   monadPar_0_1_0_3 = callPackage ../development/libraries/haskell/monad-par/0.1.0.3.nix {};
-  monadPar_0_3_4_1 = callPackage ../development/libraries/haskell/monad-par/0.3.4.1.nix {};
-  monadPar = self.monadPar_0_3_4_1;
+  monadPar_0_3_4_2 = callPackage ../development/libraries/haskell/monad-par/0.3.4.2.nix {};
+  monadPar = self.monadPar_0_3_4_2;
 
   monadParExtras = callPackage ../development/libraries/haskell/monad-par-extras {};
 
@@ -1930,7 +1927,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   typeEquality = callPackage ../development/libraries/haskell/type-equality {};
 
-  typeLlevelNaturalNumber = callPackage ../development/libraries/haskell/type-level-natural-number {};
+  typeLevelNaturalNumber = callPackage ../development/libraries/haskell/type-level-natural-number {};
 
   unbound = callPackage ../development/libraries/haskell/unbound {};
 
@@ -2103,6 +2100,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   yesodJson = callPackage ../development/libraries/haskell/yesod-json {};
 
   yesodPersistent = callPackage ../development/libraries/haskell/yesod-persistent {};
+
+  yesodPlatform = callPackage ../development/libraries/haskell/yesod-platform {};
 
   yesodRoutes = callPackage ../development/libraries/haskell/yesod-routes {};
 

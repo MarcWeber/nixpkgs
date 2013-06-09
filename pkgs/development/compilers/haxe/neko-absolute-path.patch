@@ -1,0 +1,51 @@
+commit 96eb71752dabe97857b5c665691c554cdb6f8d82
+Author: Marc Weber <marco-oweber@gmx.de>
+Date:   Thu Jun 6 23:35:03 2013 +0200
+
+    add -D neko_trace_absolute_path option
+    
+    It allows to compile absolute paths into a .n file.
+    Editors like Vim allow loading traces easily
+
+diff --git a/genneko.ml b/genneko.ml
+index 7116962..6f5a0b7 100644
+--- a/genneko.ml
++++ b/genneko.ml
+@@ -50,20 +50,25 @@ let pos ctx p =
+ 		| false ->
+ 			try
+ 				Hashtbl.find files p.pfile
+-			with Not_found -> try
+-				(* lookup relative path *)
+-				let len = String.length p.pfile in
+-				let base = List.find (fun path ->
+-					let l = String.length path in
+-					len > l && String.sub p.pfile 0 l = path
+-				) ctx.com.Common.class_path in
+-				let l = String.length base in
+-				let path = String.sub p.pfile l (len - l) in
++			with Not_found ->
++				let path = (match Common.raw_defined ctx.com "neko_trace_absolute_path" with
++				| true -> if (Filename.is_relative p.pfile)
++					then Filename.concat (Sys.getcwd()) p.pfile
++					else p.pfile
++				| false -> try
++					(* lookup relative path *)
++					let len = String.length p.pfile in
++					let base = List.find (fun path ->
++						let l = String.length path in
++						len > l && String.sub p.pfile 0 l = path
++					) ctx.com.Common.class_path in
++					let l = String.length base in
++					String.sub p.pfile l (len - l)
++
++					with Not_found -> p.pfile
++				) in
+ 				Hashtbl.add files p.pfile path;
+ 				path
+-			with Not_found ->
+-				Hashtbl.add files p.pfile p.pfile;
+-				p.pfile
+ 	) in
+ 	{
+ 		psource = file;

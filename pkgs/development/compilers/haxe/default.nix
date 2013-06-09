@@ -1,8 +1,10 @@
 { stdenv, fetchsvn, ocaml, zlib, neko, fetchurl
-, version ? "latest"
+, version ? "latest", versionedDerivation
 }:
 
-stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "haxe" version {
+versionedDerivation "haxe" version 
+{
+ 
     # build fails with:
     # File "genswf9.ml", line 742, characters 14-42:
     # Error: This expression has type As3hl.hl_opcode array
@@ -17,28 +19,33 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "haxe" version {
     #   };
     # };
 
-
     "latest" = {
-
     # preConfigure = ''
     #   find . -name "*.hx" | xargs sed -i -e 's/neko.db.Connection/sys.db.Connection/' -e 's/neko.db.Manager/sys.db.Manager/' -e 's/neko.db.Object/sys.db.Object/'
     # '';
 
-    # REGION AUTO UPDATE: { name="haxe-unstable"; type="svn"; url="http://haxe.googlecode.com/svn/trunk"; }
-    src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-unstable-svn-6387.tar.bz2"; sha256 = "18bcdf23d7ed32d0bafaf4a0acbc9715ea6c30ae22642cb8b797c870098835c0"; });
-    name = "haxe-unstable-svn-6387";
+    # REGION AUTO UPDATE: { name="haxe-unstable"; type="git"; url="git://github.com/HaxeFoundation/haxe.git"; groups = "haxe_group"; }
+    src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-unstable-git-879c7.tar.bz2"; sha256 = "009cd6da934532aaefe4755d9a463ec3957a19b83df57e8123563ccbe49d6c66"; });
+    name = "haxe-unstable-git-879c7";
     # END
-    #   name = "haxe-svn";
-    #   src = fetchsvn {
-    #     url = "http://haxe.googlecode.com/svn/trunk";
-    #     sha256 = "0dxidmnyjszddiyb0a4cxsp3q2bfpm9c0cqnkiypx0l76fhjn73z";
-    #   };
+
+    ocamllibs =
+      {
+      # REGION AUTO UPDATE: { name="haxe-ocamllibs"; type="git"; url="git://github.com/HaxeFoundation/ocamllibs.git"; groups = "haxe_group"; }
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-ocamllibs-git-ff2e0.tar.bz2"; sha256 = "89a27a612538ff6e2c75c72ff4a3f2800bf78d1b42b6fd89d2a12193de9ba506"; });
+      name = "haxe-ocamllibs-git-ff2e0";
+      # END
+      }.src;
     };
 } {
 
   # TODO: think about merging master changes (separate ocaml libs)
 
   buildInputs = [ocaml zlib neko];
+
+  postUnpack = ''
+    ( cd nix_repository_manager; cd libs; tar --strip-components=1 -xjf $ocamllibs; )
+  '';
 
   prePatch = ''
     sed -i -e 's|com.class_path <- \[|&"'"$out/lib/haxe/std/"'";|' main.ml
@@ -48,6 +55,8 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "haxe" version {
   postBuild = ''
     find std/tools -name '*.n' -delete
   '';
+
+  patches = [ ./neko-absolute-path.patch ];
 
   installPhase = ''
     install -vd "$out/bin" "$out/lib/haxe/std"
@@ -66,5 +75,5 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "haxe" version {
     maintainers = [stdenv.lib.maintainers.marcweber];
     platforms = stdenv.lib.platforms.linux;
   };
-})
+}
 

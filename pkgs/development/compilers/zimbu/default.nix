@@ -10,12 +10,11 @@ stdenv.mkDerivation {
 
   buildInputs = [clang];
 
-  # TODO: move file into a proper place. Moving everyhting into bin works
   preConfigure = ''
-    ensureDir $out
+    ensureDir $out/bin
     cd ..
-    mv nix_repository_manager $out/bin
-    cd $out/bin
+    mv nix_repository_manager $out/zimbu
+    cd $out/zimbu
   '';
 
   preBuild = ''
@@ -24,6 +23,9 @@ stdenv.mkDerivation {
 
   installPhase = ''
     ./zimbu zudocu.zu
+    for prog in zimbu zudocu; do
+      ln -s $out/zimbu/$prog $out/bin/$prog
+    done
   '';
 
   meta = {

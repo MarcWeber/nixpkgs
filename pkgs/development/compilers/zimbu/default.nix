@@ -10,6 +10,8 @@ stdenv.mkDerivation {
 
   buildInputs = [clang];
 
+  # moving all buildfiles into $out/zimbu is not perfect, but maybe best to do
+  # for now
   preConfigure = ''
     ensureDir $out/bin
     cd ..
@@ -23,7 +25,7 @@ stdenv.mkDerivation {
 
   installPhase = ''
     ./zimbu zudocu.zu
-    for prog in zimbu zudocu; do
+    for prog in zimbu zudocu zimbush zimbu2c pluginproto; do
       ln -s $out/zimbu/$prog $out/bin/$prog
     done
   '';

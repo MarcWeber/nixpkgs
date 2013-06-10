@@ -2908,6 +2908,8 @@ let
 
   yasm = callPackage ../development/compilers/yasm { };
 
+  zimbu = callPackage ../development/compilers/zimbu { };
+
   ### DEVELOPMENT / INTERPRETERS
 
   acl2 = builderDefsPackage ../development/interpreters/acl2 {

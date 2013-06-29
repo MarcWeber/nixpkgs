@@ -1,4 +1,5 @@
-{ stdenv, fetchurl, python, zlib, pkgconfig, glib, SDL, ncurses, perl, pixman }:
+{ stdenv, fetchurl, python, zlib, pkgconfig, glib, SDL, ncurses, perl, pixman
+, attr, libcap, vde2 }:
 
 stdenv.mkDerivation rec {
   name = "qemu-1.4.0";
@@ -8,9 +9,17 @@ stdenv.mkDerivation rec {
     sha256 = "1a7d11vjs1p6i1ck2ff9annmkhpkbjl73hl9i1cbg3s0fznrfqh6";
   };
 
-  buildInputs = [ python zlib pkgconfig glib SDL ncurses perl pixman ];
+  buildInputs = [
+    python zlib pkgconfig glib SDL ncurses perl pixman attr libcap
+    vde2
+  ];
 
   enableParallelBuilding = true;
+
+  configureFlags = [
+    "--enable-virtfs"
+    "--enable-vde"
+  ];
 
   meta = {
     description = "QEmu processor emulator";

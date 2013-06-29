@@ -9,7 +9,11 @@ assert stdenv ? glibc;
 let
 
   buildEclipse =
-    { name, src, description, dropins ? (config.eclipse.dropins or []), flags ? (config.eclipse.flags or [])}:
+    { name, description
+     , src ? builtins.getAttr stdenv.system sources
+     , sources ? null
+     , dropins ? (config.eclipse.dropins or [])
+     , flags ? (config.eclipse.flags or []) }:
 
     stdenv.mkDerivation rec {
       inherit name src dropins;

@@ -90,7 +90,12 @@ composableDerivation.composableDerivation {} ( fixed : let inherit (fixed.fixed)
 
       gd = {
         # FIXME: Our own gd package doesn't work, see https://bugs.php.net/bug.php?id=60108.
-        configureFlags = ["--with-gd --with-freetype-dir=${freetype} --with-png-dir=${libpng}"];
+        configureFlags = [
+          "--with-gd"
+          "--with-freetype-dir=${freetype}"
+          "--with-png-dir=${libpng}"
+          "--with-jpeg-dir=${libjpeg}"
+        ];
         buildInputs = [ libpng libjpeg freetype ];
       };
 
@@ -144,6 +149,10 @@ composableDerivation.composableDerivation {} ( fixed : let inherit (fixed.fixed)
         configureFlags = ["--enable-zip"];
       };
 
+      ftp = {
+        configureFlags = ["--enable-ftp"];
+      };
+
       /*
          php is build within this derivation in order to add the xdebug lines to the php.ini.
          So both Apache and command line php both use xdebug without having to configure anything.
@@ -181,13 +190,22 @@ composableDerivation.composableDerivation {} ( fixed : let inherit (fixed.fixed)
     mcryptSupport = config.php.mcrypt or false;
     bz2Support = config.php.bz2 or false;
     zipSupport = config.php.zip or true;
+    ftpSupport = config.php.ftp or true;
   };
 
   configurePhase = ''
+    # Don't record the configure flags since this causes unnecessary
+    # runtime dependencies.
+    for i in main/build-defs.h.in scripts/php-config.in; do
+      substituteInPlace $i \
+        --replace '@CONFIGURE_COMMAND@' '(omitted)' \
+        --replace '@CONFIGURE_OPTIONS@' "" \
+        --replace '@PHP_LDFLAGS@' ""
+    done
+
     iniFile=$out/etc/php-recommended.ini
     [[ -z "$libxml2" ]] || export PATH=$PATH:$libxml2/bin
     ./configure --with-config-file-scan-dir=/etc --with-config-file-path=$out/etc --prefix=$out $configureFlags
-    echo configurePhase end
   '';
 
   installPhase = ''

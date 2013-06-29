@@ -40,6 +40,7 @@ stdenv.mkDerivation rec {
   enableParallelBuilding = true;
   patches = [ ./ruby19-parallel-install.patch
 	      ./bitperfect-rdoc.patch
+              ./1.9-hook.patch
   ];
 
   configureFlags = [ "--enable-shared" "--enable-pthread" ]
@@ -58,8 +59,6 @@ stdenv.mkDerivation rec {
     maintainers = with stdenv.lib.maintainers; [ lovek323 ];
     platforms   = stdenv.lib.platforms.all;
   };
-
-  patches = [ ./1.9-hook.patch ];
 
   passthru = rec {
     majorVersion = "1.9";

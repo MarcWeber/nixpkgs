@@ -200,6 +200,7 @@ let
       NET_FC y # Fibre Channel driver support
       PPP_MULTILINK y # PPP multilink support
       REGULATOR y # Voltage and Current Regulator Support
+      RC_DEVICES y # Enable IR devices
       SCSI_LOGGING y # SCSI logging facility
       SERIAL_8250 y # 8250/16550 and compatible serial support
       SLIP_COMPRESSED y # CSLIP compressed headers
@@ -253,7 +254,7 @@ in
 import ./generic.nix (
 
   rec {
-    version = "3.9.3";
+    version = "3.9.7";
     testing = false;
 
     preConfigure = ''
@@ -262,7 +263,7 @@ import ./generic.nix (
 
     src = fetchurl {
       url = "mirror://kernel/linux/kernel/v3.x/${if testing then "testing/" else ""}linux-${version}.tar.xz";
-      sha256 = "0hc82w3rg1ykpkq7na44vqa4b9zymvpl05kc7a3lpgmd1j3n3sw9";
+      sha256 = "1xgk13bj33wayrs2jfgb2vf4xfys3vm28ijaavpjgs2wlsav94lx";
     };
 
     config = configWithPlatform stdenv.platform;

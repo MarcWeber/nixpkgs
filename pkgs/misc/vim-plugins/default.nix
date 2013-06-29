@@ -71,6 +71,15 @@ How to install VAM? eg provide such a bash function:
     EOF
     }
 
+
+# Exceptions: complicated plugins requiring dependencies, such as YouCompleteMe
+# vim-addon-manager still can be used, install vimPlugins.YouCompleteMe into
+# your user profile, then symlink ~/.nix-profiles/vim-plugins/YouCompleteMe to
+# ~/.vim/vim-addons/YouCompleteMe, and VAM will pick it up
+
+# you may feel different about it.
+
+
 IMHO having no plugins listed might be better than having outdated ones.
 
 So which plugins to add here according to what Marc Weber thinks is best?
@@ -103,13 +112,13 @@ in
     src = (fetchurl { url = "http://mawercer.de/~nix/repos/youcompleteme-git-97306.tar.bz2"; sha256 = "b9b892f5a723370c2034491dc72a4ca722c6cf1e5de4d60501141bba151bc719"; });
     name = "youcompleteme-git-97306";
     # END
-    buildInputs = [ python cmake ];
+    buildInputs = [ python cmake] ;
 
     configurePhase = ":";
 
     buildPhase = ''
       set -x
-      target=$out/vim-plugins/YouCompleteMe
+      target=$out/vim-plugins
       mkdir -p $target
       cp -a ./ $target
 
@@ -117,8 +126,6 @@ in
       cd $target/build
       cmake -G "Unix Makefiles" . $target/cpp -DPYTHON_LIBRARIES:PATH=${python}/lib/libpython2.7.so -DPYTHON_INCLUDE_DIR:PATH=${python}/include/python2.7
       make -j -j''${NIX_BUILD_CORES} -l''${NIX_BUILD_CORES}}
-
-      ${vimHelptags "$out/vim-plugins/YouCompleteMe/doc"}
     '';
 
     # TODO: implement proper install phase rather than keeping everything in store

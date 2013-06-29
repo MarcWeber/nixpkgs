@@ -2746,11 +2746,14 @@ let
     camomile_0_8_2 = callPackage ../development/ocaml-modules/camomile/0.8.2.nix { };
     camomile = callPackage ../development/ocaml-modules/camomile { };
 
+
     camlimages = callPackage ../development/ocaml-modules/camlimages {
       libpng = libpng12;
     };
 
     ocaml_cairo = callPackage ../development/ocaml-modules/ocaml-cairo { };
+
+    cppo = callPackage ../development/ocaml-modules/cppo { };
 
     cryptokit = callPackage ../development/ocaml-modules/cryptokit { };
 
@@ -2803,6 +2806,8 @@ let
     };
 
     ocaml_react = callPackage ../development/ocaml-modules/react { };
+
+    ocamlspot = callPackage ../development/ocaml-modules/ocamlspot { };
 
     ocaml_sqlite3 = callPackage ../development/ocaml-modules/sqlite3 { };
 

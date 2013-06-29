@@ -31,7 +31,7 @@ rec {
   mapSubOptions = f: opt:
     if opt ? options then
       opt // {
-        options = map f (toList opt.options);
+        options = imap f (toList opt.options);
       }
     else
       opt;
@@ -77,18 +77,27 @@ rec {
       handleOptionSets = opt:
         if opt ? type && opt.type.hasOptions then
           let
-            
-            optionConfig = vals: args:
-              map (f: lib.applyIfFunction f args)
-                (opt.options ++ toList vals);
-
             # Evaluate sub-modules.
             subModuleMerge = path: vals:
               lib.fix (args:
-                let result = recurseInto path (optionConfig vals args); in {
-                  inherit (result) config options;
+                let
+                  result = recurseInto path (opt.options ++ imap (index: v: args: {
+                    key = rec {
+                      #!!! Would be nice if we had the file the val was from
+                      option = path;
+                      number = index;
+                      outPath = "option ${option} config number ${toString number}";
+                    };
+                  } // (lib.applyIfFunction v args)) (toList vals)) args;
                   name = lib.removePrefix (opt.name + ".") path;
-                }
+                  extraArgs = opt.extraArgs or {};
+                  individualExtraArgs = opt.individualExtraArgs or {};
+                in {
+                  inherit (result) config options;
+                  inherit name;
+                } //
+                  (opt.extraArgs or {}) //
+                  (if hasAttr name individualExtraArgs then getAttr name individualExtraArgs else {})
               );
 
             # Add _options in sub-modules to make it viewable from other
@@ -152,6 +161,14 @@ rec {
           }
         // optionalAttrs (opt1 ? extraConfigs || opt2 ? extraConfigs) {
             extraConfigs = opt1.extraConfigs or [] ++ opt2.extraConfigs or [];
+          }
+        // optionalAttrs (opt1 ? extraArgs || opt2 ? extraArgs) {
+            extraArgs = opt1.extraArgs or {} // opt2.extraArgs or {};
+          }
+        // optionalAttrs (opt1 ? individualExtraArgs || opt2 ? individualExtraArgs) {
+            individualExtraArgs = zipAttrsWith (name: values:
+              if length values == 1 then head values else (head values // (head (tail values)))
+            ) [ (opt1.individualExtraArgs or {}) (opt2.individualExtraArgs or {}) ];
           }
       )) {} opts;
 

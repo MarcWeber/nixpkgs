@@ -9,8 +9,6 @@ stdenv.mkDerivation {
     sha256 = "1pk00m4iajvv9jzv96in10czpcf7zc3d4nmd9biqagpsg28mr70b";
   };
 
-  buildInputs = [];
-
   installPhase = ''
     ensureDir $out/bin $out/share
     cp -a . $out/share/alchemy
@@ -23,7 +21,7 @@ stdenv.mkDerivation {
   '';
 
   meta = {
-    description = "drawing application";
+    description = "Drawing application";
     homepage = http://al.chemy.org/;
     license = stdenv.lib.licenses.gpl3Plus;
     maintainers = [stdenv.lib.maintainers.marcweber];

@@ -1,16 +1,17 @@
 {stdenv, fetchurl, xsel, ncurses, gettext}:
 
 stdenv.mkDerivation {
-  name = "fish-1.23.1";
+  name = "fish-2.0.0";
 
   enableParallelBuilding = true;
 
   configureFlags = "--with-xsel=${xsel}/bin/xsel";
 
   src = fetchurl {
-    url = "http://fishshell.com/files/1.23.1/fish-1.23.1.tar.bz2";
-    sha256 = "14qzccgf286hkrpy5y9xskjcvzb5r1p0kmmb7ycibhr6499xd8qy";
+    url = http://fishshell.com/files/2.0.0/fish-2.0.0.tar.gz;
+    sha1 = "2d28553e2ff975f8e5fed6b266f7a940493b6636";
   };
+
 
   # hacky: force reading /etc/fish/config.fish so that nixos can set path.
   # using --synconfdir=/etc does not work because fish wants to put files there
@@ -27,7 +28,7 @@ stdenv.mkDerivation {
   ];
 
   meta = {
-    description = "fish is the Friendly Interactive SHell";
+    description = "fish is the Friendly Interactive Shell";
     homepage = "http://fishshell.com/";
     license = "GPLv2";
     maintainers = [stdenv.lib.maintainers.marcweber];

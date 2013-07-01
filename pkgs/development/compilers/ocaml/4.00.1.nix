@@ -1,4 +1,10 @@
-{ stdenv, fetchurl, ncurses, x11 }:
+{ stdenv, fetchurl, ncurses, x11
+# while developping setting these to true may be easier helpful
+# I'm too lazy to patch the build process of ocaml to build ocaml with -annot
+# and -bin-annot
+, force_annot ? false
+, force_bin_annot ? false
+}:
 
 let
    useX11 = !stdenv.isArm && !stdenv.isMips;
@@ -20,9 +26,15 @@ stdenv.mkDerivation rec {
   buildFlags = "world" + optionalString useNativeCompilers " bootstrap world.opt";
   buildInputs = [ncurses] ++ optionals useX11 [ x11 ];
   installTargets = "install" + optionalString useNativeCompilers " installopt";
+
+  inherit force_annot force_bin_annot;
   preConfigure = ''
     CAT=$(type -tp cat)
     sed -e "s@/bin/cat@$CAT@" -i config/auto-aux/sharpbang
+
+    pwd
+    [ -z "$force_annot" ] || sed -e "s@let annotations = ref false@let annotations = ref true@" -i utils/clflags.ml
+    [ -z "$force_bin_annot" ] || sed -e "s@let binary_annotations = ref false@let binary_annotations = ref true@" -i utils/clflags.ml
   '';
   postBuild = ''
     mkdir -p $out/include

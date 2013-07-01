@@ -4,6 +4,7 @@
     let match = {
       "ocaml-3.10.0" = "for-3.10.0";
       "ocaml-3.12.1" = "for-3.12.1";
+      "ocaml-4.00.1" = "for-3.12.1";
     }; in stdenv.lib.maybeAttr ocaml.name (throw "no matching source of ocaml-deriving for ocaml version: ${ocaml.name}") match
 }:
 
@@ -18,6 +19,7 @@ print_string (Show.show<t> (A));;
 ==
 
 ocamlopt -pp $out/bin/deriving -I $d/lib -I $d/syntax nums.cmxa show.cmx main.ml
+ocamlopt -pp 'camlp4 -I $d/lib deriving.cmo'
 */
 
 versionedDerivation "ocaml-deriving" version {

@@ -2749,7 +2749,7 @@ let
 
   ber_metaocaml_003 = callPackage ../development/compilers/ocaml/ber-metaocaml-003.nix { };
 
-  mkOcamlPackages = ocaml: self: let callPackage = newScope self; in rec {
+  mkOcamlPackages = ocaml: pkgs.lib.fix (self: let callPackage = newScope self; in rec {
     inherit ocaml;
 
     camlidl = callPackage ../development/tools/ocaml/camlidl { };
@@ -2775,11 +2775,14 @@ let
     camomile_0_8_2 = callPackage ../development/ocaml-modules/camomile/0.8.2.nix { };
     camomile = callPackage ../development/ocaml-modules/camomile { };
 
+
     camlimages = callPackage ../development/ocaml-modules/camlimages {
       libpng = libpng12;
     };
 
     ocaml_cairo = callPackage ../development/ocaml-modules/ocaml-cairo { };
+
+    cppo = callPackage ../development/ocaml-modules/cppo { };
 
     cryptokit = callPackage ../development/ocaml-modules/cryptokit { };
 
@@ -2833,6 +2836,8 @@ let
 
     ocaml_react = callPackage ../development/ocaml-modules/react { };
 
+    ocamlspot = callPackage ../development/ocaml-modules/ocamlspot { };
+
     ocaml_sqlite3 = callPackage ../development/ocaml-modules/sqlite3 { };
 
     ocaml_ssl = callPackage ../development/ocaml-modules/ssl { };
@@ -2854,13 +2859,13 @@ let
     pycaml = callPackage ../development/ocaml-modules/pycaml { };
 
     opam = callPackage ../development/tools/ocaml/opam { };
-  };
+  });
 
   ocamlPackages = recurseIntoAttrs ocamlPackages_3_12_1;
-  ocamlPackages_3_10_0 = mkOcamlPackages ocaml_3_10_0 pkgs.ocamlPackages_3_10_0;
-  ocamlPackages_3_11_2 = mkOcamlPackages ocaml_3_11_2 pkgs.ocamlPackages_3_11_2;
-  ocamlPackages_3_12_1 = mkOcamlPackages ocaml_3_12_1 pkgs.ocamlPackages_3_12_1;
-  ocamlPackages_4_00_1 = mkOcamlPackages ocaml_4_00_1 pkgs.ocamlPackages_4_00_1;
+  ocamlPackages_3_10_0 = mkOcamlPackages ocaml_3_10_0;
+  ocamlPackages_3_11_2 = mkOcamlPackages ocaml_3_11_2;
+  ocamlPackages_3_12_1 = mkOcamlPackages ocaml_3_12_1;
+  ocamlPackages_4_00_1 = mkOcamlPackages ocaml_4_00_1;
 
   ocaml_make = callPackage ../development/ocaml-modules/ocamlmake { };
 

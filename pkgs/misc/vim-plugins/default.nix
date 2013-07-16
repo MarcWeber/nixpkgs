@@ -84,11 +84,10 @@ let vimHelpTags = ''
   '';
 
   # install a simple standard vim plugin
-  simpleDerivation = a@{name, src, path, ...} : stdenv.mkDerivation (a // {
-    buildPhase = "";
+  simpleDerivation = a@{name, src, path, buildPhase ? "", ...} : stdenv.mkDerivation (a // {
+    inherit buildPhase;
 
     installPhase = ''
-      set -x
       target=$out/vim-plugins/$path
       ensureDir $out/vim-plugins
       ls -l
@@ -120,7 +119,6 @@ in
     configurePhase = ":";
 
     buildPhase = ''
-      set -x
       target=$out/vim-plugins/YouCompleteMe
       mkdir -p $target
       cp -a ./ $target

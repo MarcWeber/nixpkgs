@@ -591,6 +591,10 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   binaryShared = callPackage ../development/libraries/haskell/binary-shared {};
 
+  bindingsDSL = callPackage ../development/libraries/haskell/bindings-DSL {};
+
+  bindingsPosix = callPackage ../development/libraries/haskell/bindings-posix {};
+
   bitarray = callPackage ../development/libraries/haskell/bitarray {};
 
   bitmap = callPackage ../development/libraries/haskell/bitmap {};
@@ -626,6 +630,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   bson = callPackage ../development/libraries/haskell/bson {};
 
   boomerang = callPackage ../development/libraries/haskell/boomerang {};
+
+  byteable = callPackage ../development/libraries/haskell/byteable {};
 
   bytedump = callPackage ../development/libraries/haskell/bytedump {};
 
@@ -1120,6 +1126,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   HTTP_4000_2_5 = callPackage ../development/libraries/haskell/HTTP/4000.2.5.nix {};
   HTTP_4000_2_8 = callPackage ../development/libraries/haskell/HTTP/4000.2.8.nix {};
   HTTP = self.HTTP_4000_2_8;
+
+  httpAttoparsec = callPackage ../development/libraries/haskell/http-attoparsec {};
 
   httpReverseProxy = callPackage ../development/libraries/haskell/http-reverse-proxy {};
 
@@ -1931,7 +1939,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   threads = callPackage ../development/libraries/haskell/threads {};
 
   time_1_1_2_4 = callPackage ../development/libraries/haskell/time/1.1.2.4.nix {};
-  time_1_4_0_2 = callPackage ../development/libraries/haskell/time/1.4.0.2.nix {};
+  time_1_4_1 = callPackage ../development/libraries/haskell/time/1.4.1.nix {};
   # time is in the core package set. It should only be necessary to
   # pass it explicitly in rare circumstances.
   time = null;
@@ -2040,6 +2048,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   waiTest = callPackage ../development/libraries/haskell/wai-test {};
 
   warp = callPackage ../development/libraries/haskell/warp {};
+
+  warpTls = callPackage ../development/libraries/haskell/warp-tls {};
 
   WebBits_1_0 = callPackage ../development/libraries/haskell/WebBits/1.0.nix {
     parsec = self.parsec2;

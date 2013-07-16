@@ -3,7 +3,7 @@
 , zlib, curl, gd, postgresql, openssl, pkgconfig, sqlite, config, libiconv
 , libjpeg, libpng, htmlTidy, libmcrypt, fcgi, callPackage, gettext
 , freetype, writeText
-, openldap, cyrus_sasl
+, openldap, cyrus_sasl, libmhash
 , systemd
 , version ? "5.3.25" # latest stable
 , icu
@@ -184,6 +184,12 @@ let
       ldap = {
         configureFlags = ["--with-ldap=${openldap}" "--with-ldap-sasl=${cyrus_sasl}"];
         buildInputs = [openldap cyrus_sasl];
+      };
+
+      mhash = {
+        # obsoleted by Hash, see http://php.net/manual/de/book.mhash.php ?
+        configureFlags = ["--with-mhash"];
+        buildInputs = [libmhash];
       };
 
       zlib = {

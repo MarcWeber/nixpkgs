@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 { fetchurl, stdenv, python, cmake, vim, perl, ruby }:
 
 # Note: Marc Weber thinks that github.com/MarcWeber/vim-addon-manager is the
@@ -7,6 +8,9 @@
     sample bootstrapping bash function for vim-addon-manager:
 =======
 {fetchurl, stdenv, python, cmake, vim}:
+=======
+{fetchurl, stdenv, python, cmake, vim, perl, ruby}:
+>>>>>>> experimental/vim-plugins
 
 /*
 About Vim and plugins
@@ -71,6 +75,7 @@ How to install VAM? eg provide such a bash function:
     EOF
     }
 
+<<<<<<< HEAD
 
 # Exceptions: complicated plugins requiring dependencies, such as YouCompleteMe
 # vim-addon-manager still can be used, install vimPlugins.YouCompleteMe into
@@ -80,6 +85,8 @@ How to install VAM? eg provide such a bash function:
 # you may feel different about it.
 
 
+=======
+>>>>>>> experimental/vim-plugins
 IMHO having no plugins listed might be better than having outdated ones.
 
 So which plugins to add here according to what Marc Weber thinks is best?
@@ -112,13 +119,21 @@ in
     src = (fetchurl { url = "http://mawercer.de/~nix/repos/youcompleteme-git-97306.tar.bz2"; sha256 = "b9b892f5a723370c2034491dc72a4ca722c6cf1e5de4d60501141bba151bc719"; });
     name = "youcompleteme-git-97306";
     # END
+<<<<<<< HEAD
     buildInputs = [ python cmake] ;
+=======
+    buildInputs = [ python cmake ];
+>>>>>>> experimental/vim-plugins
 
     configurePhase = ":";
 
     buildPhase = ''
       set -x
+<<<<<<< HEAD
       target=$out/vim-plugins
+=======
+      target=$out/vim-plugins/YouCompleteMe
+>>>>>>> experimental/vim-plugins
       mkdir -p $target
       cp -a ./ $target
 
@@ -126,6 +141,11 @@ in
       cd $target/build
       cmake -G "Unix Makefiles" . $target/cpp -DPYTHON_LIBRARIES:PATH=${python}/lib/libpython2.7.so -DPYTHON_INCLUDE_DIR:PATH=${python}/include/python2.7
       make -j -j''${NIX_BUILD_CORES} -l''${NIX_BUILD_CORES}}
+<<<<<<< HEAD
+=======
+
+      ${vimHelptags "$out/vim-plugins/YouCompleteMe/doc"}
+>>>>>>> experimental/vim-plugins
     '';
 
     # TODO: implement proper install phase rather than keeping everything in store

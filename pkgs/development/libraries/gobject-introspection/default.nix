@@ -1,4 +1,5 @@
 { stdenv, fetchurl, glib, flex, bison, pkgconfig, libffi, python, gdk_pixbuf
+, libintlOrEmpty, autoconf, automake, otool }:
 , version ? 
   if builtins.lessThan 0 (builtins.compareVersions glib.name "glib-2.30.3")
       then "1.34.0" else "0.10.8" 
@@ -39,19 +40,30 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "gobject-introspection" vers
 
 } {
 
-  buildInputs = [ flex bison glib pkgconfig python gdk_pixbuf ];
+  buildInputs = [ flex bison glib pkgconfig python gdk_pixbuf ]
+    ++ libintlOrEmpty
+    ++ stdenv.lib.optional stdenv.isDarwin otool;
   propagatedBuildInputs = [ libffi ];
 
   # Tests depend on cairo, which is undesirable (it pulls in lots of
   # other dependencies).
-  configureFlags = "--disable-tests";
+  configureFlags = [ "--disable-tests" ];
 
 
   postInstall = "rm -rf $out/share/gtk-doc";
 
   meta = with stdenv.lib; {
-    maintainers = [ maintainers.urkud ];
-    platforms = platforms.linux;
-    homepage = http://live.gnome.org/GObjectIntrospection;
+    description = "A middleware layer between C libraries and language bindings";
+    homepage    = http://live.gnome.org/GObjectIntrospection;
+    maintainers = with maintainers; [ lovek323 urkud ];
+    platforms   = platforms.unix;
+
+    longDescription = ''
+      GObject introspection is a middleware layer between C libraries (using
+      GObject) and language bindings. The C library can be scanned at compile
+      time and generate a metadata file, in addition to the actual native C
+      library. Then at runtime, language bindings can read this metadata and
+      automatically provide bindings to call into the C library.
+    '';
   };
 })

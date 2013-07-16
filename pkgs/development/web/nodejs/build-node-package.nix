@@ -38,11 +38,16 @@ stdenv.mkDerivation ({
     mkdir -p $out/node_modules
     mv node_modules/${requireName} $out/node_modules
     mv node_modules/.bin $out/node_modules 2>/dev/null || true
+    rm -fR $out/node_modules/${requireName}/node_modules
     mv node_modules $out/node_modules/${requireName}
     if [ -d "$out/node_modules/.bin" ]; then
       ln -sv node_modules/.bin $out/bin
       find -L $out/node_modules/.bin/* -type f -print0 | \
         xargs -0 sed --follow-symlinks -i 's@#!/usr/bin/env node@#!${nodejs}/bin/node@'
+    fi
+    if [ -e "$out/node_modules/${requireName}/man" ]; then
+      mkdir $out/share
+      ln -sv node_modules/${requireName}/man $out/share/man
     fi
     runHook postInstall
   '';

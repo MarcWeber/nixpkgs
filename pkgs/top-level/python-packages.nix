@@ -13,6 +13,8 @@ pythonPackages = python.modules // rec {
 
   # helpers
 
+  callPackage = pkgs.lib.callPackageWith (pkgs // pythonPackages);
+
   buildPythonPackage = import ../development/python-modules/generic {
     inherit (pkgs) lib;
     inherit python wrapPython setuptools recursivePthLoader offlineDistutils;
@@ -48,6 +50,8 @@ pythonPackages = python.modules // rec {
 
   # packages defined elsewhere
 
+  blivet = callPackage ../development/python-modules/blivet { };
+
   ipython = import ../shells/ipython {
     inherit (pkgs) stdenv fetchurl sip pyqt4;
     inherit buildPythonPackage pythonPackages;
@@ -60,6 +64,8 @@ pythonPackages = python.modules // rec {
     pylabSupport = false;
     pylabQtSupport = false;
   });
+
+  nixpart = callPackage ../tools/filesystems/nixpart { };
 
   pil = import ../development/python-modules/pil {
     inherit (pkgs) fetchurl stdenv libjpeg zlib freetype;
@@ -197,13 +203,13 @@ pythonPackages = python.modules // rec {
 
 
   alot = buildPythonPackage rec {
-    rev = "d3c1880a60ddd8ded397d92cddf310a948b97fdc";
+    rev = "0711cf8efaf1a4cca24617c3406210a415006457";
     name = "alot-0.3.4_${rev}";
 
     src = fetchurl {
       url = "https://github.com/pazz/alot/tarball/${rev}";
       name = "${name}.tar.bz";
-      sha256 = "049fzxs83zry5xr3al5wjvh7bcjq63wilf9wxh2c6sjmg96kpvvl";
+      sha256 = "1rxkx9cjajsv9x1dl4xp1r3vr0kb66sglxaqzjiwaknqzahmmji5";
     };
 
     # error: invalid command 'test'
@@ -451,49 +457,46 @@ pythonPackages = python.modules // rec {
   };
 
 
-  blivet = buildPythonPackage rec {
-    name = "blivet-${version}";
-    version = "0.16-1";
+  bitstring = buildPythonPackage rec {
+    name = "bitstring-3.1.2";
 
     src = fetchurl {
-      url = "https://git.fedorahosted.org/cgit/blivet.git/snapshot/"
-          + "${name}.tar.bz2";
-      sha256 = "0gfxf86sc0mkpqjcainch6gqh3r7brgma85pbl4nfpzmylhzj5sg";
+      url = "https://python-bitstring.googlecode.com/files/${name}.zip";
+      sha256 = "1i1p3rkj4ad108f23xyib34r4rcy571gy65paml6fk77knh0k66p";
     };
 
-    postPatch = ''
-      sed -i -e '/find_library/,/find_library/ {
-        c libudev = "${pkgs.udev}/lib/libudev.so.1"
-      }' blivet/pyudev.py
-      sed -i -e 's|"multipath"|"${pkgs.multipath_tools}/sbin/multipath"|' \
-        blivet/devicelibs/mpath.py blivet/devices.py
-      sed -i -e '/"wipefs"/ {
-        s|wipefs|${pkgs.utillinux}/sbin/wipefs|
-        s/-f/--force/
-      }' blivet/formats/__init__.py
-      sed -i -e 's|"lsof"|"${pkgs.lsof}/bin/lsof"|' blivet/formats/fs.py
-      sed -i -r -e 's|"(u?mount)"|"${pkgs.utillinux}/bin/\1"|' blivet/util.py
-      sed -i '/pvscan/s/, *"--cache"//' blivet/devicelibs/lvm.py
-    '';
+    buildInputs = [ pkgs.unzip ];
 
-    propagatedBuildInputs = let
-      pyenable = { enablePython = true; };
-      selinuxWithPython = pkgs.libselinux.override pyenable;
-      cryptsetupWithPython = pkgs.cryptsetup.override pyenable;
-    in [
-      pykickstart pyparted pkgs.udev pyblock
-      selinuxWithPython cryptsetupWithPython
-    ];
-
-    # tests are currently _heavily_ broken upstream
+    # error: invalid command 'test'
     doCheck = false;
 
-    meta = {
-      homepage = "https://fedoraproject.org/wiki/Blivet";
-      description = "Module for management of a system's storage configuration";
-      license = [ "GPLv2+" "LGPLv2.1+" ];
+    meta = with stdenv.lib; {
+      description = "Module for binary data manipulation";
+      homepage = https://code.google.com/p/python-bitstring/;
+      license = licenses.mit;
+      platforms = platforms.linux;
+      maintainers = [ maintainers.bjornfor ];
     };
   };
+
+  bpython = buildPythonPackage rec {
+     name = "bpython-0.11";
+     src = fetchurl {
+       url = "http://www.bpython-interpreter.org/releases/bpython-0.11.tar.gz";
+       sha256 = "02dkmsmgy04l33nyw54rlxkjwff0yf3cy2kvdx8s5w344mqkkkv0";
+     };
+
+     propagatedBuildInputs = [ python.modules.curses pygments ];
+     doCheck = false;
+     
+     meta = {
+       description = "UNKNOWN";
+       homepage = "UNKNOWN";
+       maintainers = [
+         stdenv.lib.maintainers.iElectric
+       ];
+     };
+   };
 
 
   # euca2ools (and maybe Nova) needs boto 1.9, 2.0 doesn't work.
@@ -732,8 +735,30 @@ pythonPackages = python.modules // rec {
   });
 
 
+  cogapp = buildPythonPackage rec {
+    version = "2.3";
+    name    = "cogapp-${version}";
+
+    src = fetchurl {
+      url    = "https://pypi.python.org/packages/source/c/cogapp/${name}.tar.gz";
+      sha256 = "0gzmzbsk54r1qa6wd0yg4zzdxvn2f19ciprr2acldxaknzrpllnn";
+    };
+
+    # there are no tests
+    doCheck = false;
+
+    meta = with stdenv.lib; {
+      description = "A code generator for executing Python snippets in source files";
+      homepage    = http://nedbatchelder.com/code/cog;
+      license     = licenses.mit;
+      maintainers = with maintainers; [ lovek323 ];
+      platforms   = platforms.unix;
+    };
+  };
+
+
   colorama = buildPythonPackage rec {
-    name = "clientform-0.2.10";
+    name = "colorama-0.2.5";
 
     src = fetchurl {
       url = "https://pypi.python.org/packages/source/c/colorama/colorama-0.2.5.tar.gz";
@@ -813,6 +838,27 @@ pythonPackages = python.modules // rec {
       maintainers = [ stdenv.lib.maintainers.garbas ];
     };
   });
+
+
+  construct = buildPythonPackage rec {
+    name = "construct-2.5.1";
+
+    src = fetchurl {
+      url = "https://pypi.python.org/packages/source/c/construct/${name}.tar.gz";
+      sha256 = "08qksl87vr6g2wjxwsyrjh4w6v8bfmcgrcgln7irqvw5vv7qgqss";
+    };
+
+    propagatedBuildInputs = [ six ];
+
+    meta = with stdenv.lib; {
+      description = "Powerful declarative parser (and builder) for binary data";
+      homepage = http://construct.readthedocs.org/;
+      license = licenses.mit;
+      platforms = platforms.linux;
+      maintainers = [ maintainers.bjornfor ];
+    };
+  };
+
 
   coverage = buildPythonPackage rec {
     name = "coverage-3.6";
@@ -997,6 +1043,31 @@ pythonPackages = python.modules // rec {
   };
 
 
+  demjson = buildPythonPackage rec {
+    name = "demjson-1.6";
+
+    src = fetchurl {
+      url = "https://pypi.python.org/packages/source/d/demjson/${name}.tar.gz";
+      sha256 = "0abf7wqqq7rk1sycy47ayn5p93yy7gjq50cb2z69wmik1qqrr60x";
+    };
+
+    doCheck = false; # there are no tests
+
+    preFixup = ''
+      mkdir -p "$out/bin"
+      cp jsonlint "$out/bin/"
+    '';
+
+    meta = {
+      description = "Encoder/decoder and lint/validator for JSON (JavaScript Object Notation)";
+      homepage = http://deron.meranda.us/python/demjson/;
+      license = stdenv.lib.licenses.lgpl3Plus;
+      maintainers = with stdenv.lib.maintainers; [ bjornfor ];
+      platforms = stdenv.lib.platforms.all;
+    };
+  };
+
+
   evdev = buildPythonPackage rec {
     version = "0.3.2";
     name = "evdev-${version}";
@@ -1019,6 +1090,41 @@ pythonPackages = python.modules // rec {
       maintainers = [ maintainers.goibhniu ];
     };
   };
+
+
+  eyeD3 = buildPythonPackage rec {
+    version = "0.7.2";
+    name    = "eyeD3-${version}";
+
+    src = fetchurl {
+      url = http://eyed3.nicfit.net/releases/eyeD3-0.7.2.tgz;
+      sha256 = "1r0vxdflrj83s8jc5f2qg4p00k37pskn3djym0w73bvq167vkxar";
+    };
+
+    buildInputs = [ paver ];
+
+    postInstall = ''
+      for prog in $out/bin/*; do
+        wrapProgram "$prog" --prefix PYTHONPATH : "$PYTHONPATH"
+      done
+    '';
+
+    meta = with stdenv.lib; {
+      description = "A Python module and command line program for processing ID3 tags";
+      homepage    = http://eyed3.nicfit.net/;
+      license     = licenses.gpl2;
+      maintainers = with maintainers; [ lovek323 ];
+      platforms   = platforms.unix;
+
+      longDescription = ''
+        eyeD3 is a Python module and command line program for processing ID3
+        tags. Information about mp3 files (i.e bit rate, sample frequency, play
+        time, etc.) is also provided. The formats supported are ID3 v1.0/v1.1
+        and v2.3/v2.4.
+      '';
+    };
+  };
+
 
   fabric = buildPythonPackage rec {
     name = "fabric-1.6.1";
@@ -1049,6 +1155,31 @@ pythonPackages = python.modules // rec {
     };
 
     propagatedBuildInputs = [ logilab_common ];
+  };
+
+
+  paver = buildPythonPackage rec {
+    version = "1.2.1";
+    name    = "Paver-${version}";
+
+    src = fetchurl {
+      url    = "https://pypi.python.org/packages/source/P/Paver/Paver-${version}.tar.gz";
+      sha256 = "1b1023jks1gi1rwphdy3y2zx7dh4bvwk2050kclp95j7xym1ya0y";
+    };
+
+    buildInputs = [ cogapp mock virtualenv ];
+
+    propagatedBuildInputs = [ nose ];
+
+    # the tests do not pass
+    doCheck = false;
+
+    meta = with stdenv.lib; {
+      description = "A Python-based build/distribution/deployment scripting tool";
+      homepage    = http://github.com/paver/paver;
+      matinainers = with maintainers; [ lovek323 ];
+      platforms   = platforms.unix;
+    };
   };
 
 
@@ -1825,7 +1956,7 @@ pythonPackages = python.modules // rec {
     name = "${baseName}-${version}";
 
     src = fetchurl {
-      url = "http://downloads.sourceforge.net/sourceforge/fuse/fuse-python-${version}.tar.gz";
+      url = "mirror://sourceforge/fuse/fuse-python-${version}.tar.gz";
       sha256 = "06rmp1ap6flh64m81j0n3a357ij2vj9zwcvvw0p31y6hz1id9shi";
     };
 
@@ -1852,11 +1983,11 @@ pythonPackages = python.modules // rec {
   };
 
   genshi = buildPythonPackage {
-    name = "genshi-0.6";
+    name = "genshi-0.7";
 
     src = fetchurl {
-      url = http://ftp.edgewall.com/pub/genshi/Genshi-0.6.tar.gz;
-      sha256 = "0jrajyppdzb3swcxv3w1mpp88vcy7400gy1v2h2gm3pq0dmggaij";
+      url = http://ftp.edgewall.com/pub/genshi/Genshi-0.7.tar.gz;
+      sha256 = "0lkkbp6fbwzv0zda5iqc21rr7rdldkwh3hfabfjl9i4bwq14858x";
     };
 
     # FAIL: test_sanitize_remove_script_elem (genshi.filters.tests.html.HTMLSanitizerTestCase)
@@ -1877,6 +2008,27 @@ pythonPackages = python.modules // rec {
       license = "BSD";
     };
   };
+
+  gevent = buildPythonPackage rec {
+    name = "gevent-0.13.8";
+
+    src = fetchurl {
+      url = "https://pypi.python.org/packages/source/g/gevent/${name}.tar.gz";
+      sha256 = "0plmxnb53qbxxf6macq84dvclsiyrpv3xrm32q4qqh6f01ix5f2l";
+    };
+
+    buildInputs = [ pkgs.libevent ];
+    propagatedBuildInputs = [ greenlet ];
+
+    meta = with stdenv.lib; {
+      description = "Coroutine-based networking library";
+      homepage = http://www.gevent.org/;
+      license = licenses.mit;
+      platforms = platforms.linux;
+      maintainers = [ maintainers.bjornfor ];
+    };
+  };
+
 
   genzshcomp = buildPythonPackage {
     name = "genzshcomp-0.2.2";
@@ -1972,6 +2124,29 @@ pythonPackages = python.modules // rec {
       description = "Generate Your Projects";
     };
   };
+
+
+  hetzner = buildPythonPackage rec {
+    name = "hetzner-${version}";
+    version = "0.3.0";
+
+    src = fetchurl {
+      url = "https://github.com/RedMoonStudios/hetzner/archive/"
+          + "v${version}.tar.gz";
+      sha256 = "10ywn7jbrv86ippf3bpbf01a4jnalwkkd0k7kxc39a55mfbx5s7d";
+    };
+
+    # not there yet, but coming soon.
+    doCheck = false;
+
+    meta = {
+      homepage = "https://github.com/RedMoonStudios/hetzner";
+      description = "High-level Python API for accessing the Hetzner robot";
+      license = stdenv.lib.licenses.bsd3;
+      maintainers = [ stdenv.lib.maintainers.aszlig ];
+    };
+  };
+
 
   html5lib = buildPythonPackage (rec {
     name = "html5lib-0.95";
@@ -2389,7 +2564,7 @@ pythonPackages = python.modules // rec {
   matplotlib = buildPythonPackage ( rec {
     name = "matplotlib-1.1.0";
     src = fetchurl {
-      url = "http://downloads.sourceforge.net/matplotlib/${name}.tar.gz";
+      url = "mirror://sourceforge/matplotlib/${name}.tar.gz";
       sha256 = "be37e1d86c65ecacae6683f8805e051e9904e5f2e02bf2b7a34262c46a6d06a7";
     };
 
@@ -2778,26 +2953,6 @@ pythonPackages = python.modules // rec {
     };
   });
 
-  nixpart = buildPythonPackage rec {
-    name = "nixpart-${version}";
-    version = "0.1";
-
-    src = fetchurl {
-      url = "https://github.com/aszlig/nixpart/archive/v${version}.tar.gz";
-      sha256 = "1gyk260qnv14w94f0ljfra4mmigq9i6cx0gy4ppf3fia5wfj2a6j";
-    };
-
-    propagatedBuildInputs = [ blivet ];
-
-    doCheck = false;
-
-    meta = {
-      description = "NixOS Anaconda Kickstart helper";
-      license = pkgs.lib.licenses.gpl2Plus;
-      maintainers = [ stdenv.lib.maintainers.aszlig ];
-    };
-  };
-
   nose = buildPythonPackage rec {
     name = "nose-1.2.1";
 
@@ -3056,7 +3211,7 @@ pythonPackages = python.modules // rec {
   };
 
   paramiko = buildPythonPackage rec {
-    name = "paramiko-1.10";
+    name = "paramiko-1.10.1";
 
     src = fetchurl {
       url = https://pypi.python.org/packages/source/p/paramiko/paramiko-1.10.1.tar.gz;
@@ -3159,7 +3314,7 @@ pythonPackages = python.modules // rec {
     name = "pexpect-2.3";
 
     src = fetchurl {
-      url = "http://pexpect.sourceforge.net/pexpect-2.3.tar.gz";
+      url = "mirror://sourceforge/pexpect/pexpect-2.3.tar.gz";
       sha256 = "0x8bfjjqygriry1iyygm5048ykl5qpbpzqfp6i8dhkslm3ryf5fk";
     };
 
@@ -3456,9 +3611,13 @@ pythonPackages = python.modules // rec {
 
     buildInputs = [ python pkgs.portaudio ];
 
-    installPhase = ''
-      python setup.py install --prefix=$out
+    buildPhase = if stdenv.isDarwin then ''
+      PORTAUDIO_PATH="${pkgs.portaudio}" python setup.py build --static-link
+    '' else ''
+      python setup.py build
     '';
+
+    installPhase = "python setup.py install --prefix=$out";
 
     meta = {
       description = "Python bindings for PortAudio";
@@ -3750,6 +3909,26 @@ pythonPackages = python.modules // rec {
       homepage = "http://fedoraproject.org/wiki/Pykickstart";
       description = "Read and write Fedora kickstart files";
       license = pkgs.lib.licenses.gpl2Plus;
+    };
+  };
+
+
+  pyodbc = buildPythonPackage rec {
+    name = "pyodbc-3.0.6";
+
+    src = fetchurl {
+      url = "https://pyodbc.googlecode.com/files/${name}.zip";
+      sha256 = "0v9nymllw5zq5294rqp8ip3l0g6l3l3mljwhxn5jajyzxlnz39z5";
+    };
+
+    buildInputs = [ pkgs.unzip pkgs.libiodbc ];
+
+    meta = with stdenv.lib; {
+      description = "Python ODBC module to connect to almost any database";
+      homepage = https://code.google.com/p/pyodbc/;
+      license = licenses.mit;
+      platforms = platforms.linux;
+      maintainers = [ maintainers.bjornfor ];
     };
   };
 
@@ -4955,7 +5134,7 @@ pythonPackages = python.modules // rec {
   });
 
   twisted = buildPythonPackage rec {
-    name = "twisted-12.3.0";
+    name = "twisted-10.2.0";
 
     src = fetchurl {
       url = http://tmrc.mit.edu/mirror/twisted/Twisted/10.2/Twisted-10.2.0.tar.bz2;
@@ -6157,28 +6336,38 @@ pythonPackages = python.modules // rec {
   pyspotify = buildPythonPackage rec {
     name = "pyspotify-${version}";
   
-    version = "1.10";
+    version = "1.11";
   
-    src = fetchgit {
-      url = "https://github.com/mopidy/pyspotify.git";
-      rev = "refs/tags/v${version}";
-      sha256 = "1rvgrviwn6f037m8vq395chz6a1119dbsdhfwdbv5ambi0bak6ll";
+    src = fetchurl {
+      url = "https://github.com/mopidy/pyspotify/archive/v1.11.tar.gz";
+      sha256 = "089ml6pqr3f2d15n70jpzbaqjp5pjgqlyv4algkxw92xscjw2izg";
     };
   
-    buildInputs = [ pkgs.libspotify ];
+    buildInputs = [ pkgs.libspotify ]
+      ++ stdenv.lib.optional stdenv.isDarwin pkgs.install_name_tool;
   
     # python zip complains about old timestamps
     preConfigure = ''
       find -print0 | xargs -0 touch
     '';
+
+    postInstall = stdenv.lib.optionalString stdenv.isDarwin ''
+      find "$out" -name _spotify.so -exec \
+          install_name_tool -change \
+          @loader_path/../Frameworks/libspotify.framework/libspotify \
+          ${pkgs.libspotify}/lib/libspotify.dylib \
+          {} \;
+    '';
   
     # There are no tests
     doCheck = false;
   
-    meta = {
-      homepage = http://pyspotify.mopidy.com;
+    meta = with stdenv.lib; {
+      homepage    = http://pyspotify.mopidy.com;
       description = "A Python interface to Spotify’s online music streaming service";
-      maintainers = [ stdenv.lib.maintainers.rickynils ];
+      license     = licenses.unfree;
+      maintainers = with maintainers; [ lovek323 rickynils ];
+      platforms   = platforms.unix;
     };
   };
 

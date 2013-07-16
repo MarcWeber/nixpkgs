@@ -1,13 +1,4 @@
-<<<<<<< HEAD
-{fetchurl, stdenv, python, cmake}: {
-
-# Note: Marc Weber thinks that github.com/MarcWeber/vim-addon-manager is the
-# easiest way to manager your Vim environment
-
-/*
-    sample bootstrapping bash function for vim-addon-manager:
-=======
-{fetchurl, stdenv, python, cmake, vim}:
+{fetchurl, stdenv, python, cmake, vim, perl, ruby}:
 
 /*
 About Vim and plugins
@@ -56,7 +47,6 @@ I'm not sure we should package them all. Most of them are not used much.
 You need your .vimrc anyway, and then VAM gets the job done ?
 
 How to install VAM? eg provide such a bash function:
->>>>>>> refs/top-bases/experimental/vim-plugins
 
     vim-install-vam () {
     mkdir -p ~/.vim/vim-addons && git clone --depth=1 git://github.com/MarcWeber/vim-addon-manager.git ~/.vim/vim-addons/vim-addon-manager && cat >> ~/.vimrc <<EOF
@@ -70,23 +60,6 @@ How to install VAM? eg provide such a bash function:
       call vam#ActivateAddons([])
     endf
     call ActivateAddons()
-<<<<<<< HEAD
-    " experimental: run after gui has been started [3]
-    " option1:  au VimEnter * call Activate()
-    " option2:  au GUIEnter * call Activate()
-    EOF
-    }
-*/
-
-# Exceptions: complicated plugins requiring dependencies, such as YouCompleteMe
-# vim-addon-manager still can be used, install vimPlugins.YouCompleteMe into
-# your user profile, then symlink ~/.nix-profiles/vim-plugins/YouCompleteMe to
-# ~/.vim/vim-addons/YouCompleteMe, and VAM will pick it up
-
-# you may feel different about it.
-
-
-=======
     EOF
     }
 
@@ -116,28 +89,19 @@ in
 
     # This is a placeholder, because I think you always should be using latest git version
   };
->>>>>>> refs/top-bases/experimental/vim-plugins
 
   YouCompleteMe = stdenv.mkDerivation {
     # REGION AUTO UPDATE: { name="youcompleteme"; type="git"; url="git://github.com/Valloric/YouCompleteMe"; }
     src = (fetchurl { url = "http://mawercer.de/~nix/repos/youcompleteme-git-97306.tar.bz2"; sha256 = "b9b892f5a723370c2034491dc72a4ca722c6cf1e5de4d60501141bba151bc719"; });
     name = "youcompleteme-git-97306";
     # END
-<<<<<<< HEAD
-    buildInputs = [ python cmake] ;
-=======
     buildInputs = [ python cmake ];
->>>>>>> refs/top-bases/experimental/vim-plugins
 
     configurePhase = ":";
 
     buildPhase = ''
       set -x
-<<<<<<< HEAD
-      target=$out/vim-plugins
-=======
       target=$out/vim-plugins/YouCompleteMe
->>>>>>> refs/top-bases/experimental/vim-plugins
       mkdir -p $target
       cp -a ./ $target
 
@@ -145,11 +109,8 @@ in
       cd $target/build
       cmake -G "Unix Makefiles" . $target/cpp -DPYTHON_LIBRARIES:PATH=${python}/lib/libpython2.7.so -DPYTHON_INCLUDE_DIR:PATH=${python}/include/python2.7
       make -j -j''${NIX_BUILD_CORES} -l''${NIX_BUILD_CORES}}
-<<<<<<< HEAD
-=======
 
       ${vimHelptags "$out/vim-plugins/YouCompleteMe/doc"}
->>>>>>> refs/top-bases/experimental/vim-plugins
     '';
 
     # TODO: implement proper install phase rather than keeping everything in store
@@ -165,9 +126,6 @@ in
     };
   };
 
-<<<<<<< HEAD
-}
-=======
   syntastic = stdenv.mkDerivation {
     name = "vim-syntastic-3.0.0";
    
@@ -184,6 +142,8 @@ in
       cp -R doc "$out/vim-plugins"
       cp -R plugin "$out/vim-plugins"
       cp -R syntax_checkers "$out/vim-plugins"
+
+      ${vimHelptags "$out/vim-plugins/doc"}
     '';
   };
 
@@ -206,8 +166,51 @@ in
       cp -R ftplugin "$out/vim-plugins"
       cp -R indent "$out/vim-plugins"
       cp -R syntax "$out/vim-plugins"
+
+      ${vimHelptags "$out/vim-plugins/doc"}
     '';
   };
-}
 
->>>>>>> refs/top-bases/experimental/vim-plugins
+  commandT = stdenv.mkDerivation {
+    name = "vim-command-t-1.4";
+
+    src = fetchurl {
+      url    = "https://github.com/wincent/Command-T/archive/1.4.tar.gz";
+      sha256 = "1ka9hwx9n0vj1dd5qsd2l1wq0kriwl76jmmdjzh7zaf0p547v98s";
+    };
+
+    buildInputs = [ perl ruby ];
+
+    buildPhase = ''
+      pushd ruby/command-t
+      ruby extconf.rb
+      make
+      popd
+    '';
+
+    installPhase = ''
+      mkdir -p "$out/vim-plugins"
+      cp -R doc "$out/doc"
+      cp -R plugin "$out/vim-plugins"
+      cp -R ruby "$out/vim-plugins"
+
+      ${vimHelptags "$out/vim-plugins/doc"}
+    '';
+  };
+
+  xdebug = stdenv.mkDerivation {
+    name = "vim-xdebug-a4980fa65f7f159780593ee37c178281691ba2c4";
+
+    src = fetchurl {
+      url = "https://github.com/joonty/vim-xdebug/archive/a4980fa65f7f159780593ee37c178281691ba2c4.tar.gz";
+      sha256 = "1348gzp0zhc2wifvs5vmf92m9y8ik8ldnvy7bawsxahy8hmhiksk";
+    };
+
+    installPhase = ''
+      mkdir -p "$out/vim-plugins"
+      cp -R plugin "$out/vim-plugins"
+    '';
+
+    postInstall = false;
+  };
+}

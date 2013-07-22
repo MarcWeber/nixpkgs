@@ -2072,6 +2072,8 @@ let
       javaCup = callPackage ../development/libraries/java/cup { };
     };
 
+  aldor = callPackage ../development/compilers/aldor { };
+
   aspectj = callPackage ../development/compilers/aspectj { };
 
   bigloo = callPackage ../development/compilers/bigloo { };
@@ -2281,12 +2283,6 @@ let
     cross = assert crossSystem != null; crossSystem;
   };
 
-  gcc43_multi = lowPrio (wrapGCCWith (import ../build-support/gcc-wrapper) glibc_multi (gcc43.gcc.override {
-    stdenv = overrideGCC stdenv (wrapGCCWith (import ../build-support/gcc-wrapper) glibc_multi gcc);
-    profiledCompiler = false;
-    enableMultilib = true;
-  }));
-
   gcc44 = lowPrio (wrapGCC (makeOverridable (import ../development/compilers/gcc/4.4) {
     inherit fetchurl stdenv texinfo gmp mpfr /* ppl cloogppl */
       gettext which noSysDirs;
@@ -2310,17 +2306,6 @@ let
       if crossSystem != null && crossSystem.config == "i586-pc-gnu"
       then gnu.libpthreadCross
       else null;
-  }));
-
-  # A non-stripped version of GCC.
-  gcc45_debug = lowPrio (wrapGCC (callPackage ../development/compilers/gcc/4.5 {
-    stripped = false;
-
-    inherit noSysDirs;
-
-    # bootstrapping a profiled compiler does not work in the sheevaplug:
-    # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=43944
-    profiledCompiler = !stdenv.system == "armv5tel-linux";
   }));
 
   gcc46_real = lowPrio (wrapGCC (callPackage ../development/compilers/gcc/4.6 {
@@ -2352,12 +2337,14 @@ let
     binutilsCross = null;
   }));
 
-  gcc46_multi = if system == "x86_64-linux" then lowPrio (
+  gcc46_multi =
+    if system == "x86_64-linux" then lowPrio (
       wrapGCCWith (import ../build-support/gcc-wrapper) glibc_multi (gcc46.gcc.override {
-      stdenv = overrideGCC stdenv (wrapGCCWith (import ../build-support/gcc-wrapper) glibc_multi gcc.gcc);
-      profiledCompiler = false;
-      enableMultilib = true;
-    })) else throw "Multilib gcc not supported on ‘${system}’";
+        stdenv = overrideGCC stdenv (wrapGCCWith (import ../build-support/gcc-wrapper) glibc_multi gcc.gcc);
+        profiledCompiler = false;
+        enableMultilib = true;
+      }))
+    else throw "Multilib gcc not supported on ‘${system}’";
 
   gcc47_real = lowPrio (wrapGCC (callPackage ../development/compilers/gcc/4.7 {
     inherit noSysDirs;
@@ -3231,6 +3218,8 @@ let
 
   guile_ncurses = callPackage ../development/guile-modules/guile-ncurses { };
 
+  srecord = callPackage ../development/tools/misc/srecord { };
+
   windowssdk = (
     import ../development/misc/windows-sdk {
       inherit fetchurl stdenv cabextract;
@@ -3278,6 +3267,8 @@ let
   automoc4 = callPackage ../development/tools/misc/automoc4 { };
 
   avrdude = callPackage ../development/tools/misc/avrdude { };
+
+  avarice = callPackage ../development/tools/misc/avarice { };
 
   bam = callPackage ../development/tools/build-managers/bam {};
 
@@ -3594,9 +3585,13 @@ let
 
   sparse = callPackage ../development/tools/analysis/sparse { };
 
+  speedtest_cli = callPackage ../tools/networking/speedtest-cli { };
+
   spin = callPackage ../development/tools/analysis/spin { };
 
   splint = callPackage ../development/tools/analysis/splint { };
+
+  stm32flash = callPackage ../development/tools/misc/stm32flash { };
 
   strace = callPackage ../development/tools/misc/strace { };
 
@@ -4222,7 +4217,8 @@ let
   pixman = callPackage ../development/libraries/pixman { };
 
   cairo = callPackage ../development/libraries/cairo {
-    glSupport = config.cairo.gl or stdenv.isLinux;
+    glSupport = config.cairo.gl or (stdenv.isLinux &&
+      !stdenv.isArm && !stdenv.isMips);
   };
   cairo_1_12_2 = callPackage ../development/libraries/cairo/1.12.2.nix { };
   cairomm = callPackage ../development/libraries/cairomm { };
@@ -4792,6 +4788,10 @@ let
   libssh2 = callPackage ../development/libraries/libssh2 { };
 
   libstartup_notification = callPackage ../development/libraries/startup-notification { };
+
+  libspatialindex = callPackage ../development/libraries/libspatialindex { };
+
+  libspatialite = callPackage ../development/libraries/libspatialite { };
 
   libtasn1 = callPackage ../development/libraries/libtasn1 { };
 
@@ -5831,6 +5831,8 @@ let
     sslSupport = true;
   });
 
+  apcupsd = callPackage ../servers/apcupsd { };
+
   sabnzbd = callPackage ../servers/sabnzbd { };
 
   bind = callPackage ../servers/dns/bind { };
@@ -6369,19 +6371,6 @@ let
       ];
   };
 
-  linux_3_7 = makeOverridable (import ../os-specific/linux/kernel/linux-3.7.nix) {
-    inherit fetchurl stdenv perl mktemp module_init_tools ubootChooser;
-    kernelPatches =
-      [
-        kernelPatches.sec_perm_2_6_24
-        # kernelPatches.aufs3_7
-      ] ++ lib.optionals (platform.kernelArch == "mips")
-      [ kernelPatches.mips_fpureg_emu
-        kernelPatches.mips_fpu_sigill
-        kernelPatches.mips_ext3_n32
-      ];
-  };
-
   linux_3_6_rpi = makeOverridable (import ../os-specific/linux/kernel/linux-rpi-3.6.nix) {
     inherit fetchurl stdenv perl mktemp module_init_tools ubootChooser;
   };
@@ -6491,8 +6480,6 @@ let
 
     wis_go7007 = callPackage ../os-specific/linux/wis-go7007 { };
 
-    kqemu = callPackage ../os-specific/linux/kqemu { };
-
     klibc = callPackage ../os-specific/linux/klibc {
       linuxHeaders = glibc.kernelHeaders;
     };
@@ -6546,7 +6533,6 @@ let
   linuxPackages_3_2_xen = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_2_xen linuxPackages_3_2_xen);
   linuxPackages_3_4 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_4 linuxPackages_3_4);
   linuxPackages_3_6_rpi = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_6_rpi linuxPackages_3_6_rpi);
-  linuxPackages_3_7 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_7 linuxPackages_3_7);
   linuxPackages_3_8 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_8 linuxPackages_3_8);
   linuxPackages_3_9 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_9 linuxPackages_3_9);
   linuxPackages_3_10 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_10 linuxPackages_3_10);
@@ -7621,6 +7607,8 @@ let
 
   libquvi = callPackage ../applications/video/quvi/library.nix { };
 
+  mi2ly = callPackage ../applications/audio/mi2ly {};
+
   praat = callPackage ../applications/audio/praat { };
 
   quvi = callPackage ../applications/video/quvi/tool.nix { };
@@ -7728,6 +7716,8 @@ let
   gv = callPackage ../applications/misc/gv { };
 
   hello = callPackage ../applications/misc/hello/ex-2 { };
+
+  herbstluftwm = callPackage ../applications/window-managers/herbstluftwm { };
 
   hexedit = callPackage ../applications/editors/hexedit { };
 
@@ -9113,15 +9103,7 @@ let
 
   gnome = recurseIntoAttrs gnome2;
 
-  kde4 = recurseIntoAttrs pkgs.kde48;
-
-  kde47 = kdePackagesFor (pkgs.kde47 // {
-      boost = boost149;
-      eigen = eigen2;
-      libotr = libotr_3_2;
-      libgphoto2 = libgphoto2_4;
-      libcanberra = libcanberra_kde;
-    }) ../desktops/kde-4.7;
+  kde4 = recurseIntoAttrs pkgs.kde410;
 
   kde48 = kdePackagesFor (pkgs.kde48 // {
       boost = boost149;
@@ -9613,13 +9595,10 @@ let
     stateDir = config.nix.stateDir or "/nix/var";
   };
 
-  nixUnstable = nixStable;
-  /*
   nixUnstable = callPackage ../tools/package-management/nix/unstable.nix {
     storeDir = config.nix.storeDir or "/nix/store";
     stateDir = config.nix.stateDir or "/nix/var";
   };
-  */
 
   nixops = callPackage ../tools/package-management/nixops { };
 

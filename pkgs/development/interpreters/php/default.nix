@@ -245,13 +245,15 @@ let
         configureFlags = ["--enable-bcmath"];
       };
 
-      gd = {
+      gd = 
+      let graphicLibraries = "--with-freetype-dir=${freetype} --with-png-dir=${libpng} --with-jpeg-dir=${libjpeg}"; in
+      {
         configureFlags =
           if gdShared then
             # ok: ["--with-gd=${gd}"];
             # does this work with 5.3?
-            ["--with-gd=shared --with-freetype-dir=${freetype} --with-png-dir=${libpng}"]
-          else ["--with-gd --with-freetype-dir=${freetype} --with-png-dir=${libpng}"];
+            ["--with-gd=shared  " graphicLibraries]
+          else ["--with-gd" graphicLibraries];
         buildInputs = [gd libpng libjpeg ];
       };
 

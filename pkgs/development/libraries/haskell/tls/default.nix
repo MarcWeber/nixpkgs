@@ -1,16 +1,21 @@
-{ cabal, cereal, certificate, cryptoApi, cryptocipher, cryptohash
-, mtl
+{ cabal, cereal, certificate, cprngAes, cryptohash, cryptoPubkey
+, cryptoRandomApi, mtl, network, QuickCheck, testFramework
+, testFrameworkQuickcheck2, time
 }:
 
 cabal.mkDerivation (self: {
   pname = "tls";
-  version = "0.9.8";
-  sha256 = "022hak5wy47j4zpf2f89zvz4j2586s3d0a5jkxvz54dkqimy63r6";
-  isLibrary = true;
-  isExecutable = true;
+  version = "1.1.2";
+  sha256 = "1vg1mnz6cxxgs48pbpjp4hwyvsysxyzvjfy4p1vd23lwc32cdjqg";
   buildDepends = [
-    cereal certificate cryptoApi cryptocipher cryptohash mtl
+    cereal certificate cryptohash cryptoPubkey cryptoRandomApi mtl
+    network
   ];
+  testDepends = [
+    cereal certificate cprngAes cryptoPubkey cryptoRandomApi mtl
+    QuickCheck testFramework testFrameworkQuickcheck2 time
+  ];
+  doCheck = false;
   meta = {
     homepage = "http://github.com/vincenthz/hs-tls";
     description = "TLS/SSL protocol native implementation (Server and Client)";

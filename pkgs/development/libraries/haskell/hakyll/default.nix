@@ -1,17 +1,28 @@
-{ cabal, binary, blazeHtml, blazeMarkup, citeprocHs, cryptohash
-, filepath, hamlet, mtl, pandoc, parsec, regexBase, regexTdfa
-, snapCore, snapServer, tagsoup, text, time
+{ cabal, binary, blazeHtml, blazeMarkup, citeprocHs, cmdargs
+, cryptohash, deepseq, filepath, httpConduit, httpTypes, HUnit
+, lrucache, mtl, pandoc, parsec, QuickCheck, random, regexBase
+, regexTdfa, snapCore, snapServer, tagsoup, testFramework
+, testFrameworkHunit, testFrameworkQuickcheck2, text, time
 }:
 
 cabal.mkDerivation (self: {
   pname = "hakyll";
-  version = "3.4.0.0";
-  sha256 = "1m69kzjbsspf69qc3yq6qhpnk3vd3k5qa7zssazm8717sgrb2z9m";
+  version = "4.2.1.2";
+  sha256 = "0b2jmi9hi5l72lkyjn2w3gwn52zvnvv7c10x5329hp000gzmwbvi";
+  isLibrary = true;
+  isExecutable = true;
   buildDepends = [
-    binary blazeHtml blazeMarkup citeprocHs cryptohash filepath hamlet
-    mtl pandoc parsec regexBase regexTdfa snapCore snapServer tagsoup
-    text time
+    binary blazeHtml blazeMarkup citeprocHs cmdargs cryptohash deepseq
+    filepath httpConduit httpTypes lrucache mtl pandoc parsec random
+    regexBase regexTdfa snapCore snapServer tagsoup text time
   ];
+  testDepends = [
+    binary blazeHtml blazeMarkup citeprocHs cmdargs cryptohash deepseq
+    filepath httpConduit httpTypes HUnit lrucache mtl pandoc parsec
+    QuickCheck random regexBase regexTdfa snapCore snapServer tagsoup
+    testFramework testFrameworkHunit testFrameworkQuickcheck2 text time
+  ];
+  doCheck = false;
   meta = {
     homepage = "http://jaspervdj.be/hakyll";
     description = "A static website compiler library";

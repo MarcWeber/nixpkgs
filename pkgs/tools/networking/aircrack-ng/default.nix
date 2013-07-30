@@ -1,7 +1,7 @@
 {stdenv, fetchsvn, libpcap, openssl, zlib, wirelesstools}:
 
 let
-  rev = "1859";
+  rev = "2212";
 in
 stdenv.mkDerivation rec {
   name = "aircrack-ng-1.1-${rev}";
@@ -9,7 +9,7 @@ stdenv.mkDerivation rec {
   src = fetchsvn {
     url = "http://trac.aircrack-ng.org/svn/trunk";
     inherit rev;
-    sha256 = "6ca98321ef3f14af9c78b2fe25091c4e79e3c28679f240b80f8aeda71b84ab4a";
+    sha256 = "80e567b4e4bc501721cd58f7efadcd13fc3b235a41486174826694a6e701ce09";
   };
 
   buildInputs = [libpcap openssl zlib];

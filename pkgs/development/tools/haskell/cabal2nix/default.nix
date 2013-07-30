@@ -1,12 +1,14 @@
-{ cabal, Cabal, filepath, hackageDb, HTTP, mtl, regexPosix }:
+{ cabal, Cabal, doctest, filepath, hackageDb, HTTP, mtl, regexPosix
+}:
 
 cabal.mkDerivation (self: {
   pname = "cabal2nix";
-  version = "1.38";
-  sha256 = "1kybxrkddbzr1cqpqplbflhakf9njb9hvamhdwvlanlk8985h8jg";
+  version = "1.47";
+  sha256 = "1ba0ny610ibynwvzqnk5h2461sdkmza5jqrizqxvhp9wknn50fc6";
   isLibrary = false;
   isExecutable = true;
   buildDepends = [ Cabal filepath hackageDb HTTP mtl regexPosix ];
+  testDepends = [ doctest ];
   meta = {
     homepage = "http://github.com/NixOS/cabal2nix";
     description = "Convert Cabal files into Nix build instructions";

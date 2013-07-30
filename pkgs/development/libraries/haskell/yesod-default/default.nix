@@ -1,15 +1,16 @@
-{ cabal, networkConduit, shakespeareCss, shakespeareJs, text
-, transformers, unorderedContainers, wai, waiExtra, warp, yaml
-, yesodCore
+{ cabal, dataDefault, hamlet, networkConduit, safe, shakespeareCss
+, shakespeareJs, text, transformers, unorderedContainers, wai
+, waiExtra, warp, yaml, yesodCore
 }:
 
 cabal.mkDerivation (self: {
   pname = "yesod-default";
-  version = "1.0.1.1";
-  sha256 = "0jv7fxrgh2x93saz0vrba0mzafq3wmq85b3idcsny4d8mgj6ngv0";
+  version = "1.1.3.2";
+  sha256 = "07gm9sj4c231wdmfmb7df1s8wvqa6fw7nhcq554h16h2ibv5pcqg";
   buildDepends = [
-    networkConduit shakespeareCss shakespeareJs text transformers
-    unorderedContainers wai waiExtra warp yaml yesodCore
+    dataDefault hamlet networkConduit safe shakespeareCss shakespeareJs
+    text transformers unorderedContainers wai waiExtra warp yaml
+    yesodCore
   ];
   meta = {
     homepage = "http://www.yesodweb.com/";

@@ -1,4 +1,4 @@
-{ stdenv, runCommand, nettools, perl, kmod, writeTextFile }:
+{ stdenv, runCommand, nettools, bc, perl, kmod, writeTextFile }:
 
 with stdenv.lib;
 
@@ -8,16 +8,13 @@ let
   readConfig = configFile:
     let
       configAttrs = import "${runCommand "config.nix" {} ''
-        (. ${configFile}
-        echo "{"
-        for var in `set`; do
-            if [[ "$var" =~ ^CONFIG_ ]]; then
-                IFS="="
-                set -- $var
-                echo "\"$1\" = \"''${*:2}\";"
-            fi
-        done
-        echo "}") > $out
+        echo "{" > "$out"
+        while IFS='=' read key val; do
+          [ "x''${key#CONFIG_}" != "x$key" ] || continue
+          no_firstquote="''${val#\"}";
+          echo '  "'"$key"'" = "'"''${no_firstquote%\"}"'";' >> "$out"
+        done < "${configFile}"
+        echo "}" >> $out
       ''}";
 
       config = configAttrs // rec {
@@ -74,10 +71,33 @@ let
     (isModular || (config.isDisabled "FIRMWARE_IN_KERNEL"));
 
   commonMakeFlags = [
-    "O=../build"
+    "O=$(buildRoot)"
     "INSTALL_PATH=$(out)"
   ] ++ (optional isModular "INSTALL_MOD_PATH=$(out)")
   ++ optional installsFirmware "INSTALL_FW_PATH=$(out)/lib/firmware";
+
+  sourceRoot = stdenv.mkDerivation {
+    name = "linux-${version}-source";
+
+    inherit src;
+
+    patches = map (p: p.patch) kernelPatches;
+
+    phases = [ "unpackPhase" "patchPhase" "installPhase" ]; 
+
+    prePatch = ''
+      for mf in $(find -name Makefile -o -name Makefile.include -o -name install.sh); do
+          echo "stripping FHS paths in \`$mf'..."
+          sed -i "$mf" -e 's|/usr/bin/||g ; s|/bin/||g ; s|/sbin/||g'
+      done
+      sed -i Makefile -e 's|= depmod|= ${kmod}/sbin/depmod|'
+    '';
+
+    installPhase = ''
+      cd ..
+      mv $sourceRoot $out
+    '';
+  };
 in
 
 stdenv.mkDerivation {
@@ -85,33 +105,28 @@ stdenv.mkDerivation {
 
   enableParallelBuilding = true;
 
+  outputs = if isModular then [ "out" "dev" ] else null;
+
   passthru = {
-    inherit version modDirVersion config kernelPatches;
+    inherit version modDirVersion config kernelPatches src;
   };
 
-  inherit src;
+  inherit sourceRoot;
 
-  patches = map (p: p.patch) kernelPatches;
-
-  prePatch = ''
-    for mf in $(find -name Makefile -o -name Makefile.include -o -name install.sh); do
-        echo "stripping FHS paths in \`$mf'..."
-        sed -i "$mf" -e 's|/usr/bin/||g ; s|/bin/||g ; s|/sbin/||g'
-    done
-    sed -i Makefile -e 's|= depmod|= ${kmod}/sbin/depmod|'
+  unpackPhase = ''
+    mkdir build
+    export buildRoot="$(pwd)/build"
+    cd ${sourceRoot}
   '';
 
   configurePhase = ''
     runHook preConfigure
-    mkdir ../build
-    make $makeFlags "''${makeFlagsArray[@]}" mrproper
-    ln -sv ${configfile} ../build/.config
+    ln -sv ${configfile} $buildRoot/.config
     make $makeFlags "''${makeFlagsArray[@]}" oldconfig
-    rm ../build/.config.old
     runHook postConfigure
   '';
 
-  buildNativeInputs = [ perl nettools ];
+  nativeBuildInputs = [ perl bc nettools ];
 
   makeFlags = commonMakeFlags ++ [
    "INSTALLKERNEL=${installkernel stdenv.platform.kernelTarget}"
@@ -128,22 +143,24 @@ stdenv.mkDerivation {
   '' + (if isModular then ''
     make modules_install $makeFlags "''${makeFlagsArray[@]}" \
       $installFlags "''${installFlagsArray[@]}"
-    rm -f $out/lib/modules/${modDirVersion}/{build,source}
-    cd ..
-    mv $sourceRoot $out/lib/modules/${modDirVersion}/source
-    mv build $out/lib/modules/${modDirVersion}/build
-    unlink $out/lib/modules/${modDirVersion}/build/source
-    ln -sv $out/lib/modules/${modDirVersion}/{,build/}source
+    rm -f $out/lib/modules/${modDirVersion}/build
+    mkdir -p $dev/lib/modules/${modDirVersion}
+    mv $out/lib/modules/${modDirVersion}/source $dev/lib/modules/${modDirVersion}/source
+    mv $buildRoot $dev/lib/modules/${modDirVersion}/build
   '' else optionalString installsFirmware ''
     make firmware_install $makeFlags "''${makeFlagsArray[@]}" \
       $installFlags "''${installFlagsArray[@]}"
   '');
 
-  postFixup = optionalString isModular ''
+  postFixup = if isModular then ''
     if [ -z "$dontStrip" ]; then
         find $out -name "*.ko" -print0 | xargs -0 -r strip -S
+        # Remove all references to the source directory to avoid unneeded
+        # runtime dependencies
+        find $out -name "*.ko" -print0 | xargs -0 -r sed -i \
+          "s|${sourceRoot}|$NIX_STORE/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee-${sourceRoot.name}|g"
     fi
-  '';
+  '' else null;
 
   meta = {
     description = "The Linux kernel";

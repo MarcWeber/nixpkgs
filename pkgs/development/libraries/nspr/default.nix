@@ -1,13 +1,13 @@
 { stdenv, fetchurl }:
 
-let version = "4.9.1"; in
+let version = "4.9.5"; in
 
 stdenv.mkDerivation {
   name = "nspr-${version}";
 
   src = fetchurl {
     url = "http://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v${version}/src/nspr-${version}.tar.gz";
-    sha1 = "1d52282668f2f8f5aabf7a5a3e7f6ba9a5df9710";
+    sha1 = "03885e992607e2be975f6525c6764c2167fe2eff";
   };
 
   preConfigure = "cd mozilla/nsprpub";
@@ -20,7 +20,7 @@ stdenv.mkDerivation {
     '';
 
   enableParallelBuilding = true;
-    
+
   meta = {
     homepage = http://www.mozilla.org/projects/nspr/;
     description = "Netscape Portable Runtime, a platform-neutral API for system-level and libc-like functions";

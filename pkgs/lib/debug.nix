@@ -66,7 +66,7 @@ rec {
     let testsToRun = if tests ? tests then tests.tests else [];
     in if (substring 0 4 name == "test" ||  elem name testsToRun)
        && ((testsToRun == []) || elem name tests.tests)
-       && (!lib.eqStrict test.expr test.expected)
+       && (test.expr != test.expected)
 
       then [ { inherit name; expected = test.expected; result = test.expr; } ]
       else [] ) tests));
@@ -95,7 +95,7 @@ rec {
           else if isInt x then true
           else if x == null then true
           else true; # a (store) path?
-    in if (traverse x) then x else throw "else never reached";
+    in if traverse x then x else throw "else never reached";
 
   # example: (traceCallXml "myfun" id 3) will output something like
   # calling myfun arg 1: 3 result: 3

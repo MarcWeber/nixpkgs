@@ -3,13 +3,14 @@
 , libxslt, tcl, tk, makeWrapper
 , svnSupport, subversionClient, perlLibs, smtpPerlLibs
 , guiSupport
+, withManual ? true
 , pythonSupport ? true
 , sendEmailSupport
 }:
 
 let
 
-  version = "1.7.11.4";
+  version = "1.8.1.3";
 
   svn = subversionClient.override { perlBindings = true; };
 
@@ -20,16 +21,18 @@ stdenv.mkDerivation {
 
   src = fetchurl {
     url = "http://git-core.googlecode.com/files/git-${version}.tar.gz";
-    sha256 = "16a1gm256w82j9ardzyfyqi0f35l3x92xsqz8ghz1pnja8jns7g9";
+    sha256 = "1waz35cwgcwhgmgzmc4s00yd2vivhy77p49crgqsl0nqpxyj8lrp";
   };
 
   patches = [ ./docbook2texi.patch ];
 
   buildInputs = [curl openssl zlib expat gettext cpio makeWrapper]
-    ++ # documentation tools
-       [ asciidoc texinfo xmlto docbook2x
+    ++ stdenv.lib.optionals withManual [ asciidoc texinfo xmlto docbook2x
          docbook_xsl docbook_xml_dtd_45 libxslt ]
     ++ stdenv.lib.optionals guiSupport [tcl tk];
+
+  # required to support pthread_cancel()
+  NIX_LDFLAGS = stdenv.lib.optionalString (!stdenv.isDarwin) "-lgcc_s";
 
   makeFlags = "prefix=\${out} PERL_PATH=${perl}/bin/perl SHELL_PATH=${stdenv.shell} "
       + (if pythonSupport then "PYTHON_PATH=${python}/bin/python" else "NO_PYTHON=1");
@@ -91,7 +94,7 @@ stdenv.mkDerivation {
         notSupported $out/libexec/git-core/git-send-email "reinstall with config git = { sendEmailSupport = true } set"
        '')
 
-   + ''# Install man pages and Info manual
+   + stdenv.lib.optionalString withManual ''# Install man pages and Info manual
        make -j $NIX_BUILD_CORES -l $NIX_BUILD_CORES PERL_PATH="${perl}/bin/perl" cmd-list.made install install-info \
          -C Documentation ''
 

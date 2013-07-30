@@ -7,14 +7,14 @@
  else stdenv.mkDerivation)
 
 (rec {
-  name = "guile-2.0.6";
+  name = "guile-2.0.7";
 
   src = fetchurl {
     url = "mirror://gnu/guile/${name}.tar.xz";
-    sha256 = "000ng5qsq3cl1k35jvzvhwxj92wx4q87745n2fppkd4irh58vv5l";
+    sha256 = "0f53pxkia4v17n0avwqlcjpy0n89hkazm2xsa6p84lv8k6k8y9vg";
   };
 
-  buildNativeInputs = [ makeWrapper gawk pkgconfig ];
+  nativeBuildInputs = [ makeWrapper gawk pkgconfig ];
   buildInputs = [ readline libtool libunistring libffi ];
   propagatedBuildInputs = [ gmp boehmgc ]
 
@@ -25,12 +25,16 @@
     ++ [ libtool libunistring ];
 
   # A native Guile 2.0 is needed to cross-build Guile.
-  selfBuildNativeInput = true;
+  selfNativeBuildInput = true;
 
   enableParallelBuilding = true;
 
   patches = [ ./disable-gc-sensitive-tests.patch ] ++
     (stdenv.lib.optional (coverageAnalysis != null) ./gcov-file-name.patch);
+
+  # Explicitly link against libgcc_s, to work around the infamous
+  # "libgcc_s.so.1 must be installed for pthread_cancel to work".
+  LDFLAGS = "-lgcc_s";
 
   postInstall = ''
     wrapProgram $out/bin/guile-snarf --prefix PATH : "${gawk}/bin"
@@ -81,10 +85,31 @@
 
 //
 
+(stdenv.lib.optionalAttrs stdenv.isSunOS {
+  # TODO: Move me above.
+  configureFlags =
+    [
+      # Make sure the right <gmp.h> is found, and not the incompatible
+      # /usr/include/mp.h from OpenSolaris.  See
+      # <https://lists.gnu.org/archive/html/hydra-users/2012-08/msg00000.html>
+      # for details.
+      "--with-libgmp-prefix=${gmp}"
+
+      # Same for these (?).
+      "--with-libreadline-prefix=${readline}"
+      "--with-libunistring-prefix=${libunistring}"
+
+      # See below.
+      "--without-threads"
+    ];
+})
+
+//
+
 (if stdenv.isFreeBSD
  then {
-   # XXX: Thread support is currently broken on FreeBSD (namely the
-   # `SCM_I_IS_THREAD' assertion in `scm_spawn_thread' is hit.)
+   # XXX: Thread support is currently broken on FreeBSD and Solaris (namely
+   # the `SCM_I_IS_THREAD' assertion in `scm_spawn_thread' is hit.)
    configureFlags = [ "--without-threads" ];
  }
  else {}))

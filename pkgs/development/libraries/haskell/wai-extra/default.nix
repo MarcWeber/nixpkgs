@@ -1,17 +1,23 @@
 { cabal, ansiTerminal, blazeBuilder, blazeBuilderConduit
-, caseInsensitive, conduit, dataDefault, fastLogger, httpTypes
-, network, resourcet, stringsearch, text, time, transformers, wai
-, zlibConduit
+, caseInsensitive, conduit, dataDefault, dateCache, fastLogger
+, hspec, httpTypes, HUnit, network, resourcet, stringsearch, text
+, time, transformers, void, wai, waiLogger, waiTest, zlib
+, zlibBindings, zlibConduit
 }:
 
 cabal.mkDerivation (self: {
   pname = "wai-extra";
-  version = "1.2.0.5";
-  sha256 = "0m9zdn6cdh2j7bwsf17225rdn7jwj7iy97khbd9g7p9rv1lpdain";
+  version = "1.3.3.1";
+  sha256 = "0ss58s5m8yp326q0651znifbfl6kpimyhm479wx8r3zx3ndl47q9";
   buildDepends = [
     ansiTerminal blazeBuilder blazeBuilderConduit caseInsensitive
-    conduit dataDefault fastLogger httpTypes network resourcet
-    stringsearch text time transformers wai zlibConduit
+    conduit dataDefault dateCache fastLogger httpTypes network
+    resourcet stringsearch text time transformers void wai waiLogger
+    zlibConduit
+  ];
+  testDepends = [
+    blazeBuilder conduit dataDefault fastLogger hspec httpTypes HUnit
+    text transformers wai waiTest zlib zlibBindings
   ];
   meta = {
     homepage = "http://github.com/yesodweb/wai";

@@ -1,33 +1,33 @@
-a:  
-let 
-  fetchurl = a.fetchurl;
-
-  buildInputs = with a; [
-    libX11 xproto libXt libXaw libSM libICE libXmu 
-    libXext gnuchess texinfo libXpm
-  ];
-
-  s = import ./src-for-default.nix;
-in
-rec {
-  src = fetchurl {
-    inherit(s) url;
-    sha256 = s.hash;
+{stdenv, fetchurl, libX11, xproto, libXt, libXaw, libSM, libICE, libXmu
+, libXext, gnuchess, texinfo, libXpm, pkgconfig, librsvg, cairo
+}:
+let
+  s = # Generated upstream information
+  rec {
+    baseName="xboard";
+    version="4.7.0";
+    name="${baseName}-${version}";
+    hash="15azbnyfapjppfni9k99sk68af1kg60nnh95rz8jgb3i2xv5y5m7";
+    url="http://ftp.gnu.org/gnu/xboard/xboard-4.7.0.tar.gz";
+    sha256="15azbnyfapjppfni9k99sk68af1kg60nnh95rz8jgb3i2xv5y5m7";
   };
-
+  buildInputs = [
+    libX11 xproto libXt libXaw libSM libICE libXmu 
+    libXext gnuchess texinfo libXpm pkgconfig librsvg 
+    cairo
+  ];
+in
+stdenv.mkDerivation {
+  inherit (s) name version;
   inherit buildInputs;
-  configureFlags = [];
-
-  /* doConfigure should be removed if not needed */
-  phaseNames = ["doConfigure" "preBuild" "doMakeInstall"];
-
-  preBuild = a.fullDepEntry(''
-    sed -e '/FIRST_CHESS_PROGRAM/s@gnuchessx@${a.gnuchess}/bin/gnuchessx@' -i xboard.h
-    sed -e '/SECOND_CHESS_PROGRAM/s@gnuchessx@${a.gnuchess}/bin/gnuchessx@' -i xboard.h
-  '') ["doUnpack" "minInit"];
-      
-  inherit(s) name;
+  src = fetchurl {
+    inherit (s) url sha256;
+  };
   meta = {
-    description = "XBoard - a chess board compatible with GNU Chess";
+    inherit (s) version;
+    description = ''GUI for chess engines'';
+    maintainers = [stdenv.lib.maintainers.raskin];
+    platforms = stdenv.lib.platforms.linux;
+    license = stdenv.lib.licenses.gpl3Plus;
   };
 }

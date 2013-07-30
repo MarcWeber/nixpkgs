@@ -37,12 +37,15 @@ let
 in
 
 stdenv.mkDerivation rec {
-  name = "busybox-1.20.1";
+  name = "busybox-1.20.2";
 
   src = fetchurl {
     url = "http://busybox.net/downloads/${name}.tar.bz2";
-    sha256 = "1jb8xh9a0mc73nmnjz7g5k7ym39vrg7grp7zmgmq71gxps55sl9y";
+    sha256 = "10k8kgrprll9hxfm9gc3jl7kkq79g6l2pygn5snqwqg5v80zy4zb";
   };
+
+  # Remove this patch after the next busybox update.
+  patches = [ ./include-missing-sys-resource-header.patch ];
 
   configurePhase = ''
     make defconfig
@@ -60,7 +63,7 @@ stdenv.mkDerivation rec {
     extraCrossConfig = ''
       CONFIG_CROSS_COMPILER_PREFIX "${stdenv.cross.config}-"
     '' +
-      (if (stdenv.cross.platform.kernelMajor == "2.4") then ''
+      (if stdenv.cross.platform.kernelMajor == "2.4" then ''
         CONFIG_IONICE n
       '' else "");
   };

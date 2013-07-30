@@ -21,8 +21,8 @@ rec {
 
   
   src = fetchurl {
-    url = "http://releases.mozilla.org/pub/mozilla.org/firefox/releases/${firefoxVersion}/source/firefox-${firefoxVersion}.source.tar.bz2";
-    sha1 = "3752f13f26a51dd2e42d2805a707a842e6f8d1b1";
+    url = "http://ftp.mozilla.org/pub/mozilla.org/firefox/releases/${firefoxVersion}/source/firefox-${firefoxVersion}.source.tar.bz2";
+    sha256 = "1qwvs3rdmrnkjnjvhi3vh4mjdpxr43zcm7llc6z5qws9n9yx15n1";
   };
   
   commonConfigureFlags =
@@ -33,7 +33,7 @@ rec {
       "--with-system-zlib"
       "--with-system-bz2"
       "--with-system-nspr"
-      # "--with-system-nss"
+      "--with-system-nss"
       # "--with-system-png" # <-- "--with-system-png won't work because the system's libpng doesn't have APNG support"
       # "--enable-system-cairo" # disabled for the moment because our Cairo is too old
       "--enable-system-sqlite"
@@ -54,7 +54,7 @@ rec {
       [ pkgconfig gtk perl zip libIDL libjpeg libpng zlib cairo bzip2
         python dbus dbus_glib pango freetype fontconfig xlibs.libXi
         xlibs.libX11 xlibs.libXrender xlibs.libXft xlibs.libXt file
-        alsaLib nspr /* nss */ libnotify xlibs.pixman yasm mesa
+        alsaLib nspr nss libnotify xlibs.pixman yasm mesa
         xlibs.libXScrnSaver xlibs.scrnsaverproto
         xlibs.libXext xlibs.xextproto sqlite unzip makeWrapper
       ];
@@ -136,7 +136,7 @@ rec {
       
     buildInputs =
       [ pkgconfig gtk perl zip libIDL libjpeg zlib cairo bzip2 python
-        dbus dbus_glib pango freetype fontconfig alsaLib nspr libnotify
+        dbus dbus_glib pango freetype fontconfig alsaLib nspr nss libnotify
         xlibs.pixman yasm mesa sqlite file unzip
       ];
 

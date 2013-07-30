@@ -1,10 +1,13 @@
-{ cabal, hashable, text }:
+{ cabal, deepseq, hashable, HUnit, testFramework
+, testFrameworkHunit, text
+}:
 
 cabal.mkDerivation (self: {
   pname = "case-insensitive";
-  version = "0.4.0.1";
-  sha256 = "15wcpzmj1ppl27p8hph9y8nxkjkd4yrvamxi3gk0ahfnb47chaq7";
-  buildDepends = [ hashable text ];
+  version = "1.0";
+  sha256 = "1x437b5yyh930a5dr642lvfdgpx12w4ms70whiw1ffjjhssb88zk";
+  buildDepends = [ deepseq hashable text ];
+  testDepends = [ HUnit testFramework testFrameworkHunit text ];
   meta = {
     homepage = "https://github.com/basvandijk/case-insensitive";
     description = "Case insensitive string comparison";

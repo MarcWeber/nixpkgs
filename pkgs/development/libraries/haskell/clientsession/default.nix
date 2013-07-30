@@ -1,15 +1,16 @@
-{ cabal, base64Bytestring, cereal, cprngAes, cryptoApi
-, cryptocipher, entropy, skein, tagged
+{ cabal, base64Bytestring, cereal, cipherAes, cprngAes, cryptoApi
+, entropy, hspec, HUnit, QuickCheck, skein, tagged, transformers
 }:
 
 cabal.mkDerivation (self: {
   pname = "clientsession";
-  version = "0.7.5";
-  sha256 = "1q2zlq06s0d476ywvb1fkxw34aagcaiqw7jrrmr3lj89q3ylhivr";
+  version = "0.8.1";
+  sha256 = "1x4qfm4hkvm3xmn7hnvcx1j900g97qhks66xzik1wvsjy3piwpgd";
   buildDepends = [
-    base64Bytestring cereal cprngAes cryptoApi cryptocipher entropy
-    skein tagged
+    base64Bytestring cereal cipherAes cprngAes cryptoApi entropy skein
+    tagged
   ];
+  testDepends = [ cereal hspec HUnit QuickCheck transformers ];
   meta = {
     homepage = "http://github.com/yesodweb/clientsession/tree/master";
     description = "Securely store session data in a client-side cookie";

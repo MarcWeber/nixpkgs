@@ -1,10 +1,11 @@
-{ cabal, shakespeare, text }:
+{ cabal, hspec, HUnit, shakespeare, text }:
 
 cabal.mkDerivation (self: {
   pname = "shakespeare-text";
-  version = "1.0.0.3";
-  sha256 = "0rwdlx7926gjkjymn3h6fdw1ic6s44nn5h8r8791gxknz668ydd7";
+  version = "1.0.0.5";
+  sha256 = "176yzx43sh0fnxpszn8kximd6i96yf2s374z55kvc1kspf7jk736";
   buildDepends = [ shakespeare text ];
+  testDepends = [ hspec HUnit text ];
   meta = {
     homepage = "http://www.yesodweb.com/book/shakespearean-templates";
     description = "Interpolation with quasi-quotation: put variables strings";

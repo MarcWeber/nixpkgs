@@ -5,14 +5,14 @@
 }:
 
 stdenv.mkDerivation rec {
-  name = "nix-1.1pre2749_ccc52ad";
+  name = "nix-1.4pre3056_79a3ba7";
 
   src = fetchurl {
-    url = "http://hydra.nixos.org/build/2841643/download/4/${name}.tar.bz2";
-    sha256 = "eae2135dd70d2734080ee644a597e131f60e71991dbabdabf67ab0818ff1f6fc";
+    url = "http://hydra.nixos.org/build/4070551/download/5/${name}.tar.xz";
+    sha256 = "7478fd6fea91ec094645e8487b9ef001abd300703d79e04743f4d212469cf13d";
   };
 
-  buildNativeInputs = [ perl pkgconfig ];
+  nativeBuildInputs = [ perl pkgconfig ];
 
   buildInputs = [ curl openssl boehmgc sqlite ];
 
@@ -26,34 +26,40 @@ stdenv.mkDerivation rec {
 
   configureFlags =
     ''
-      --with-store-dir=${storeDir} --localstatedir=${stateDir}
-      --with-dbi=${perlPackages.DBI}/lib/perl5/site_perl
-      --with-dbd-sqlite=${perlPackages.DBDSQLite}/lib/perl5/site_perl
+      --with-store-dir=${storeDir} --localstatedir=${stateDir} --sysconfdir=/etc
+      --with-dbi=${perlPackages.DBI}/${perl.libPrefix}
+      --with-dbd-sqlite=${perlPackages.DBDSQLite}/${perl.libPrefix}
+      --with-www-curl=${perlPackages.WWWCurl}/${perl.libPrefix}
       --disable-init-state
       --enable-gc
       CFLAGS=-O3 CXXFLAGS=-O3
     '';
 
+  makeFlags = "profiledir=$(out)/etc/profile.d";
+
+  installFlags = "sysconfdir=$(out)/etc";
+
   doInstallCheck = true;
 
   crossAttrs = {
     postUnpack =
-      '' export CPATH="${bzip2.hostDrv}/include"
-         export NIX_CROSS_LDFLAGS="-L${bzip2.hostDrv}/lib -rpath-link ${bzip2.hostDrv}/lib $NIX_CROSS_LDFLAGS"
+      '' export CPATH="${bzip2.crossDrv}/include"
+         export NIX_CROSS_LDFLAGS="-L${bzip2.crossDrv}/lib -rpath-link ${bzip2.crossDrv}/lib $NIX_CROSS_LDFLAGS"
       '';
 
     configureFlags =
       ''
         --with-store-dir=${storeDir} --localstatedir=${stateDir}
-        --with-dbi=${perlPackages.DBI}/lib/perl5/site_perl
-        --with-dbd-sqlite=${perlPackages.DBDSQLite}/lib/perl5/site_perl
+        --with-dbi=${perlPackages.DBI}/${perl.libPrefix}
+        --with-dbd-sqlite=${perlPackages.DBDSQLite}/${perl.libPrefix}
+        --with-www-curl=${perlPackages.WWWCurl}/${perl.libPrefix}
         --disable-init-state
         --enable-gc
         CFLAGS=-O3 CXXFLAGS=-O3
       '' + stdenv.lib.optionalString (
           stdenv.cross ? nix && stdenv.cross.nix ? system
       ) ''--with-system=${stdenv.cross.nix.system}'';
-      
+
     doInstallCheck = false;
   };
 

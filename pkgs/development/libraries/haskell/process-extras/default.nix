@@ -1,10 +1,10 @@
-{ cabal, text }:
+{ cabal, deepseq, text }:
 
 cabal.mkDerivation (self: {
   pname = "process-extras";
-  version = "0.1.1";
-  sha256 = "0qnkclmjd5y0jpdxp4y2ynqlcdlsvck65269k0j4hy5zkyydbpv6";
-  buildDepends = [ text ];
+  version = "0.2.0";
+  sha256 = "0mr4f2v19qz6d6jhffz9gky0ykdqwl8c11adbdm04wm2a3xsvf7g";
+  buildDepends = [ deepseq text ];
   meta = {
     homepage = "https://github.com/davidlazar/process-extras";
     description = "Process extras";

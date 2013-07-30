@@ -107,27 +107,13 @@ rec {
 
   aufs3_0 = rec {
     name = "aufs3.0";
-    version = "3.0";
-    utilRev = "cabe3601001ab3838215116c32715c9de9412e62";
-    utilHash = "7fc6cfe1e69a0b2438eaee056e15d42a2d6be396a637fcfb1b89858fcecc832f";
+    version = "3.0.20121210";
+    utilRev = "91af15f977d12e02165759620005f6ce1a4d7602";
+    utilHash = "dda4df89828dcf0e4012d88b4aa3eda8c30af69d6530ff5fedc2411de872c996";
     patch = makeAufs3StandalonePatch {
       inherit version;
-      rev = "517b27621cdfb793959acac849dae9888338526a";
-      sha256 = "8085200ac78d0c1e082d4c721a09f4a4c1d96ae86e307075836d09c3e7d502df";
-    };
-    features.aufsBase = true;
-    features.aufs3 = true;
-  };
-
-  aufs3_1 = rec {
-    name = "aufs3.1";
-    version = "3.1";
-    utilRev = "cabe3601001ab3838215116c32715c9de9412e62";
-    utilHash = "7fc6cfe1e69a0b2438eaee056e15d42a2d6be396a637fcfb1b89858fcecc832f";
-    patch = makeAufs3StandalonePatch {
-      inherit version;
-      rev = "7386b57432ec5e73632a5375804239b02b6c00f0";
-      sha256 = "af4e9ad890e1b72d14170c97d8ead53291f09e275db600932724e6181530be2d";
+      rev = "0627c706d69778f5c74be982f28c746153b8cdf7";
+      sha256 = "7008ff64f5adc2b3a30fcbb090bcbfaac61b778af38493b6144fc7d768a6514d";
     };
     features.aufsBase = true;
     features.aufs3 = true;
@@ -135,27 +121,13 @@ rec {
 
   aufs3_2 = rec {
     name = "aufs3.2";
-    version = "3.2";
-    utilRev = "a953b0218667e06b722f4c41df29edacd8dc8e1f";
-    utilHash = "28ac4c1a07b2c30fb61a6facc9cedcf67b14f303baedf1b121aeb6293ea49eb4";
-    patch = makeAufs3StandalonePatch {
-      inherit version;
-      rev = "9c4bbeb58f0ecc235ea820ae320efa2c0006e033";
-      sha256 = "5363a7f5fbadaef9457e743a5781f2525332c4bbb91693ca2596ab2d8f7860ea";
-    };
-    features.aufsBase = true;
-    features.aufs3 = true;
-  };
-
-  aufs3_3 = rec {
-    name = "aufs3.3";
-    version = "3.3";
+    version = "3.2.20121210";
     utilRev = "91af15f977d12e02165759620005f6ce1a4d7602";
     utilHash = "dda4df89828dcf0e4012d88b4aa3eda8c30af69d6530ff5fedc2411de872c996";
     patch = makeAufs3StandalonePatch {
       inherit version;
-      rev = "91c3d8c80172db05575ee82c931f3541947a6aff";
-      sha256 = "8fe54993b6a7a290649c193aab5a4f7f2dcecaedb5422d951f898d03753b83fb";
+      rev = "0bf50c3b82f98e2ddc4c9ba0657f28ebfa8d15cb";
+      sha256 = "bc4b65cb77c62744db251da98488fdf4962f14a144c045cea6cbbbd42718ff89";
     };
     features.aufsBase = true;
     features.aufs3 = true;
@@ -163,27 +135,28 @@ rec {
 
   aufs3_4 = rec {
     name = "aufs3.4";
-    version = "3.4";
+    version = "3.4.20121210";
     utilRev = "91af15f977d12e02165759620005f6ce1a4d7602";
     utilHash = "dda4df89828dcf0e4012d88b4aa3eda8c30af69d6530ff5fedc2411de872c996";
     patch = makeAufs3StandalonePatch {
       inherit version;
-      rev = "a5f7df8e59d57d6d9d749d49adc7e5a37ce2e342";
-      sha256 = "20a8f113bb654f92231726de8177eb51d7be1b900fd42c2b5f48726a7d5d3ce6";
+      rev = "2faacd9baffb37df3b9062cc554353eebe68df1e";
+      sha256 = "3ecf97468f5e85970d9fd2bfc61e38c7f5ae2c6dde0045d5a17de085c411d452";
     };
     features.aufsBase = true;
     features.aufs3 = true;
   };
 
-  aufs3_5 = rec {
-    name = "aufs3.5";
-    version = "3.5";
+  # not officially released yet, but 3.x seems to work fine
+  aufs3_7 = rec {
+    name = "aufs3.7";
+    version = "3.x.20121210";
     utilRev = "91af15f977d12e02165759620005f6ce1a4d7602";
     utilHash = "dda4df89828dcf0e4012d88b4aa3eda8c30af69d6530ff5fedc2411de872c996";
     patch = makeAufs3StandalonePatch {
       inherit version;
-      rev = "4a5e660ed7f5c1d0467c81c535d0fedcfe62d15f";
-      sha256 = "c474573fc03725053e68db481478be74de98abe2c23be60fe08e2f5f2ab3b188";
+      rev = "8d24d728c7eb54dd624bccd8e87afa826670142c";
+      sha256 = "02dcb46e02b2a6b90c1601b5747614276074488c9308625c3a52ab74cad997a5";
     };
     features.aufsBase = true;
     features.aufs3 = true;
@@ -239,6 +212,11 @@ rec {
   mips_fpu_sigill =
     { name = "mips-fpu-sigill";
       patch = ./mips-fpu-sigill.patch;
+    };
+
+  mips_ext3_n32 =
+    { name = "mips-ext3-n32";
+      patch = ./mips-ext3-n32.patch;
     };
 
   guruplug_defconfig =

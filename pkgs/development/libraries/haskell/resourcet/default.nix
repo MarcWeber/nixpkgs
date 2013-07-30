@@ -1,14 +1,15 @@
-{ cabal, liftedBase, monadControl, mtl, transformers
+{ cabal, hspec, liftedBase, monadControl, mtl, transformers
 , transformersBase
 }:
 
 cabal.mkDerivation (self: {
   pname = "resourcet";
-  version = "0.3.3.1";
-  sha256 = "164r2p08j3im4wz5jkadl5pvb0qj02k4f2s3v08lm39a51kygjdl";
+  version = "0.4.5";
+  sha256 = "1i2n0y4ridlzi2fn319f8jg1whb10gajgyvbz0rx2mwxj15bbgni";
   buildDepends = [
     liftedBase monadControl mtl transformers transformersBase
   ];
+  testDepends = [ hspec liftedBase transformers ];
   meta = {
     homepage = "http://github.com/snoyberg/conduit";
     description = "Deterministic allocation and freeing of scarce resources";

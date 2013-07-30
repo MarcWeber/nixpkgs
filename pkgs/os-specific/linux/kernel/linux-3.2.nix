@@ -1,4 +1,4 @@
-args @ { stdenv, fetchurl, userModeLinux ? false, extraConfig ? ""
+args @ { stdenv, fetchurl, extraConfig ? ""
 , perl, mktemp, module_init_tools
 , ... }:
 
@@ -146,8 +146,10 @@ let
       NFSD_V3 y
       NFSD_V3_ACL y
       NFSD_V4 y
+      NFS_FSCACHE y
       CIFS_XATTR y
       CIFS_POSIX y
+      CIFS_FSCACHE y
 
       # Security related features.
       STRICT_DEVMEM y # Filter access to /dev/mem
@@ -237,8 +239,7 @@ in
 import ./generic.nix (
 
   rec {
-    version = "3.2.26";
-    testing = false;
+    version = "3.2.39";
 
     modDirVersion = version;
 
@@ -247,8 +248,8 @@ import ./generic.nix (
     '';
 
     src = fetchurl {
-      url = "mirror://kernel/linux/kernel/v3.0/${if testing then "testing/" else ""}linux-${version}.tar.xz";
-      sha256 = "1prchrid14sl29480g8a92lb7nn1hxrhcyx2mz4wi7wyr34lrv5z";
+      url = "mirror://kernel/linux/kernel/v3.0/linux-${version}.tar.xz";
+      sha256 = "066vgyz37jxxwmdskwzazg7xa09mirk4krlyxpvsx68ai5rjf826";
     };
 
     config = configWithPlatform stdenv.platform;

@@ -1,11 +1,13 @@
 { stdenv, fetchurl, rpm, cpio, mesa, xorg, cairo
 , libpng12, gtk, glib, gdk_pixbuf, fontconfig, freetype, curl
-, dbus_glib, alsaLib, pulseaudio, udev
+, dbus_glib, alsaLib, pulseaudio, udev, pango
 }:
 
 with stdenv.lib;
 
 let
+
+  baseURL = "http://dl.google.com/linux/talkplugin/deb/pool/main/g/google-talkplugin";
 
   rpathPlugin = makeLibraryPath
     [ mesa
@@ -35,32 +37,34 @@ let
       dbus_glib
       udev
       curl
+      pango
+      cairo
     ];
 
 in
 
-stdenv.mkDerivation {
-  name = "google-talk-plugin-3.2.4.0";
+stdenv.mkDerivation rec {
+  name = "google-talk-plugin-${version}";
+  # Use the following to determine the current upstream version:
+  # curl -s http://dl.google.com/linux/talkplugin/deb/dists/stable/main/binary-amd64/Packages | sed -nr 's/^Version: *([^ ]+)-1$/\1/p'
+  version = "3.10.2.0";
 
   src =
     if stdenv.system == "x86_64-linux" then
       fetchurl {
-        url = "http://dl.google.com/linux/direct/google-talkplugin_current_x86_64.rpm";
-        sha256 = "0gf1bsd52pa47h53x5n1ljn07xc23pzvdc7q3lbqy12zf9szqq2c";
+        url = "${baseURL}/google-talkplugin_${version}-1_amd64.deb";
+        sha256 = "0ivjmqrxy3xkwqjp20aqz47smdcdds0i82pfyb5k9jywi8afvchr";
       }
     else if stdenv.system == "i686-linux" then
       fetchurl {
-        url = "http://dl.google.com/linux/direct/google-talkplugin_current_i386.rpm";
-        sha256 = "055572zi1j3w16lj4cdk686abyhz1xd43445bwk6v38qr4f188dd";
+        url = "${baseURL}/google-talkplugin_${version}-1_i386.deb";
+        sha256 = "1bac95r9721sc7fsklsmv0lq673901zppdgabjjarpnx8z280jvj";
       }
     else throw "Google Talk does not support your platform.";
 
-  buildInputs = [ rpm cpio ];
-      
-  unpackPhase =
-    ''
-      rpm2cpio $src | cpio -i --make-directories -v
-    '';
+  unpackPhase = ''
+    ar p "$src" data.tar.gz | tar xz
+  '';
 
   installPhase =
     ''

@@ -1,13 +1,14 @@
-{ cabal, deepseq, filepath, mtl, parsec, syb, sybWithClass, text
-, time, utf8String
+{ cabal, blazeBuilder, deepseq, filepath, mtl, parsec, syb, text
+, time, utf8String, void
 }:
 
 cabal.mkDerivation (self: {
   pname = "HStringTemplate";
-  version = "0.6.8";
-  sha256 = "1fybvb3v2b786n1hfzcvyanj3yfm5j8z4fm48vaskcggawh6rlkr";
+  version = "0.7.0";
+  sha256 = "0xxxikgjw1dhx7kx3mjyvgh70m9avcd1kbp2bpig6gjwswk0mmai";
   buildDepends = [
-    deepseq filepath mtl parsec syb sybWithClass text time utf8String
+    blazeBuilder deepseq filepath mtl parsec syb text time utf8String
+    void
   ];
   meta = {
     description = "StringTemplate implementation in Haskell";

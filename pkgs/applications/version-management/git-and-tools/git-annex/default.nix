@@ -1,37 +1,49 @@
-{ stdenv, fetchurl, curl, dataenc, findutils, ghc, git, hS3, hslogger, HTTP, hxt
-, ikiwiki, json, libuuid, MissingH, monadControl, mtl, network, pcreLight, perl
-, QuickCheck, rsync, SHA, testpack, utf8String, which, liftedBase, coreutils
-, IfElse, bloomfilter, editDistance, openssh, stm, hinotify
+{ stdenv, fetchurl, perl, which, ikiwiki, ghc, aeson, async, blazeBuilder
+, bloomfilter, bup, caseInsensitive, clientsession, cryptoApi, curl, dataDefault
+, dataenc, DAV, dbus, dns, editDistance, extensibleExceptions, filepath, git
+, gnupg1, gnutls, hamlet, hinotify, hS3, hslogger, httpConduit, httpTypes, HUnit
+, IfElse, json, liftedBase, lsof, MissingH, monadControl, mtl, network
+, networkInfo, networkMulticast, networkProtocolXmpp, openssh, QuickCheck
+, random, regexCompat, rsync, SafeSemaphore, SHA, stm, text, time, transformers
+, transformersBase, utf8String, uuid, wai, waiLogger, warp, xmlConduit, xmlTypes
+, yesod, yesodDefault, yesodForm, yesodStatic, testpack
+, cabalInstall		# TODO: remove this build input at the next update
 }:
 
 let
-  version = "3.20120629";
+  version = "4.20130227";
 in
 stdenv.mkDerivation {
   name = "git-annex-${version}";
 
   src = fetchurl {
-    url = "http://git.kitenet.net/?p=git-annex.git;a=snapshot;sf=tgz;h=refs/tags/${version}";
-    sha256 = "0dajcmx1sn3rqlba5b66lkiwji849gxzcb5d8666in21g7lc1ccs";
+    url = "http://git.kitenet.net/?p=git-annex.git;a=snapshot;sf=tgz;h=${version}";
+    sha256 = "1zw5kzb08zz43ahbhrazjpq9zn73l3kwnqilp464frf7fg7rwan6";
     name = "git-annex-${version}.tar.gz";
   };
 
-  buildInputs = [
-    curl dataenc findutils ghc git hS3 hslogger HTTP hxt ikiwiki json
-    libuuid MissingH monadControl mtl network pcreLight perl QuickCheck
-    rsync SHA testpack utf8String which liftedBase IfElse bloomfilter
-    editDistance openssh stm hinotify
-  ];
+  buildInputs = [ ghc aeson async blazeBuilder bloomfilter bup ikiwiki
+    caseInsensitive clientsession cryptoApi curl dataDefault dataenc DAV dbus
+    dns editDistance extensibleExceptions filepath git gnupg1 gnutls hamlet
+    hinotify hS3 hslogger httpConduit httpTypes HUnit IfElse json liftedBase
+    lsof MissingH monadControl mtl network networkInfo networkMulticast
+    networkProtocolXmpp openssh QuickCheck random regexCompat rsync
+    SafeSemaphore SHA stm text time transformers transformersBase utf8String
+    uuid wai waiLogger warp xmlConduit xmlTypes yesod yesodDefault yesodForm
+    yesodStatic which perl testpack cabalInstall ];
 
-  checkTarget = "test";
-  doCheck = true;
-
-  # The 'add_url' test fails because it attempts to use the network.
-  preConfigure = ''
+  configurePhase = ''
     makeFlagsArray=( PREFIX=$out )
-    sed -i -e 's|#!/usr/bin/perl|#!${perl}/bin/perl|' mdwn2man
-    sed -i -e 's|"cp |"${coreutils}/bin/cp |' -e 's|"rm -f |"${coreutils}/bin/rm -f |' test.hs
+    patchShebangs .
+
+    # cabal-install wants to store stuff in $HOME
+    mkdir ../tmp
+    export HOME=$PWD/../tmp
+
+    cabal configure -f-fast -ftestsuite -f-android -fproduction -fdns -fxmpp -fpairing -fwebapp -fassistant -fdbus -finotify -fwebdav -fs3
   '';
+
+  checkPhase = "./git-annex test";
 
   meta = {
     homepage = "http://git-annex.branchable.com/";

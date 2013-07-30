@@ -1,10 +1,10 @@
 { stdenv, fetchurl, pkgconfig, autoconf, automake, libtool
 , expat, systemd, glib, dbus_glib, python
-, libX11, libICE, libSM, useX11 ? true }:
+, libX11, libICE, libSM, useX11 ? stdenv.isLinux }:
 
 let
-  version = "1.6.10"; # 1.7.* isn't recommended, even for gnome 3.8
-  sha256 = "11jyj6aw8yf75hqv7v0601n2xms08k0mys6dyql164m7ad56yg8z";
+  version = "1.6.12"; # 1.7.* isn't recommended, even for gnome 3.8
+  sha256 = "14pfh2ksn4srfry752kf1jy3c61hklcs9fx2xglw2ifhsszplypn";
 
   inherit (stdenv) lib;
 
@@ -13,6 +13,7 @@ let
   # also other parts than "libs" need this statically linked lib
   makeInternalLib = "(cd dbus && make libdbus-internal.la)";
 
+  systemdOrEmpty = lib.optional stdenv.isLinux systemd;
 
   # A generic builder for individual parts (subdirs) of D-Bus
   dbus_drv = name: subdirs: merge: stdenv.mkDerivation (lib.mergeAttrsByFuncDefaultsClean [{
@@ -41,10 +42,9 @@ let
 
     doCheck = true;
 
-    patches = [
-      ./ignore-missing-includedirs.patch ./implement-getgrouplist.patch
-      ./ucred-dirty-hack.patch ./no-create-dirs.patch
-    ];
+    patches = [ ./ignore-missing-includedirs.patch ]
+      ++ lib.optional (stdenv.isSunOS || stdenv.isLinux/*avoid rebuilds*/) ./implement-getgrouplist.patch
+      ++ [ ./ucred-dirty-hack.patch ./no-create-dirs.patch ];
 
     nativeBuildInputs = [ pkgconfig ];
     propagatedBuildInputs = [ expat ];
@@ -61,14 +61,15 @@ let
 
   } merge ]);
 
-  libs = dbus_drv "libs" "dbus" {
-    buildInputs = [ systemd.headers ];
-    patches = [ ./systemd.patch ]; # bypass systemd detection
-
+  libs = dbus_drv "libs" "dbus" ({
     # Enable X11 autolaunch support in libdbus. This doesn't actually depend on X11
     # (it just execs dbus-launch in dbus.tools), contrary to what the configure script demands.
     NIX_CFLAGS_COMPILE = "-DDBUS_ENABLE_X11_AUTOLAUNCH=1";
-  };
+  } // stdenv.lib.optionalAttrs (systemdOrEmpty != []) {
+    buildInputs = [ systemd.headers ];
+    patches = [ ./systemd.patch ]; # bypass systemd detection
+  });
+
 
 in rec {
 
@@ -81,20 +82,22 @@ in rec {
 
   tools = dbus_drv "tools" "tools" {
     configureFlags = [ "--with-dbus-daemondir=${daemon}/bin" ];
-    buildInputs = buildInputsX ++ [ libs daemon systemd dbus_glib ];
+    buildInputs = buildInputsX ++ systemdOrEmpty ++ [ libs daemon dbus_glib ];
     NIX_CFLAGS_LINK = "-Wl,--as-needed -ldbus-1";
+
+    meta.platforms = stdenv.lib.platforms.all;
   };
 
   daemon = dbus_drv "daemon" "bus" {
     preBuild = makeInternalLib;
-    buildInputs = [ systemd ];
+    buildInputs = systemdOrEmpty;
   };
 
   # Some of the tests don't work yet; in fact, @vcunat tried several packages
   # containing dbus testing, and all of them have some test failure.
   tests = dbus_drv "tests" "test" {
     preBuild = makeInternalLib;
-    buildInputs = buildInputsX ++ [ systemd libs tools daemon dbus_glib python ];
+    buildInputs = buildInputsX ++ systemdOrEmpty ++ [ libs tools daemon dbus_glib python ];
     NIX_CFLAGS_LINK = "-Wl,--as-needed -ldbus-1";
   };
 

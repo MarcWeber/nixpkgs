@@ -114,9 +114,9 @@
   }
   {
     baseName = "aws-sdk";
-    version = "0.9.7-pre.8";
-    fullName = "aws-sdk-0.9.7-pre.8";
-    hash = "d3854275981fff76153f79c62745d8d6c59018861729766908c920fff95ea422";
+    version = "1.2.0";
+    fullName = "aws-sdk->=1.2.0 <2";
+    hash = "e2d4b32fba387b8f099c4180579b67554f875895a69e4c1ddb0a28546db9ba4c";
     patchLatest = true;
     topLevel = false;
     dependencies = [
@@ -233,6 +233,17 @@
     ];
   }
   {
+    baseName = "cli";
+    version = "0.4.4-2";
+    fullName = "cli-0.4.x";
+    hash = "27a0db02501285da601c47495d0cd837ddeb4577bfd507c5503d2ee8cd0caffb";
+    patchLatest = false;
+    topLevel = false;
+    dependencies = [
+      { name = "glob"; range = ">= 3.1.4"; }
+    ];
+  }
+  {
     baseName = "clone";
     version = "0.1.5";
     fullName = "clone-0.1.5";
@@ -254,9 +265,9 @@
   }
   {
     baseName = "coffee-script";
-    version = "1.6.2";
+    version = "1.6.3";
     fullName = "coffee-script-*";
-    hash = "92785ad77e5d689fc7bfc62f3b519e65b77509457dda7a332ee1efd6cf9f08d6";
+    hash = "642d226d4fab1a8464e54347cec919b1c8771da55d88e3ceb15d826fcee84525";
     patchLatest = false;
     topLevel = true;
     dependencies = [
@@ -295,9 +306,9 @@
   }
   {
     baseName = "connect";
-    version = "2.7.10";
-    fullName = "connect-2.7.10";
-    hash = "b1d9cf6b2932578618537a95471f9c0ae451e2ed8033647e420b4c67b1d28b3d";
+    version = "2.7.11";
+    fullName = "connect-2.7.11";
+    hash = "8c9aaabcb7e6f0d733f82b876db59a37a6d711aab7ea2dead9f624d9282b1245";
     patchLatest = false;
     topLevel = false;
     dependencies = [
@@ -306,7 +317,7 @@
       { name = "cookie-signature"; range = "1.0.1"; }
       { name = "buffer-crc32"; range = "0.2.1"; }
       { name = "cookie"; range = "0.0.5"; }
-      { name = "send"; range = "0.1.0"; }
+      { name = "send"; range = "0.1.1"; }
       { name = "bytes"; range = "0.2.0"; }
       { name = "fresh"; range = "0.1.0"; }
       { name = "pause"; range = "0.0.1"; }
@@ -315,9 +326,9 @@
   }
   {
     baseName = "connect";
-    version = "2.7.10";
+    version = "2.7.11";
     fullName = "connect-~2";
-    hash = "b1d9cf6b2932578618537a95471f9c0ae451e2ed8033647e420b4c67b1d28b3d";
+    hash = "8c9aaabcb7e6f0d733f82b876db59a37a6d711aab7ea2dead9f624d9282b1245";
     patchLatest = false;
     topLevel = false;
     dependencies = [
@@ -326,11 +337,21 @@
       { name = "cookie-signature"; range = "1.0.1"; }
       { name = "buffer-crc32"; range = "0.2.1"; }
       { name = "cookie"; range = "0.0.5"; }
-      { name = "send"; range = "0.1.0"; }
+      { name = "send"; range = "0.1.1"; }
       { name = "bytes"; range = "0.2.0"; }
       { name = "fresh"; range = "0.1.0"; }
       { name = "pause"; range = "0.0.1"; }
       { name = "debug"; range = "*"; }
+    ];
+  }
+  {
+    baseName = "console-browserify";
+    version = "0.1.6";
+    fullName = "console-browserify-0.1.x";
+    hash = "e774c881920562b0893e50844332f79fc5a08752d28791d942c35fcc3ef2d75d";
+    patchLatest = false;
+    topLevel = false;
+    dependencies = [
     ];
   }
   {
@@ -466,9 +487,9 @@
   }
   {
     baseName = "escape-html";
-    version = "0.0.1";
+    version = "1.0.0";
     fullName = "escape-html-*";
-    hash = "03c24a492f80659c25f788809ae64277408a4c12594cff62f89db4b3259c6b58";
+    hash = "c763095c6b27fddf666f34d48a4f09f95009a76a6d16d1799175ecd0c1912456";
     patchLatest = false;
     topLevel = true;
     dependencies = [
@@ -486,13 +507,13 @@
   }
   {
     baseName = "express";
-    version = "3.2.5";
+    version = "3.2.6";
     fullName = "express-*";
-    hash = "f09dce2d0610795af88fe903242557526be269f27912b63309e3b3329218e20b";
+    hash = "a0c9ee92fe1366daf166f30ae77f824aa65c2f5e121596fa2c4f439b518cde99";
     patchLatest = false;
     topLevel = true;
     dependencies = [
-      { name = "connect"; range = "2.7.10"; }
+      { name = "connect"; range = "2.7.11"; }
       { name = "commander"; range = "0.6.1"; }
       { name = "range-parser"; range = "0.0.4"; }
       { name = "mkdirp"; range = "0.3.4"; }
@@ -580,19 +601,6 @@
     ];
   }
   {
-    baseName = "form-data";
-    version = "0.0.10";
-    fullName = "form-data-~0.0.3";
-    hash = "d49669b81c27dd6c7e359ee9892880c6741dae6c325b617ab3eb5a78bf103822";
-    patchLatest = false;
-    topLevel = false;
-    dependencies = [
-      { name = "combined-stream"; range = "~0.0.4"; }
-      { name = "mime"; range = "~1.2.2"; }
-      { name = "async"; range = "~0.2.7"; }
-    ];
-  }
-  {
     baseName = "formidable";
     version = "1.0.13";
     fullName = "formidable-1.0.13";
@@ -667,6 +675,19 @@
     baseName = "glob";
     version = "3.2.1";
     fullName = "glob-3.2.1";
+    hash = "a457c2115213ce2cb59582ddc3a25eb3ae7490af687e412111c0032f72966f51";
+    patchLatest = false;
+    topLevel = false;
+    dependencies = [
+      { name = "minimatch"; range = "~0.2.11"; }
+      { name = "graceful-fs"; range = "~1.2.0"; }
+      { name = "inherits"; range = "1"; }
+    ];
+  }
+  {
+    baseName = "glob";
+    version = "3.2.1";
+    fullName = "glob->= 3.1.4";
     hash = "a457c2115213ce2cb59582ddc3a25eb3ae7490af687e412111c0032f72966f51";
     patchLatest = false;
     topLevel = false;
@@ -874,6 +895,21 @@
     ];
   }
   {
+    baseName = "jshint";
+    version = "2.1.3";
+    fullName = "jshint-*";
+    hash = "aaad18f3e6ec6e118d2990d8e627f62125c34ed28f864c9f3b6c46d4cf5d3288";
+    patchLatest = false;
+    topLevel = true;
+    dependencies = [
+      { name = "shelljs"; range = "0.1.x"; }
+      { name = "underscore"; range = "1.4.x"; }
+      { name = "cli"; range = "0.4.x"; }
+      { name = "minimatch"; range = "0.x.x"; }
+      { name = "console-browserify"; range = "0.1.x"; }
+    ];
+  }
+  {
     baseName = "json-schema";
     version = "0.2.2";
     fullName = "json-schema-0.2.2";
@@ -928,9 +964,9 @@
   }
   {
     baseName = "knox";
-    version = "0.8.2";
+    version = "0.8.3";
     fullName = "knox-*";
-    hash = "e4842cb834f27dc859fc6ab2389f7d0702f6cc6ecff469b89729dd33c33c0afd";
+    hash = "fe3cb0d94b3e85413626ffee386c751931afe200b170bd555173e413d7044c75";
     patchLatest = false;
     topLevel = true;
     dependencies = [
@@ -1023,16 +1059,6 @@
   {
     baseName = "mime";
     version = "1.2.9";
-    fullName = "mime-~1.2.7";
-    hash = "60120b9859a92a94480a76327a9406b4a72a34f2317bc7fa33dcb99b9c72678a";
-    patchLatest = false;
-    topLevel = false;
-    dependencies = [
-    ];
-  }
-  {
-    baseName = "mime";
-    version = "1.2.9";
     fullName = "mime-~1.2.9";
     hash = "60120b9859a92a94480a76327a9406b4a72a34f2317bc7fa33dcb99b9c72678a";
     patchLatest = false;
@@ -1055,6 +1081,18 @@
   {
     baseName = "minimatch";
     version = "0.2.12";
+    fullName = "minimatch-0.x.x";
+    hash = "205cff8b4ba926e86ff0e6f7f566553906113892028083ea221989a42500c246";
+    patchLatest = false;
+    topLevel = false;
+    dependencies = [
+      { name = "lru-cache"; range = "2"; }
+      { name = "sigmund"; range = "~1.0.0"; }
+    ];
+  }
+  {
+    baseName = "minimatch";
+    version = "0.2.12";
     fullName = "minimatch-~0.2.11";
     hash = "205cff8b4ba926e86ff0e6f7f566553906113892028083ea221989a42500c246";
     patchLatest = false;
@@ -1062,6 +1100,16 @@
     dependencies = [
       { name = "lru-cache"; range = "2"; }
       { name = "sigmund"; range = "~1.0.0"; }
+    ];
+  }
+  {
+    baseName = "mkdirp";
+    version = "0.3.5";
+    fullName = "mkdirp-*";
+    hash = "8ae9c5107acb41110106224f5e7be2b50b00d15d062ea7941301c111b863fd26";
+    patchLatest = false;
+    topLevel = true;
+    dependencies = [
     ];
   }
   {
@@ -1164,9 +1212,9 @@
   }
   {
     baseName = "nijs";
-    version = "0.0.5";
+    version = "0.0.8";
     fullName = "nijs-*";
-    hash = "c5e9f93f240757e1ab2d0ad341384db6e0b73ab2616ae9832d1ed772eaebd408";
+    hash = "134a4f764835280487334f5cfd5a0d271cdd784fe954ad619fad250f54c3b3b9";
     patchLatest = false;
     topLevel = true;
     dependencies = [
@@ -1185,9 +1233,9 @@
   }
   {
     baseName = "node-gyp";
-    version = "0.9.6";
+    version = "0.10.0";
     fullName = "node-gyp-*";
-    hash = "937090ffd7de10079861ef562d0282dd4100873aa7bba7de9cd6ea7982b41b0b";
+    hash = "9edecaa701601f07b15da7bd6e9de4fae98ef1acdd5a1fc6cc144451a68773dd";
     patchLatest = false;
     topLevel = true;
     dependencies = [
@@ -1199,7 +1247,7 @@
       { name = "nopt"; range = "2"; }
       { name = "npmlog"; range = "0"; }
       { name = "osenv"; range = "0"; }
-      { name = "request"; range = ">= 2 && <= 2.14"; }
+      { name = "request"; range = "2"; }
       { name = "rimraf"; range = "2"; }
       { name = "semver"; range = "1"; }
       { name = "tar"; range = "0"; }
@@ -1322,9 +1370,9 @@
   }
   {
     baseName = "optimist";
-    version = "0.5.0";
+    version = "0.5.2";
     fullName = "optimist-*";
-    hash = "b0c4b65a456618f179946e0b0641643b9d70ea5d884afa5bbf94419f740b1ccf";
+    hash = "838ad97b81beedb85fd0f0c4cd4740a940ddefb9a3db8e261f5fed7528693d3d";
     patchLatest = false;
     topLevel = true;
     dependencies = [
@@ -1443,14 +1491,24 @@
   }
   {
     baseName = "request";
-    version = "2.12.0";
-    fullName = "request->= 2 && <= 2.14";
-    hash = "a26790d2179da11a644d5deaa2ae5d37472bf0e73355fde02ea5923106308997";
+    version = "2.21.0";
+    fullName = "request-2";
+    hash = "fe31c3119bc4423f07aa7c9849cb642d5ad22bdf2a2700eab56fb83fa8ed429c";
     patchLatest = false;
     topLevel = false;
     dependencies = [
-      { name = "form-data"; range = "~0.0.3"; }
-      { name = "mime"; range = "~1.2.7"; }
+      { name = "qs"; range = "~0.6.0"; }
+      { name = "json-stringify-safe"; range = "~4.0.0"; }
+      { name = "forever-agent"; range = "~0.5.0"; }
+      { name = "tunnel-agent"; range = "~0.3.0"; }
+      { name = "http-signature"; range = "~0.9.11"; }
+      { name = "hawk"; range = "~0.13.0"; }
+      { name = "aws-sign"; range = "~0.3.0"; }
+      { name = "oauth-sign"; range = "~0.3.0"; }
+      { name = "cookie-jar"; range = "~0.3.0"; }
+      { name = "node-uuid"; range = "~1.4.0"; }
+      { name = "mime"; range = "~1.2.9"; }
+      { name = "form-data"; range = "0.0.8"; }
     ];
   }
   {
@@ -1515,13 +1573,13 @@
   }
   {
     baseName = "s3http";
-    version = "0.0.1";
+    version = "0.0.2";
     fullName = "s3http-*";
-    hash = "7140a0ee6df9fb90fd74aa0b68b73f899c6d8e2eaa2de89fde3f634e9bf10dba";
+    hash = "03cbaa20c8920371c94333d6424c3d3b09824d1c6e30a9e1567805f53d1cd16d";
     patchLatest = false;
     topLevel = true;
     dependencies = [
-      { name = "aws-sdk"; range = "0.9.7-pre.8"; }
+      { name = "aws-sdk"; range = ">=1.2.0 <2"; }
       { name = "commander"; range = "0.5.1"; }
       { name = "http-auth"; range = "1.2.7"; }
     ];
@@ -1591,6 +1649,30 @@
     ];
   }
   {
+    baseName = "send";
+    version = "0.1.1";
+    fullName = "send-0.1.1";
+    hash = "4d237af8bc86148952d0577bed44bd41928a4422c9a6e25e45fc35103aa6e872";
+    patchLatest = false;
+    topLevel = false;
+    dependencies = [
+      { name = "debug"; range = "*"; }
+      { name = "mime"; range = "~1.2.9"; }
+      { name = "fresh"; range = "0.1.0"; }
+      { name = "range-parser"; range = "0.0.4"; }
+    ];
+  }
+  {
+    baseName = "shelljs";
+    version = "0.1.4";
+    fullName = "shelljs-0.1.x";
+    hash = "21a6f3dc5eaeb1c10efbe62e31aeb6762241f707fb1fdcda4766c8bccde3eaf0";
+    patchLatest = false;
+    topLevel = false;
+    dependencies = [
+    ];
+  }
+  {
     baseName = "sigmund";
     version = "1.0.0";
     fullName = "sigmund-~1.0.0";
@@ -1602,9 +1684,9 @@
   }
   {
     baseName = "smartdc";
-    version = "7.0.0-rc2";
+    version = "7.0.0";
     fullName = "smartdc-*";
-    hash = "239433d13dbbfd6461cf34743d628bdb39d061ca562e15901528acc52dda8d46";
+    hash = "add769b05ecef4ea657d7bc473d96ee3e67b8ad8bc77077120bd5ae1efe94911";
     patchLatest = false;
     topLevel = true;
     dependencies = [
@@ -1701,9 +1783,9 @@
   }
   {
     baseName = "swig";
-    version = "0.13.5";
+    version = "0.14.0";
     fullName = "swig-*";
-    hash = "d1cc435c623829e5672df45c14a878304a41bec2b2c6b2a13bb956aeed22d1c9";
+    hash = "9eeafb591606008c7ab33501ebfdb6ed80830cca5736513c6c5874ded65cfb3f";
     patchLatest = false;
     topLevel = true;
     dependencies = [
@@ -1750,6 +1832,16 @@
     hash = "a848a28193850d58d7b98249d70844bc7f35a7d8b6b5ed75e08e829aa6e763d3";
     patchLatest = false;
     topLevel = true;
+    dependencies = [
+    ];
+  }
+  {
+    baseName = "underscore";
+    version = "1.4.4";
+    fullName = "underscore-1.4.x";
+    hash = "a848a28193850d58d7b98249d70844bc7f35a7d8b6b5ed75e08e829aa6e763d3";
+    patchLatest = false;
+    topLevel = false;
     dependencies = [
     ];
   }

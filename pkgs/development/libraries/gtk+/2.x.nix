@@ -1,6 +1,6 @@
-{ stdenv, fetchurl, pkgconfig, glib, atk, pango, cairo, perl, xlibs
-, gdk_pixbuf, xz
-, xineramaSupport ? true
+{ stdenv, fetchurl, pkgconfig, gettext, glib, atk, pango, cairo, perl, xlibs
+, gdk_pixbuf, libintlOrEmpty, x11
+, xineramaSupport ? stdenv.isLinux
 , cupsSupport ? true, cups ? null
 }:
 
@@ -17,14 +17,18 @@ stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
 
-  nativeBuildInputs = [ perl pkgconfig ];
+  NIX_CFLAGS_COMPILE = "-I${cairo}/include/cairo";
 
-  propagatedBuildInputs = with xlibs;
-    [ glib cairo pango gdk_pixbuf atk
-      libXrandr libXrender libXcomposite libXi libXcursor
-    ]
-    ++ stdenv.lib.optional xineramaSupport libXinerama
-    ++ stdenv.lib.optionals cupsSupport [ cups ];
+  nativeBuildInputs = [ perl pkgconfig gettext ];
+
+  propagatedBuildInputs = with xlibs; with stdenv.lib;
+    [ glib cairo pango gdk_pixbuf atk ]
+    ++ optionals stdenv.isLinux
+      [ libXrandr libXrender libXcomposite libXi libXcursor ]
+    ++ optional stdenv.isDarwin x11
+    ++ libintlOrEmpty
+    ++ optional xineramaSupport libXinerama
+    ++ optionals cupsSupport [ cups ];
 
   configureFlags = "--with-xinput=yes";
 
@@ -49,6 +53,6 @@ stdenv.mkDerivation rec {
     license = "LGPLv2+";
 
     maintainers = [stdenv.lib.maintainers.raskin];
-    platforms = stdenv.lib.platforms.linux;
+    platforms = stdenv.lib.platforms.all;
   };
 }

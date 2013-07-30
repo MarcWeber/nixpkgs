@@ -8,7 +8,7 @@ assert stdenv ? glibc;
 let
 
   buildEclipse =
-    { name, src, description }:
+    { name, src ? builtins.getAttr stdenv.system sources, sources ? null, description }:
 
     stdenv.mkDerivation rec {
       inherit name src;
@@ -86,12 +86,12 @@ in {
     src =
       if stdenv.system == "x86_64-linux" then
         fetchurl {
-          url = http://ftp.ing.umu.se/mirror/eclipse/eclipse/downloads/drops/R-3.6.2-201102101200/eclipse-SDK-3.6.2-linux-gtk-x86_64.tar.gz;
+          url = http://archive.eclipse.org/eclipse/downloads/drops/R-3.6.2-201102101200/eclipse-SDK-3.6.2-linux-gtk-x86_64.tar.gz;
           sha256 = "0dfcfadcd6337c897fbfd5b292de481931dfce12d43289ecb93691fd27dd47f4";
         }
       else
         fetchurl {
-          url = http://ftp.ing.umu.se/mirror/eclipse/eclipse/downloads/drops/R-3.6.2-201102101200/eclipse-SDK-3.6.2-linux-gtk.tar.gz;
+          url = http://archive.eclipse.org/eclipse/downloads/drops/R-3.6.2-201102101200/eclipse-SDK-3.6.2-linux-gtk.tar.gz;
           sha256 = "1bh8ykliqr8wbciv13vpiy50rvm7yszk7y8dslr796dbwhi5b1cj";
         };
   };
@@ -102,12 +102,12 @@ in {
     src =
       if stdenv.system == "x86_64-linux" then
         fetchurl {
-          url = http://ftp-stud.fht-esslingen.de/pub/Mirrors/eclipse/technology/epp/downloads/release/helios/SR2/eclipse-cpp-helios-SR2-linux-gtk-x86_64.tar.gz;
+          url = http://eclipse.ialto.com/technology/epp/downloads/release/helios/SR2/eclipse-cpp-helios-SR2-linux-gtk-x86_64.tar.gz;
           sha1 = "6f914e11fa15a900c46825e4aa8299afd76e7e65";
         }
       else
         fetchurl {
-          url = http://ftp-stud.fht-esslingen.de/pub/Mirrors/eclipse/technology/epp/downloads/release/helios/SR2/eclipse-cpp-helios-SR2-linux-gtk.tar.gz;
+          url = http://eclipse.ialto.com/technology/epp/downloads/release/helios/SR2/eclipse-cpp-helios-SR2-linux-gtk.tar.gz;
           sha1 = "1156e4bc0253ae3a3a4e54839e4944dc64d3108f";
         };
   };
@@ -131,17 +131,16 @@ in {
   eclipse_sdk_37 = buildEclipse {
     name = "eclipse-sdk-3.7";
     description = "Eclipse Classic";
-    src =
-      if stdenv.system == "x86_64-linux" then
-        fetchurl {
-          url = http://eclipse.ialto.com/eclipse/downloads/drops/R-3.7-201106131736/eclipse-SDK-3.7-linux-gtk-x86_64.tar.gz;
-          sha256 = "00ig3ww98r8imf32sx5npm6csn5nx288gvdk6w653nijni0di16j";
-        }
-      else
-        fetchurl {
-          url = http://eclipse.ialto.com/eclipse/downloads/drops/R-3.7-201106131736/eclipse-SDK-3.7-linux-gtk.tar.gz;
-          sha256 = "08rgw85cam51l98mzb39fdc3ykb369v8pap93qhknbs6a3f5dnff";
+    sources = {
+      "x86_64-linux" = fetchurl {
+          url = http://archive.eclipse.org/eclipse/downloads/drops/R-3.7.2-201202080800/eclipse-SDK-3.7.2-linux-gtk-x86_64.tar.gz;
+          sha256 = "0nf4nv7awhp1k8b1hjb7chpjyjrqnyszsjbc4dlk9phpjv3j4wg5";
         };
+      "i686-linux" = fetchurl {
+          url = http://archive.eclipse.org/eclipse/downloads/drops/R-3.7.2-201202080800/eclipse-SDK-3.7.2-linux-gtk.tar.gz;
+          sha256 = "1isn7i45l9kyn2yx6vm88jl1gnxph8ynank0aaa218cg8kdygk7j";
+        };
+    };
   };
 
   eclipse_cpp_37 = buildEclipse {
@@ -160,19 +159,50 @@ in {
         };
   };
 
-  eclipse_sdk_42 = buildEclipse {
-    name = "eclipse-sdk-4.2";
+  eclipse_cpp_42 = buildEclipse {
+    name = "eclipse-cpp-4.2";
+    description = "Eclipse IDE for C/C++ Developers";
+    src =
+      if stdenv.system == "x86_64-linux" then
+        fetchurl {
+          url = http://eclipse.ialto.com/technology/epp/downloads/release/juno/SR2/eclipse-cpp-juno-SR2-linux-gtk-x86_64.tar.gz;
+          sha256 = "1qq04926pf7v9sf3s0z53zvlbl1j0rmmjmbmhqi49473fnjikh7y";
+        }
+      else
+        fetchurl {
+          url = http://eclipse.ialto.com/technology/epp/downloads/release/juno/SR2/eclipse-cpp-juno-SR2-linux-gtk.tar.gz;
+          sha256 = "1a4s9qlhfpfpdhvffyglnfdr3dq5r2ywcxqywhqi95yhq5nmsgyk";
+        };
+  };
+
+  eclipse_sdk_421 = buildEclipse {
+    name = "eclipse-sdk-4.2.1";
     description = "Eclipse Classic";
     src =
       if stdenv.system == "x86_64-linux" then
         fetchurl {
-          url = http://eclipse.ialto.com/eclipse/downloads/drops4/R-4.2.1-201209141800/eclipse-SDK-4.2.1-linux-gtk-x86_64.tar.gz;
+          url = http://archive.eclipse.org/eclipse/downloads/drops4/R-4.2.1-201209141800/eclipse-SDK-4.2.1-linux-gtk-x86_64.tar.gz;
           sha256 = "1mlyy90lk08lb2971ynglgi3nqvqfq1k70md2kb39jk160wd1xrk";
         }
       else
         fetchurl {
-          url = http://eclipse.ialto.com/eclipse/downloads/drops4/R-4.2.1-201209141800/eclipse-SDK-4.2.1-linux-gtk.tar.gz;
+          url = http://archive.eclipse.org/eclipse/downloads/drops4/R-4.2.1-201209141800/eclipse-SDK-4.2.1-linux-gtk.tar.gz;
           sha256 = "1av6qm9wkbyk123qqf38f0jq4jv2bj9wp6fmpnl55zg6qr463c1w";
         };
     };
+
+  eclipse_sdk_422 = buildEclipse {
+    name = "eclipse-sdk-4.2.2";
+    description = "Eclipse Classic";
+    sources = {
+      "x86_64-linux" = fetchurl {
+          url = http://ftp-stud.fht-esslingen.de/pub/Mirrors/eclipse/eclipse/downloads/drops4/R-4.2.2-201302041200/eclipse-SDK-4.2.2-linux-gtk-x86_64.tar.gz;
+          sha256 = "0ysa6ymk4h3k1vn59dc909iy197kmx132671kbzfwbim87jmgnqb";
+        };
+      "i686-linux" = fetchurl {
+          url = http://ftp-stud.fht-esslingen.de/pub/Mirrors/eclipse/eclipse/downloads/drops4/R-4.2.2-201302041200/eclipse-SDK-4.2.2-linux-gtk.tar.gz;
+          sha256 = "038yibbrcia38wi72qrdl03g7l35mpvl5nxdfdnvpqxrkfffb826";
+        };
+    };
+  };
 }

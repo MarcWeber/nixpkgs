@@ -17,7 +17,7 @@ with stdenv.lib;
 
 let
   majorVersion = "3.2";
-  version = "${majorVersion}.3";
+  version = "${majorVersion}.5";
 
   buildInputs = filter (p: p != null) [
     zlib bzip2 gdbm sqlite db4 readline ncurses openssl tcl tk libX11 xproto
@@ -29,8 +29,10 @@ stdenv.mkDerivation {
 
   src = fetchurl {
     url = "http://www.python.org/ftp/python/${version}/Python-${version}.tar.bz2";
-    sha256 = "5648ec81f93870fde2f0aa4ed45c8718692b15ce6fd9ed309bfb827ae12010aa";
+    sha256 = "0pxs234g08v3lar09lvzxw4vqdpwkbqmvkv894j2w7aklskcjd6v";
   };
+
+  NIX_LDFLAGS = stdenv.lib.optionalString stdenv.isLinux "-lgcc_s";
 
   preConfigure = ''
     for i in /usr /sw /opt /pkg; do	# improve purity
@@ -49,6 +51,7 @@ stdenv.mkDerivation {
 
   postInstall = ''
     rm -rf "$out/lib/python${majorVersion}/test"
+    ln -s "$out/include/python${majorVersion}m" "$out/include/python${majorVersion}"
   '';
 
   passthru = {
@@ -59,6 +62,8 @@ stdenv.mkDerivation {
     opensslSupport = openssl != null;
     tkSupport = (tk != null) && (tcl != null) && (libX11 != null) && (xproto != null);
     libPrefix = "python${majorVersion}";
+    executable = "python3.2m";
+    is_py3k = true;
   };
 
   enableParallelBuilding = true;

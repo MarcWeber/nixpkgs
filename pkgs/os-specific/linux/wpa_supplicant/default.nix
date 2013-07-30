@@ -5,13 +5,13 @@
 assert readlineSupport -> readline != null;
 
 stdenv.mkDerivation rec {
-  version = "1.1";
+  version = "2.0";
 
   name = "wpa_supplicant-${version}";
 
   src = fetchurl {
     url = "http://hostap.epitest.fi/releases/${name}.tar.gz";
-    sha256 = "00lyifj8cz7qyal6dy1dxbpk3g3bywvdarik8gbj9ds7zmfbwkd5";
+    sha256 = "02cy6wrs4nzm7wbq9mc1vby8lnj58k4sb10h718ks8mmzc4mc49c";
   };
 
   extraConfig =
@@ -38,13 +38,7 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [ pkgconfig ];
 
-  patches =
-    [ (fetchurl {
-        url = "https://projects.archlinux.org/svntogit/packages.git/plain/trunk/hostap_allow-linking-with-libnl-3.2.patch?h=packages/wpa_supplicant";
-        name = "hostap_allow-linking-with-libnl-3.2.patch";
-        sha256 = "0iwvjq0apc6mv1r03k5pnyjgda3q47yx36c4lqvv8i8q1vn7kbf2";
-      })
-    ];
+  patches = [ ./libnl.patch ];
 
   postInstall = ''
     mkdir -p $out/share/man/man5 $out/share/man/man8

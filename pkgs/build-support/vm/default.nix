@@ -1,22 +1,17 @@
 { pkgs
-, linuxKernel ? pkgs.linux
+, kernel ? pkgs.linux_3_9
 , img ? "bzImage"
 , rootModules ?
-    [ "cifs" "virtio_net" "virtio_pci" "virtio_blk" "virtio_balloon" "nls_utf8" "ext2" "ext3"
-      "ext4" "unix" "hmac" "md4" "ecb" "des_generic"
-    ]
+    [ "virtio_pci" "virtio_blk" "virtio_balloon" "ext4" "unix" "9p" "9pnet_virtio" ]
 }:
 
 with pkgs;
 
 rec {
 
-  # The 15 second CIFS timeout is too short if the host if heavily
-  # loaded (e.g., in the Hydra build farm when it's running many jobs
-  # in parallel).  So apply a patch to increase the timeout to 120s.
-  kernel = assert pkgs.linux.features.cifsTimeout; linuxKernel;
+  kvm = pkgs.qemu;
 
-  kvm = pkgs.qemu_kvm;
+  qemuProg = "${kvm}/bin/qemu-system-" + (if stdenv.system == "x86_64-linux" then "x86_64" else "i386");
 
 
   modulesClosure = makeModulesClosure {
@@ -78,6 +73,8 @@ rec {
     mount -t proc none /proc
     mount -t sysfs none /sys
 
+    echo 2 > /proc/sys/vm/panic_on_oom
+
     for o in $(cat /proc/cmdline); do
       case $o in
         mountDisk=1)
@@ -95,20 +92,14 @@ rec {
     done
 
     for i in $(cat ${modulesClosure}/insmod-list); do
-      args=
-      case $i in
-        */cifs.ko)
-          args="CIFSMaxBufSize=4194304"
-          ;;
-      esac
       echo "loading module $(basename $i .ko)"
-      insmod $i $args
+      insmod $i
     done
 
     mount -t tmpfs none /dev
     ${createDeviceNodes "/dev"}
 
-    ifconfig eth0 up 10.0.2.15
+    ifconfig lo up
 
     mkdir /fs
 
@@ -123,14 +114,14 @@ rec {
 
     echo "mounting Nix store..."
     mkdir -p /fs/nix/store
-    mount -t cifs //10.0.2.4/store /fs/nix/store -o guest,sec=none
+    mount -t 9p store /fs/nix/store -o trans=virtio,version=9p2000.L,msize=262144,cache=fscache
 
     mkdir -p /fs/tmp
     mount -t tmpfs -o "mode=755" none /fs/tmp
 
     echo "mounting host's temporary directory..."
     mkdir -p /fs/tmp/xchg
-    mount -t cifs //10.0.2.4/xchg /fs/tmp/xchg -o guest,sec=none
+    mount -t 9p xchg /fs/tmp/xchg -o trans=virtio,version=9p2000.L,msize=262144,cache=fscache
 
     mkdir -p /fs/proc
     mount -t proc none /fs/proc
@@ -140,6 +131,7 @@ rec {
 
     mkdir -p /fs/etc
     ln -sf /proc/mounts /fs/etc/mtab
+    echo "127.0.0.1 localhost" > /fs/etc/hosts
 
     echo "Now running: $command"
     test -n "$command"
@@ -195,52 +187,18 @@ rec {
 
 
   qemuCommandLinux = ''
-    ${kvm}/bin/qemu-kvm \
+    ${qemuProg} \
+      -enable-kvm \
       ${lib.optionalString (pkgs.stdenv.system == "x86_64-linux") "-cpu kvm64"} \
       -nographic -no-reboot \
-      -net nic,model=virtio \
-      -chardev socket,id=samba,path=./samba \
-      -net user,guestfwd=tcp:10.0.2.4:445-chardev:samba \
+      -virtfs local,path=/nix/store,security_model=none,mount_tag=store \
+      -virtfs local,path=$TMPDIR/xchg,security_model=none,mount_tag=xchg \
       -drive file=$diskImage,if=virtio,cache=writeback,werror=report \
       -kernel ${kernel}/${img} \
       -initrd ${initrd}/initrd \
       -append "console=ttyS0 panic=1 command=${stage2Init} out=$out mountDisk=$mountDisk" \
       $QEMU_OPTS
   '';
-
-
-  startSamba =
-    ''
-      export WHO=`whoami`
-      mkdir -p $TMPDIR/xchg
-
-      cat > $TMPDIR/smb.conf <<SMB
-      [global]
-        private dir = $TMPDIR
-        smb ports = 0
-        socket address = 127.0.0.1
-        pid directory = $TMPDIR
-        lock directory = $TMPDIR
-        log file = $TMPDIR/log.smbd
-        smb passwd file = $TMPDIR/smbpasswd
-        security = share
-      [store]
-        force user = $WHO
-        path = /nix/store
-        read only = no
-        guest ok = yes
-      [xchg]
-        force user = $WHO
-        path = $TMPDIR/xchg
-        read only = no
-        guest ok = yes
-      $EXTRA_SAMBA_CONF
-      SMB
-
-      rm -f ./samba
-      ${socat}/bin/socat unix-listen:./samba exec:"${utillinux}/bin/setsid ${samba}/sbin/smbd -s $TMPDIR/smb.conf",nofork > /dev/null 2>&1 &
-      while [ ! -e ./samba ]; do sleep 0.1; done # ugly
-    '';
 
 
   vmRunCommand = qemuCommand: writeText "vm-run" ''
@@ -262,7 +220,6 @@ rec {
     diskImage=$diskImage
     TMPDIR=$TMPDIR
     cd $TMPDIR
-    ${startSamba}
     ${qemuCommand}
     EOF
 
@@ -294,24 +251,24 @@ rec {
 
   defaultCreateRootFS = ''
     mkdir /mnt
-    ${e2fsprogs}/sbin/mke2fs -F /dev/${hd}
-    ${utillinux}/bin/mount -t ext2 /dev/${hd} /mnt
+    ${e2fsprogs}/sbin/mkfs.ext4 /dev/${hd}
+    ${utillinux}/bin/mount -t ext4 /dev/${hd} /mnt
 
     if test -e /mnt/.debug; then
       exec ${bash}/bin/sh
     fi
     touch /mnt/.debug
 
-    mkdir /mnt/proc /mnt/dev /mnt/sys /mnt/bin
+    mkdir /mnt/proc /mnt/dev /mnt/sys
     ${createDeviceNodes "/mnt/dev"}
   '';
 
 
   /* Run a derivation in a Linux virtual machine (using Qemu/KVM).  By
      default, there is no disk image; the root filesystem is a tmpfs,
-     and /nix/store is shared with the host (via the CIFS protocol to
-     a Samba instance automatically started by Qemu).  Thus, any pure
-     Nix derivation should run unmodified, e.g. the call
+     and /nix/store is shared with the host (via the 9P protocol).
+     Thus, any pure Nix derivation should run unmodified, e.g. the
+     call
 
        runInLinuxVM patchelf
 
@@ -319,7 +276,7 @@ rec {
      `preVM' can optionally contain a shell command to be evaluated
      *before* the VM is started (i.e., on the host).  The attribute
      `memSize' specifies the memory size of the VM in megabytes,
-     defaulting to 256.  The attribute `diskImage' can optionally
+     defaulting to 512.  The attribute `diskImage' can optionally
      specify a file system image to be attached to /dev/sda.  (Note
      that currently we expect the image to contain a filesystem, not a
      full disk image with a partition table etc.)
@@ -334,7 +291,7 @@ rec {
     args = ["-e" (vmRunCommand qemuCommandLinux)];
     origArgs = attrs.args;
     origBuilder = attrs.builder;
-    QEMU_OPTS = "-m ${toString (if attrs ? memSize then attrs.memSize else 256)}";
+    QEMU_OPTS = "-m ${toString (attrs.memSize or 512)}";
   });
 
 
@@ -391,61 +348,12 @@ rec {
     });
 
 
-  qemuCommandGeneric = ''
-    PATH="${samba}/sbin:$PATH" \
-    ${kvm}/bin/qemu-kvm \
-      -nographic -no-reboot \
-      -smb $(pwd) -hda $diskImage \
-      $QEMU_OPTS
-  '';
-
-
-  /* Run a command in an x86 virtual machine image containing an
-     arbitrary OS.  The VM should be configured to do the following:
-
-     - Write log output to the serial port.
-
-     - Mount //10.0.2.4/qemu via SMB.
-
-     - Execute the command "cmd" on the SMB share.  It can access the
-       original derivation attributes in "saved-env" on the share.
-
-     - Produce output under "out" on the SMB share.
-
-     - Write an exit code to "in-vm-exit" on the SMB share ("0"
-       meaning success).
-
-     - Power-off or reboot the machine.
-  */
-  runInGenericVM = drv: lib.overrideDerivation drv (attrs: {
-    requiredSystemFeatures = [ "kvm" ];
-    builder = "${bash}/bin/sh";
-    args = ["-e" (vmRunCommand qemuCommandGeneric)];
-    QEMU_OPTS = "-m ${toString (if attrs ? memSize then attrs.memSize else 256)}";
-
-    preVM = ''
-      diskImage=$(pwd)/disk-image.qcow2
-      origImage=${attrs.diskImage}
-      if test -d "$origImage"; then origImage="$origImage/disk-image.qcow2"; fi
-      ${kvm}/bin/qemu-img create -b "$origImage" -f qcow2 $diskImage
-
-      echo "$buildCommand" > cmd
-
-      eval "$postPreVM"
-    '';
-
-    postVM = ''
-      cp -prvd out $out
-    '';
-  });
-
-
   /* Like runInLinuxVM, but run the build not using the stdenv from
      the Nix store, but using the tools provided by /bin, /usr/bin
      etc. from the specified filesystem image, which typically is a
      filesystem containing a non-NixOS Linux distribution. */
 
-  runInLinuxImage = attrs: runInLinuxVM (attrs // {
+  runInLinuxImage = drv: runInLinuxVM (lib.overrideDerivation drv (attrs: {
     mountDisk = true;
 
     /* Mount `image' as the root FS, but use a temporary copy-on-write
@@ -470,7 +378,7 @@ rec {
 
     /* Don't run Nix-specific build steps like patchelf. */
     fixupPhase = "true";
-  });
+  }));
 
 
   /* Create a filesystem image of the specified size and fill it with
@@ -479,6 +387,7 @@ rec {
   fillDiskWithRPMs =
     { size ? 4096, rpms, name, fullName, preInstall ? "", postInstall ? ""
     , runScripts ? true, createRootFS ? defaultCreateRootFS
+    , unifiedSystemDir ? false
     }:
 
     runInLinuxVM (stdenv.mkDerivation {
@@ -491,10 +400,25 @@ rec {
 
         chroot=$(type -tP chroot)
 
+        # Make the Nix store available in /mnt, because that's where the RPMs live.
+        mkdir -p /mnt/nix/store
+        ${utillinux}/bin/mount -o bind /nix/store /mnt/nix/store
+
+        # Newer distributions like Fedora 18 require /lib etc. to be
+        # symlinked to /usr.
+        ${lib.optionalString unifiedSystemDir ''
+          mkdir -p /mnt/usr/bin /mnt/usr/sbin /mnt/usr/lib /mnt/usr/lib64
+          ln -s /usr/bin /mnt/bin
+          ln -s /usr/sbin /mnt/sbin
+          ln -s /usr/lib /mnt/lib
+          ln -s /usr/lib64 /mnt/lib64
+          ${utillinux}/bin/mount -t proc none /mnt/proc
+        ''}
+
         echo "unpacking RPMs..."
         for i in $rpms; do
             echo "$i..."
-            ${rpm}/bin/rpm2cpio "$i" | (cd /mnt && ${cpio}/bin/cpio -i --make-directories)
+            ${rpm}/bin/rpm2cpio "$i" | (chroot /mnt ${cpio}/bin/cpio -i --make-directories)
         done
 
         eval "$preInstall"
@@ -505,9 +429,6 @@ rec {
         PATH=/usr/bin:/bin:/usr/sbin:/sbin $chroot /mnt \
           rpm --initdb
 
-        # Make the Nix store available in /mnt, because that's where the RPMs live.
-        mkdir -p /mnt/nix/store
-        ${utillinux}/bin/mount -o bind /nix/store /mnt/nix/store
         ${utillinux}/bin/mount -o bind /tmp /mnt/tmp
 
         echo "installing RPMs..."
@@ -519,8 +440,7 @@ rec {
 
         rm /mnt/.debug
 
-        ${utillinux}/bin/umount /mnt/nix/store
-        ${utillinux}/bin/umount /mnt/tmp
+        ${utillinux}/bin/umount /mnt/nix/store /mnt/tmp ${lib.optionalString unifiedSystemDir "/mnt/proc"}
         ${utillinux}/bin/umount /mnt
       '';
 
@@ -679,8 +599,17 @@ rec {
             debs="$debs /inst/$i";
           done
           chroot=$(type -tP chroot)
+
+          # Create a fake start-stop-daemon script, as done in debootstrap.
+          mv "/mnt/sbin/start-stop-daemon" "/mnt/sbin/start-stop-daemon.REAL"
+          echo "#!/bin/true" > "/mnt/sbin/start-stop-daemon"
+          chmod 755 "/mnt/sbin/start-stop-daemon"
+
           PATH=/usr/bin:/bin:/usr/sbin:/sbin $chroot /mnt \
             /usr/bin/dpkg --install --force-all $debs < /dev/null || true
+
+          # Move the real start-stop-daemon back into its place.
+          mv "/mnt/sbin/start-stop-daemon.REAL" "/mnt/sbin/start-stop-daemon"
         done
 
         echo "running post-install script..."
@@ -726,10 +655,11 @@ rec {
     , packagesList ? "", packagesLists ? [packagesList]
     , packages, extraPackages ? []
     , preInstall ? "", postInstall ? "", archs ? ["noarch" "i386"]
-    , runScripts ? true, createRootFS ? defaultCreateRootFS }:
+    , runScripts ? true, createRootFS ? defaultCreateRootFS
+    , unifiedSystemDir ? false }:
 
     fillDiskWithRPMs {
-      inherit name fullName size preInstall postInstall runScripts createRootFS;
+      inherit name fullName size preInstall postInstall runScripts createRootFS unifiedSystemDir;
       rpms = import (rpmClosureGenerator {
         inherit name packagesLists urlPrefixes archs;
         packages = packages ++ extraPackages;
@@ -982,6 +912,32 @@ rec {
       packages = commonFedoraPackages ++ [ "cronie" "util-linux" ];
     };
 
+    fedora18i386 = {
+      name = "fedora-18-i386";
+      fullName = "Fedora 18 (i386)";
+      packagesList = fetchurl {
+        url = mirror://fedora/linux/releases/18/Everything/i386/os/repodata/935f57e61365047b6aee346792bc68bfd24de30874ce5d26bf730a992d36678d-primary.xml.gz;
+        sha256 = "935f57e61365047b6aee346792bc68bfd24de30874ce5d26bf730a992d36678d";
+      };
+      urlPrefix = mirror://fedora/linux/releases/18/Everything/i386/os;
+      archs = ["noarch" "i386" "i586" "i686"];
+      packages = commonFedoraPackages ++ [ "cronie" "util-linux" ];
+      unifiedSystemDir = true;
+    };
+
+    fedora18x86_64 = {
+      name = "fedora-18-x86_64";
+      fullName = "Fedora 18 (x86_64)";
+      packagesList = fetchurl {
+        url = mirror://fedora/linux/releases/18/Everything/x86_64/os/repodata/463ac49f2218e404607b2eeb3c04be1a648d90293f4239bbb6a63c2fed672bea-primary.xml.gz;
+        sha256 = "463ac49f2218e404607b2eeb3c04be1a648d90293f4239bbb6a63c2fed672bea";
+      };
+      urlPrefix = mirror://fedora/linux/releases/18/Everything/x86_64/os;
+      archs = ["noarch" "x86_64"];
+      packages = commonFedoraPackages ++ [ "cronie" "util-linux" ];
+      unifiedSystemDir = true;
+    };
+
     opensuse103i386 = {
       name = "opensuse-10.3-i586";
       fullName = "openSUSE 10.3 (i586)";
@@ -1040,6 +996,30 @@ rec {
       urlPrefix = mirror://opensuse/11.1/repo/oss/suse/;
       archs = ["noarch" "x86_64"];
       packages = commonOpenSUSEPackages;
+    };
+
+    centos64i386 = {
+      name = "centos-6.4-i386";
+      fullName = "CentOS 6.4 (i386)";
+      packagesList = fetchurl {
+        url = http://mirror.centos.org/centos/6.4/os/i386/repodata/87aa4c4e19f9a3ec93e3d820f1ea6b6ece8810cb45f117a16354465e57a1b50d-primary.xml.gz;
+        sha256 = "03dml5bmwijlcfhigwa5rc88ikkfdgmg286qwf9yr8zr3574ral7";
+      };
+      urlPrefix = http://mirror.centos.org/centos/6.4/os/i386/ ;
+      archs = ["noarch" "i386"];
+      packages = commonCentOSPackages;
+    };
+
+    centos64x86_64 = {
+      name = "centos-6.4-x86_64";
+      fullName = "CentOS 6.4 (x86_64)";
+      packagesList = fetchurl {
+        url = http://mirror.centos.org/centos/6.4/os/x86_64/repodata/4d4030b92f010f466eb4f004312b9f532b9e85e60c5e6421e8b429c180ac1efe-primary.xml.gz;
+        sha256 = "1zhymj0c2adlx0hn8phcws2rwaskkwmk217hnip4c3q15ywk0h2d";
+      };
+      urlPrefix = http://mirror.centos.org/centos/6.4/os/x86_64/ ;
+      archs = ["noarch" "x86_64"];
+      packages = commonCentOSPackages;
     };
 
   };
@@ -1322,6 +1302,40 @@ rec {
       packages = commonDebPackages ++ [ "diffutils" ];
     };
 
+    ubuntu1304i386 = {
+      name = "ubuntu-13.04-raring-i386";
+      fullName = "Ubuntu 13.04 Raring (i386)";
+      packagesLists =
+        [ (fetchurl {
+            url = mirror://ubuntu/dists/raring/main/binary-i386/Packages.bz2;
+            sha256 = "b7da6802c5302439d9abf05ebe1ab4c3b82d7be9356f51a12c5bf4994f009181";
+          })
+          (fetchurl {
+            url = mirror://ubuntu/dists/raring/universe/binary-i386/Packages.bz2;
+            sha256 = "1db19982fc3689b00a918e2cdbb936dfccebbac2ed82f81bb0164a3d51039012";
+          })
+        ];
+      urlPrefix = mirror://ubuntu;
+      packages = commonDebPackages ++ [ "diffutils" "libc-bin" ];
+    };
+
+    ubuntu1304x86_64 = {
+      name = "ubuntu-13.04-raring-amd64";
+      fullName = "Ubuntu 13.04 Raring (amd64)";
+      packagesList =
+        [ (fetchurl {
+            url = mirror://ubuntu/dists/raring/main/binary-amd64/Packages.bz2;
+            sha256 = "9ee6a67bedbda80b668a868bb81b5b3f30bbabac01f69d2a08961c37c8536356";
+          })
+          (fetchurl {
+            url = mirror://ubuntu/dists/raring/universe/binary-amd64/Packages.bz2;
+            sha256 = "0caf561bad359e8a82a987a076c0f1cb7a43412a5de053c105b160477c192978";
+          })
+        ];
+      urlPrefix = mirror://ubuntu;
+      packages = commonDebPackages ++ [ "diffutils" "libc-bin" ];
+    };
+
     debian40i386 = {
       name = "debian-4.0r9-etch-i386";
       fullName = "Debian 4.0r9 Etch (i386)";
@@ -1367,22 +1381,44 @@ rec {
     };
 
     debian60i386 = {
-      name = "debian-6.0.6-squeeze-i386";
-      fullName = "Debian 6.0.6 Squeeze (i386)";
+      name = "debian-6.0.7-squeeze-i386";
+      fullName = "Debian 6.0.7 Squeeze (i386)";
       packagesList = fetchurl {
         url = mirror://debian/dists/squeeze/main/binary-i386/Packages.bz2;
-        sha256 = "18c0473jacd877nkky1x21dkmp4992d8qra6wj07sq0yz5gdc9c4";
+        sha256 = "a770f26b5fce1a16460b68f135dfe97f4f4a9894b538ece0104a508c83ec65d5";
       };
       urlPrefix = mirror://debian;
       packages = commonDebianPackages;
     };
 
     debian60x86_64 = {
-      name = "debian-6.0.6-squeeze-amd64";
-      fullName = "Debian 6.0.6 Squeeze (amd64)";
+      name = "debian-6.0.7-squeeze-amd64";
+      fullName = "Debian 6.0.7 Squeeze (amd64)";
       packagesList = fetchurl {
         url = mirror://debian/dists/squeeze/main/binary-amd64/Packages.bz2;
-        sha256 = "1n1h3pz6axcaraxq8gfzq0jywlpdrqand1dnd4q79dy6cl788bi2";
+        sha256 = "b2bb561bde59ac67e07c70aa7c86a33f237436e6891796a93c6ed6ffb032080e";
+      };
+      urlPrefix = mirror://debian;
+      packages = commonDebianPackages;
+    };
+
+    debian70i386 = {
+      name = "debian-7.1.0-wheezy-i386";
+      fullName = "Debian 7.1.0 Wheezy (i386)";
+      packagesList = fetchurl {
+        url = mirror://debian/dists/wheezy/main/binary-i386/Packages.bz2;
+        sha256 = "c2751c48805b41c3eddd31cfe92ffa46df13a7d6ce7896b8dc5ce4b2f7f329c5";
+      };
+      urlPrefix = mirror://debian;
+      packages = commonDebianPackages;
+    };
+
+    debian70x86_64 = {
+      name = "debian-7.1.0-wheezy-amd64";
+      fullName = "Debian 7.1.0 Wheezy (amd64)";
+      packagesList = fetchurl {
+        url = mirror://debian/dists/wheezy/main/binary-amd64/Packages.bz2;
+        sha256 = "9b15b4348cadbcf170c9e83d6fbcb64efac2b787ebdfef16ba21dd70dfca0001";
       };
       urlPrefix = mirror://debian;
       packages = commonDebianPackages;
@@ -1414,6 +1450,28 @@ rec {
     "unzip"
   ];
 
+  commonCentOSPackages = [
+    "autoconf"
+    "automake"
+    "basesystem"
+    "bzip2"
+    "curl"
+    "diffutils"
+    "centos-release"
+    "findutils"
+    "gawk"
+    "gcc-c++"
+    "gzip"
+    "make"
+    "patch"
+    "perl"
+    "pkgconfig"
+    "procps"
+    "rpm"
+    "rpm-build"
+    "tar"
+    "unzip"
+  ];
 
   /* Common packages for openSUSE images. */
   commonOpenSUSEPackages = [
@@ -1451,6 +1509,7 @@ rec {
     "bzip2"
     "tar"
     "grep"
+    "sed"
     "findutils"
     "g++"
     "make"
@@ -1502,14 +1561,14 @@ rec {
         name = "redhat-9-i386";
         fullName = "Red Hat Linux 9 (i386)";
         size = 1024;
-        rpms = import ./rpm/redhat-9-i386.nix {inherit fetchurl;};
+        rpms = import ./rpm/redhat-9-i386.nix { inherit fetchurl; };
       };
 
       suse90i386 = fillDiskWithRPMs {
         name = "suse-9.0-i386";
         fullName = "SUSE Linux 9.0 (i386)";
         size = 1024;
-        rpms = import ./rpm/suse-9-i386.nix {inherit fetchurl;};
+        rpms = import ./rpm/suse-9-i386.nix { inherit fetchurl; };
         # Urgh.  The /etc/group entries are installed by aaa_base (or
         # something) but due to dependency ordering, that package isn't
         # installed yet by the time some other packages refer to these

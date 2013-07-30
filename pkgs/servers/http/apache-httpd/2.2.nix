@@ -12,12 +12,12 @@ assert ldapSupport -> aprutil.ldapSupport && openldap != null;
 assert mpm == "prefork" || mpm == "worker" || mpm == "event";
 
 stdenv.mkDerivation rec {
-  version = "2.2.23";
+  version = "2.2.25";
   name = "apache-httpd-${version}";
 
   src = fetchurl {
     url = "mirror://apache/httpd/httpd-${version}.tar.bz2";
-    sha1 = "2776145201068045d4ed83157a0e2e1c28c4c453";
+    sha1 = "e34222d1a8de38825397a1c70949bcc5836a1236";
   };
 
   buildInputs = [perl apr aprutil pcre] ++
@@ -29,7 +29,7 @@ stdenv.mkDerivation rec {
   NIX_CFLAGS_COMPILE = "-iquote ${apr}/include/apr-1";
 
   # Required for ‘pthread_cancel’.
-  NIX_LDFLAGS = "-lgcc_s";
+  NIX_LDFLAGS = (if stdenv.isDarwin then "" else "-lgcc_s");
 
   configureFlags = ''
     --with-z=${zlib}
@@ -55,10 +55,9 @@ stdenv.mkDerivation rec {
 
   meta = {
     description = "Apache HTTPD, the world's most popular web server";
-    homepage = http://httpd.apache.org/;
-    license = "ASL2.0";
-
-    platforms = stdenv.lib.platforms.unix;
-    maintainers = [ stdenv.lib.maintainers.simons ];
+    homepage    = http://httpd.apache.org/;
+    license     = stdenv.lib.licenses.asl20;
+    platforms   = stdenv.lib.platforms.unix;
+    maintainers = with stdenv.lib.maintainers; [ simons lovek323 ];
   };
 }

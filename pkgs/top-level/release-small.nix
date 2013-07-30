@@ -19,6 +19,7 @@ with (import ./release-lib.nix);
 
   aspell = all;
   at = linux;
+  atlas = linux;
   aterm25 = all;
   aterm28 = all;
   autoconf = all;
@@ -41,7 +42,7 @@ with (import ./release-lib.nix);
   dhcp = linux;
   diffutils = all;
   e2fsprogs = linux;
-  emacs23 = gtkSupported;
+  emacs24 = gtkSupported;
   enscript = all;
   file = all;
   findutils = all;
@@ -51,7 +52,6 @@ with (import ./release-lib.nix);
   gcc33 = linux;
   gcc34 = linux;
   gcc42 = linux;
-  gcc43_multi = ["x86_64-linux"];
   gcc44 = linux;
   gcj44 = linux;
   ghdl = linux;
@@ -177,7 +177,7 @@ with (import ./release-lib.nix);
   texLiveExtra = linux;
   texinfo = all;
   time = linux;
-  tinycc = ["i686-linux"];
+  tinycc = linux;
   udev = linux;
   unrar = linux;
   unzip = all;
@@ -200,14 +200,8 @@ with (import ./release-lib.nix);
 
   dbus_all = {
     libs = linux;
+    daemon = linux;
     tools = linux;
   };
 
-  emacs23Packages = {
-    bbdb = linux;
-    cedet = linux;
-    ecb = linux;
-    emacsw3m = linux;
-    emms = linux;
-  };
 } ))

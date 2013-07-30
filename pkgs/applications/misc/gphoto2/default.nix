@@ -3,16 +3,16 @@
 }:
 
 stdenv.mkDerivation rec {
-  name = "gphoto2-2.4.14";
-  
+  name = "gphoto2-2.5.2";
+
   src = fetchurl {
     url = "mirror://sourceforge/gphoto/${name}.tar.bz2";
-    sha256 = "08x1p8xhl65r79a6gn1fi63z1lspd5j55l05diiyzcwfxvqwsm47";
+    sha256 = "16c8k1cxfypg7v5h8xi87grclw7a5ayaamn548ys3zkj727r5fcf";
   };
-  
+
   nativeBuildInputs = [ pkgconfig gettext ];
   buildInputs = [ libgphoto2 libexif popt libjpeg readline libtool ];
-  
+
   meta = {
     description = "a ready to use set of digital camera software applications";
     longDescription = ''

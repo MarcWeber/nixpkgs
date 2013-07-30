@@ -1,9 +1,9 @@
 {androidenv, kitchensink}:
 
 androidenv.emulateApp {
-  name = "kitchensink";
+  name = "emulate-${kitchensink.name}";
   app = kitchensink;
-  platformVersion = "8";
+  platformVersion = "16";
   useGoogleAPIs = true;
   package = "com.appcelerator.kitchensink";
   activity = "KitchensinkActivity";

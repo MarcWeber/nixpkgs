@@ -1,6 +1,13 @@
 # generic builder for Cabal packages
 
-{ stdenv, fetchurl, lib, pkgconfig, ghc, Cabal, jailbreakCabal, enableLibraryProfiling ? false }:
+{ stdenv, fetchurl, lib, pkgconfig, ghc, Cabal, jailbreakCabal
+, enableLibraryProfiling ? false
+, enableCheckPhase ? true
+}:
+
+# The Cabal library shipped with GHC versions older than 7.x doesn't accept the --enable-tests configure flag.
+assert enableCheckPhase -> stdenv.lib.versionOlder "7" ghc.ghcVersion;
+
 {
   mkDerivation =
     args : # arguments for the individual package, can modify the defaults
@@ -18,6 +25,7 @@
           x : (removeAttrs x internalAttrs) // {
                 buildInputs           = stdenv.lib.filter (y : ! (y == null)) x.buildInputs;
                 propagatedBuildInputs = stdenv.lib.filter (y : ! (y == null)) x.propagatedBuildInputs;
+                doCheck               = enableCheckPhase && x.doCheck;
               };
 
         defaults =
@@ -88,11 +96,13 @@
             jailbreak = false;
 
             # pass the '--enable-split-objs' flag to cabal in the configure stage
-            enableSplitObjs = !stdenv.isDarwin;         # http://hackage.haskell.org/trac/ghc/ticket/4013
+            enableSplitObjs = !(  stdenv.isDarwin         # http://hackage.haskell.org/trac/ghc/ticket/4013
+                               || stdenv.lib.versionOlder "7.6.99" ghc.ghcVersion  # -fsplit-ojbs is broken in 7.7 snapshot
+                               );
 
             # pass the '--enable-tests' flag to cabal in the configure stage
             # and run any regression test suites the package might have
-            doCheck = stdenv.lib.versionOlder "7" ghc.ghcVersion;
+            doCheck = enableCheckPhase;
 
             extraConfigureFlags = [
               (stdenv.lib.enableFeature enableLibraryProfiling "library-profiling")

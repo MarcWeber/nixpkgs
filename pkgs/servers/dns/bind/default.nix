@@ -1,6 +1,6 @@
 { stdenv, fetchurl, openssl, libtool, perl, libxml2 }:
 
-let version = "9.9.2"; in
+let version = "9.9.3-P2"; in
 
 stdenv.mkDerivation rec {
 
@@ -8,7 +8,7 @@ stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "http://ftp.isc.org/isc/bind9/${version}/${name}.tar.gz";
-    sha256 = "0j4v01ch4xkgnsnngmh6bpapzi53n4k79gbbhmxf44nmk2qk0rby";
+    sha256 = "0y66ns28n3bcq8hp8srgpaxi9ix7myh2rlcsrr3qpwvkgdnb12jy";
   };
 
   patchPhase = ''
@@ -17,14 +17,28 @@ stdenv.mkDerivation rec {
 
   buildInputs = [ openssl libtool perl libxml2 ];
 
-  /* Why --with-libtool? */
-  configureFlags = [ "--with-libtool" "--with-openssl=${openssl}"
-    "--localstatedir=/var" ];
+  configureFlags = [
+    "--localstatedir=/var"
+    "--with-libtool"
+    "--with-libxml2=${libxml2}"
+    "--with-openssl=${openssl}"
+    "--without-atf"
+    "--without-dlopen"
+    "--without-docbook-xsl"
+    "--without-gssapi"
+    "--without-idn"
+    "--without-idnlib"
+    "--without-pkcs11"
+    "--without-purify"
+    "--without-python"
+  ];
 
   meta = {
-    homepage = http://www.isc.org/software/bind;
+    homepage = "http://www.isc.org/software/bind";
     description = "ISC BIND: a domain name server";
-    maintainers = with stdenv.lib.maintainers; [viric];
+    license = stdenv.lib.licenses.isc;
+
+    maintainers = with stdenv.lib.maintainers; [viric simons];
     platforms = with stdenv.lib.platforms; linux;
   };
 }

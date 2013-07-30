@@ -1,6 +1,6 @@
 { stdenv, lib, fetchurl, makeWrapper
 , pkgconfig, cmake, gnumake, yasm, python
-, boost
+, boost, avahi, libdvdcss, lame
 , gettext, pcre, yajl, fribidi
 , openssl, gperf, tinyxml2, taglib, libssh, swig, jre
 , libX11, xproto, inputproto
@@ -20,7 +20,9 @@
 , libusb ? null, usbSupport ? false
 , samba ? null, sambaSupport ? true
 # TODO: would be nice to have nfsSupport (needs libnfs library)
+# TODO: librtmp
 , libvdpau ? null, vdpauSupport ? true
+, pulseaudio ? null, pulseSupport ? false
 }:
 
 assert dbusSupport  -> dbus_libs != null;
@@ -28,13 +30,14 @@ assert udevSupport  -> udev != null;
 assert usbSupport   -> libusb != null && ! udevSupport; # libusb won't be used if udev is avaliable
 assert sambaSupport -> samba != null;
 assert vdpauSupport -> libvdpau != null && ffmpeg.vdpauSupport;
+assert pulseSupport -> pulseaudio != null;
 
 stdenv.mkDerivation rec {
-    name = "xbmc-12.0";
+    name = "xbmc-12.2";
 
     src = fetchurl {
       url = "http://mirrors.xbmc.org/releases/source/${name}.tar.gz";
-      sha256 = "0vy1a38gfbp9vhbjvwqm11sd76gl3s9q0h7gwpsks85m2k88q0ak";
+      sha256 = "077apkq9sx6wlwkwmiz63w5dcqbbrbjbn6qk9fj2fgaizhs0ccxj";
     };
 
     buildInputs = [
@@ -53,23 +56,30 @@ stdenv.mkDerivation rec {
       ffmpeg libmpeg2 libsamplerate libmad
       libogg libvorbis flac
       lzo libcdio libmodplug libass
-      sqlite mysql nasm
+      sqlite mysql nasm avahi libdvdcss lame
       curl bzip2 zip unzip glxinfo xdpyinfo
     ]
     ++ lib.optional dbusSupport dbus_libs
     ++ lib.optional udevSupport udev
     ++ lib.optional usbSupport libusb
     ++ lib.optional sambaSupport samba
-    ++ lib.optional vdpauSupport libvdpau;
+    ++ lib.optional vdpauSupport libvdpau
+    ++ lib.optional pulseSupport pulseaudio;
 
     dontUseCmakeConfigure = true;
+
+    preConfigure = ''
+      substituteInPlace xbmc/linux/LinuxTimezone.cpp \
+        --replace 'usr/share/zoneinfo' 'etc/zoneinfo'
+    '';
 
     configureFlags = [
       "--enable-external-libraries"
       "--disable-webserver"
     ]
     ++ lib.optional (! sambaSupport) "--disable-samba"
-    ++ lib.optional vdpauSupport "--enable-vdpau";
+    ++ lib.optional vdpauSupport "--enable-vdpau"
+    ++ lib.optional pulseSupport "--enable-pulse";
 
     postInstall = ''
       for p in $(ls $out/bin/) ; do

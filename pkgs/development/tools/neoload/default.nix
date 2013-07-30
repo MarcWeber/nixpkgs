@@ -31,15 +31,15 @@ let dotInstall4j = writeTextFile { name = "dot-install4j"; text = ''
     ''; };
 
 in stdenv.mkDerivation rec {
-  name = "neoload-4.1.1";
+  name = "neoload-4.1.3";
 
   src = fetchurl (
     if stdenv.system == "x86_64-linux" then
-      { url = http://www.neotys.com/documents/download/neoload/v4.1/neoload_4_1_1_linux_x64.sh;
-        sha256 = "1gik80pvrj95jcpvqk16alvldf2zc604zn3xz3nszgmpv9dgmjk6"; }
+      { url = http://www.neotys.com/documents/download/neoload/v4.1/neoload_4_1_3_linux_x64.sh;
+        sha256 = "0qqp7iy6xpaqg535hk21yqmxi0inin5v160sa7nwxh41dq0li5xx"; }
     else
-      { url = http://www.neotys.com/documents/download/neoload/v4.1/neoload_4_1_1_linux_x86.sh;
-        sha256 = "1m42xqy2gsk4khcaps287b4bsamn14grcy8wdz07hk8wvcfncd3d"; } );
+      { url = http://www.neotys.com/documents/download/neoload/v4.1/neoload_4_1_3_linux_x86.sh;
+        sha256 = "0rvy6l9znha3wf8cn406lwvv2qshqnls9kasi68r4wgysr1hh662"; } );
 
   buildInputs = [ makeWrapper ];
   phases = [ "installPhase" ];
@@ -80,12 +80,12 @@ in stdenv.mkDerivation rec {
   '';
 
   meta = {
-    description = "load testing software for Web applications to realistically simulate user activity and analyze server behavior.";
+    description = "load testing software for Web applications to realistically simulate user activity and analyze server behavior";
 
     homepage = https://www.neotys.com/product/overview-neoload.html;
 
     # https://www.neotys.com/documents/legal/eula/neoload/eula_en.html
-    license = stdenv.lib.licenses.proprietary;
+    license = stdenv.lib.licenses.unfree;
 
     maintainers = [ stdenv.lib.maintainers.bluescreen303 ];
     platforms = [ "i686-linux" "x86_64-linux" ];

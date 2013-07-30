@@ -1,26 +1,29 @@
 { cabal, binary, blazeHtml, blazeMarkup, citeprocHs, cmdargs
-, cryptohash, deepseq, filepath, httpConduit, httpTypes, HUnit
-, lrucache, mtl, pandoc, parsec, QuickCheck, random, regexBase
-, regexTdfa, snapCore, snapServer, tagsoup, testFramework
-, testFrameworkHunit, testFrameworkQuickcheck2, text, time
+, cryptohash, dataDefault, deepseq, filepath, fsnotify, httpConduit
+, httpTypes, HUnit, lrucache, mtl, network, pandoc, parsec
+, QuickCheck, random, regexBase, regexTdfa, snapCore, snapServer
+, systemFilepath, tagsoup, testFramework, testFrameworkHunit
+, testFrameworkQuickcheck2, text, time
 }:
 
 cabal.mkDerivation (self: {
   pname = "hakyll";
-  version = "4.2.1.2";
-  sha256 = "0b2jmi9hi5l72lkyjn2w3gwn52zvnvv7c10x5329hp000gzmwbvi";
+  version = "4.3.1.0";
+  sha256 = "1cx5pf0wf49cylbcgy1di218qk0fw8rgzqri9lx1v8jfl31zvsg5";
   isLibrary = true;
   isExecutable = true;
   buildDepends = [
-    binary blazeHtml blazeMarkup citeprocHs cmdargs cryptohash deepseq
-    filepath httpConduit httpTypes lrucache mtl pandoc parsec random
-    regexBase regexTdfa snapCore snapServer tagsoup text time
+    binary blazeHtml blazeMarkup citeprocHs cmdargs cryptohash
+    dataDefault deepseq filepath fsnotify httpConduit httpTypes
+    lrucache mtl network pandoc parsec random regexBase regexTdfa
+    snapCore snapServer systemFilepath tagsoup text time
   ];
   testDepends = [
-    binary blazeHtml blazeMarkup citeprocHs cmdargs cryptohash deepseq
-    filepath httpConduit httpTypes HUnit lrucache mtl pandoc parsec
-    QuickCheck random regexBase regexTdfa snapCore snapServer tagsoup
-    testFramework testFrameworkHunit testFrameworkQuickcheck2 text time
+    binary blazeHtml blazeMarkup citeprocHs cmdargs cryptohash
+    dataDefault deepseq filepath fsnotify httpConduit httpTypes HUnit
+    lrucache mtl network pandoc parsec QuickCheck random regexBase
+    regexTdfa snapCore snapServer systemFilepath tagsoup testFramework
+    testFrameworkHunit testFrameworkQuickcheck2 text time
   ];
   doCheck = false;
   meta = {

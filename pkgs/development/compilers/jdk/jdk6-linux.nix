@@ -1,6 +1,6 @@
 { swingSupport ? true
 , stdenv
-, fetchurl
+, requireFile
 , unzip
 , makeWrapper
 , xlibs ? null
@@ -28,18 +28,20 @@ in
 
 stdenv.mkDerivation {
   name =
-    if installjdk then "jdk-1.6.0_38b04" else "jre-1.6.0_38b04";
+    if installjdk then "jdk-1.6.0_45b06" else "jre-1.6.0_45b06";
 
   src =
     if stdenv.system == "i686-linux" then
-      fetchurl {
-        url = http://www.java.net/download/jdk6/6u38/promoted/b04/binaries/jdk-6u38-ea-bin-b04-linux-i586-31_oct_2012.bin;
-        md5 = "0595473ad371981c7faa709798a5f78e";
+      requireFile {
+        name = "jdk-6u45-linux-i586.bin";
+        url = http://www.oracle.com/technetwork/java/javase/downloads/jdk6downloads-1902814.html;
+        sha256 = "0mx3d2qlal5zyz1a7ld1yk2rs8pf9sjxs2jzasais3nq30jmlfym";
       }
     else if stdenv.system == "x86_64-linux" then
-      fetchurl {
-        url = http://www.java.net/download/jdk6/6u38/promoted/b04/binaries/jdk-6u38-ea-bin-b04-linux-amd64-31_oct_2012.bin;
-        md5 = "b98c80a963915de32b1abe02c50385de";
+      requireFile {
+        name = "jdk-6u45-linux-x64.bin";
+        url = http://www.oracle.com/technetwork/java/javase/downloads/jdk6downloads-1902814.html;
+        sha256 = "1s0j1pdr6y8c816d9i86rx4zp12nbhmas1rxksp0r53cn7m3ljbb";
       }
     else
       abort "jdk requires i686-linux or x86_64 linux";

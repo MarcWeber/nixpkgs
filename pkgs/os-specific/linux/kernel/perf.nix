@@ -1,17 +1,18 @@
-{ stdenv, kernel, elfutils, python, perl, newt, slang, asciidoc, xmlto
+{ stdenv, kernelDev, elfutils, python, perl, newt, slang, asciidoc, xmlto
 , docbook_xsl, docbook_xml_dtd_45, libxslt, flex, bison, pkgconfig
 , withGtk ? false, gtk ? null }:
 
 assert withGtk -> gtk != null;
 
 stdenv.mkDerivation {
-  name = "perf-linux-${kernel.version}";
+  name = "perf-linux-${kernelDev.version}";
 
-  inherit (kernel) src patches;
+  inherit (kernelDev) src patches;
 
   preConfigure = ''
     cd tools/perf
     sed -i s,/usr/include/elfutils,$elfutils/include/elfutils, Makefile
+    [ -f bash_completion ] && sed -i 's,^have perf,_have perf,' bash_completion
     export makeFlags="DESTDIR=$out $makeFlags"
   '';
 

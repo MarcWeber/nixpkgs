@@ -2,21 +2,21 @@
 
 let
   driverdb = fetchurl {
-    url = "http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/drivedb.h?revision=3781";
-    sha256 = "0m39ji2kf80dsws5ksg2pmkpn8x00lrlvl5nlc6ldjfss7sjvc9x";
+    url = "http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/drivedb.h?revision=3812";
+    sha256 = "1x22ammjwlb7p3cmd13shqq1payb7nr9pgfa9xifs19qyr77mrwp";
     name = "smartmontools-drivedb.h";
   };
 in
 stdenv.mkDerivation rec {
-  name = "smartmontools-6.0";
+  name = "smartmontools-6.2";
 
   src = fetchurl {
     url = "mirror://sourceforge/smartmontools/${name}.tar.gz";
-    sha256 = "9fe4ff2b7bcd00fde19db82bba168f5462ed6e857d3ef439495e304e3231d3a6";
+    sha256 = "0nq6jvfh8nqwfrvp6fb6qs2rdydi3i9xgpi7p7vb83xvg42ncvs8";
   };
 
   patchPhase = ''
-    cp ${driverdb} drivedb.h
+    : cp ${driverdb} drivedb.h
     sed -i -e 's@which which >/dev/null || exit 1@alias which="type -p"@' update-smart-drivedb.in
   '';
 

@@ -1,16 +1,16 @@
 { stdenv, fetchurl }:
 
-let version = "4.9.5"; in
+let version = "4.10"; in
 
 stdenv.mkDerivation {
   name = "nspr-${version}";
 
   src = fetchurl {
     url = "http://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v${version}/src/nspr-${version}.tar.gz";
-    sha1 = "03885e992607e2be975f6525c6764c2167fe2eff";
+    sha1 = "10dbf68c07497dab30be09db526931c885d5a7e9";
   };
 
-  preConfigure = "cd mozilla/nsprpub";
+  preConfigure = "cd nspr";
 
   configureFlags = "--enable-optimize --disable-debug ${if stdenv.is64bit then "--enable-64bit" else ""}";
 

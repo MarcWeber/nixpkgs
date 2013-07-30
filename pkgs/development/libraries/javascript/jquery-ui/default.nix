@@ -1,14 +1,12 @@
 { stdenv, fetchurl, unzip }:
 
 stdenv.mkDerivation rec {
-  name = "jquery-ui-1.8.10";
+  name = "jquery-ui-1.10.3";
 
   src = fetchurl {
-    url = "http://jqueryui.com/download/${name}.custom.zip";
-    sha256 = "0yglab9zmxr1il2rmxxd7gycpfaavgpi03h8nc5b2yx2kz80jlik";
+    url = "http://jqueryui.com/resources/download/${name}.custom.zip";
+    sha256 = "1nqh3fmjgy73cbwb5sj775242i6jhz3f5b9fxgrkq00dfvkls779";
   };
-
-  sourceRoot = ".";
 
   buildInputs = [ unzip ];
 
@@ -19,9 +17,13 @@ stdenv.mkDerivation rec {
 
       # For convenience, provide symlinks "jquery.min.js" etc. (i.e.,
       # without the version number).
-      ln -s $out/js/jquery-ui-*.custom.min.js $out/js/jquery-ui.min.js
-      ln -s $out/js/jquery-1.*.min.js $out/js/jquery.min.js
-      ln -s $out/css/smoothness/jquery-ui-*.custom.css $out/css/smoothness/jquery-ui.css
+      pushd $out/js
+      ln -s jquery-ui-*.custom.js jquery-ui.js
+      ln -s jquery-ui-*.custom.min.js jquery-ui.min.js
+      ln -s jquery-1.*.js jquery.js
+      popd
+      pushd $out/css/smoothness
+      ln -s jquery-ui-*.custom.css jquery-ui.css
     '';
 
   meta = {

@@ -163,6 +163,7 @@ let
       AIC79XX_DEBUG_ENABLE n
       AIC7XXX_DEBUG_ENABLE n
       AIC94XX_DEBUG n
+      AUDIT_LOGINUID_IMMUTABLE y
       B43_PCMCIA y
       BLK_DEV_CMD640_ENHANCED y # CMD640 enhanced support
       BLK_DEV_IDEACPI y # IDE ACPI support
@@ -177,6 +178,7 @@ let
       DMAR? n # experimental
       DVB_DYNAMIC_MINORS y # we use udev
       EFI_STUB y # EFI bootloader in the bzImage itself
+      FHANDLE y # used by systemd
       FUSION y # Fusion MPT device support
       IDE_GD_ATAPI y # ATAPI floppy support
       IRDA_ULTRA y # Ultra (connectionless) protocol
@@ -244,7 +246,7 @@ in
 import ./generic.nix (
 
   rec {
-    version = "3.4.35";
+    version = "3.4.54";
     testing = false;
 
     preConfigure = ''
@@ -253,7 +255,7 @@ import ./generic.nix (
 
     src = fetchurl {
       url = "mirror://kernel/linux/kernel/v3.x/${if testing then "testing/" else ""}linux-${version}.tar.xz";
-      sha256 = "1gyl0zgrbvx5w7qwh7amr4f3gl35hdm21zniksgsyx9cbyfxf8a4";
+      sha256 = "06gz0svm4ngn9iaq9hw5c63mi0613nlzh78dny2m6z00ivpbnk6i";
     };
 
     config = configWithPlatform stdenv.platform;

@@ -164,6 +164,7 @@ let
       AIC79XX_DEBUG_ENABLE n
       AIC7XXX_DEBUG_ENABLE n
       AIC94XX_DEBUG n
+      AUDIT_LOGINUID_IMMUTABLE y
       B43_PCMCIA y
       BLK_DEV_CMD640_ENHANCED y # CMD640 enhanced support
       BLK_DEV_IDEACPI y # IDE ACPI support
@@ -178,6 +179,7 @@ let
       DMAR? n # experimental
       DVB_DYNAMIC_MINORS? y # we use udev
       EFI_STUB y # EFI bootloader in the bzImage itself
+      FHANDLE y # used by systemd
       FUSION y # Fusion MPT device support
       IDE_GD_ATAPI y # ATAPI floppy support
       IRDA_ULTRA y # Ultra (connectionless) protocol
@@ -198,6 +200,7 @@ let
       NET_FC y # Fibre Channel driver support
       PPP_MULTILINK y # PPP multilink support
       REGULATOR y # Voltage and Current Regulator Support
+      RC_DEVICES y # Enable IR devices
       SCSI_LOGGING y # SCSI logging facility
       SERIAL_8250 y # 8250/16550 and compatible serial support
       SLIP_COMPRESSED y # CSLIP compressed headers
@@ -213,8 +216,8 @@ let
       # Linux Containers
       RT_GROUP_SCHED? y
       CGROUP_DEVICE? y
-      CGROUP_MEM_RES_CTLR? y
-      CGROUP_MEM_RES_CTLR_SWAP? y
+      MEMCG? y
+      MEMCG_SWAP? y
       DEVPTS_MULTIPLE_INSTANCES? y
 
       # Enable staging drivers.  These are somewhat experimental, but
@@ -243,6 +246,10 @@ let
       # Easier debug of NFS issues
       SUNRPC_DEBUG y
 
+      # Enable the 9P cache to speed up NixOS VM tests.
+      9P_FSCACHE y
+      9P_FS_POSIX_ACL y
+
       ${if kernelPlatform ? kernelExtraConfig then kernelPlatform.kernelExtraConfig else ""}
       ${extraConfig}
     '';
@@ -251,9 +258,8 @@ in
 import ./generic.nix (
 
   rec {
-    version = "3.9-rc1";
-    modDirVersion = "3.9.0-rc1";
-    testing = true;
+    version = "3.9.10";
+    testing = false;
 
     preConfigure = ''
       substituteInPlace scripts/depmod.sh --replace '-b "$INSTALL_MOD_PATH"' ""
@@ -261,7 +267,7 @@ import ./generic.nix (
 
     src = fetchurl {
       url = "mirror://kernel/linux/kernel/v3.x/${if testing then "testing/" else ""}linux-${version}.tar.xz";
-      sha256 = "1bm4fdk1v3dlhcqrzwzrf6fscvq7p7493f5ld5lbspaw8vb08690";
+      sha256 = "1c187jmdkz6nqfgf4sz9f4da6wzbn2mf99qcjr56nz8sr2zmk2wv";
     };
 
     config = configWithPlatform stdenv.platform;

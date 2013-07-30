@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, kernel ? null, xlibs, zlib, perl
+{ stdenv, fetchurl, kernelDev ? null, xlibs, zlib, perl
 , gtk, atk, pango, glib, gdk_pixbuf
 , # Whether to build the libraries only (i.e. not the kernel module or
   # nvidia-settings).  Used to support 32-bit binaries on 64-bit
@@ -8,31 +8,41 @@
 
 with stdenv.lib;
 
-let versionNumber = "310.32"; in
+let
+
+  versionNumber = "319.32";
+  kernel310patch = fetchurl {
+    url = "https://projects.archlinux.org/svntogit/packages.git/plain/trunk/nvidia-linux-3.10.patch?h=packages/nvidia";
+    sha256 = "0nhzg6jdk9sf1vzj519gqi8a2n9xydhz2bcz472pss2cfgbc1ahb";
+  };
+
+in
 
 stdenv.mkDerivation {
-  name = "nvidia-x11-${versionNumber}${optionalString (!libsOnly) "-${kernel.version}"}";
+  name = "nvidia-x11-${versionNumber}${optionalString (!libsOnly) "-${kernelDev.version}"}";
 
   builder = ./builder.sh;
 
-  patches = [ ./version-test.patch ];
+  patches =
+    [ ./version-test.patch ]
+    ++ optional (!libsOnly && versionAtLeast kernelDev.version "3.10") kernel310patch;
 
   src =
     if stdenv.system == "i686-linux" then
       fetchurl {
         url = "http://us.download.nvidia.com/XFree86/Linux-x86/${versionNumber}/NVIDIA-Linux-x86-${versionNumber}.run";
-        sha256 = "13dc2s312h4k4bp7qb2ymdafr739jxbh0f3h1ilrkyjkd945cgnl";
+        sha256 = "02rjiizgb9mgal0qrklzjvfzybv139yv6za8xp045k7qdyqvsqzf";
       }
     else if stdenv.system == "x86_64-linux" then
       fetchurl {
         url = "http://us.download.nvidia.com/XFree86/Linux-x86_64/${versionNumber}/NVIDIA-Linux-x86_64-${versionNumber}-no-compat32.run";
-        sha256 = "1wk0lcm712glffdmwpk4drrwb0fjva7qhpxylnqs7fl7d3acnsvq";
+        sha256 = "18268q3pa6v4ygfnlm888jmp84dmg1w9c323cr51pn5jg54vygcm";
       }
     else throw "nvidia-x11 does not support platform ${stdenv.system}";
 
   inherit versionNumber libsOnly;
 
-  kernel = if libsOnly then null else kernel;
+  kernel = if libsOnly then null else kernelDev;
 
   dontStrip = true;
 
@@ -50,6 +60,6 @@ stdenv.mkDerivation {
   meta = {
     homepage = http://www.nvidia.com/object/unix.html;
     description = "X.org driver and kernel module for NVIDIA graphics cards";
-    license = "unfree";
+    license = stdenv.lib.licenses.unfreeRedistributable;
   };
 }

@@ -1,21 +1,21 @@
 { stdenv, fetchurl, cairo, file, pango, glib, gtk
 , which, libtool, makeWrapper, libjpeg, libpng
-, fontconfig, liberation_ttf } :
+, fontconfig, liberation_ttf, sqlite } :
 
 stdenv.mkDerivation rec {
   pname = "racket";
-  version = "5.3.3";
+  version = "5.3.5";
   name = "${pname}-${version}";
 
   src = fetchurl {
     url = "http://download.racket-lang.org/installers/${version}/${pname}/${name}-src-unix.tgz";
-    sha256 = "1qp0fmsh4dkxvlj35xnwdcf4m97jcf927cwhnckjicqx1lfa0wj7";
+    sha256 = "0xrd25d2iskkih08ydcjqnasg84r7g32apvdw7qzlp4xs1xynjwk";
   };
 
   # Various racket executables do run-time searches for these.
-  ffiSharedLibs = "${glib}/lib:${cairo}/lib:${pango}/lib:${gtk}/lib:${libjpeg}/lib:${libpng}/lib";
+  ffiSharedLibs = "${glib}/lib:${cairo}/lib:${pango}/lib:${gtk}/lib:${libjpeg}/lib:${libpng}/lib:${sqlite}/lib";
 
-  buildInputs = [ file libtool which makeWrapper fontconfig liberation_ttf ];
+  buildInputs = [ file libtool which makeWrapper fontconfig liberation_ttf sqlite ];
 
   preConfigure = ''
     export LD_LIBRARY_PATH=${ffiSharedLibs}:$LD_LIBRARY_PATH

@@ -23,7 +23,6 @@ let
   # Set some default values here
   
   _target = if target == null then name else target;
-  _scheme = if scheme == null then name else scheme;
 
   _configuration = if configuration == null
     then
@@ -44,7 +43,8 @@ let
   deleteKeychain = "security delete-keychain $keychainName";
 in
 stdenv.mkDerivation {
-  inherit name src;
+  name = stdenv.lib.replaceChars [" "] [""] name;
+  inherit src;
   buildInputs = [ xcodewrapper ];
   buildPhase = ''
     ${stdenv.lib.optionalString release ''
@@ -74,12 +74,16 @@ stdenv.mkDerivation {
       ''}
 
     # Do the building
-    xcodebuild -target ${_target} -configuration ${_configuration} -scheme ${_scheme} -sdk ${_sdk} -arch ${_arch} ONLY_ACTIVE_ARCH=NO CONFIGURATION_TEMP_DIR=$TMPDIR CONFIGURATION_BUILD_DIR=$out ${if generateXCArchive then "archive" else ""} ${xcodeFlags} ${if release then ''"CODE_SIGN_IDENTITY=${codeSignIdentity}" PROVISIONING_PROFILE=$PROVISIONING_PROFILE OTHER_CODE_SIGN_FLAGS="--keychain $HOME/Library/Keychains/$keychainName"'' else ""}
+    xcodebuild -target ${_target} -configuration ${_configuration} ${stdenv.lib.optionalString (scheme != null) "-scheme ${scheme}"} -sdk ${_sdk} -arch ${_arch} ONLY_ACTIVE_ARCH=NO CONFIGURATION_TEMP_DIR=$TMPDIR CONFIGURATION_BUILD_DIR=$out ${if generateXCArchive then "archive" else ""} ${xcodeFlags} ${if release then ''"CODE_SIGN_IDENTITY=${codeSignIdentity}" PROVISIONING_PROFILE=$PROVISIONING_PROFILE OTHER_CODE_SIGN_FLAGS="--keychain $HOME/Library/Keychains/$keychainName"'' else ""}
     
     ${stdenv.lib.optionalString release ''
       ${stdenv.lib.optionalString generateIPA ''
         # Produce an IPA file
-        xcrun -sdk iphoneos PackageApplication -v $out/*.app -o $out/${name}.ipa
+        xcrun -sdk iphoneos PackageApplication -v $out/*.app -o "$out/${name}.ipa"
+        
+        # Add IPA to Hydra build products
+        mkdir -p $out/nix-support
+        echo "file binary-dist \"$(echo $out/*.ipa)\"" > $out/nix-support/hydra-build-products
       ''}
       
       # Delete our temp keychain

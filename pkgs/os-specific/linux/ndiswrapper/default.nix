@@ -1,10 +1,10 @@
-{ stdenv, fetchurl, kernel, perl }:
+{ stdenv, fetchurl, kernelDev, perl }:
 
 stdenv.mkDerivation {
-  name = "ndiswrapper-1.56-${kernel.version}";
+  name = "ndiswrapper-1.56-${kernelDev.version}";
 
   # need at least .config and include 
-  inherit kernel;
+  kernel = kernelDev;
 
   buildPhase = "
     echo make KBUILD=$(echo \$kernel/lib/modules/*/build);
@@ -23,11 +23,11 @@ stdenv.mkDerivation {
 
   # should we use unstable? 
   src = fetchurl {
-    url = http://downloads.sourceforge.net/ndiswrapper/ndiswrapper-1.56.tar.gz;
+    url = mirror://sourceforge/ndiswrapper/ndiswrapper-1.56.tar.gz;
     sha256 = "10yqg1a08v6z1qm1qr1v4rbhl35c90gzrazapr09vp372hky8f57";
   };
 
-  buildInputs = [ kernel perl ];
+  buildInputs = [ kernelDev perl ];
 
   # this is a patch against svn head, not stable version
   patches = [./prefix.patch];

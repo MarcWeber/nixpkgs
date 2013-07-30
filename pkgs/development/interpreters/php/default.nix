@@ -1,9 +1,9 @@
 { pkgs, stdenv, fetchurl, composableDerivation, autoconf, automake
-, flex, bison, apacheHttpd, mysql, libxml2, readline
+, flex, bison, apacheHttpd, mysql, libxml2, readline, uwimap, pam
 , zlib, curl, gd, postgresql, openssl, pkgconfig, sqlite, config, libiconv
 , libjpeg, libpng, htmlTidy, libmcrypt, fcgi, callPackage, gettext
 , freetype, writeText
-, openldap, cyrus_sasl
+, openldap, cyrus_sasl, libmhash
 , systemd
 , version ? "5.3.25" # latest stable
 , icu
@@ -37,6 +37,7 @@
 , zlibSupport ? true
 , ttfSupport ? true
 , ldapSupport ? true
+, imapSupport ? false
 
 , gdShared ? true
 
@@ -88,7 +89,7 @@ let
     "mcryptSupport" "mysqliSupport" "mysqlSupport" "opensslSupport"
     "pdo_mysqlSupport" "postgresqlSupport" "readlineSupport" "soapSupport"
     "socketsSupport" "sqliteSupport" "tidySupport" "zipSupport" "zlibSupport"
-    "ttfSupport" "ldapSupport" "fpmSystemdSocketActivationPatchSupport"];
+    "ttfSupport" "ldapSupport" "fpmSystemdSocketActivationPatchSupport" "imapSupport"];
 
   # note: this derivation contains a small hack: It contains several PHP
   # versions
@@ -186,6 +187,12 @@ let
         buildInputs = [openldap cyrus_sasl];
       };
 
+      mhash = {
+        # obsoleted by Hash, see http://php.net/manual/de/book.mhash.php ?
+        configureFlags = ["--with-mhash"];
+        buildInputs = [libmhash];
+      };
+
       zlib = {
         configureFlags = ["--with-zlib=${zlib}"];
         buildInputs = [zlib];
@@ -239,13 +246,15 @@ let
         configureFlags = ["--enable-bcmath"];
       };
 
-      gd = {
+      gd = 
+      let graphicLibraries = "--with-freetype-dir=${freetype} --with-png-dir=${libpng} --with-jpeg-dir=${libjpeg}"; in
+      {
         configureFlags =
           if gdShared then
             # ok: ["--with-gd=${gd}"];
             # does this work with 5.3?
-            ["--with-gd=shared --with-freetype-dir=${freetype} --with-png-dir=${libpng}"]
-          else ["--with-gd --with-freetype-dir=${freetype} --with-png-dir=${libpng}"];
+            ["--with-gd=shared  " graphicLibraries]
+          else ["--with-gd" graphicLibraries];
         buildInputs = [gd libpng libjpeg ];
       };
 
@@ -277,6 +286,14 @@ let
       fastcgi = {
         configureFlags = ["--enable-fastcgi"];
         assertion = lessThan53;
+      };
+
+      imap = {
+        configureFlags = [ "--with-imap=${uwimap}" "--with-imap-ssl" ]
+          # uwimap builds with kerberos on darwin
+          ++ stdenv.lib.optional (stdenv.isDarwin) "--with-kerberos";
+        buildInputs = [ uwimap openssl ]
+          ++ stdenv.lib.optional (!stdenv.isDarwin) pam;
       };
 
       tidy = {
@@ -336,6 +353,7 @@ let
     fastcgiSupport
     gdSupport
     gettextSupport
+    imapSupport
     libxml2Support
     mbstringSupport
     mcryptSupport
@@ -369,6 +387,9 @@ let
     iniFile=$out/etc/php-recommended.ini
     [[ -z "$libxml2" ]] || export PATH=$PATH:$libxml2/bin
     ./configure --with-config-file-scan-dir=/etc --with-config-file-path=$out/etc --prefix=$out  $configureFlags
+  '' + stdenv.lib.optionalString stdenv.isDarwin ''
+    # don't build php.dSYM as the php binary
+    sed -i 's/EXEEXT = \.dSYM/EXEEXT =/' Makefile
   '';
 
   installPhase = ''

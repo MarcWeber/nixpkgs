@@ -1,0 +1,8 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] experimental/nix
+
+nix & my patches:
+- debug coercion failures
+- writeFileHashed (impure, but allows using paswords without writing them to the store)
+
+Signed-off-by: Marc Weber <marco-oweber@gmx.de>

@@ -9,9 +9,22 @@ stdenv.mkDerivation rec {
   name = "ardour-${version}";
   version = "2.8.16";
 
-  src = fetchurl {
-    url = "mirror://gentoo/distfiles/${name}.tar.bz2";
-    sha256 = "0h2y0x4yznalllja53anjil2gmgcb26f39zshc4gl1d1kc8k5vip";
+  enableParallelBuilding = true;
+
+  # svn is the source to get official releases from their site?
+  # alternative: wget  --data-urlencode 'key=7c4b2e1df903aae5ff5cc4077cda801e' http://ardour.org/downloader
+  # but hash is changing ?
+
+  # TODO: see if this is also true when using a tag (~goibhniu)
+
+  # This version does not run it exits with the following error:
+  # raptor_new_uri_for_rdf_concept called with Raptor V1 world object
+  # raptor_general.c:240:raptor_init: fatal error: raptor_init() failedAborted
+  src = fetchsvn {
+    url = "http://subversion.ardour.org/svn/ardour2/tags/${version}";
+    sha256 = "0d4y8bv12kb0yd2srvxn5388sa4cl5d5rk381saj9f3jgpiciyky";
+    # url = "mirror://gentoo/distfiles/${name}.tar.bz2";
+    # sha256 = "0h2y0x4yznalllja53anjil2gmgcb26f39zshc4gl1d1kc8k5vip";
   };
 
   postPatch = ''

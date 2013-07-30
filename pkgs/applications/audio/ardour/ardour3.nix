@@ -13,6 +13,8 @@ in
 stdenv.mkDerivation {
   name = "ardour-3.0";
 
+  enableParallelBuilding = true;
+
   src = fetchgit {
     url = git://git.ardour.org/ardour/ardour.git;
     inherit rev;

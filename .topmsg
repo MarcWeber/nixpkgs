@@ -1,0 +1,11 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] experimental/shadow
+
+For /etc/skel/* files put file contents into user directories rather than
+"symlinks". This way users can edit their .bashrc files.
+
+This small patch works fine with the multi-shell-support topic branch found on
+my github page which rewrites .bashrc and similar files to source /etc/ files.
+Thus users can opt-out or set options - still following system updates.
+
+Signed-off-by: Marc Weber <marco-oweber@gmx.de>

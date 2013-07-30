@@ -1,4 +1,4 @@
-{ stdenv, versionedDerivation, fetchurl, version ? "xsbt-0.12.3" }:
+{ stdenv, versionedDerivation, fetchurl, version ? "0.7.7" }:
 
 let
 
@@ -31,24 +31,36 @@ in
 # Depends on a JRE at runtime.
 
 versionedDerivation "simple-build-tool" version {
-  "0.7.3" = let version = "0.7.3"; in {
-    name = "simple-build-tool-${version}";
-    src = fetchurl {
-      url = "http://simple-build-tool.googlecode.com/files/sbt-launch-${version}.jar";
-      sha256 = "1nciifzf00cs54a4h57a7v1hyklm5vgln0sscmz5kzv96ggphs6k";
+   "0.7.3"= let version = "0.7.3"; in {
+      name = "simple-build-tool-${version}";
+      src = fetchurl {
+        url = "http://simple-build-tool.googlecode.com/files/sbt-launch-${version}.jar";
+        sha256 = "1nciifzf00cs54a4h57a7v1hyklm5vgln0sscmz5kzv96ggphs6k";
+      };
+      meta = metaSBT;
     };
-    meta = metaSBT;
-  };
+    "0.7.7"= let version = "0.7.7"; in {
+      name = "simple-build-tool-${version}";
+      src = fetchurl {
+        url = "http://simple-build-tool.googlecode.com/files/sbt-launch-${version}.jar";
+        # sha256 = "1nciifzf00cs54a4h57a7v1hyklm5vgln0sscmz5kzv96ggphs6j";
+        sha256 = "2720b033012a7509f7fbdfddfa69c07b105452a6f95bc410cb7dc34c1594ab3d";
+      };
+      meta = metaSBT;
+    };
+    
+    "xsbt-scala-2.9" = {
+      name = "xsbt";
 
-  "0.7.7" = let version = "0.7.7"; in {
-    name = "simple-build-tool-${version}";
-    src = fetchurl {
-      url = "http://simple-build-tool.googlecode.com/files/sbt-launch-${version}.jar";
-      # sha256 = "1nciifzf00cs54a4h57a7v1hyklm5vgln0sscmz5kzv96ggphs6j";
-      sha256 = "2720b033012a7509f7fbdfddfa69c07b105452a6f95bc410cb7dc34c1594ab3d";
+      # scala needs much more PermGen space
+      javaArgs = "-Xmx1024M";
+      # from https://github.com/harrah/xsbt/wiki/Getting-Started-Setup
+      src = fetchurl {
+        url = http://typesafe.artifactoryonline.com/typesafe/ivy-releases/org.scala-tools.sbt/sbt-launch/0.11.2/sbt-launch.jar;
+        sha256 = "14fbzvb1s66wpbqznw65a7nn27qrq1i9pd7wlbydv8ffl49d262n";
+      };
+      meta = metaXSBT;
     };
-    meta = metaSBT;
-  };
 
   "xsbt-0.11.2" = let version = "0.11.2"; in { # scala 2.9
     name = "xsbt-${version}";

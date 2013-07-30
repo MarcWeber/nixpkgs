@@ -1,13 +1,29 @@
-{ stdenv, fetchurl, boehmgc, zlib, sqlite, pcre }:
+{ stdenv, fetchurl, boehmgc, zlib, sqlite, pcre
+, version ? "2.0.0"
+}:
 
-stdenv.mkDerivation rec {
-  name = "neko-${version}";
-  version = "2.0.0";
+stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "neko" version {
+  "2.0.0" = rec {
+    version = "2.0.0";
 
-  src = fetchurl {
-    url = "http://nekovm.org/_media/neko-${version}.tar.gz";
-    sha256 = "1lcm1ahbklfpd5lnqjwmvyj2vr85jbq57hszk5jgq0x6yx6p3927";
+    src = fetchurl {
+      url = "http://nekovm.org/_media/neko-2.0.0.tar.gz";
+      sha256 = "1lcm1ahbklfpd5lnqjwmvyj2vr85jbq57hszk5jgq0x6yx6p3927";
+    };
   };
+
+  # before haxe 3
+  "1.8.2" = rec {
+    version = "1.8.2";
+
+    src = fetchurl {
+      url = "http://nekovm.org/_media/neko-${version}.tar.gz";
+      sha256 = "099727w6dk689z3pcgbhsqjl74zzrh82a5vb2abxynamcqxcgz1w";
+    };
+  };
+} rec {
+
+  name = "neko-${version}";
 
   prePatch = with stdenv.lib; let
     libs = concatStringsSep "," (map (lib: "\"${lib}/include\"") buildInputs);
@@ -41,4 +57,4 @@ stdenv.mkDerivation rec {
     maintainers = [ stdenv.lib.maintainers.marcweber ];
     platforms = stdenv.lib.platforms.linux;
   };
-}
+})

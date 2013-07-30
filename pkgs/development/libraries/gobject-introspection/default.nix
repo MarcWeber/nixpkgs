@@ -1,5 +1,5 @@
 { stdenv, fetchurl, glib, flex, bison, pkgconfig, libffi, python, gdk_pixbuf
-, libintlOrEmpty, autoconf, automake, otool }:
+, libintlOrEmpty, autoconf, automake, otool
 , version ? 
   if builtins.lessThan 0 (builtins.compareVersions glib.name "glib-2.30.3")
       then "1.34.0" else "0.10.8" 

@@ -1,14 +1,41 @@
-{ stdenv, fetchurl, ncurses, coreutils }:
+{ stdenv, fetchurl, ncurses, coreutils, zprofileHack ? false }:
 
 let
 
-  version = "4.3.15";
+  version = "5.0.0";
 
   documentation = fetchurl {
     url = "mirror://sourceforge/zsh/zsh-${version}-doc.tar.bz2";
-    sha256 = "73b7ee1a737fbaf9be77cf6b55b27cca96bac39bc5ef25efa9ceb427cd1b5ad4";
+    sha256 = "0c7gnbdp52nvwcp1nsygdisxng6zlrd0bzwpsbwql41w02rrw8fj";
   };
-  
+  zprofileHackStr = ''
+    cat > $out/etc/zprofile <<EOF
+    if test -e /etc/NIXOS; then
+      if test -r /etc/zprofile; then
+        . /etc/zprofile
+      else
+        emulate bash
+        alias shopt=false
+        . /etc/profile
+        unalias shopt
+        emulate zsh
+      fi
+      if test -r /etc/zprofile.local; then
+        . /etc/zprofile.local
+      fi
+    else
+      # on non-nixos we just source the global /etc/zprofile as if we did
+      # not use the configure flag
+      if test -r /etc/zprofile; then
+        . /etc/zprofile
+      fi
+    fi
+    EOF
+
+    $out/bin/zsh -c "zcompile $out/etc/zprofile"
+    mv $out/etc/zprofile $out/etc/zprofile_zwc_is_used
+    '';
+
 in
 
 stdenv.mkDerivation {
@@ -16,7 +43,7 @@ stdenv.mkDerivation {
 
   src = fetchurl {
     url = "mirror://sourceforge/zsh/zsh-${version}.tar.bz2";
-    sha256 = "8708f485823fb7e51aa696776d0dfac7d3558485182672cf9311c12a50a95486";
+    sha256 = "12588j649z9j42rm0n8jk8kvgyyhjvdia5lx6rl7qq531674l0fd";
   };
   
   buildInputs = [ ncurses coreutils ];
@@ -30,30 +57,7 @@ stdenv.mkDerivation {
     mkdir -p $out/share/
     tar xf ${documentation} -C $out/share
     mkdir -p $out/etc/
-    cat > $out/etc/zprofile <<EOF
-if test -e /etc/NIXOS; then
-  if test -r /etc/zprofile; then
-    . /etc/zprofile
-  else
-    emulate bash
-    alias shopt=false
-    . /etc/profile
-    unalias shopt
-    emulate zsh
-  fi
-  if test -r /etc/zprofile.local; then
-    . /etc/zprofile.local
-  fi
-else
-  # on non-nixos we just source the global /etc/zprofile as if we did
-  # not use the configure flag
-  if test -r /etc/zprofile; then
-    . /etc/zprofile
-  fi
-fi
-EOF
-    $out/bin/zsh -c "zcompile $out/etc/zprofile"
-    mv $out/etc/zprofile $out/etc/zprofile_zwc_is_used
+    ${stdenv.lib.optionalString zprofileHack zprofileHackStr}
   '';
   # XXX: patch zsh to take zwc if newer _or equal_
 

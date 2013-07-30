@@ -10,6 +10,7 @@ composableDerivation {
                    then stdenvAdapters.overrideGCC stdenv gccApple
                    else stdenv ).mkDerivation;
 } (fix: {
+    inherit (args) vimNox;
 
     name = "vim_configurable-7.3";
 
@@ -18,7 +19,6 @@ composableDerivation {
     src = 
       builtins.getAttr source {
       "default" =
-        # latest release
         args.fetchurl {
             url = ftp://ftp.vim.org/pub/vim/unix/vim-7.3.tar.bz2;
             sha256 = "079201qk8g9yisrrb0dn52ch96z3lzw6z473dydw9fzi0xp5spaw";
@@ -32,10 +32,10 @@ composableDerivation {
             # END
           }.src;
       "latest" = {
-        # vim latest usually is vim + bug fixes. So it should be very stable
+         # vim latest usually is vim + bug fixes. So it should be very stable
          # REGION AUTO UPDATE: { name="vim"; type="hg"; url="https://vim.googlecode.com/hg"; }
-         src = (fetchurl { url = "http://mawercer.de/~nix/repos/vim-hg-7f98896.tar.bz2"; sha256 = "efcb8cc5924b530631a8e5fc2a0622045c2892210d32d300add24aded51866f1"; });
-         name = "vim-hg-7f98896";
+         src = (fetchurl { url = "http://mawercer.de/~nix/repos/vim-hg-ba88359.tar.bz2"; sha256 = "581a7f3800872e690ba52ee6502645d112cfaf0cc28571fa10eeeae17c331fc1"; });
+         name = "vim-hg-ba88359";
          # END
       }.src;
     };
@@ -103,7 +103,6 @@ composableDerivation {
     tclSupport       = config.vim.tcl or false;
     multibyteSupport = config.vim.multibyte or false;
     cscopeSupport    = config.vim.cscope or false;
-    netbeansSupport  = config.netbeans or true; # eg envim is using it
 
     # by default, compile with darwin support if we're compiling on darwin, but
     # allow this to be disabled by setting config.vim.darwin to false
@@ -111,6 +110,7 @@ composableDerivation {
 
     # add .nix filetype detection and minimal syntax highlighting support
     ftNixSupport     = config.vim.ftNix or true;
+    netbeansSupport = config.netbeans or true; # eg envim is using it
   };
 
   #--enable-gui=OPTS     X11 GUI default=auto OPTS=auto/no/gtk/gtk2/gnome/gnome2/motif/athena/neXtaw/photon/carbon
@@ -141,7 +141,6 @@ composableDerivation {
   meta = {
     description = "The most popular clone of the VI editor";
     homepage    = "www.vim.org";
-    platforms   = lib.platforms.unix;
   };
-})
 
+})

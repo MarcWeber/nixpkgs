@@ -221,6 +221,8 @@ let
 
   nix-generate-from-cpan = callPackage ../../maintainers/scripts/nix-generate-from-cpan.nix { };
 
+  nixpkgs-lint = callPackage ../../maintainers/scripts/nixpkgs-lint.nix { };
+
 
   ### STANDARD ENVIRONMENT
 
@@ -522,6 +524,8 @@ let
 
   bfr = callPackage ../tools/misc/bfr { };
 
+  bmon = callPackage ../tools/misc/bmon { };
+
   boomerang = callPackage ../development/tools/boomerang { };
 
   bootchart = callPackage ../tools/system/bootchart { };
@@ -637,6 +641,8 @@ let
   connect = callPackage ../tools/networking/connect { };
 
   convertlit = callPackage ../tools/text/convertlit { };
+
+  colormake = callPackage ../development/tools/build-managers/colormake { };
 
   cowsay = callPackage ../tools/misc/cowsay { };
 
@@ -1938,6 +1944,10 @@ let
 
   varnish = callPackage ../servers/varnish { };
 
+  venus = callPackage ../tools/misc/venus {
+    python = python27;
+  };
+
   vlan = callPackage ../tools/networking/vlan { };
 
   wakelan = callPackage ../tools/networking/wakelan { };
@@ -3078,6 +3088,8 @@ let
      lua = lua5;
   };
 
+  lush2 = callPackage ../development/interpreters/lush {};
+
   maude = callPackage ../development/interpreters/maude { };
 
   octave = callPackage ../development/interpreters/octave {
@@ -3129,12 +3141,15 @@ let
 
   python3 = hiPrio (callPackage ../development/interpreters/python/3.3 { });
   python33 = callPackage ../development/interpreters/python/3.3 { };
+  python32 = callPackage ../development/interpreters/python/3.2 { };
 
   python = python27;
   python26 = callPackage ../development/interpreters/python/2.6 { };
   python27 = callPackage ../development/interpreters/python/2.7 {
     libX11 = xlibs.libX11;
   };
+
+  pypy = callPackage ../development/interpreters/pypy/2.0 { };
 
   pythonFull = python27Full;
   python26Full = callPackage ../development/interpreters/python/wrapper.nix {
@@ -4461,6 +4476,7 @@ let
   libcaca = callPackage ../development/libraries/libcaca { };
 
   libcanberra = callPackage ../development/libraries/libcanberra { };
+  libcanberra_gtk3 = libcanberra.override { gtk = gtk3; };
   libcanberra_kde = if (config.kde_runtime.libcanberraWithoutGTK or true)
     then libcanberra.override { gtk = null; }
     else libcanberra;
@@ -5381,7 +5397,7 @@ let
 
   sofia_sip = callPackage ../development/libraries/sofia-sip { };
 
-  soprano = callPackage ../development/libraries/soprano { clucene_core = clucene_core_2; };
+  soprano = callPackage ../development/libraries/soprano { };
 
   soqt = callPackage ../development/libraries/soqt { };
 
@@ -5765,6 +5781,7 @@ let
 
   ### DEVELOPMENT / PYTHON MODULES
 
+  # python function with default python interpreter
   buildPythonPackage = pythonPackages.buildPythonPackage;
 
   pythonPackages = python27Packages;
@@ -5779,10 +5796,30 @@ let
     python = python26;
   };
 
+  python3Packages = python33Packages;
+
+  python33Packages = recurseIntoAttrs (import ./python-packages.nix {
+    inherit pkgs;
+    inherit (lib) lowPrio;
+    python = python33;
+  });
+
+  python32Packages = import ./python-packages.nix {
+    inherit pkgs;
+    inherit (lib) lowPrio;
+    python = python32;
+  };
+
   python27Packages = recurseIntoAttrs (import ./python-packages.nix {
     inherit pkgs;
     inherit (lib) lowPrio;
     python = python27;
+  });
+
+  pypyPackages = recurseIntoAttrs (import ./python-packages.nix {
+    inherit pkgs;
+    inherit (lib) lowPrio;
+    python = pypy;
   });
 
   plone41Packages = recurseIntoAttrs (import ../development/web/plone/4.1.nix {
@@ -6112,6 +6149,8 @@ let
   });
   squid = squids.squid31; # has ipv6 support
 
+  thttpd = callPackage ../servers/http/thttpd { };
+
   tinyproxy = callPackage ../servers/tinyproxy { };
 
   tomcat5 = callPackage ../servers/http/tomcat/5.0.nix { };
@@ -6396,6 +6435,10 @@ let
       ];
   };
 
+  linux_3_2_grsecurity = lib.overrideDerivation (linux_3_2.override (args: {
+    kernelPatches = args.kernelPatches ++ [ kernelPatches.grsecurity_2_9_1_3_2_48 ];
+  })) (args: { makeFlags = "DISABLE_PAX_PLUGINS=y";});
+
   linux_3_2_apparmor = linux_3_2.override {
     kernelPatches = [ kernelPatches.apparmor_3_2 ];
     extraConfig = ''
@@ -6419,6 +6462,14 @@ let
       [ kernelPatches.mips_fpureg_emu
         kernelPatches.mips_fpu_sigill
       ];
+  };
+
+  linux_3_4_apparmor = linux_3_4.override {
+    kernelPatches = [ kernelPatches.apparmor_3_4 ];
+    extraConfig = ''
+      SECURITY_APPARMOR y
+      DEFAULT_SECURITY_APPARMOR y
+    '';
   };
 
   linux_3_6_rpi = makeOverridable (import ../os-specific/linux/kernel/linux-rpi-3.6.nix) {
@@ -6582,6 +6633,7 @@ let
   linuxPackages_3_2_apparmor = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_2_apparmor linuxPackages_3_2_apparmor);
   linuxPackages_3_2_xen = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_2_xen linuxPackages_3_2_xen);
   linuxPackages_3_4 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_4 linuxPackages_3_4);
+  linuxPackages_3_4_apparmor = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_4_apparmor linuxPackages_3_4_apparmor);
   linuxPackages_3_6_rpi = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_6_rpi linuxPackages_3_6_rpi);
   linuxPackages_3_8 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_8 linuxPackages_3_8);
   linuxPackages_3_9 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_9 linuxPackages_3_9);
@@ -7772,9 +7824,6 @@ let
 
   hexedit = callPackage ../applications/editors/hexedit { };
 
-  hetznerNixOpsInstaller =
-    callPackage ../tools/misc/hetzner-nixops-installer { };
-
   hipchat = callPackage_i686 ../applications/networking/instant-messengers/hipchat { };
 
   homebank = callPackage ../applications/office/homebank { };
@@ -8227,9 +8276,7 @@ let
 
   panotools = callPackage ../applications/graphics/panotools { };
 
-  pavucontrol = callPackage ../applications/audio/pavucontrol {
-    inherit (gnome) libglademm;
-  };
+  pavucontrol = callPackage ../applications/audio/pavucontrol { };
 
   paraview = callPackage ../applications/graphics/paraview { };
 
@@ -8312,6 +8359,10 @@ let
 
   qtractor = callPackage ../applications/audio/qtractor { };
 
+  quodlibet = callPackage ../applications/audio/quodlibet {
+    inherit (pythonPackages) mutagen;
+  };
+
   rakarrack = callPackage ../applications/audio/rakarrack {
     inherit (xorg) libXpm libXft;
     fltk = fltk13;
@@ -8347,6 +8398,7 @@ let
   # = urxvt
   rxvt_unicode = callPackage ../applications/misc/rxvt_unicode {
     perlSupport = true;
+    gdkPixbufSupport = true;
   };
 
   sakura = callPackage ../applications/misc/sakura {
@@ -8683,6 +8735,8 @@ let
 
   wmname = callPackage ../applications/misc/wmname { };
 
+  wmctrl = callPackage ../tools/X11/wmctrl { };
+
   # I'm keen on wmiimenu only  >wmii-3.5 no longer has it...
   wmiimenu = import ../applications/window-managers/wmii31 {
     libixp = libixp_for_wmii;
@@ -8753,6 +8807,8 @@ let
   xbmc = callPackage ../applications/video/xbmc { };
 
   xcalib = callPackage ../tools/X11/xcalib { };
+
+  xcape = callPackage ../tools/X11/xcape { };
 
   xchainkeys = callPackage ../tools/X11/xchainkeys { };
 
@@ -9161,10 +9217,10 @@ let
     inherit (pkgs) libsoup libwnck gtk_doc gnome_doc_utils;
   };
 
-  gnome3 = callPackage ../desktops/gnome-3 {
+  gnome3 = recurseIntoAttrs (callPackage ../desktops/gnome-3 {
     callPackage = pkgs.newScope pkgs.gnome3;
     self = pkgs.gnome3;
-  };
+  });
 
   gnome = recurseIntoAttrs gnome2;
 
@@ -9915,5 +9971,7 @@ let
   bullet = callPackage ../development/libraries/bullet {};
 
   dart = callPackage ../development/interpreters/dart { };
+
+  httrack = callPackage ../tools/backup/httrack { };
 
 }; in pkgs

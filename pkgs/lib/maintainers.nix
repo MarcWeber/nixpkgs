@@ -8,11 +8,13 @@
   all = "Nix Committers <nix-commits@lists.science.uu.nl>";
   amiddelk = "Arie Middelkoop <amiddelk@gmail.com>";
   andres = "Andres Loeh <ksnixos@andres-loeh.de>";
+  amorsillo = "Andrew Morsillo <andrew.morsillo@gmail.com>";
   antono = "Antono Vasiljev <self@antono.info>";
   astsmtl = "Alexander Tsamutali <astsmtl@yandex.ru>";
   aszlig = "aszlig <aszlig@redmoonstudios.org>";
   bbenoist = "Baptist BENOIST <return_0@live.com>";
   bjg = "Brian Gough <bjg@gnu.org>";
+  bjornfor = "Bjørn Forsman <bjorn.forsman@gmail.com>";
   bluescreen303 = "Mathijs Kwik <mathijs@bluescreen303.nl>";
   chaoflow = "Florian Friesdorf <flo@chaoflow.net>";
   coconnor = "Corey O'Connor <coreyoconnor@gmail.com>";
@@ -21,13 +23,14 @@
   goibhniu = "Cillian de Róiste <cillian.deroiste@gmail.com>";
   guibert = "David Guibert <david.guibert@gmail.com>";
   iElectric = "Domen Kozar <domen@dev.si>";
+  lovek323 = "Jason O'Conal <jason@oconal.id.au>";
   jcumming = "Jack Cummings <jack@mudshark.org>";
   kkallio = "Karn Kallio <tierpluspluslists@gmail.com>";
   ludo = "Ludovic Courtès <ludo@gnu.org>";
   marcweber = "Marc Weber <marco-oweber@gmx.de>";
   mornfall = "Petr Ročkai <me@mornfall.net>";
-  the-kenny = "Moritz Ulrich <moritz@tarn-vedra.de>";
   neznalek = "Vladimír Čunát <vcunat@gmail.com>";
+  offline = "Jaka Hudoklin <jakahudoklin@gmail.com>";
   orbitz = "Malcolm Matalka <mmatalka@gmail.com>";
   page = "Carles Pagès <page@cubata.homelinux.net>";
   phreedom = "Evgeny Egorochkin <phreedom@yandex.ru>";
@@ -43,6 +46,7 @@
   simons = "Peter Simons <simons@cryp.to>";
   smironov = "Sergey Mironov <ierton@gmail.com>";
   thammers = "Tobias Hammerschmidt <jawr@gmx.de>";
+  the-kenny = "Moritz Ulrich <moritz@tarn-vedra.de>";
   urkud = "Yury G. Kudryashov <urkud+nix@ya.ru>";
   viric = "Lluís Batlle i Rossell <viric@viric.name>";
   winden = "Antonio Vargas Gonzalez <windenntw@gmail.com>";

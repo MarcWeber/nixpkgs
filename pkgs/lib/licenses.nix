@@ -4,6 +4,30 @@
    * add it to this list. The URL mentioned above is a good source for inspiration.
    */
 
+  agpl3 = {
+    shortName = "AGPLv3";
+    fullName = "GNU Affero General Public License version 3 only";
+    url = https://www.gnu.org/licenses/agpl.html;
+  };
+
+  agpl3Plus = {
+    shortName = "AGPLv3+";
+    fullName = "GNU Affero General Public License version 3 or later";
+    url = https://www.gnu.org/licenses/agpl.html;
+  };
+
+  amd = {
+    shortName = "amd";
+    fullName = "AMD License Agreement";
+    url = "http://developer.amd.com/amd-license-agreement/";
+  };
+
+  amdadl = {
+    shortName = "amd-adl";
+    fullName = "amd-adl license";
+    url = "http://sources.gentoo.org/cgi-bin/viewvc.cgi/gentoo-x86/licenses/AMD-ADL?revision=1.1";
+  };
+
   asl20 = {
     shortName = "ASL2.0";
     fullName = "Apache Software License 2.0";
@@ -19,13 +43,13 @@
   bsd2 = {
     shortName = "BSD-2";
     fullName = "BSD license (2 clause)";
-    url = http://www.freebsd.org/copyright/freebsd-license.html;
+    url = http://opensource.org/licenses/BSD-2-Clause;
   };
 
   bsd3 = {
     shortName = "BSD-3";
     fullName = "BSD license (3 clause)";
-    url = http://www.opensource.org/licenses/bsd-license.php;
+    url = http://opensource.org/licenses/BSD-3-Clause;
   };
 
   bsdOriginal = {
@@ -186,6 +210,8 @@
   unfree = "unfree";
 
   unfreeRedistributable = "unfree-redistributable";
+
+  unfreeRedistributableFirmware = "unfree-redistributable-firmware";
 
   zlib = {
     shortName = "zlib";

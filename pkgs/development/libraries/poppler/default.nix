@@ -1,12 +1,11 @@
-{ stdenv, fetchurl, fetchgit, cairo, freetype, fontconfig, zlib
-, libjpeg, curl, libpthreadstubs, xorg, openjpeg
-, libxml2, pkgconfig, cmake, lcms2
+{ stdenv, fetchurl, fetchgit, pkgconfig, cmake, libiconvOrEmpty, libintlOrEmpty
+, zlib, curl, cairo, freetype, fontconfig, lcms2, libjpeg, openjpeg
 , qt4Support ? false, qt4 ? null
 }:
 
 let
-  version = "0.22.3";
-  sha256 = "0ca4jci8xmbdz4fhahdcck0cqms6ax55yggi2ih3clgrpqf96sli";
+  version = "0.22.4"; # even major numbers are stable
+  sha256 = "0fz1vk0rbxvnv7ssj8l910k1rx0gjhzl5wr7hkdf4r9jwqs8yhsg";
 
   qtcairo_patches =
     let qtcairo = fetchgit { # the version for poppler-0.22
@@ -27,14 +26,9 @@ let
       inherit sha256;
     };
 
-    propagatedBuildInputs = with xorg;
-      [ zlib cairo freetype fontconfig libjpeg lcms2 curl
-        libpthreadstubs libxml2
-        libXau libXdmcp libxcb libXrender libXext
-        openjpeg
-      ];
+    propagatedBuildInputs = [ zlib cairo freetype fontconfig libjpeg lcms2 curl openjpeg ];
 
-    nativeBuildInputs = [ pkgconfig cmake ];
+    nativeBuildInputs = [ pkgconfig cmake ] ++ libiconvOrEmpty ++ libintlOrEmpty;
 
     cmakeFlags = "-DENABLE_XPDF_HEADERS=ON -DENABLE_LIBCURL=ON -DENABLE_ZLIB=ON";
 
@@ -56,6 +50,7 @@ let
       '';
 
       license = "GPLv2";
+      platforms = stdenv.lib.platforms.all;
     };
   } merge ]); # poppler_drv
 
@@ -71,6 +66,7 @@ in rec {
   poppler_qt4 = poppler_drv "qt4" {
     propagatedBuildInputs = [ qt4 poppler_glib ];
     patches = qtcairo_patches;
+    NIX_LDFLAGS = "-lpoppler";
     postConfigure = "cd qt4";
   };
 }

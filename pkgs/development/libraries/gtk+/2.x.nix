@@ -1,6 +1,6 @@
-{ stdenv, fetchurl, pkgconfig, glib, atk, pango, cairo, perl, xlibs
-, gdk_pixbuf, xz
-, xineramaSupport ? true
+{ stdenv, fetchurl, pkgconfig, gettext, glib, atk, pango, cairo, perl, xlibs
+, gdk_pixbuf, libintlOrEmpty, x11
+, xineramaSupport ? stdenv.isLinux
 , cupsSupport ? true, cups ? null
 }:
 
@@ -8,23 +8,27 @@ assert xineramaSupport -> xlibs.libXinerama != null;
 assert cupsSupport -> cups != null;
 
 stdenv.mkDerivation rec {
-  name = "gtk+-2.24.17";
+  name = "gtk+-2.24.18";
 
   src = fetchurl {
     url = "mirror://gnome/sources/gtk+/2.24/${name}.tar.xz";
-    sha256 = "05gl82k82w3gjrzr4vmj3ski7mp1b0jbhc49wgl9hv8mc2sb4iz9";
+    sha256 = "1193frzg0qrwa885w77kd055zfpbdjwby88xn2skpx9g4w0k35kc";
   };
 
   enableParallelBuilding = true;
 
-  nativeBuildInputs = [ perl pkgconfig ];
+  NIX_CFLAGS_COMPILE = "-I${cairo}/include/cairo";
 
-  propagatedBuildInputs = with xlibs;
-    [ glib cairo pango gdk_pixbuf atk
-      libXrandr libXrender libXcomposite libXi libXcursor
-    ]
-    ++ stdenv.lib.optional xineramaSupport libXinerama
-    ++ stdenv.lib.optionals cupsSupport [ cups ];
+  nativeBuildInputs = [ perl pkgconfig gettext ];
+
+  propagatedBuildInputs = with xlibs; with stdenv.lib;
+    [ glib cairo pango gdk_pixbuf atk ]
+    ++ optionals stdenv.isLinux
+      [ libXrandr libXrender libXcomposite libXi libXcursor ]
+    ++ optional stdenv.isDarwin x11
+    ++ libintlOrEmpty
+    ++ optional xineramaSupport libXinerama
+    ++ optionals cupsSupport [ cups ];
 
   configureFlags = "--with-xinput=yes";
 
@@ -49,6 +53,6 @@ stdenv.mkDerivation rec {
     license = "LGPLv2+";
 
     maintainers = [stdenv.lib.maintainers.raskin];
-    platforms = stdenv.lib.platforms.linux;
+    platforms = stdenv.lib.platforms.all;
   };
 }

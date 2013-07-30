@@ -17,11 +17,11 @@
 assert libX11 != null -> (fontconfig != null && gnused != null && coreutils != null);
 
 stdenv.mkDerivation rec {
-  name = "gnuplot-4.4.4";
+  name = "gnuplot-4.6.3";
 
   src = fetchurl {
     url = "mirror://sourceforge/gnuplot/${name}.tar.gz";
-    sha256 = "1zfv3npsxfn743wl65ibh11djxrc8fxzi2mgg75ppy6m12fmja6j";
+    sha256 = "1xd7gqdhlk7k1p9yyqf9vkk811nadc7m4si0q3nb6cpv4pxglpyz";
   };
 
   buildInputs =

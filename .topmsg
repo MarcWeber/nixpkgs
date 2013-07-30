@@ -1,6 +1,6 @@
 From: Marc Weber <marco-oweber@gmx.de>
-Subject: [PATCH] experimental/parallel-building
+Subject: [PATCH] experimental/eclipse
 
-some more packages can be build with multiple threads easily
+some updates for eclipse (attempt to use dropins fgor old viPlugin and the like)
 
 Signed-off-by: Marc Weber <marco-oweber@gmx.de>

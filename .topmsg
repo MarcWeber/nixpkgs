@@ -1,0 +1,7 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] experimental/mercurial
+
+This topic branch adds many addons for mecrurial.
+Some are broken.. Maybe needs some love.
+
+Signed-off-by: Marc Weber <marco-oweber@gmx.de>

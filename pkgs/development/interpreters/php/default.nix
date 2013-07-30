@@ -1,5 +1,5 @@
 { pkgs, stdenv, fetchurl, composableDerivation, autoconf, automake
-, flex, bison, apacheHttpd, mysql, libxml2, readline
+, flex, bison, apacheHttpd, mysql, libxml2, readline, uwimap, pam
 , zlib, curl, gd, postgresql, openssl, pkgconfig, sqlite, config, libiconv
 , libjpeg, libpng, htmlTidy, libmcrypt, fcgi, callPackage, gettext
 , freetype, writeText
@@ -37,6 +37,7 @@
 , zlibSupport ? true
 , ttfSupport ? true
 , ldapSupport ? true
+, imapSupport ? false
 
 , gdShared ? true
 
@@ -88,7 +89,7 @@ let
     "mcryptSupport" "mysqliSupport" "mysqlSupport" "opensslSupport"
     "pdo_mysqlSupport" "postgresqlSupport" "readlineSupport" "soapSupport"
     "socketsSupport" "sqliteSupport" "tidySupport" "zipSupport" "zlibSupport"
-    "ttfSupport" "ldapSupport" "fpmSystemdSocketActivationPatchSupport"];
+    "ttfSupport" "ldapSupport" "fpmSystemdSocketActivationPatchSupport" "imapSupport"];
 
   # note: this derivation contains a small hack: It contains several PHP
   # versions
@@ -287,6 +288,14 @@ let
         assertion = lessThan53;
       };
 
+      imap = {
+        configureFlags = [ "--with-imap=${uwimap}" "--with-imap-ssl" ]
+          # uwimap builds with kerberos on darwin
+          ++ stdenv.lib.optional (stdenv.isDarwin) "--with-kerberos";
+        buildInputs = [ uwimap openssl ]
+          ++ stdenv.lib.optional (!stdenv.isDarwin) pam;
+      };
+
       tidy = {
         configureFlags = ["--with-tidy=${htmlTidy}"];
       };
@@ -344,6 +353,7 @@ let
     fastcgiSupport
     gdSupport
     gettextSupport
+    imapSupport
     libxml2Support
     mbstringSupport
     mcryptSupport
@@ -377,6 +387,9 @@ let
     iniFile=$out/etc/php-recommended.ini
     [[ -z "$libxml2" ]] || export PATH=$PATH:$libxml2/bin
     ./configure --with-config-file-scan-dir=/etc --with-config-file-path=$out/etc --prefix=$out  $configureFlags
+  '' + stdenv.lib.optionalString stdenv.isDarwin ''
+    # don't build php.dSYM as the php binary
+    sed -i 's/EXEEXT = \.dSYM/EXEEXT =/' Makefile
   '';
 
   installPhase = ''

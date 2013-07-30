@@ -12,6 +12,7 @@ cabal.mkDerivation (self: {
     blazeHtml deepseq Elm filepath happstackServer HTTP mtl parsec
     transformers
   ];
+  jailbreak = true;
   meta = {
     homepage = "http://elm-lang.org";
     description = "The Elm language server";

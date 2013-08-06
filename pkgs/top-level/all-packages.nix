@@ -8153,6 +8153,8 @@ let
 
   ruby_ncursesw_sup = callPackage ../development/libraries/ruby_ncursesw_sup { };
 
+  sc = callPackage ../applications/office/sc { };
+
   smplayer = callPackage ../applications/video/smplayer { };
 
   sup = callPackage ../applications/networking/mailreaders/sup {

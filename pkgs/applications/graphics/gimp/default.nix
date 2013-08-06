@@ -42,7 +42,7 @@ let
 
   commonBuildInputs = [
     p.pkgconfig p.gtkLibs.gtk p.freetype p.fontconfig
-    p.gnome.libart_lgpl p.libtiff p.libjpeg p.libexif p.zlib p.perl
+    p.gnome.libart_lgpl p.libtiff p.libjpeg p.libexif p.zlib p.bzip2 p.lzma p.perl
     p.perlXMLParser p.python p.pygtk p.gettext p.intltool
   ];
   /*
@@ -136,8 +136,8 @@ let
       sed -i 's@gegl >= 0.1.6@gegl-2.0 >= 0.1.6@' configure
       '';
       # REGION AUTO UPDATE: { name="gimp"; type="git"; url="git://git.gnome.org/gimp"; groups = "gimp_group"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-fd34f.tar.bz2"; sha256 = "44a9f3b7216f19310693ed514a5c8be0062a24c5eb8c43a9241d8ad073c16f97"; });
-      name = "gimp-git-fd34f";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-e72cf.tar.bz2"; sha256 = "ebc04c8b4f9c0c5dc1e092b1b14395f5a113a72388578170fc53813b6186cf31"; });
+      name = "gimp-git-e72cf";
       # END
 
       passthru = {

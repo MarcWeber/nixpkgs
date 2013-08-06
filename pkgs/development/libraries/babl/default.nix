@@ -25,8 +25,8 @@
 
     git = {
       # REGION AUTO UPDATE: { name="babl"; type="git"; url="git://git.gnome.org/babl"; groups = "gimp_group"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/babl-git-2244f.tar.bz2"; sha256 = "73f6b3b0cf8f9260bcb31fa41222975ea4b820b658e6497e40c42f73f862d9ba"; });
-      name = "babl-git-2244f";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/babl-git-da3b4.tar.bz2"; sha256 = "c23480a1e97c0243b977aa2c174d537c67a968825690f296802f112bbcf0af0d"; });
+      name = "babl-git-da3b4";
       # END
       buildInputs = [ autoconf automake libtool glib pkgconfig which];
       preConfigure = "./autogen.sh";

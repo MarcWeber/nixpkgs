@@ -10,7 +10,7 @@ stdenv.mkDerivation rec {
 
   buildInputs = libintlOrEmpty;
 
-  nativeBuildInputs = [ pkgconfig perl ];
+  nativeBuildInputs = [ pkgconfig perl gobjectIntrospection ];
 
   propagatedBuildInputs = [ glib gobjectIntrospection /*ToDo: why propagate*/ ];
 

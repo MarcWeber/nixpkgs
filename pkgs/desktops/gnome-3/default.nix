@@ -4,7 +4,6 @@ rec {
   inherit (pkgs) fetchurl_gnome glib gtk3 atk pango;
   gtk = gtk3;
   inherit (pkgs.gnome2) gnome_common ORBit2;
-  orbit = ORBit2;
 
   inherit (lib) lowPrio hiPrio appendToName makeOverridable;
 

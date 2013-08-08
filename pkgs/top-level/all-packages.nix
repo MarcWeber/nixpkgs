@@ -448,7 +448,11 @@ let
 
   apg = callPackage ../tools/security/apg { };
 
+  grc = callPackage ../tools/misc/grc { };
+
   otool = callPackage ../os-specific/darwin/otool { };
+
+  pass = callPackage ../tools/security/pass { };
 
   setfile = callPackage ../os-specific/darwin/setfile { };
 
@@ -3319,7 +3323,9 @@ let
     cross = assert crossSystem != null; crossSystem;
   }));
 
-  bison = callPackage ../development/tools/parsing/bison { };
+  bison2 = callPackage ../development/tools/parsing/bison/2.x.nix { };
+  bison3 = lowPrio (callPackage ../development/tools/parsing/bison/3.x.nix { });
+  bison = bison2;
 
   buildbot = callPackage ../development/tools/build-managers/buildbot {
     inherit (pythonPackages) twisted jinja2 sqlalchemy sqlalchemy_migrate;
@@ -4254,7 +4260,9 @@ let
   cairomm = callPackage ../development/libraries/cairomm { };
 
   pango = callPackage ../development/libraries/pango { };
-  pangomm = callPackage ../development/libraries/pangomm/2.28.x.nix { };
+  pangomm = callPackage ../development/libraries/pangomm/2.28.x.nix {
+    cairo = cairo_1_12_2;
+  };
 
   pangox_compat = callPackage ../development/libraries/pangox-compat { };
 
@@ -6430,18 +6438,6 @@ let
     inherit fetchurl stdenv perl mktemp bc module_init_tools ubootChooser;
   };
 
-  linux_3_8 = makeOverridable (import ../os-specific/linux/kernel/linux-3.8.nix) {
-    inherit fetchurl stdenv perl mktemp bc module_init_tools ubootChooser;
-    kernelPatches =
-      [
-        kernelPatches.sec_perm_2_6_24
-      ] ++ lib.optionals (platform.kernelArch == "mips")
-      [ kernelPatches.mips_fpureg_emu
-        kernelPatches.mips_fpu_sigill
-        kernelPatches.mips_ext3_n32
-      ];
-  };
-
   linux_3_9 = makeOverridable (import ../os-specific/linux/kernel/linux-3.9.nix) {
     inherit fetchurl stdenv perl mktemp bc module_init_tools ubootChooser;
     kernelPatches =
@@ -6585,7 +6581,6 @@ let
   linuxPackages_3_4 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_4 linuxPackages_3_4);
   linuxPackages_3_4_apparmor = linuxPackagesFor pkgs.linux_3_4_apparmor linuxPackages_3_4_apparmor;
   linuxPackages_3_6_rpi = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_6_rpi linuxPackages_3_6_rpi);
-  linuxPackages_3_8 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_8 linuxPackages_3_8);
   linuxPackages_3_9 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_9 linuxPackages_3_9);
   linuxPackages_3_10 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_10 linuxPackages_3_10);
   # Update this when adding a new version!
@@ -8795,6 +8790,8 @@ let
   libxpdf = callPackage ../applications/misc/xpdf/libxpdf.nix { };
 
   xpra = callPackage ../tools/X11/xpra { };
+
+  xrestop = callPackage ../tools/X11/xrestop { };
 
   xscreensaver = callPackage ../misc/screensavers/xscreensaver {
     inherit (gnome) libglade;

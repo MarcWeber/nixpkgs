@@ -1,16 +1,20 @@
-{stdenv, fetchsvn, pythonPackages, xorg, pkgconfig, makeWrapper, argyllcms}:
+{stdenv, fetchurl, fetchsvn, pythonPackages, xorg, pkgconfig, makeWrapper, argyllcms}:
 
 /* is known to segfault when calibrating on ati proprietary hardware */
 
 pythonPackages.buildPythonPackage {
 
-  name = "dispcal-gui";
+  # REGION AUTO UPDATE: { name="dispcalgui"; type="svn"; url="svn://svn.code.sf.net/p/dispcalgui/code/trunk"; }
+  src = (fetchurl { url = "http://mawercer.de/~nix/repos/dispcalgui-svn-1411.tar.bz2"; sha256 = "cb0611a5d714aa7b79d30cd6d3def03204c188f530f083599a463533d32b6fbe"; });
+  name = "dispcalgui-svn-1411";
+  # END
 
-  src = fetchsvn {
-    url = "svn://svn.code.sf.net/p/dispcalgui/code/trunk";
-    rev = "HEAD";
-    sha256 = "1ky6iq2mddlz5bav9py45fcjmmh1d52sgk8974b2pngjm5ryamrp";
-  };
+  # name = "dispcal-gui";
+  # src = fetchsvn {
+  #   url = "svn://svn.code.sf.net/p/dispcalgui/code/trunk";
+  #   rev = "HEAD";
+  #   sha256 = "1ky6iq2mddlz5bav9py45fcjmmh1d52sgk8974b2pngjm5ryamrp";
+  # };
 
   doCheck = false;
 

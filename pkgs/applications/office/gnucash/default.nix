@@ -10,11 +10,11 @@
  */
 
 stdenv.mkDerivation rec {
-  name = "gnucash-2.4.11";
+  name = "gnucash-2.4.13";
 
   src = fetchurl {
     url = "mirror://sourceforge/gnucash/${name}.tar.bz2";
-    sha256 = "0qbpgd6spclkmwryi66cih0igi5a6pmsnk41mmnscpfpz1mddhwk";
+    sha256 = "0j4m00a3r1hcrhkfjkx3sgi2r4id4wrc639i4s00j35rx80540pn";
   };
 
   buildInputs = [
@@ -22,9 +22,6 @@ stdenv.mkDerivation rec {
     libgnomeprint goffice enchant gettext intltool perl guile slibGuile
     swig isocodes bzip2 makeWrapper libofx libglade libgsf libart_lgpl
   ];
-
-  # fix a problem with new intltool versions, taken from Gentoo
-  patchPhase = "patch -p3 < ${./potfiles-skip.patch}";
 
   configureFlags = "CFLAGS=-O3 CXXFLAGS=-O3 --disable-dbi --enable-ofx";
 
@@ -69,7 +66,7 @@ stdenv.mkDerivation rec {
 
     homepage = http://www.gnucash.org/;
 
-    maintainers = [ stdenv.lib.maintainers.ludo stdenv.lib.maintainers.simons ];
+    maintainers = [ stdenv.lib.maintainers.ludo stdenv.lib.maintainers.simons stdenv.lib.maintainers.iElectric ];
     platforms = stdenv.lib.platforms.gnu;
   };
 }

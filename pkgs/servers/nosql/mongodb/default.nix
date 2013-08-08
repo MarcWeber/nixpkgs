@@ -1,41 +1,29 @@
-{ stdenv, fetchurl, scons, which, v8}:
+{ stdenv, fetchurl, scons, boost, v8, gperftools, pcre, snappy }:
 
-with stdenv.lib;
-
-let installerPatch = fetchurl {
-      url = "https://jira.mongodb.org/secure/attachment/18160/SConscript.client.patch";
-      sha256 = "0n60fh2r8i7m6g113k0iw4adc8jv2by4ahrd780kxg47kzfgw06a";
-    };
-
-in
-stdenv.mkDerivation rec {
-  name = "mongodb-2.4.0";
+let version = "2.4.5"; in stdenv.mkDerivation rec {
+  name = "mongodb-${version}";
 
   src = fetchurl {
-    url = http://downloads.mongodb.org/src/mongodb-src-r2.4.0.tar.gz;
-    sha256 = "115wrw23naxpaiwh8ar6g40f2nsdbz1hdpkp88wbi5yc9m6drg41";
+    url = "http://downloads.mongodb.org/src/mongodb-src-r${version}.tar.gz";
+    sha256 = "01c7lb3jdr51gy7459vg5rg002xxg0mj79vlhy54n50kr31cnxmm";
   };
 
-  nativeBuildInputs = [ scons which ];
-
-  patches = [ installerPatch ];
-
-  enableParallelBuilding = true;
+  nativeBuildInputs = [ scons boost v8 gperftools pcre snappy ];
 
   postPatch = ''
-    substituteInPlace SConstruct --replace "Environment( BUILD_DIR" "Environment( ENV = os.environ, BUILD_DIR"
-    substituteInPlace SConstruct --replace "#/../v8" "${v8}" \
-                                 --replace "[\"${v8}/\"]" "[\"${v8}/lib\"]"
+    substituteInPlace SConstruct \
+        --replace "Environment( BUILD_DIR" "Environment( ENV = os.environ, BUILD_DIR" \
+        --replace 'CCFLAGS=["-Werror", "-pipe"]' 'CCFLAGS=["-pipe"]'
   '';
 
   buildPhase = ''
-    echo $PATH
-    scons all --cc=`which gcc` --cxx=`which g++`
+    export SCONSFLAGS="-j$NIX_BUILD_CORES"
+    scons all --use-system-all
   '';
 
   installPhase = ''
-    scons install --cc=`which gcc` --cxx=`which g++` --full --prefix=$out
-    rm -rf $out/lib64 # exact same files as installed in $out/lib
+    mkdir -p $out/lib
+    scons install --use-system-all --full --prefix=$out
   '';
 
   meta = {

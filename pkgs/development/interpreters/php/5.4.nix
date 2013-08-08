@@ -1,7 +1,7 @@
 { stdenv, fetchurl, composableDerivation, autoconf, automake, flex, bison
 , apacheHttpd, mysql, libxml2, readline, zlib, curl, gd, postgresql, gettext
 , openssl, pkgconfig, sqlite, config, libiconv, libjpeg, libpng, freetype
-, libxslt, libmcrypt, bzip2, icu }:
+, libxslt, libmcrypt, bzip2, icu, openldap, cyrus_sasl, libmhash }:
 
 let
   libmcryptOverride = libmcrypt.override { disablePosixThreads = true; };
@@ -9,7 +9,7 @@ in
 
 composableDerivation.composableDerivation {} ( fixed : let inherit (fixed.fixed) version; in {
 
-  version = "5.4.14";
+  version = "5.4.17";
 
   name = "php-${version}";
 
@@ -29,6 +29,16 @@ composableDerivation.composableDerivation {} ( fixed : let inherit (fixed.fixed)
       };
 
       # Extensions
+
+      ldap = {
+        configureFlags = ["--with-ldap=${openldap}"];
+        buildInputs = [openldap cyrus_sasl openssl];
+      };
+
+      mhash = {
+        configureFlags = ["--with-mhash"];
+        buildInputs = [libmhash];
+      };
 
       curl = {
         configureFlags = ["--with-curl=${curl}" "--with-curlwrappers"];
@@ -90,7 +100,12 @@ composableDerivation.composableDerivation {} ( fixed : let inherit (fixed.fixed)
 
       gd = {
         # FIXME: Our own gd package doesn't work, see https://bugs.php.net/bug.php?id=60108.
-        configureFlags = ["--with-gd --with-freetype-dir=${freetype} --with-png-dir=${libpng}"];
+        configureFlags = [
+          "--with-gd"
+          "--with-freetype-dir=${freetype}"
+          "--with-png-dir=${libpng}"
+          "--with-jpeg-dir=${libjpeg}"
+        ];
         buildInputs = [ libpng libjpeg freetype ];
       };
 
@@ -144,6 +159,10 @@ composableDerivation.composableDerivation {} ( fixed : let inherit (fixed.fixed)
         configureFlags = ["--enable-zip"];
       };
 
+      ftp = {
+        configureFlags = ["--enable-ftp"];
+      };
+
       /*
          php is build within this derivation in order to add the xdebug lines to the php.ini.
          So both Apache and command line php both use xdebug without having to configure anything.
@@ -158,6 +177,8 @@ composableDerivation.composableDerivation {} ( fixed : let inherit (fixed.fixed)
     };
 
   cfg = {
+    ldapSupport = config.php.ldap or true;
+    mhashSupport = config.php.mhash or true;
     mysqlSupport = config.php.mysql or true;
     mysqliSupport = config.php.mysqli or true;
     pdo_mysqlSupport = config.php.pdo_mysql or true;
@@ -181,13 +202,22 @@ composableDerivation.composableDerivation {} ( fixed : let inherit (fixed.fixed)
     mcryptSupport = config.php.mcrypt or false;
     bz2Support = config.php.bz2 or false;
     zipSupport = config.php.zip or true;
+    ftpSupport = config.php.ftp or true;
   };
 
   configurePhase = ''
+    # Don't record the configure flags since this causes unnecessary
+    # runtime dependencies.
+    for i in main/build-defs.h.in scripts/php-config.in; do
+      substituteInPlace $i \
+        --replace '@CONFIGURE_COMMAND@' '(omitted)' \
+        --replace '@CONFIGURE_OPTIONS@' "" \
+        --replace '@PHP_LDFLAGS@' ""
+    done
+
     iniFile=$out/etc/php-recommended.ini
     [[ -z "$libxml2" ]] || export PATH=$PATH:$libxml2/bin
     ./configure --with-config-file-scan-dir=/etc --with-config-file-path=$out/etc --prefix=$out $configureFlags
-    echo configurePhase end
   '';
 
   installPhase = ''
@@ -196,8 +226,11 @@ composableDerivation.composableDerivation {} ( fixed : let inherit (fixed.fixed)
   '';
 
   src = fetchurl {
-    url = "http://nl.php.net/get/php-${version}.tar.bz2/from/this/mirror";
-    sha256 = "02p23g4gjijazq16r5kwbkval2lkw76g0086n0zynlf67f2g6l2l";
+    urls = [
+      "http://nl1.php.net/get/php-${version}.tar.bz2/from/this/mirror"
+      "http://se1.php.net/get/php-${version}.tar.bz2/from/this/mirror"
+    ];
+    sha256 = "1d3y69hvplaqif2fl5s1lwx0y0m55j8b8fwag6ngdld5hx9r6jfw";
     name = "php-${version}.tar.bz2";
   };
 

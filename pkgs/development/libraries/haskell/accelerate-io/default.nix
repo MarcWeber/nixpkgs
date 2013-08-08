@@ -1,18 +1,15 @@
-{ cabal, accelerate, repa, vector }:
+{ cabal, accelerate, bmp, repa, vector }:
 
 cabal.mkDerivation (self: {
   pname = "accelerate-io";
-  version = "0.12.1.0";
-  sha256 = "1hcyshzfh7ldswv7sjklxlw5h1hx7spx6dy23bvdryrkq929gb8a";
-  buildDepends = [ accelerate repa vector ];
+  version = "0.13.0.2";
+  sha256 = "0lm1kkjs5gbd70k554vi9977v4bxxcxaw39r9wmwxf8nx2qxvshh";
+  buildDepends = [ accelerate bmp repa vector ];
   meta = {
-    homepage = "http://www.cse.unsw.edu.au/~chak/project/accelerate/";
+    homepage = "https://github.com/AccelerateHS/accelerate-io";
     description = "Read and write Accelerate arrays in various formats";
     license = self.stdenv.lib.licenses.bsd3;
     platforms = self.ghc.meta.platforms;
-    maintainers = [
-      self.stdenv.lib.maintainers.andres
-      self.stdenv.lib.maintainers.simons
-    ];
+    maintainers = [ self.stdenv.lib.maintainers.andres ];
   };
 })

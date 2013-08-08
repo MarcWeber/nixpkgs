@@ -1,5 +1,5 @@
 { stdenv, fetchurl, pkgconfig, python, libxml2Python, libxslt, which, libX11, gnome3
-, intltool, gnome_doc_utils, xorg, gsettings_desktop_schemas, xkeyboard_config}:
+, intltool, gnome_doc_utils }:
 
 stdenv.mkDerivation rec {
 

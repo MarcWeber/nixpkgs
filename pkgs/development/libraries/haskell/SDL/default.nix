@@ -2,16 +2,13 @@
 
 cabal.mkDerivation (self: {
   pname = "SDL";
-  version = "0.6.4";
-  sha256 = "1zrfx2nw0k8lfkr6vnwsp5wr3yz62v0bq60p4sdzj7gm01bz92g0";
+  version = "0.6.5";
+  sha256 = "1vlf1bvp4cbgr31qk6aqikhgn9jbgj7lrvnjzv3ibykm1hhd6vdb";
   extraLibraries = [ SDL ];
   meta = {
     description = "Binding to libSDL";
     license = self.stdenv.lib.licenses.bsd3;
     platforms = self.ghc.meta.platforms;
-    maintainers = [
-      self.stdenv.lib.maintainers.andres
-      self.stdenv.lib.maintainers.simons
-    ];
+    maintainers = [ self.stdenv.lib.maintainers.andres ];
   };
 })

@@ -2,17 +2,14 @@
 
 cabal.mkDerivation (self: {
   pname = "smallcheck";
-  version = "1.0.2";
-  sha256 = "09zlsvgbwgpjwkjhizbzzww2nvkyxvkf214yqxzfaa1cj9xzbbdi";
+  version = "1.0.4";
+  sha256 = "0zqssw7r56k7gi1lxdss3f4piqa692y728rli9p81q9rbcvi3x7z";
   buildDepends = [ logict mtl ];
   meta = {
     homepage = "https://github.com/feuerbach/smallcheck";
     description = "A property-based testing library";
     license = self.stdenv.lib.licenses.bsd3;
     platforms = self.ghc.meta.platforms;
-    maintainers = [
-      self.stdenv.lib.maintainers.andres
-      self.stdenv.lib.maintainers.simons
-    ];
+    maintainers = [ self.stdenv.lib.maintainers.andres ];
   };
 })

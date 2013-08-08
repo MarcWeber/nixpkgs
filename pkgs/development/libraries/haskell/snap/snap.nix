@@ -8,8 +8,8 @@
 
 cabal.mkDerivation (self: {
   pname = "snap";
-  version = "0.11.3.1";
-  sha256 = "0hlwpzrckq89wpa8603j7p3aghlqshrp3kzsdrryf44k24q3vgrj";
+  version = "0.12.1";
+  sha256 = "0mmmai257r3ssmy58v4c3hds0i0hwrww6r495j8yb2r90b31b1gg";
   isLibrary = true;
   isExecutable = true;
   buildDepends = [
@@ -25,6 +25,5 @@ cabal.mkDerivation (self: {
     description = "Top-level package for the Snap Web Framework";
     license = self.stdenv.lib.licenses.bsd3;
     platforms = self.ghc.meta.platforms;
-    maintainers = [ self.stdenv.lib.maintainers.simons ];
   };
 })

@@ -3,8 +3,8 @@
 
 cabal.mkDerivation (self: {
   pname = "either";
-  version = "3.4";
-  sha256 = "05nbp8gp50wq592k6dsrpzp6wmqjn9pz6mkizqfb65z1wvd1xiz2";
+  version = "3.4.1";
+  sha256 = "1cq4glqhxz9k8fxf0dc8b6hcxxfn4yci6h7wmfkmkfq5ca61ax1b";
   buildDepends = [
     MonadRandom mtl semigroupoids semigroups transformers
   ];
@@ -13,6 +13,5 @@ cabal.mkDerivation (self: {
     description = "An either monad transformer";
     license = self.stdenv.lib.licenses.bsd3;
     platforms = self.ghc.meta.platforms;
-    maintainers = [ self.stdenv.lib.maintainers.simons ];
   };
 })

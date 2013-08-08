@@ -5,8 +5,8 @@
 
 cabal.mkDerivation (self: {
   pname = "wai-test";
-  version = "1.3.1";
-  sha256 = "0dw9lbwb27yr3953ill0r727ivqav5b2ica8gbaalvnh3h5c8akg";
+  version = "1.3.1.1";
+  sha256 = "0daaq8kn1c35y26y7pb00sw1jyhp84zpzk6vfy1p4vfay4ppknd2";
   buildDepends = [
     blazeBuilder blazeBuilderConduit caseInsensitive conduit cookie
     httpTypes HUnit network text transformers wai
@@ -17,6 +17,5 @@ cabal.mkDerivation (self: {
     description = "Unit test framework (built on HUnit) for WAI applications";
     license = self.stdenv.lib.licenses.mit;
     platforms = self.ghc.meta.platforms;
-    maintainers = [ self.stdenv.lib.maintainers.simons ];
   };
 })

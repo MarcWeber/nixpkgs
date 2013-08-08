@@ -6,7 +6,7 @@
 , libXinerama, openssl, gperf, cppunit, GConf, ORBit2, poppler
 , librsvg, gnome_vfs, gstreamer, gst_plugins_base, mesa
 , autoconf, automake, openldap, bash, hunspell, librdf_redland, nss, nspr
-, libwpg, dbus_glib, qt4, kde4, clucene_core_2, libcdr, lcms2, vigra
+, libwpg, dbus_glib, qt4, kde4, clucene_core, libcdr, lcms, vigra
 , libiodbc, mdds, saneBackends, mythes, libexttextcat, libvisio
 , fontsConf
 , langs ? [ "en-US" "en-GB" "ca" "ru" "eo" "fr" "nl" "de" ]
@@ -16,7 +16,7 @@ let
   langsSpaces = stdenv.lib.concatStringsSep " " langs;
   major = "3";
   minor = "6";
-  patch = "2";
+  patch = "6";
   tweak = "2";
   subdir = "${major}.${minor}.${patch}";
   version = "${subdir}${if tweak == "" then "" else "."}${tweak}";
@@ -36,17 +36,17 @@ let
       }) ] ++ (map fetchThirdParty (import ./libreoffice-srcs.nix));
     translations = fetchSrc {
       name = "translations";
-      sha256 = "a6ef65d5acfe9be19a3d4d743cd23a1017733f651ffc57f5773a24704a282c33";
+      sha256 = "1n3yk2077adyxrhs0jpkbm8dg3lxpn3sy63f0dl87ifv7ha1rfpn";
     };
 
     help = fetchSrc {
       name = "help";
-      sha256 = "55ec6ef5eef4bbf2298c3b864f67c8424ebb5ccbe7bcd6ca59abba2867989e31";
+      sha256 = "12rb5mw6sbi41w1zaxrj4qffiis9qcx8ibp5cpmwsz07nsdv5sxk";
     };
 
     core = fetchSrc {
       name = "core";
-      sha256 = "5ec07ffacec09c4dcee9246cb132f7a59a618b395835e781735fd61bf47e8d37";
+      sha256 = "0xw36sa73cgk3k3fv1spv5pavm95bc02lszn8415ay36lcc098pn";
     };
   };
 in
@@ -162,10 +162,10 @@ stdenv.mkDerivation rec {
   ];
 
   buildInputs =
-    [ ant ArchiveZip autoconf automake bison boost cairo clucene_core_2
+    [ ant ArchiveZip autoconf automake bison boost cairo clucene_core
       CompressZlib cppunit cups curl db4 dbus_glib expat file flex fontconfig
       freetype GConf getopt gnome_vfs gperf gst_plugins_base gstreamer gtk
-      hunspell icu jdk kde4.kdelibs lcms2 libcdr libexttextcat libiodbc libjpeg
+      hunspell icu jdk kde4.kdelibs lcms libcdr libexttextcat libiodbc libjpeg
       libmspack librdf_redland librsvg libsndfile libvisio libwpd libwpg libX11
       libXaw libXext libXi libXinerama libxml2 libxslt libXtst mdds mesa mythes
       neon nspr nss openldap openssl ORBit2 pam perl pkgconfigUpstream poppler

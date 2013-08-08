@@ -2,9 +2,9 @@
 # 'echo "pinentry-program `which pinentry-gtk-2`" >> ~/.gnupg/gpg-agent.conf'.
 
 { fetchurl, stdenv, readline, zlib, libgpgerror, pth, libgcrypt, libassuan
-, libksba, coreutils, useLdap ? true, openldap ? null
-, useBzip2 ? true, bzip2 ? null, useUsb ? true, libusb ? null
-, useCurl ? true, curl ? null
+, libksba, coreutils, libiconvOrEmpty
+, useLdap ? true, openldap ? null, useBzip2 ? true, bzip2 ? null
+, useUsb ? true, libusb ? null, useCurl ? true, curl ? null
 }:
 
 assert useLdap -> (openldap != null);
@@ -13,14 +13,16 @@ assert useUsb -> (libusb != null);
 assert useCurl -> (curl != null);
 
 stdenv.mkDerivation rec {
-  name = "gnupg-2.0.19";
+  name = "gnupg-2.0.20";
 
   src = fetchurl {
     url = "mirror://gnupg/gnupg/${name}.tar.bz2";
-    sha256 = "08n636sfffs5qvg9ppiprvsh00q0dmdw425psg3m3nssja53m8pg";
+    sha256 = "16mp0j5inrcqcb3fxbn0b3aamascy3n923wiy0y8marc0rzrp53f";
   };
 
-  buildInputs = [ readline zlib libgpgerror libgcrypt libassuan libksba pth ]
+  buildInputs
+    = [ readline zlib libgpgerror libgcrypt libassuan libksba pth ]
+    ++ libiconvOrEmpty
     ++ stdenv.lib.optional useLdap openldap
     ++ stdenv.lib.optional useBzip2 bzip2
     ++ stdenv.lib.optional useUsb libusb
@@ -28,6 +30,7 @@ stdenv.mkDerivation rec {
 
   patchPhase = ''
     find tests -type f | xargs sed -e 's@/bin/pwd@${coreutils}&@g' -i
+    find . -name pcsc-wrapper.c | xargs sed -i 's/typedef unsinged int pcsc_dword_t/typedef unsigned int pcsc_dword_t/'
   '';
 
   checkPhase="GNUPGHOME=`pwd` ./agent/gpg-agent --daemon make check";
@@ -35,7 +38,9 @@ stdenv.mkDerivation rec {
   doCheck = true;
 
   meta = {
+    homepage = "http://gnupg.org/";
     description = "GNU Privacy Guard (GnuPG), GNU Project's implementation of the OpenPGP standard";
+    license = stdenv.lib.licenses.gpl3Plus;
 
     longDescription = ''
       GnuPG is the GNU project's complete and free implementation of
@@ -49,12 +54,7 @@ stdenv.mkDerivation rec {
       S/MIME.
     '';
 
-    homepage = http://gnupg.org/;
-
-    license = "GPLv3+";
-
     maintainers = with stdenv.lib.maintainers; [ ludo urkud ];
-
     platforms = stdenv.lib.platforms.all;
   };
 }

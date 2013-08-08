@@ -2,8 +2,8 @@
 
 cabal.mkDerivation (self: {
   pname = "gloss";
-  version = "1.7.8.2";
-  sha256 = "0jf49vdms8jzygkwch5k8s611pay0xqwq1lc0p476d37rzb8qpn4";
+  version = "1.7.8.4";
+  sha256 = "06m90n0gxjhfdl2jalwzwsbgdg854bqw1qygkxbcfcknrpd2ampk";
   buildDepends = [ bmp GLUT OpenGL ];
   jailbreak = true;
   meta = {
@@ -11,9 +11,6 @@ cabal.mkDerivation (self: {
     description = "Painless 2D vector graphics, animations and simulations";
     license = self.stdenv.lib.licenses.mit;
     platforms = self.ghc.meta.platforms;
-    maintainers = [
-      self.stdenv.lib.maintainers.andres
-      self.stdenv.lib.maintainers.simons
-    ];
+    maintainers = [ self.stdenv.lib.maintainers.andres ];
   };
 })

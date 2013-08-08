@@ -19,6 +19,7 @@ with (import ./release-lib.nix);
 
   aspell = all;
   at = linux;
+  atlas = linux;
   aterm25 = all;
   aterm28 = all;
   autoconf = all;
@@ -51,7 +52,6 @@ with (import ./release-lib.nix);
   gcc33 = linux;
   gcc34 = linux;
   gcc42 = linux;
-  gcc43_multi = ["x86_64-linux"];
   gcc44 = linux;
   gcj44 = linux;
   ghdl = linux;

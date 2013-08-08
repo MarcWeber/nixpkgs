@@ -1,6 +1,6 @@
-{ stdenv, fetchurl, pkgconfig, glib, atk, pango, cairo, perl, xlibs
-, gdk_pixbuf, xz
-, xineramaSupport ? true
+{ stdenv, fetchurl, pkgconfig, gettext, glib, atk, pango, cairo, perl, xlibs
+, gdk_pixbuf, libintlOrEmpty, x11
+, xineramaSupport ? stdenv.isLinux
 , cupsSupport ? true, cups ? null
 }:
 
@@ -8,30 +8,38 @@ assert xineramaSupport -> xlibs.libXinerama != null;
 assert cupsSupport -> cups != null;
 
 stdenv.mkDerivation rec {
-  name = "gtk+-2.24.17";
+  name = "gtk+-2.24.20";
 
   src = fetchurl {
     url = "mirror://gnome/sources/gtk+/2.24/${name}.tar.xz";
-    sha256 = "05gl82k82w3gjrzr4vmj3ski7mp1b0jbhc49wgl9hv8mc2sb4iz9";
+    sha256 = "18qdvb7nxi25hfnpmcy01p3majw9jnx83ikm263dk9rrjazvqrnc";
   };
 
   enableParallelBuilding = true;
 
-  nativeBuildInputs = [ perl pkgconfig ];
+  NIX_CFLAGS_COMPILE = stdenv.lib.optionalString (libintlOrEmpty != []) "-lintl";
 
-  propagatedBuildInputs = with xlibs;
-    [ glib cairo pango gdk_pixbuf atk
-      libXrandr libXrender libXcomposite libXi libXcursor
-    ]
-    ++ stdenv.lib.optional xineramaSupport libXinerama
-    ++ stdenv.lib.optionals cupsSupport [ cups ];
+  nativeBuildInputs = [ perl pkgconfig gettext ];
+
+  propagatedBuildInputs = with xlibs; with stdenv.lib;
+    [ glib cairo pango gdk_pixbuf atk ]
+    ++ optionals stdenv.isLinux
+      [ libXrandr libXrender libXcomposite libXi libXcursor ]
+    ++ optional stdenv.isDarwin x11
+    ++ libintlOrEmpty
+    ++ optional xineramaSupport libXinerama
+    ++ optionals cupsSupport [ cups ];
 
   configureFlags = "--with-xinput=yes";
 
   postInstall = "rm -rf $out/share/gtk-doc";
 
-  meta = {
+  meta = with stdenv.lib; {
     description = "A multi-platform toolkit for creating graphical user interfaces";
+    homepage    = http://www.gtk.org/;
+    license     = licenses.lgpl2Plus;
+    maintainers = with maintainers; [ lovek323 raskin ];
+    platforms   = platforms.all;
 
     longDescription = ''
       GTK+ is a highly usable, feature rich toolkit for creating
@@ -43,12 +51,5 @@ stdenv.mkDerivation rec {
       proprietary software with GTK+ without any license fees or
       royalties.
     '';
-
-    homepage = http://www.gtk.org/;
-
-    license = "LGPLv2+";
-
-    maintainers = [stdenv.lib.maintainers.raskin];
-    platforms = stdenv.lib.platforms.linux;
   };
 }

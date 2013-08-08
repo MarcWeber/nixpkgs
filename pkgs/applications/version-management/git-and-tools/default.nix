@@ -9,8 +9,9 @@ rec {
 
   git = lib.makeOverridable (import ./git) {
     inherit fetchurl stdenv curl openssl zlib expat perl python gettext gnugrep
-      asciidoc texinfo xmlto docbook2x docbook_xsl docbook_xml_dtd_45 libxslt
-      cpio tcl tk makeWrapper subversionClient gzip;
+      asciidoc xmlto docbook2x docbook_xsl docbook_xml_dtd_45 libxslt cpio tcl
+      tk makeWrapper subversionClient gzip;
+    texinfo = texinfo5;
     svnSupport = false;		# for git-svn support
     guiSupport = false;		# requires tcl/tk
     sendEmailSupport = false;	# requires plenty of perl libraries
@@ -42,17 +43,7 @@ rec {
     sendEmailSupport = !stdenv.isDarwin;
   });
 
-  gitAnnex = lib.makeOverridable (import ./git-annex) {
-    inherit stdenv fetchurl perl which ikiwiki curl bup git gnupg1 lsof openssh rsync;
-    inherit (haskellPackages) ghc aeson async blazeBuilder bloomfilter
-      caseInsensitive clientsession cryptoApi dataDefault dataenc DAV dbus dns
-      editDistance extensibleExceptions filepath gnutls hamlet hinotify hS3
-      hslogger httpConduit httpTypes HUnit IfElse json liftedBase MissingH
-      monadControl mtl network networkInfo networkMulticast networkProtocolXmpp
-      QuickCheck random regexCompat SafeSemaphore SHA stm text time regexTdfa
-      transformers transformersBase utf8String uuid wai waiLogger warp
-      xmlConduit xmlTypes yesod yesodDefault yesodForm yesodStatic;
-  };
+  gitAnnex = pkgs.haskellPackages.gitAnnex;
 
   qgit = import ./qgit {
     inherit fetchurl stdenv;
@@ -97,10 +88,6 @@ rec {
   };
 
   svn2git_kde = callPackage ./svn2git-kde { };
-
-  gitSubtree = import ./git-subtree {
-    inherit stdenv fetchurl git asciidoc xmlto docbook_xsl docbook_xml_dtd_45 libxslt;
-  };
 
   darcsToGit = callPackage ./darcs-to-git { };
 }

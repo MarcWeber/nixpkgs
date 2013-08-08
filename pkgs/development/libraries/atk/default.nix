@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, pkgconfig, perl, glib, gobjectIntrospection }:
+{ stdenv, fetchurl, pkgconfig, perl, glib, libintlOrEmpty, gobjectIntrospection }:
 
 stdenv.mkDerivation rec {
   name = "atk-2.8.0";
@@ -8,9 +8,11 @@ stdenv.mkDerivation rec {
     sha256 = "1x3dd3hg9l1j9dq70xwph13vxdp6a9wbfcnryryf1wr6c8bij9dj";
   };
 
+  buildInputs = libintlOrEmpty;
+
   nativeBuildInputs = [ pkgconfig perl ];
 
-  propagatedBuildInputs = [ glib gobjectIntrospection ];
+  propagatedBuildInputs = [ glib gobjectIntrospection /*ToDo: why propagate*/ ];
 
   postInstall = "rm -rf $out/share/gtk-doc";
 

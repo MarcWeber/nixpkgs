@@ -1,73 +1,59 @@
-{ stdenv, fetchurl, perl, which, ikiwiki, ghc, aeson, async, blazeBuilder
-, bloomfilter, bup, caseInsensitive, clientsession, cryptoApi, curl, dataDefault
-, dataenc, DAV, dbus, dns, editDistance, extensibleExceptions, filepath, git
-, gnupg1, gnutls, hamlet, hinotify, hS3, hslogger, httpConduit, httpTypes, HUnit
-, IfElse, json, liftedBase, lsof, MissingH, monadControl, mtl, network
-, networkInfo, networkMulticast, networkProtocolXmpp, openssh, QuickCheck
-, random, regexCompat, rsync, SafeSemaphore, SHA, stm, text, time, transformers
-, transformersBase, utf8String, uuid, wai, waiLogger, warp, xmlConduit, xmlTypes
-, yesod, yesodDefault, yesodForm, yesodStatic, regexTdfa
+{ cabal, aeson, async, blazeBuilder, bloomfilter, bup
+, caseInsensitive, clientsession, cryptoApi, curl, dataDefault
+, dataenc, DAV, dbus, dlist, dns, editDistance
+, extensibleExceptions, feed, filepath, git, gnupg1, gnutls, hamlet
+, hinotify, hS3, hslogger, HTTP, httpConduit, httpTypes, HUnit
+, IfElse, json, lsof, MissingH, MonadCatchIOTransformers
+, monadControl, mtl, network, networkInfo, networkMulticast
+, networkProtocolXmpp, openssh, QuickCheck, random, regexTdfa
+, rsync, SafeSemaphore, SHA, stm, text, time, transformers
+, unixCompat, utf8String, uuid, wai, waiLogger, warp, which
+, xmlConduit, xmlTypes, yesod, yesodCore, yesodDefault, yesodForm
+, yesodStatic
 }:
 
-let
-  version = "4.20130501";
-in
-stdenv.mkDerivation {
-  name = "git-annex-${version}";
-
-  src = fetchurl {
-    url = "http://git.kitenet.net/?p=git-annex.git;a=snapshot;sf=tgz;h=${version}";
-    sha256 = "0g89lmkrs02qdb1k1bfq9gz3j4yv35320vb8ddmj99f4nnhqc6vv";
-    name = "git-annex-${version}.tar.gz";
-  };
-
-  buildInputs = [ ghc aeson async blazeBuilder bloomfilter bup ikiwiki
-    caseInsensitive clientsession cryptoApi curl dataDefault dataenc DAV dbus
-    dns editDistance extensibleExceptions filepath git gnupg1 gnutls hamlet
-    hinotify hS3 hslogger httpConduit httpTypes HUnit IfElse json liftedBase
-    lsof MissingH monadControl mtl network networkInfo networkMulticast
-    networkProtocolXmpp openssh QuickCheck random regexCompat rsync
-    SafeSemaphore SHA stm text time transformers transformersBase utf8String
-    uuid wai waiLogger warp xmlConduit xmlTypes yesod yesodDefault yesodForm
-    yesodStatic which perl regexTdfa ];
-
-  configurePhase = ''
-    makeFlagsArray=( PREFIX=$out CABAL=./Setup )
-    patchShebangs .
-    ghc -O2 --make Setup
-    ./Setup configure -ftestsuite -f-android -fproduction -fdns -fxmpp -fpairing -fwebapp -fassistant -fdbus -finotify -fwebdav -fs3
-  '';
-
-  doCheck = true;
+cabal.mkDerivation (self: {
+  pname = "git-annex";
+  version = "4.20130802";
+  sha256 = "12dvmz88sbcvhyf7aldhpkrf4aqs0x39hky0hikmfd9zcqs6vbih";
+  isLibrary = false;
+  isExecutable = true;
+  buildDepends = [
+    aeson async blazeBuilder bloomfilter caseInsensitive clientsession
+    cryptoApi dataDefault dataenc DAV dbus dlist dns editDistance
+    extensibleExceptions feed filepath gnutls hamlet hinotify hS3
+    hslogger HTTP httpConduit httpTypes HUnit IfElse json MissingH
+    MonadCatchIOTransformers monadControl mtl network networkInfo
+    networkMulticast networkProtocolXmpp QuickCheck random regexTdfa
+    SafeSemaphore SHA stm text time transformers unixCompat utf8String
+    uuid wai waiLogger warp xmlConduit xmlTypes yesod yesodCore
+    yesodDefault yesodForm yesodStatic
+  ];
+  buildTools = [ bup curl git gnupg1 lsof openssh rsync which ];
+  configureFlags = "-fS3
+                    -fWebDAV
+                    -fInotify
+                    -fDbus
+                    -fAssistant
+                    -fWebapp
+                    -fPairing
+                    -fXMPP
+                    -fDNS
+                    -fProduction
+                    -fTDFA";
+  preConfigure = "patchShebangs .";
+  installPhase = "make PREFIX=$out CABAL=./Setup docs install";
   checkPhase = ''
     export HOME="$NIX_BUILD_TOP/tmp"
     mkdir "$HOME"
+    cp dist/build/git-annex/git-annex git-annex
     ./git-annex test
   '';
-
   meta = {
     homepage = "http://git-annex.branchable.com/";
-    description = "Manage files with git without checking them into git";
-    license = stdenv.lib.licenses.gpl3Plus;
-
-    longDescription = ''
-      Git-annex allows managing files with git, without checking the
-      file contents into git. While that may seem paradoxical, it is
-      useful when dealing with files larger than git can currently
-      easily handle, whether due to limitations in memory, checksumming
-      time, or disk space.
-
-      Even without file content tracking, being able to manage files
-      with git, move files around and delete files with versioned
-      directory trees, and use branches and distributed clones, are all
-      very handy reasons to use git. And annexed files can co-exist in
-      the same git repository with regularly versioned files, which is
-      convenient for maintaining documents, Makefiles, etc that are
-      associated with annexed files but that benefit from full revision
-      control.
-    '';
-
-    platforms = ghc.meta.platforms;
-    maintainers = [ stdenv.lib.maintainers.simons ];
+    description = "manage files with git, without checking their contents into git";
+    license = self.stdenv.lib.licenses.gpl3;
+    platforms = self.ghc.meta.platforms;
+    maintainers = [ self.stdenv.lib.maintainers.simons ];
   };
-}
+})

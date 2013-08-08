@@ -1,7 +1,8 @@
-{ stdenv, fetchurl, pkgconfig, gettext, x11, glib, cairo, libpng, harfbuzz, fontconfig, gobjectIntrospection }:
+{ stdenv, fetchurl, pkgconfig, gettext, x11, glib, cairo, libpng, harfbuzz, fontconfig
+, libintlOrEmpty, gobjectIntrospection }:
 
 stdenv.mkDerivation rec {
-  name = "pango-1.32.5"; #.6 needs a not-yet-stable fontconfig
+  name = "pango-1.32.5"; #.6 and higher need a not-yet-stable fontconfig (!)
 
   src = fetchurl {
     url = "mirror://gnome/sources/pango/1.32/${name}.tar.xz";
@@ -11,9 +12,10 @@ stdenv.mkDerivation rec {
   buildInputs = [ gobjectIntrospection ]
     ++ stdenv.lib.optionals stdenv.isDarwin [ gettext fontconfig ];
 
+
   nativeBuildInputs = [ pkgconfig ];
 
-  propagatedBuildInputs = [ x11 glib cairo libpng harfbuzz ];
+  propagatedBuildInputs = [ x11 glib cairo libpng harfbuzz ] ++ libintlOrEmpty;
 
   enableParallelBuilding = true;
 

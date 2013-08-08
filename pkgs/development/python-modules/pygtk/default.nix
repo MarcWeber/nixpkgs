@@ -1,19 +1,18 @@
-{ stdenv, fetchurl, python, pkgconfig, glib, gtk, pygobject, pycairo
+{ stdenv, fetchurl, python, pkgconfig, gtk, pygobject, pycairo
 , buildPythonPackage, libglade ? null }:
 
 buildPythonPackage rec {
   name = "pygtk-2.22.0";
 
   src = fetchurl {
-    url = "http://ftp.gnome.org/pub/GNOME/sources/pygtk/2.22/${name}.tar.bz2";
+    url = "mirror://gnome/sources/pygtk/2.22/${name}.tar.bz2";
     sha256 = "4acf0ef2bde8574913c40ee4a43d9c4f43bb77b577b67147271b534501a54cc8";
   };
 
-  buildInputs =
-    [ pkgconfig glib gtk ]
+  buildInputs = [ pkgconfig ]
     ++ stdenv.lib.optional (libglade != null) libglade;
 
-  propagatedBuildInputs = [ pygobject pycairo ];
+  propagatedBuildInputs = [ gtk pygobject pycairo ];
 
   installCommand = "make install";
   checkPhase = stdenv.lib.optionalString (libglade == null)

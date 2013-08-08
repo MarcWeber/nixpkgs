@@ -4,7 +4,9 @@ dontPatchELF=1 # must keep libXv, $out in RPATH
 
 
 unpackFile() {
-    sh $src -x
+    skip=$(sed 's/^skip=//; t; d' $src)
+    tail -n +$skip $src | xz -d | tar xvf -
+    sourceRoot=.
 }
 
 
@@ -72,7 +74,7 @@ installPhase() {
         # Install the programs.
         mkdir -p $out/bin
 
-        for i in nvidia-settings nvidia-xconfig; do
+        for i in nvidia-settings nvidia-smi nvidia-xconfig; do
 	    cp $i $out/bin/$i
 	    patchelf --interpreter "$(cat $NIX_GCC/nix-support/dynamic-linker)" \
 	        --set-rpath $out/lib:$programPath:$glPath $out/bin/$i

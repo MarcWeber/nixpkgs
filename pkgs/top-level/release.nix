@@ -45,6 +45,7 @@ let
       apacheHttpd = linux;
       aspell = all;
       at = linux;
+      atlas = linux;
       audacious = linux;
       autoconf = all;
       automake110x = all;
@@ -92,7 +93,6 @@ let
       doxygen = linux;
       dpkg = linux;
       drgeo = linux;
-      e2fsprogs = linux;
       ejabberd = linux;
       elinks = linux;
       emacs23 = gtkSupported;
@@ -115,7 +115,6 @@ let
       gcc33 = linux;
       gcc34 = linux;
       gcc42 = linux;
-      gcc43_multi = ["x86_64-linux"];
       gcc44 = linux;
       gcj44 = linux;
       ghdl = linux;
@@ -198,8 +197,8 @@ let
       mcabber = linux;
       mcron = linux;
       mdadm = linux;
-      mercurial = allBut "i686-cygwin";
-      mercurialFull = allBut "i686-cygwin";
+      mercurial = unix;
+      mercurialFull = linux;
       mesa = mesaPlatforms;
       midori = linux;
       mingetty = linux;
@@ -353,14 +352,13 @@ let
       emacs23Packages = {
         bbdb = linux;
         cedet = linux;
-        ecb = linux;
         emacsw3m = linux;
         emms = linux;
         jdee = linux;
       };
 
       firefox36Pkgs.firefox = linux;
-      firefox20Pkgs.firefox = linux;
+      firefoxPkgs.firefox = linux;
 
       gnome = {
         gnome_panel = linux;
@@ -384,7 +382,7 @@ let
         ghc = ghcSupported;
       };
 
-      haskellPackages_ghc762 = {
+      haskellPackages_ghc763 = {
         ghc = ghcSupported;
       };
 

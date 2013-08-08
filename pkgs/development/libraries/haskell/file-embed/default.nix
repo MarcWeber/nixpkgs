@@ -2,8 +2,8 @@
 
 cabal.mkDerivation (self: {
   pname = "file-embed";
-  version = "0.0.4.7";
-  sha256 = "1hn08499kay0y6ik5z1s58s8r9h1nzf116avgi6ia4b565wpzkvi";
+  version = "0.0.4.9";
+  sha256 = "128z3jwxn6d13dkrfjx7maxgmax8bfgr8n2jfhqg3rvv4ryjnqv2";
   buildDepends = [ filepath ];
   testDepends = [ filepath HUnit ];
   meta = {
@@ -11,9 +11,6 @@ cabal.mkDerivation (self: {
     description = "Use Template Haskell to embed file contents directly";
     license = self.stdenv.lib.licenses.bsd3;
     platforms = self.ghc.meta.platforms;
-    maintainers = [
-      self.stdenv.lib.maintainers.andres
-      self.stdenv.lib.maintainers.simons
-    ];
+    maintainers = [ self.stdenv.lib.maintainers.andres ];
   };
 })

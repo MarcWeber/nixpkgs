@@ -1,7 +1,6 @@
 { stdenv, fetchurl, patchelf }:
 
 # this package contains the daemon version of bittorrent sync
-
 # it's unfortunately closed source.
 
 let
@@ -15,16 +14,15 @@ let
     else if stdenv.system == "i686-linux" then "ld-linux.so.2"
     else throw "Bittorrent Sync for: ${stdenv.system} not supported!";
 
-  version = "1.0.116";
-  sha256 = if stdenv.system == "x86_64-linux" then "108c11x8lp0a4irq88raclz3zfvmkxsqymxx3y8amc1lc6kc3n8i"
-    else if stdenv.system == "i686-linux" then "0kkxi04rggq6lrvn7g1xjay2nskqn7z4qkm0h0lcra7h2jz09mf1"
+  version = "1.1.42";
+  sha256 = if stdenv.system == "x86_64-linux" then "07gcjzhhr8simkjjxhyzkvh3748ll81d742fz7j31nwdi34my8ri"
+    else if stdenv.system == "i686-linux" then "0awf5bfhb4dp4aydzrgdp3wqv1mz6ys1z45i0r1hbqszvf44xj7c"
     else throw "Bittorrent Sync for: ${stdenv.system} not supported!";
 
 in stdenv.mkDerivation {
   name = "btsync-bin-${version}";
   src = fetchurl {
-    # TODO: using version-specific URL: http://forum.bittorrent.com/topic/18070-versioned-binary-downloads/#entry45868
-    url = "http://btsync.s3-website-us-east-1.amazonaws.com/btsync_${arch}.tar.gz";
+    url = "http://syncapp.bittorrent.com/${version}/btsync_${arch}-${version}.tar.gz";
     inherit sha256;
   };
 
@@ -43,7 +41,7 @@ in stdenv.mkDerivation {
   meta = {
     homepage = "http://labs.bittorrent.com/experiments/sync.html";
     description = "Automatically sync files via secure, distributed technology.";
-    license = stdenv.lib.licenses.unfreeRedistributable;
+    license = stdenv.lib.licenses.unfree;
     maintainers = [ stdenv.lib.maintainers.iElectric ];
   };
 }

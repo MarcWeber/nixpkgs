@@ -12,12 +12,12 @@
 }:
 
 stdenv.mkDerivation {
-  name = "csound5.18.02";
+  name = "csound-5.18.02";
 
   enableParallelBuilding = true;
 
   src = fetchurl {
-    url = http://netcologne.dl.sourceforge.net/project/csound/csound5/csound5.18/Csound5.18.02.tar.gz;
+    url = mirror://sourceforge/csound/Csound5.18.02.tar.gz;
     sha256 = "4c461cf3bf60b83671224949dd33805379b7121bf2c0ad6af5e191e7f6f8adc8";
   };
 

@@ -17,6 +17,7 @@ stdenv.mkDerivation rec {
   '';
 
   buildPhase = ''
+    export NO_INTERACTION=1
     make && make test
   '';
 

@@ -2,8 +2,8 @@
 
 stdenv.mkDerivation rec {
   # REGION AUTO UPDATE: { name="koellner-phonetik"; type="git"; url="git@github.com:MarcWeber/php_koellner_phonetik.git";  }
-  src = (fetchurl { url = "http://mawercer.de/~nix/repos/koellner-phonetik-git-b0b30.tar.bz2"; sha256 = "4a4144df3268683451d19a7e0ad57093b7c215f25d9e737ed9d9e13a03bdd0ec"; });
-  name = "koellner-phonetik-git-b0b30";
+  src = (fetchurl { url = "http://mawercer.de/~nix/repos/koellner-phonetik-git-773df.tar.bz2"; sha256 = "8bd566f0d8fb6a10ef8f541fc308ea1c7d8c06eda664a63c02a0ac82ce72929f"; });
+  name = "koellner-phonetik-git-773df";
   # END
   
   buildInputs = [ php autoconf automake ];

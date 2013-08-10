@@ -42,6 +42,7 @@ my $info = XMLin($xml, KeyAttr => { 'item' => '+attrPath', 'meta' => 'name' }, F
 
 # Check meta information.
 print "=== Package meta information ===\n\n";
+my $nrBadNames = 0;
 my $nrMissingMaintainers = 0;
 my $nrMissingDescriptions = 0;
 my $nrBadDescriptions = 0;
@@ -51,7 +52,11 @@ foreach my $attr (sort keys %{$info->{item}}) {
     my $pkg = $info->{item}->{$attr};
 
     my $pkgName = $pkg->{name};
-    $pkgName =~ s/-[0-9].*//;
+    my $pkgVersion = "";
+    if ($pkgName =~ /(.*)(-[0-9].*)$/) {
+        $pkgName = $1;
+        $pkgVersion = $2;
+    }
 
     # Check the maintainers.
     my @maintainers;
@@ -70,6 +75,17 @@ foreach my $attr (sort keys %{$info->{item}}) {
     if (scalar @maintainers == 0) {
         print "$attr: Lacks a maintainer\n";
         $nrMissingMaintainers++;
+    }
+
+    # Package names should not be capitalised.
+    if ($pkgName =~ /^[A-Z]/) {
+        print "$attr: package name ‘$pkgName’ should not be capitalised\n";
+        $nrBadNames++;
+    }
+
+    if ($pkgVersion eq "") {
+        print "$attr: package has no version\n";
+        $nrBadNames++;
     }
 
     # Check the license.
@@ -104,6 +120,7 @@ foreach my $attr (sort keys %{$info->{item}}) {
         $nrBadDescriptions++ if $bad;
     }
 }
+
 print "\n";
 
 # Find packages that have the same name.
@@ -128,8 +145,8 @@ foreach my $name (sort keys %pkgsByName) {
     @pkgs = grep { my $x = $drvsSeen{$_->{drvPath}}; $drvsSeen{$_->{drvPath}} = 1; !defined $x } @pkgs;
 
     # Filter packages that have a lower priority.
-    my $highest = min (map { $_->{priority} // 0 } @pkgs);
-    @pkgs = grep { ($_->{priority} // 0) == $highest } @pkgs;
+    my $highest = min (map { $_->{meta}->{priority}->{value} // 0 } @pkgs);
+    @pkgs = grep { ($_->{meta}->{priority}->{value} // 0) == $highest } @pkgs;
 
     next if scalar @pkgs == 1;
 
@@ -140,6 +157,7 @@ foreach my $name (sort keys %pkgsByName) {
 
 print "=== Bottom line ===\n";
 print "Number of packages: ", scalar(keys %{$info->{item}}), "\n";
+print "Number of bad names: $nrBadNames\n";
 print "Number of missing maintainers: $nrMissingMaintainers\n";
 print "Number of missing licenses: $nrMissingLicenses\n";
 print "Number of missing descriptions: $nrMissingDescriptions\n";

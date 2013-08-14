@@ -5,9 +5,13 @@ isPy26 = python.majorVersion == "2.6";
 isPy27 = python.majorVersion == "2.7";
 optional = pkgs.lib.optional;
 optionals = pkgs.lib.optionals;
-modules = python.modules or { readline = null; sqlite3 = null; curses = null; ssl = null; };
+modules = python.modules or { readline = null; sqlite3 = null; curses = null; ssl = null; crypt = null; };
 
-pythonPackages = modules // rec {
+pythonPackages = modules // import ./python-packages-generated.nix {
+  inherit pkgs python;
+  inherit (pkgs) stdenv fetchurl;
+  self = pythonPackages;
+} // rec {
 
   inherit python;
   inherit (pkgs) fetchurl fetchsvn fetchgit stdenv;
@@ -49,6 +53,25 @@ pythonPackages = modules // rec {
     inherit python setuptools;
   };
 
+  pypi2nix = buildPythonPackage rec {
+    rev = "e231db7e8874d4543a6f0fffc46c0fffbe6108c5";
+    name = "pypi2nix-1.0_${rev}";
+
+    src = fetchurl {
+      url = "https://github.com/garbas/pypi2nix/tarball/${rev}";
+      name = "${name}.tar.bz";
+      sha256 = "0wqk6milnagr0b0v8igjp8p25d5y63pki3pkdy7hbgjxvyw8wril";
+    };
+
+    propagatedBuildInputs = [ pythonPackages."Distutils2-1.0a4" ];
+    doCheck = false;
+
+    meta = {
+      homepage = https://github.com/garbas/pypi2nix;
+      description = "";
+      maintainers = [ stdenv.lib.maintainers.garbas ];
+    };
+  };
   # packages defined elsewhere
 
   blivet = callPackage ../development/python-modules/blivet { };
@@ -67,6 +90,10 @@ pythonPackages = modules // rec {
   });
 
   nixpart = callPackage ../tools/filesystems/nixpart { };
+
+  # This is used for NixOps to make sure we won't break it with the next major
+  # version of nixpart.
+  nixpart0 = nixpart;
 
   pil = import ../development/python-modules/pil {
     inherit (pkgs) fetchurl stdenv libjpeg zlib freetype;
@@ -804,11 +831,11 @@ pythonPackages = modules // rec {
 
 
   colander = buildPythonPackage rec {
-    name = "colander-0.9.6";
+    name = "colander-1.0a5";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/c/colander/${name}.tar.gz";
-      md5 = "2d9f65a64cb6b7f35d6a0d7b607ce4c6";
+      md5 = "569dea523561f5d94338ef9d9a98d249";
     };
 
     propagatedBuildInputs = [ pythonPackages.translationstring ];
@@ -888,6 +915,102 @@ pythonPackages = modules // rec {
       description = "plugin core for use by pytest-cov, nose-cov and nose2-cov";
     };
     propagatedBuildInputs = [ pythonPackages.coverage ];
+  };
+
+  cryptacular = buildPythonPackage rec {
+    name = "cryptacular-1.4.1";
+
+    buildInputs = [ coverage nose ];
+    propagatedBuildInputs = [ pbkdf2 modules.crypt ];
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/c/cryptacular/${name}.tar.gz";
+      md5 = "fe12232ac660185186dd8057d8ca7b0e";
+    };
+
+    # TODO: tests fail: TypeError: object of type 'NoneType' has no len()
+    doCheck = false;
+
+    meta = {
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
+
+  pbkdf2 = buildPythonPackage rec {
+    name = "pbkdf2-1.3";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/p/pbkdf2/${name}.tar.gz";
+      md5 = "40cda566f61420490206597243dd869f";
+    };
+
+    # ImportError: No module named test
+    doCheck = false;
+
+    meta = {
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
+
+  bcrypt = buildPythonPackage rec {
+    name = "bcrypt-1.0.2";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/b/bcrypt/${name}.tar.gz";
+      md5 = "c5df008669d17dd6eeb5e2042d5e136f";
+    };
+
+    buildInputs = [ cffi pycparser mock pytest py ];
+
+    meta = {
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
+
+  cffi = buildPythonPackage rec {
+    name = "cffi-0.7.2";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/c/cffi/${name}.tar.gz";
+      md5 = "d329f5cb2053fd31dafc02e2c9ef0299";
+    };
+
+    buildInputs = [ pkgs.libffi pycparser ];
+
+    meta = {
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
+
+  pycparser = buildPythonPackage rec {
+    name = "pycparser-2.10";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/p/pycparser/${name}.tar.gz";
+      md5 = "d87aed98c8a9f386aa56d365fe4d515f";
+    };
+
+    # ImportError: No module named test
+    doCheck = false;
+
+    meta = {
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
+
+  pytest = buildPythonPackage rec {
+    name = "pytest-2.3.5";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/p/pytest/${name}.tar.gz";
+      md5 = "18f150e7be96b5fe3c388b0e817b8087";
+    };
+
+    buildInputs = [ py ];
+
+    meta = {
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
   };
 
   cssselect = buildPythonPackage rec {
@@ -1001,11 +1124,11 @@ pythonPackages = modules // rec {
 
 
   deform = buildPythonPackage rec {
-    name = "deform-0.9.4";
+    name = "deform-0.9.7";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/d/deform/${name}.tar.gz";
-      md5 = "2ed7b69644a6d8f4e1404e1892329240";
+      md5 = "d450eef05432d473257da5621c72c8b7";
     };
 
     buildInputs = [] ++ optional isPy26 unittest2;
@@ -1016,6 +1139,9 @@ pythonPackages = modules // rec {
         pythonPackages.colander
         pythonPackages.translationstring
         pythonPackages.chameleon
+        pythonPackages.zope_deprecation
+        pythonPackages.coverage
+        pythonPackages.nose
       ];
 
     meta = {
@@ -1222,11 +1348,11 @@ pythonPackages = modules // rec {
 
 
   pyramid = buildPythonPackage rec {
-    name = "pyramid-1.3.4";
+    name = "pyramid-1.4.3";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/p/pyramid/${name}.tar.gz";
-      md5 = "967a04fcb2143b31b279c3013a778a2b";
+      md5 = "28fabf42cf585ecec7a57b5acc1174e3";
     };
 
     buildInputs = [
@@ -1334,6 +1460,176 @@ pythonPackages = modules // rec {
   };
 
 
+  raven = buildPythonPackage rec {
+    name = "raven-3.4.1";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/r/raven/${name}.tar.gz";
+      md5 = "6a9264133bf646149ffb9118d81445be";
+    };
+
+    # way too many dependencies to run tests
+    # see https://github.com/getsentry/raven-python/blob/master/setup.py
+    doCheck = false;
+
+    meta = {
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
+
+
+  hypatia = buildPythonPackage rec {
+    name = "hypatia-0.1a6";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/h/hypatia/${name}.tar.gz";
+      md5 = "3a67683c578754cd8f23317db6d28ffd";
+    };
+ 
+    buildInputs = [ zope_interface zodb3 ];
+
+    meta = {
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
+
+
+  zope_copy = buildPythonPackage rec {
+    name = "zope.copy-4.0.2";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/z/zope.copy/${name}.zip";
+      md5 = "36aa2c96dec4cfeea57f54da2b733eb9";
+    };
+ 
+    buildInputs = [ pkgs.unzip zope_interface zope_location zope_schema ];
+
+    meta = {
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
+
+
+  statsd = buildPythonPackage rec {
+    name = "statsd-2.0.2";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/s/statsd/${name}.tar.gz";
+      md5 = "476ef5b9004f6e2cb25c7da440bb53d0";
+    };
+ 
+    buildInputs = [ ];
+
+    meta = {
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
+
+
+  pyramid_zodbconn = buildPythonPackage rec {
+    name = "pyramid_zodbconn-0.4";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/p/pyramid_zodbconn/${name}.tar.gz";
+      md5 = "22e88cc82cafbbe00274e7378434e5fe";
+    };
+ 
+    buildInputs = [ pyramid mock ];
+    propagatedBuildInputs = [ zodb3 zodburi ];
+
+    meta = {
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
+
+
+  pyramid_mailer = buildPythonPackage rec {
+    name = "pyramid_mailer-0.13";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/p/pyramid_mailer/${name}.tar.gz";
+      md5 = "43800c7c894097a23140da58e3638c93";
+    };
+ 
+    buildInputs = [ pyramid transaction ];
+    propagatedBuildInputs = [ repoze_sendmail ];
+
+    meta = {
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
+
+
+  repoze_sendmail = buildPythonPackage rec {
+    name = "repoze.sendmail-4.1";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/r/repoze.sendmail/${name}.tar.gz";
+      md5 = "81d15f1f03cc67d6f56f2091c594ef57";
+    };
+ 
+    buildInputs = [ transaction ];
+
+    meta = {
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
+
+
+  zodburi = buildPythonPackage rec {
+    name = "zodburi-2.0b1";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/z/zodburi/${name}.tar.gz";
+      md5 = "52cc13c32ffe4ee7b5f5abc79f70f3c2";
+    };
+ 
+    buildInputs = [ zodb3 mock ];
+
+    meta = {
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
+
+
+  substanced = buildPythonPackage rec {
+    # no release yet
+    rev = "bd8822be62f0f356e4e44d5c614fe14d3fa08f45";
+    name = "substanced-${rev}";
+
+    src = fetchgit {
+      inherit rev;
+      url = "https://github.com/Pylons/substanced.git";
+    };
+
+    buildInputs = [ mock ];
+
+    propagatedBuildInputs = [
+      pyramid
+      pytz
+      zodb3
+      venusian
+      colander
+      deform
+      deform_bootstrap
+      python_magic
+      pyyaml
+      cryptacular
+      hypatia
+      zope_copy
+      zope_component
+      zope_deprecation
+      statsd
+      pyramid_zodbconn
+      pyramid_mailer
+    ];
+
+    meta = with stdenv.lib; {
+      maintainers = [ maintainers.iElectric ];
+    };
+  };
+
+
   repoze_lru = buildPythonPackage rec {
     name = "repoze.lru-0.4";
 
@@ -1388,6 +1684,8 @@ pythonPackages = modules // rec {
       maintainers = [ maintainers.goibhniu ];
     };
   };
+
+
 
 
   zope_deprecation = buildPythonPackage rec {
@@ -1619,6 +1917,26 @@ pythonPackages = modules // rec {
     meta = {
       description = "A database schema evolution tool for the Django web framework";
       homepage = http://code.google.com/p/django-evolution/;
+    };
+  };
+
+
+  django_tagging = buildPythonPackage rec {
+    name = "django-tagging-0.3.1";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/d/django-tagging/${name}.tar.gz";
+      md5 = "a0855f2b044db15f3f8a025fa1016ddf";
+    };
+
+    # error: invalid command 'test'
+    doCheck = false;
+
+    propagatedBuildInputs = [ django_1_3 ];
+
+    meta = {
+      description = "A generic tagging application for Django projects";
+      homepage = http://code.google.com/p/django-tagging/;
     };
   };
 
@@ -2459,6 +2777,31 @@ pythonPackages = modules // rec {
   });
 
 
+  python_magic = buildPythonPackage rec {
+    name = "python-magic-0.4.3";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/p/python-magic/${name}.tar.gz";
+      md5 = "eec9e2b1bcaf43308b7dacb3f2ecd8c1";
+    };
+
+    propagatedBuildInputs = [ pkgs.file ];
+
+    patchPhase = ''
+      substituteInPlace magic.py --replace "ctypes.CDLL(dll)" "ctypes.CDLL('${pkgs.file}/lib/libmagic.so')"
+    '';
+
+    # TODO: tests are failing
+    #checkPhase = ''
+    #  ${python}/bin/${python.executable} ./test.py
+    #'';
+
+    meta = {
+      description = "python-magic is a python interface to the libmagic file type identification library";
+      homepage = https://github.com/ahupp/python-magic;
+    };
+  };
+
   magic = pkgs.stdenv.mkDerivation rec {
     name = "python-${pkgs.file.name}";
 
@@ -2505,11 +2848,11 @@ pythonPackages = modules // rec {
 
 
   Mako = buildPythonPackage rec {
-    name = "Mako-0.7.3";
+    name = "Mako-0.8.1";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/M/Mako/${name}.tar.gz";
-      md5 = "daf7cc50f997533b573f9b40193139a2";
+      md5 = "96d962464ce6316004af0cc48495d73e";
     };
 
     buildInputs = [ markupsafe nose ];
@@ -3310,6 +3653,8 @@ pythonPackages = modules // rec {
 
     propagatedBuildInputs = [ pycrypto ];
 
+    checkPhase = "python test.py";
+
     meta = {
       homepage = "http://www.lag.net/paramiko/";
       description = "SSH2 protocol for python";
@@ -3851,6 +4196,26 @@ pythonPackages = modules // rec {
       platforms = stdenv.lib.platforms.linux;
     };
   });
+
+
+  pycurl2 = buildPythonPackage (rec {
+    name = "pycurl2-7.20.0";
+
+    src = fetchgit {
+      url = "https://github.com/Lispython/pycurl.git";
+      rev = "0f00109950b883d680bd85dc6e8a9c731a7d0d13";
+      sha256 = "0mhg7f9y5zl0m2xgz3rf1yqjd6l8n0qhfk7bpf36r44jfnhj75ld";
+    };
+
+    buildInputs = [ pkgs.curl simplejson unittest2 nose ];
+
+    meta = {
+      homepage = https://pypi.python.org/pypi/pycurl2;
+      description = "A fork from original PycURL library that no maintained from 7.19.0";
+      platforms = stdenv.lib.platforms.linux;
+    };
+  });
+
 
   pydot = buildPythonPackage rec {
     name = "pydot-1.0.2";
@@ -6326,11 +6691,11 @@ pythonPackages = modules // rec {
   };
 
   translationstring = buildPythonPackage rec {
-    name = "translationstring-0.4";
+    name = "translationstring-1.1";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/t/translationstring/${name}.tar.gz";
-      md5 = "392287923c475b660b7549b2c2f03dbc";
+      md5 = "0979b46d8f0f852810c8ec4be5c26cf2";
     };
 
     meta = {
@@ -6437,8 +6802,7 @@ pythonPackages = modules // rec {
       sha256 = "0wjhd87pvpcpvaj3wql2d92g8lpp33iwmxdkp7npic5mjl2y0dsg";
     };
 
-    buildInputs = [ txamqp zope_interface twisted ];
-    propagatedBuildInputs = [ whisper ];
+    propagatedBuildInputs = [ whisper txamqp zope_interface twisted ];
 
     # error: invalid command 'test'
     doCheck = false;
@@ -6494,7 +6858,19 @@ pythonPackages = modules // rec {
       sha256 = "1gj8i6j2i172cldqw98395235bn78ciagw6v17fgv01rmind3lag";
     };
 
-    buildInputs = [ django pkgs.pycairo ldap memcached modules.sqlite3 ];
+    propagatedBuildInputs = [ django_1_3 django_tagging modules.sqlite3 whisper pkgs.pycairo ldap memcached ];
+
+    postInstall = ''
+      wrapProgram $out/bin/run-graphite-devel-server.py \
+        --prefix PATH : ${pkgs.which}/bin
+    '';
+
+    preConfigure = ''
+      substituteInPlace webapp/graphite/thirdparty/pytz/__init__.py --replace '/usr/share/zoneinfo' '/etc/zoneinfo'
+      substituteInPlace webapp/graphite/settings.py --replace "join(WEBAPP_DIR, 'content')" "join(WEBAPP_DIR, 'webapp', 'content')"
+      cp webapp/graphite/manage.py bin/manage-graphite.py
+      substituteInPlace bin/manage-graphite.py --replace 'settings' 'graphite.settings'
+    '';
 
     # error: invalid command 'test'
     doCheck = false;

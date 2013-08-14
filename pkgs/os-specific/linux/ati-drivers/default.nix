@@ -24,15 +24,15 @@ assert stdenv.system == "x86_64-linux";
 
 stdenv.mkDerivation rec {
   name = "ati-drivers-${version}-${kernel.version}";
-  version = "13.1";
+  version = "13.4";
 
   builder = ./builder.sh;
 
   inherit libXxf86vm xf86vidmodeproto;
 
   src = fetchurl {
-    url = http://www2.ati.com/drivers/linux/amd-driver-installer-catalyst-13.1-linux-x86.x86_64.zip;
-    sha256 = "67898a922b6b58f25a276a144f16b19014f79c39e4d44d8d2883a467d31e34ad";
+    url = http://www2.ati.com/drivers/linux/amd-driver-installer-catalyst-13-4-linux-x86.x86_64.zip;
+    sha256 = "1914ikdich0kg047bqh89ai5z4dyryj5mlw5i46n90fsfiaxa532";
   };
 
   patchPhase = "patch -p0 < ${./gentoo-patches.patch}";

@@ -647,9 +647,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   bytestringProgress = callPackage ../development/libraries/haskell/bytestring-progress {};
 
-  c2hs = callPackage ../development/libraries/haskell/c2hs {
-    languageC = self.languageC_0_3_2_1;
-  };
+  c2hs = callPackage ../development/libraries/haskell/c2hs {};
 
   Cabal_1_14_0 = callPackage ../development/libraries/haskell/Cabal/1.14.0.nix { cabal = self.cabal.override { Cabal = null; }; };
   Cabal_1_16_0_3 = callPackage ../development/libraries/haskell/Cabal/1.16.0.3.nix { cabal = self.cabal.override { Cabal = null; }; };
@@ -755,6 +753,10 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   cryptoApi = callPackage ../development/libraries/haskell/crypto-api {};
 
   cryptocipher = callPackage ../development/libraries/haskell/cryptocipher {};
+
+  cryptoCipherTests = callPackage ../development/libraries/haskell/crypto-cipher-tests {};
+
+  cryptoCipherTypes = callPackage ../development/libraries/haskell/crypto-cipher-types {};
 
   cryptoConduit = callPackage ../development/libraries/haskell/crypto-conduit {};
 
@@ -1273,6 +1275,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   instantGenerics = callPackage ../development/libraries/haskell/instant-generics {};
 
+  intervals = callPackage ../development/libraries/haskell/intervals {};
+
   ioChoice = callPackage ../development/libraries/haskell/io-choice {};
 
   IORefCAS = callPackage ../development/libraries/haskell/IORefCAS {};
@@ -1308,9 +1312,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   knob = callPackage ../development/libraries/haskell/knob {};
 
-  languageC_0_4_2   = callPackage ../development/libraries/haskell/language-c/0.4.2.nix {};
-  languageC_0_3_2_1 = callPackage ../development/libraries/haskell/language-c/0.3.2.1.nix {};
-  languageC = self.languageC_0_4_2;
+  languageC = callPackage ../development/libraries/haskell/language-c {};
 
   languageCQuote = callPackage ../development/libraries/haskell/language-c-quote {};
 
@@ -1390,7 +1392,9 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   misfortune = callPackage ../development/libraries/haskell/misfortune {};
 
-  MissingH = callPackage ../development/libraries/haskell/MissingH {};
+  MissingH = callPackage ../development/libraries/haskell/MissingH {
+    testpack = null;
+  };
 
   mmap = callPackage ../development/libraries/haskell/mmap {};
 
@@ -1407,8 +1411,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   monadLogger = callPackage ../development/libraries/haskell/monad-logger {};
 
   monadPar_0_1_0_3 = callPackage ../development/libraries/haskell/monad-par/0.1.0.3.nix {};
-  monadPar_0_3_4_3 = callPackage ../development/libraries/haskell/monad-par/0.3.4.3.nix {};
-  monadPar = self.monadPar_0_3_4_3;
+  monadPar_0_3_4_4 = callPackage ../development/libraries/haskell/monad-par/0.3.4.4.nix {};
+  monadPar = self.monadPar_0_3_4_4;
 
   monadParExtras = callPackage ../development/libraries/haskell/monad-par-extras {};
 
@@ -1500,6 +1504,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   newtype = callPackage ../development/libraries/haskell/newtype {};
 
   nonNegative = callPackage ../development/libraries/haskell/non-negative {};
+
+  numericExtras = callPackage ../development/libraries/haskell/numeric-extras {};
 
   numericPrelude = callPackage ../development/libraries/haskell/numeric-prelude {};
 
@@ -1749,6 +1755,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
 
   scotty = callPackage ../development/libraries/haskell/scotty {};
 
+  securemem = callPackage ../development/libraries/haskell/securemem {};
+
   sendfile = callPackage ../development/libraries/haskell/sendfile {};
 
   semigroups = callPackage ../development/libraries/haskell/semigroups {};
@@ -1981,6 +1989,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.final x y);
   unbound = callPackage ../development/libraries/haskell/unbound {};
 
   unboundedDelays = callPackage ../development/libraries/haskell/unbounded-delays {};
+
+  unionFind = callPackage ../development/libraries/haskell/union-find {};
 
   uniplate = callPackage ../development/libraries/haskell/uniplate {};
 

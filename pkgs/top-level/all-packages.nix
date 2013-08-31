@@ -548,8 +548,6 @@ let
 
   catdoc = callPackage ../tools/text/catdoc { };
 
-  dhex = callPackage ../tools/misc/dhex { };
-
   dlx = callPackage ../misc/emulators/dlx { };
 
   eggdrop = callPackage ../tools/networking/eggdrop { };

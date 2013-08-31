@@ -1,4 +1,5 @@
 { stdenv, fetchgit, python, pyxattr, pylibacl, setuptools, fuse, git, perl, pandoc, makeWrapper
+, diffutils, writeTextFile
 , par2cmdline, par2Support ? false }:
 
 assert par2Support -> par2cmdline != null;
@@ -16,6 +17,8 @@ stdenv.mkDerivation {
 
   buildInputs = [ python git ];
   nativeBuildInputs = [ pandoc perl makeWrapper ];
+
+  enableParallelBuilding = true;
 
   patchPhase = ''
     substituteInPlace Makefile --replace "-Werror" ""
@@ -41,6 +44,29 @@ stdenv.mkDerivation {
     wrapProgram $out/bin/bup --prefix PYTHONPATH : \
       ${stdenv.lib.concatStringsSep ":"
           (map (path: "$(toPythonPath ${path})") [ pyxattr pylibacl setuptools fuse ])}
+
+    ## test it
+    backup_init(){
+      export BUP_DIR=$TMP/bup
+      PATH=$out/bin:$PATH
+      bup init
+    }
+    backup_make(){
+      ( cd "$1"; tar -cvf - .) | bup split -n backup
+    }
+    backup_restore_latest(){
+      bup join backup | ( cd "$1"; tar -xf - )
+    }
+    backup_verify_integrity_latest(){
+      bup fsck
+    }
+    backup_verify_latest(){
+      # maybe closest would be to mount or use the FTP like server ..
+      true
+    }
+
+    . ${import ../test-case.nix { inherit diffutils writeTextFile; }}
+    backup_test backup 100M
   '';
 
   meta = {

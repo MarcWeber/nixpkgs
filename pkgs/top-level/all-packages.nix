@@ -1767,6 +1767,8 @@ let
 
   ssss = callPackage ../tools/security/ssss { };
 
+  storeBackup = callPackage ../tools/backup/store-backup { };
+
   stun = callPackage ../tools/networking/stun { };
 
   stunnel = callPackage ../tools/networking/stunnel { };

@@ -548,8 +548,6 @@ let
 
   catdoc = callPackage ../tools/text/catdoc { };
 
-  dhex = callPackage ../tools/misc/dhex { };
-
   dlx = callPackage ../misc/emulators/dlx { };
 
   eggdrop = callPackage ../tools/networking/eggdrop { };
@@ -1764,6 +1762,8 @@ let
   };
 
   ssss = callPackage ../tools/security/ssss { };
+
+  storeBackup = callPackage ../tools/backup/store-backup { };
 
   stun = callPackage ../tools/networking/stun { };
 

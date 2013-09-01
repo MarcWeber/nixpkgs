@@ -1,6 +1,8 @@
 { stdenv, fetchgit, python, pyxattr, pylibacl, setuptools, fuse, git, perl, pandoc, makeWrapper
-, diffutils, writeTextFile
+, diffutils, writeTextFile, rsync
 , par2cmdline, par2Support ? false }:
+
+# keep in mind you cannot prune older revisions yet! (2013-06)
 
 assert par2Support -> par2cmdline != null;
 
@@ -11,12 +13,12 @@ stdenv.mkDerivation {
 
   src = fetchgit {
     url = "https://github.com/bup/bup.git";
-    rev = "96c6fa2a70425fff1e73d2e0945f8e242411ab58";
-    sha256 = "0d9hgyh1g5qcpdvnqv3a5zy67x79yx9qx557rxrnxyzqckp9v75n";
+    rev = "98a8e2ebb775386cb7e66b1953df46cdbd4b4bd3";
+    sha256 = "ab01c70f0caf993c0c05ec3a1008b5940b433bf2f7bd4e9b995d85e81958c1b7";
   };
 
   buildInputs = [ python git ];
-  nativeBuildInputs = [ pandoc perl makeWrapper ];
+  nativeBuildInputs = [ pandoc perl makeWrapper rsync ];
 
   enableParallelBuilding = true;
 
@@ -27,6 +29,12 @@ stdenv.mkDerivation {
       substituteInPlace $f --replace "/usr/bin/env python" "${python}/bin/python"
     done
     substituteInPlace Makefile --replace "./format-subst.pl" "perl ./format-subst.pl"
+    for t in t/*.sh t/configure-sampledata t/compare-trees; do
+      substituteInPlace $t --replace "/usr/bin/env bash" "$(type -p bash)"
+    done
+    substituteInPlace wvtestrun --replace "/usr/bin/env perl" "${perl}/bin/perl"
+
+    substituteInPlace t/test.sh --replace "/bin/pwd" "$(type -P pwd)"
   '' + optionalString par2Support ''
     substituteInPlace cmd/fsck-cmd.py --replace "['par2'" "['${par2cmdline}/bin/par2'"
   '';
@@ -43,9 +51,12 @@ stdenv.mkDerivation {
   postInstall = optionalString (elem stdenv.system platforms.linux) ''
     wrapProgram $out/bin/bup --prefix PYTHONPATH : \
       ${stdenv.lib.concatStringsSep ":"
-          (map (path: "$(toPythonPath ${path})") [ pyxattr pylibacl setuptools fuse ])}
+          (map (path: "$(toPythonPath ${path})") [ pyxattr pylibacl setuptools fuse python.modules.readline ])}
 
     ## test it
+    make test
+
+    # if make test passes the following probably passes, too
     backup_init(){
       export BUP_DIR=$TMP/bup
       PATH=$out/bin:$PATH

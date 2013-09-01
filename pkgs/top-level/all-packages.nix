@@ -3127,10 +3127,10 @@ let
   php5_2 = php.override { version = "5.2.17"; };
   php5_2fpm = php5_3.override { version ="5.2.17"; sapi = "fpm"; }; # experimental patch
 
-  php5_3 = php.override { version = "5.3.25"; }; 
+  php5_3 = php.override { version = "5.3.27"; }; 
   php5_3fpm = php5_3.override { sapi = "fpm"; };
 
-  php5_4 = php.override { version = "5.4.15"; };
+  php5_4 = php.override { version = "5.4.19"; };
   php5_4fpm = php5_4.override { sapi = "fpm"; };
 
   php5_5 = php.override { version = "5.5.0RC1"; };

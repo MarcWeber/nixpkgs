@@ -55,7 +55,7 @@ rec {
       };
 
       functionsFromType = opt:
-        opt // (builtins.intersectAttrs { merge = 1; check = 1; } (decl.type or {}));
+        opt // (builtins.intersectAttrs { merge = 1; check = 1; } (decl.type or {})); 
 
       addDeclaration = opt: opt // decl;
 

@@ -53,25 +53,6 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     inherit python setuptools;
   };
 
-  pypi2nix = buildPythonPackage rec {
-    rev = "e231db7e8874d4543a6f0fffc46c0fffbe6108c5";
-    name = "pypi2nix-1.0_${rev}";
-
-    src = fetchurl {
-      url = "https://github.com/garbas/pypi2nix/tarball/${rev}";
-      name = "${name}.tar.bz";
-      sha256 = "0wqk6milnagr0b0v8igjp8p25d5y63pki3pkdy7hbgjxvyw8wril";
-    };
-
-    propagatedBuildInputs = [ pythonPackages."Distutils2-1.0a4" ];
-    doCheck = false;
-
-    meta = {
-      homepage = https://github.com/garbas/pypi2nix;
-      description = "";
-      maintainers = [ stdenv.lib.maintainers.garbas ];
-    };
-  };
   # packages defined elsewhere
 
   blivet = callPackage ../development/python-modules/blivet { };
@@ -144,6 +125,9 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     inherit (pkgs.gnome) libglade;
     inherit python buildPythonPackage pygobject pycairo;
   };
+
+  # A patched version of buildout, useful for buildout based development on Nix
+  zc_buildout_nix = callPackage ../development/python-modules/buildout-nix { };
 
   # packages defined here
 
@@ -555,11 +539,12 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
 
   boto = buildPythonPackage rec {
-    name = "boto-2.6.0";
+    name = "boto-${version}";
+    version = "2.9.9";
 
     src = fetchurl {
-      url = "https://github.com/downloads/boto/boto/${name}.tar.gz";
-      sha256 = "1wnzs9frf44mrnw7l2vijc5anbcvcqqrv7237gjn27v0ja76slff";
+      url = "https://github.com/boto/boto/archive/${version}.tar.gz";
+      sha256 = "18wqpzd1zf8nivcn2rl1wnladf7hhyy5p75b5l6kafynm4l9j6jq";
     };
 
     # The tests seem to require AWS credentials.
@@ -1273,6 +1258,28 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     buildInputs = [ nose nosejs ];
     propagatedBuildInputs = [ sphinx ];
   };
+
+
+  googlecl = buildPythonPackage rec {
+    version = "0.9.14";
+    name    = "googlecl-${version}";
+
+    src = fetchurl {
+      url    = "https://googlecl.googlecode.com/files/${name}.tar.gz";
+      sha256 = "0nnf7xkr780wivr5xnchfcrahlzy9bi2dxcs1w1bh1014jql0iha";
+    };
+
+    meta = with stdenv.lib; {
+      description = "Brings Google services to the command line.";
+      homepage    = "https://code.google.com/p/googlecl/";
+      license     = licenses.asl20;
+      maintainers = with maintainers; [ lovek323 ];
+      platforms   = platforms.unix;
+    };
+
+    propagatedBuildInputs = [ gdata ];
+  };
+
 
   logilab_astng = buildPythonPackage rec {
     name = "logilab-astng-0.24.1";
@@ -2243,7 +2250,7 @@ pythonPackages = modules // import ./python-packages-generated.nix {
       # See http://foolscap.lothar.com/trac/browser/LICENSE.
       license = "MIT";
 
-      maintainers = [ stdenv.lib.maintainers.ludo ];
+      maintainers = [ ];
     };
   });
 
@@ -3134,6 +3141,25 @@ pythonPackages = modules // import ./python-packages-generated.nix {
   });
 
 
+  muttils = buildPythonPackage (rec {
+    name = "muttils-1.3";
+
+    src = fetchurl {
+      url = http://www.blacktrash.org/hg/muttils/archive/8bb26094df06.tar.bz2;
+      sha256 = "1a4kxa0fpgg6rdj5p4kggfn8xpniqh8v5kbiaqc6wids02m7kag6";
+    };
+
+    # Tests don't work
+    doCheck = false;
+
+    meta = {
+      description = "Utilities for use with console mail clients, like mutt";
+      homepage = http://www.blacktrash.org/hg/muttils;
+      license = "GPLv2+";
+    };
+  });
+
+
   MySQL_python = buildPythonPackage {
     name = "MySQL-python-1.2.3";
 
@@ -3582,7 +3608,7 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
       license = "revised-BSD";
 
-      maintainers = [ stdenv.lib.maintainers.ludo ];
+      maintainers = [ ];
     };
   });
 
@@ -4133,7 +4159,7 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
       license = "GPLv2+";
 
-      maintainers = [ stdenv.lib.maintainers.ludo ];
+      maintainers = [ ];
       platforms = stdenv.lib.platforms.linux;
     };
   });
@@ -4700,7 +4726,7 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
       license = "revised BSD";
 
-      maintainers = [ stdenv.lib.maintainers.ludo ];
+      maintainers = [ ];
     };
   });
 
@@ -5663,7 +5689,7 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
       license = "MIT";
 
-      maintainers = [ stdenv.lib.maintainers.ludo ];
+      maintainers = [ ];
     };
   };
 
@@ -6567,18 +6593,18 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
 
   tarman = buildPythonPackage rec {
-    version = "0.1.1";
+    version = "0.1.3";
     name = "tarman-${version}";
 
     src = fetchurl {
       url = "https://pypi.python.org/packages/source/t/tarman/tarman-${version}.zip";
-      sha256 = "0ppd2365hf841b58fss5pgaja0y0mwx5n0gk1p3rxx9y3r0kyfas";
+      sha256 = "0ri6gj883k042xaxa2d5ymmhbw2bfcxdzhh4bz7700ibxwxxj62h";
     };
 
     buildInputs = [ pkgs.unzip unittest2 nose mock ];
     propagatedBuildInputs = [ modules.curses libarchive ];
 
-    # two tests fail
+    # tests are still failing
     doCheck = false;
   };
 
@@ -6809,11 +6835,11 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
   graphite_web = buildPythonPackage rec {
     name = "graphite-web-${version}";
-    version = "0.9.10";
+    version = "0.9.11";
 
     src = fetchurl rec {
-      url = "https://launchpad.net/graphite/0.9/${version}/+download/${name}.tar.gz";
-      sha256 = "1gj8i6j2i172cldqw98395235bn78ciagw6v17fgv01rmind3lag";
+      url = "https://pypi.python.org/packages/source/g/graphite-web/${name}.tar.gz";
+      md5 = "1499b5dded3d1054d598760fd450a6f9";
     };
 
     propagatedBuildInputs = [ django_1_3 django_tagging modules.sqlite3 whisper pkgs.pycairo ldap memcached ];
@@ -6986,5 +7012,28 @@ pythonPackages = modules // import ./python-packages-generated.nix {
       license = pkgs.lib.licenses.bsd3;
     };
  };
+
+# python2.7 specific eggs
+} // pkgs.lib.optionalAttrs (python.majorVersion == "2.7") {
+
+  pypi2nix = pythonPackages.buildPythonPackage rec {
+    rev = "e85eb9e75e7290c17e89822d6a5c1c52c1b59269";
+    name = "pypi2nix-1.0_${rev}";
+
+    src = pkgs.fetchurl {
+      url = "https://github.com/garbas/pypi2nix/tarball/${rev}";
+      name = "${name}.tar.bz";
+      sha256 = "0wk9019pgpc2467819cz98fdvihjkpihlh1yywfxlvn04ymb315q";
+    };
+
+    propagatedBuildInputs = [ pythonPackages."Distutils2-1.0a4" ];
+    doCheck = false;
+
+    meta = {
+      homepage = https://github.com/garbas/pypi2nix;
+      description = "";
+      maintainers = [ pkgs.stdenv.lib.maintainers.garbas ];
+    };
+  };
 
 }; in pythonPackages

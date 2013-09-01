@@ -24,83 +24,89 @@ with { inherit (stdenv.lib) optional optionals; };
     - maybe do some more splitting into outputs
 */
 
-let derivSrc = rec { # derivSrc is exported and re-used by expressions for older versions
-  name = "libav-9.8";
-
-  src = fetchurl {
-    url = "http://libav.org/releases/${name}.tar.xz";
-    sha256 = "0r7hg9wg3cxjsmwzpa6f2p1a092g2iazyjjy23604ccskzbnirg3";
+let
+  result = {
+    libav_9   = libavFun   "9.8" "0r7hg9wg3cxjsmwzpa6f2p1a092g2iazyjjy23604ccskzbnirg3";
+    libav_0_8 = libavFun "0.8.8" "1wnbmbs0z4f55y8r9bwb63l04zn383l1avy4c9x1ffb2xccgcp79";
   };
 
-  configureFlags =
-    assert stdenv.lib.all (x: x!=null) buildInputs;
-  [
-    #"--enable-postproc" # it's now a separate package in upstream
-    "--disable-avserver" # upstream says it's in a bad state
-    "--enable-avplay"
-    "--enable-shared"
-    "--enable-runtime-cpudetect"
-  ]
-    ++ optionals enableGPL [ "--enable-gpl" "--enable-swscale" ]
-    ++ optional mp3Support "--enable-libmp3lame"
-    ++ optional speexSupport "--enable-libspeex"
-    ++ optional theoraSupport "--enable-libtheora"
-    ++ optional vorbisSupport "--enable-libvorbis"
-    ++ optional vpxSupport "--enable-libvpx"
-    ++ optional x264Support "--enable-libx264"
-    ++ optional xvidSupport "--enable-libxvid"
-    ++ optional faacSupport "--enable-libfaac --enable-nonfree"
-    ++ optional vaapiSupport "--enable-vaapi"
-    ++ optional vdpauSupport "--enable-vdpau"
-    ++ optional freetypeSupport "--enable-libfreetype"
-    ;
+  libavFun = version : sha256 : stdenv.mkDerivation rec {
+    name = "libav-${version}";
 
-  buildInputs = [ pkgconfig lame yasm zlib bzip2 SDL ]
-    ++ optional mp3Support lame
-    ++ optional speexSupport speex
-    ++ optional theoraSupport libtheora
-    ++ optional vorbisSupport libvorbis
-    ++ optional vpxSupport libvpx
-    ++ optional x264Support x264
-    ++ optional xvidSupport xvidcore
-    ++ optional faacSupport faac
-    ++ optional vaapiSupport libva
-    ++ optional vdpauSupport libvdpau
-    ++ optional freetypeSupport freetype
-    ;
+    src = fetchurl {
+      url = "http://libav.org/releases/${name}.tar.xz";
+      inherit sha256;
+    };
+    configureFlags =
+      assert stdenv.lib.all (x: x!=null) buildInputs;
+    [
+      #"--enable-postproc" # it's now a separate package in upstream
+      "--disable-avserver" # upstream says it's in a bad state
+      "--enable-avplay"
+      "--enable-shared"
+      "--enable-runtime-cpudetect"
+    ]
+      ++ optionals enableGPL [ "--enable-gpl" "--enable-swscale" ]
+      ++ optional mp3Support "--enable-libmp3lame"
+      ++ optional speexSupport "--enable-libspeex"
+      ++ optional theoraSupport "--enable-libtheora"
+      ++ optional vorbisSupport "--enable-libvorbis"
+      ++ optional vpxSupport "--enable-libvpx"
+      ++ optional x264Support "--enable-libx264"
+      ++ optional xvidSupport "--enable-libxvid"
+      ++ optional faacSupport "--enable-libfaac --enable-nonfree"
+      ++ optional vaapiSupport "--enable-vaapi"
+      ++ optional vdpauSupport "--enable-vdpau"
+      ++ optional freetypeSupport "--enable-libfreetype"
+      ;
 
-  enableParallelBuilding = true;
+    buildInputs = [ pkgconfig lame yasm zlib bzip2 SDL ]
+      ++ optional mp3Support lame
+      ++ optional speexSupport speex
+      ++ optional theoraSupport libtheora
+      ++ optional vorbisSupport libvorbis
+      ++ optional vpxSupport libvpx
+      ++ optional x264Support x264
+      ++ optional xvidSupport xvidcore
+      ++ optional faacSupport faac
+      ++ optional vaapiSupport libva
+      ++ optional vdpauSupport libvdpau
+      ++ optional freetypeSupport freetype
+      ;
 
-  outputs = [ "out" "tools" ];
+    enableParallelBuilding = true;
 
-  postInstall = ''
-    mkdir -p "$tools/bin"
-    mv "$out/bin/avplay" "$tools/bin"
-    cp -s "$out"/bin/* "$tools/bin/"
-  '';
+    outputs = [ "out" "tools" ];
 
-  doInstallCheck = true;
-  installCheckTarget = "check"; # tests need to be run *after* installation
+    postInstall = ''
+      mkdir -p "$tools/bin"
+      mv "$out/bin/avplay" "$tools/bin"
+      cp -s "$out"/bin/* "$tools/bin/"
+    '';
 
-  crossAttrs = {
-    dontSetConfigureCross = true;
-    configureFlags = configureFlags ++ [
-      "--cross-prefix=${stdenv.cross.config}-"
-      "--enable-cross-compile"
-      "--target_os=linux"
-      "--arch=${stdenv.cross.arch}"
-      ];
-  };
+    doInstallCheck = true;
+    installCheckTarget = "check"; # tests need to be run *after* installation
 
-  passthru = { inherit derivSrc vdpauSupport; };
+    crossAttrs = {
+      dontSetConfigureCross = true;
+      configureFlags = configureFlags ++ [
+        "--cross-prefix=${stdenv.cross.config}-"
+        "--enable-cross-compile"
+        "--target_os=linux"
+        "--arch=${stdenv.cross.arch}"
+        ];
+    };
 
-  meta = with stdenv.lib; {
-    homepage = http://libav.org/;
-    description = "A complete, cross-platform solution to record, convert and stream audio and video (fork of ffmpeg)";
-    license = with licenses; if enableUnfree then unfree #ToDo: redistributable or not?
-      else if enableGPL then gpl2Plus else lgpl21Plus;
-    platforms = platforms.all;
-  };
-};
-in stdenv.mkDerivation derivSrc
+    passthru = { inherit vdpauSupport; };
+
+    meta = with stdenv.lib; {
+      homepage = http://libav.org/;
+      description = "A complete, cross-platform solution to record, convert and stream audio and video (fork of ffmpeg)";
+      license = with licenses; if enableUnfree then unfree #ToDo: redistributable or not?
+        else if enableGPL then gpl2Plus else lgpl21Plus;
+      platforms = platforms.all;
+    };
+  }; # libavFun
+
+in result
 

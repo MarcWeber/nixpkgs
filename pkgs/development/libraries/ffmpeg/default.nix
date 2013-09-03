@@ -9,6 +9,7 @@
 , vdpauSupport ? true, libvdpau ? null
 , faacSupport ? false, faac ? null
 , dc1394Support ? false, libdc1394 ? null
+, versionedDerivation, version ? "git"
 }:
 
 assert speexSupport -> speex != null;
@@ -20,14 +21,26 @@ assert xvidSupport -> xvidcore != null;
 assert vdpauSupport -> libvdpau != null;
 assert faacSupport -> faac != null;
 
-stdenv.mkDerivation rec {
-  name = "ffmpeg-0.10";
-  
-  src = fetchurl {
-    url = "http://www.ffmpeg.org/releases/${name}.tar.bz2";
-    sha256 = "1ybzw6d5axr807141izvm2yf4pa0hc1zcywj89nsn3qsdnknlna3";
+versionedDerivation "ffpmeg" "git" {
+
+  "0.10" = rec {
+    name = "ffmpeg-0.10";
+
+    src = fetchurl {
+      url = "http://www.ffmpeg.org/releases/${name}.tar.bz2";
+      sha256 = "1ybzw6d5axr807141izvm2yf4pa0hc1zcywj89nsn3qsdnknlna3";
+    };
   };
-  
+
+  "git" = {
+    # REGION AUTO UPDATE: { name="ffmpeg"; type="git"; url="git://source.ffmpeg.org/ffmpeg.git"; }
+    src = (fetchurl { url = "http://mawercer.de/~nix/repos/ffmpeg-git-92b7e.tar.bz2"; sha256 = "faf84c6744edb0b7b61b89408b4dde17da931ec1638dab7f855908f9b25faabb"; });
+    name = "ffmpeg-git-92b7e";
+    # END
+  };
+
+} (rec {
+
   # `--enable-gpl' (as well as the `postproc' and `swscale') mean that
   # the resulting library is GPL'ed, so it can only be used in GPL'ed
   # applications.
@@ -84,4 +97,4 @@ stdenv.mkDerivation rec {
     maintainers = with maintainers; [ lovek323 ];
     platforms   = platforms.unix;
   };
-}
+})

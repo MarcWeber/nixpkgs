@@ -9,7 +9,7 @@
 , vdpauSupport ? true, libvdpau ? null
 , faacSupport ? false, faac ? null
 , dc1394Support ? false, libdc1394 ? null
-, versionedDerivation, version ? "git"
+, versionedDerivation, version ? "0.10"
 }:
 
 assert speexSupport -> speex != null;
@@ -21,7 +21,7 @@ assert xvidSupport -> xvidcore != null;
 assert vdpauSupport -> libvdpau != null;
 assert faacSupport -> faac != null;
 
-versionedDerivation "ffpmeg" "git" {
+versionedDerivation "ffpmeg" version {
 
   "0.10" = rec {
     name = "ffmpeg-0.10";

@@ -9,7 +9,7 @@
 , vdpauSupport ? true, libvdpau ? null
 , faacSupport ? false, faac ? null
 , dc1394Support ? false, libdc1394 ? null
-, versionedDerivation, version ? "git"
+, versionedDerivation, version ? "0.10"
 }:
 
 assert speexSupport -> speex != null;

@@ -2,11 +2,11 @@
 
 let
 
-  version = "5.0.0";
+  version = "5.0.2";
 
   documentation = fetchurl {
     url = "mirror://sourceforge/zsh/zsh-${version}-doc.tar.bz2";
-    sha256 = "0c7gnbdp52nvwcp1nsygdisxng6zlrd0bzwpsbwql41w02rrw8fj";
+    sha256 = "99ee08cfc91935af8714bd98db652f016d6c7a8a71ba7c6d6223910cd0b7fbf1";
   };
   zprofileHackStr = ''
     cat > $out/etc/zprofile <<EOF
@@ -43,7 +43,7 @@ stdenv.mkDerivation {
 
   src = fetchurl {
     url = "mirror://sourceforge/zsh/zsh-${version}.tar.bz2";
-    sha256 = "12588j649z9j42rm0n8jk8kvgyyhjvdia5lx6rl7qq531674l0fd";
+    sha256 = "eb220ae5a8076191ec6b4c6a5a2f18122d074a19f25b45f0320b44b8166c5a03";
   };
   
   buildInputs = [ ncurses coreutils ];

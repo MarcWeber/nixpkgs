@@ -147,7 +147,7 @@ stdenv.mkDerivation rec {
     find . -type f -print0 | xargs -0 sed -i \
       -e 's,! */bin/bash,!${bash}/bin/bash,' -e 's,\(!\|SHELL=\) */usr/bin/env bash,\1${bash}/bin/bash,' \
       -e 's,! */usr/bin/perl,!${perl}/bin/perl,' -e 's,! */usr/bin/env perl,!${perl}/bin/perl,' \
-      -e 's,! */usr/bin/python,!${python3}/bin/python,' -e 's,! */usr/bin/env python,!${python3}/bin/python,'
+      -e 's,! */usr/bin/python,!${python3}/bin/${python3.executable},' -e 's,! */usr/bin/env python,!${python3}/bin/${python3.executable},'
     #sed -i 's,ANT_OPTS+="\(.*\)",ANT_OPTS+=\1,' apache-commons/java/*/makefile.mk
   '';
 
@@ -157,6 +157,10 @@ stdenv.mkDerivation rec {
   preConfigure = ''
     # Needed to find genccode
     PATH=$PATH:${icu}/sbin
+
+    configureFlagsArray=(
+      "--with-parallelism=$NIX_BUILD_CORES"
+    );
   '';
 
   makeFlags = "SHELL=${bash}/bin/bash";
@@ -180,11 +184,17 @@ stdenv.mkDerivation rec {
 
   # It installs only things to $out/lib/libreoffice
   postInstall = ''
-    mkdir -p $out/bin
+    mkdir -p $out/bin $out/share
     for a in sbase scalc sdraw smath swriter spadmin simpress soffice; do
       ln -s $out/lib/libreoffice/program/$a $out/bin/$a
     done
     ln -s $out/bin/soffice $out/bin/libreoffice
+
+    ln -s $out/lib/libreoffice/share/xdg $out/share/applications
+    for f in $out/share/applications/*.desktop; do
+      substituteInPlace "$f" --replace "Exec=libreoffice4.0" "$out/bin/soffice"
+      substituteInPlace "$f" --replace "Exec=libreoffice" "$out/bin/soffice"
+    done
   '';
 
   configureFlags = [

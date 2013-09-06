@@ -21,7 +21,7 @@ assert xvidSupport -> xvidcore != null;
 assert vdpauSupport -> libvdpau != null;
 assert faacSupport -> faac != null;
 
-versionedDerivation "ffpmeg" "git" {
+versionedDerivation "ffpmeg" version {
 
   "0.10" = rec {
     name = "ffmpeg-0.10";

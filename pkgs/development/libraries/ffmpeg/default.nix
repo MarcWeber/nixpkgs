@@ -9,7 +9,8 @@
 , vdpauSupport ? true, libvdpau ? null
 , faacSupport ? false, faac ? null
 , dc1394Support ? false, libdc1394 ? null
-, versionedDerivation, version ? "0.10"
+, x11grabSupport ? true, libX11, libXext, libXfixes
+, versionedDerivation, version ? "git"
 }:
 
 assert speexSupport -> speex != null;
@@ -61,7 +62,8 @@ versionedDerivation "ffpmeg" version {
     ++ stdenv.lib.optional xvidSupport "--enable-libxvid"
     ++ stdenv.lib.optional vdpauSupport "--enable-vdpau"
     ++ stdenv.lib.optional faacSupport "--enable-libfaac --enable-nonfree"
-    ++ stdenv.lib.optional dc1394Support "--enable-libdc1394";
+    ++ stdenv.lib.optional dc1394Support "--enable-libdc1394"
+    ++ stdenv.lib.optional x11grabSupport "--enable-x11grab";
 
   buildInputs = [ pkgconfig lame yasm zlib bzip2 ]
     ++ stdenv.lib.optional mp3Support lame
@@ -73,7 +75,8 @@ versionedDerivation "ffpmeg" version {
     ++ stdenv.lib.optional xvidSupport xvidcore
     ++ stdenv.lib.optional vdpauSupport libvdpau
     ++ stdenv.lib.optional faacSupport faac
-    ++ stdenv.lib.optional dc1394Support libdc1394;
+    ++ stdenv.lib.optional dc1394Support libdc1394
+    ++ stdenv.lib.optionals x11grabSupport [libX11 libXext libXfixes];
 
   enableParallelBuilding = true;
     

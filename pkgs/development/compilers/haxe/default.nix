@@ -25,15 +25,15 @@ versionedDerivation "haxe" version
     # '';
 
     # REGION AUTO UPDATE: { name="haxe-unstable"; type="git"; url="git://github.com/HaxeFoundation/haxe.git"; groups = "haxe_group"; }
-    src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-unstable-git-fdd41.tar.bz2"; sha256 = "eb269e0a0ebbd0df4a978b858756f7fefe6e783c3c4f9ebcb4cbb75399c4be0b"; });
-    name = "haxe-unstable-git-fdd41";
+    src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-unstable-git-1cc67.tar.bz2"; sha256 = "4711bb4829c9906337c3679d52462bd0cab5855734b7d23b2097bd3ab8bccb38"; });
+    name = "haxe-unstable-git-1cc67";
     # END
 
     ocamllibs =
       {
       # REGION AUTO UPDATE: { name="haxe-ocamllibs"; type="git"; url="git://github.com/HaxeFoundation/ocamllibs.git"; groups = "haxe_group"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-ocamllibs-git-ff2e0.tar.bz2"; sha256 = "89a27a612538ff6e2c75c72ff4a3f2800bf78d1b42b6fd89d2a12193de9ba506"; });
-      name = "haxe-ocamllibs-git-ff2e0";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-ocamllibs-git-97ddb.tar.bz2"; sha256 = "da9ab1ab21f19fdf968439309ac1b65a6767730e02a680098d45c2e36b9218a6"; });
+      name = "haxe-ocamllibs-git-97ddb";
       # END
       }.src;
     };
@@ -55,8 +55,6 @@ versionedDerivation "haxe" version
   postBuild = ''
     find std/tools -name '*.n' -delete
   '';
-
-  patches = [ ./neko-absolute-path.patch ];
 
   installPhase = ''
     install -vd "$out/bin" "$out/lib/haxe/std"

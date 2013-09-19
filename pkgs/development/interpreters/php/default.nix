@@ -48,6 +48,8 @@
 , lessThan53 ? builtins.lessThan (builtins.compareVersions version "5.3") 0 # you're not supposed to pass this
 , lessThan54 ? builtins.lessThan (builtins.compareVersions version "5.4") 0
 , lessThan55 ? builtins.lessThan (builtins.compareVersions version "5.5") 0
+
+, sendmail ? "/var/setuid-wrappers/sendmail"
 }:
 
 /* version specific notes:
@@ -394,6 +396,10 @@ let
   '' + stdenv.lib.optionalString stdenv.isDarwin ''
     # don't build php.dSYM as the php binary
     sed -i 's/EXEEXT = \.dSYM/EXEEXT =/' Makefile
+  '';
+
+  preBuild = ''
+    sed -i 's@#define PHP_PROG_SENDMAIL	""@#define PHP_PROG_SENDMAIL	"${sendmail}"@' main/build-defs.h
   '';
 
   installPhase = ''

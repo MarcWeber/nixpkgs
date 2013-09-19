@@ -7,8 +7,8 @@
   aforemny = "Alexander Foremny <alexanderforemny@googlemail.com>";
   all = "Nix Committers <nix-commits@lists.science.uu.nl>";
   amiddelk = "Arie Middelkoop <amiddelk@gmail.com>";
-  andres = "Andres Loeh <ksnixos@andres-loeh.de>";
   amorsillo = "Andrew Morsillo <andrew.morsillo@gmail.com>";
+  andres = "Andres Loeh <ksnixos@andres-loeh.de>";
   antono = "Antono Vasiljev <self@antono.info>";
   astsmtl = "Alexander Tsamutali <astsmtl@yandex.ru>";
   aszlig = "aszlig <aszlig@redmoonstudios.org>";
@@ -34,6 +34,7 @@
   marcweber = "Marc Weber <marco-oweber@gmx.de>";
   modulistic = "Pablo Costa <modulistic@gmail.com>";
   mornfall = "Petr Ročkai <me@mornfall.net>";
+  ocharles = "Oliver Charles <ollie@ocharles.org.uk>";
   offline = "Jaka Hudoklin <jakahudoklin@gmail.com>";
   orbitz = "Malcolm Matalka <mmatalka@gmail.com>";
   page = "Carles Pagès <page@cubata.homelinux.net>";
@@ -54,6 +55,8 @@
   urkud = "Yury G. Kudryashov <urkud+nix@ya.ru>";
   vcunat = "Vladimír Čunát <vcunat@gmail.com>";
   viric = "Lluís Batlle i Rossell <viric@viric.name>";
+  vizanto = "Danny Wilson <danny@prime.vc>";
   winden = "Antonio Vargas Gonzalez <windenntw@gmail.com>";
   z77z = "Marco Maggesi <maggesi@math.unifi.it>";
+  zef = "Zef Hemel <zef@zef.me>";
 }

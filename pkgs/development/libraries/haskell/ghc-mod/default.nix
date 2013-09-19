@@ -4,8 +4,8 @@
 
 cabal.mkDerivation (self: {
   pname = "ghc-mod";
-  version = "2.1.1";
-  sha256 = "00m44pjfvzwy7926r48h6q38yg82la1ls0p5q9fmfjxsdg351wi1";
+  version = "3.0.2";
+  sha256 = "1p16fcnxrpxszpn5cwagzswdyprw77cs7zb67xa98m3c1p98jgd1";
   isLibrary = true;
   isExecutable = true;
   buildDepends = [
@@ -25,6 +25,14 @@ cabal.mkDerivation (self: {
     cd ..
     ensureDir "$out/share/emacs"
     mv $pname-$version emacs/site-lisp
+    mv $out/bin/ghc-mod $out/ghc-mod
+    cat - > $out/bin/ghc-mod <<EOF
+    #!/bin/sh
+    COMMAND=\$1
+    shift
+    eval exec $out/ghc-mod \$COMMAND \$( ${self.ghc.GHCGetPackages} ${self.ghc.ghcVersion} | tr " " "\n" | tail -n +2 | paste -d " " - - | sed 's/.*/-g "&"/' | tr "\n" " ") "\$@"
+    EOF
+    chmod +x $out/bin/ghc-mod
   '';
   meta = {
     homepage = "http://www.mew.org/~kazu/proj/ghc-mod/";
@@ -34,6 +42,7 @@ cabal.mkDerivation (self: {
     maintainers = [
       self.stdenv.lib.maintainers.andres
       self.stdenv.lib.maintainers.bluescreen303
+      self.stdenv.lib.maintainers.ocharles
     ];
   };
 })

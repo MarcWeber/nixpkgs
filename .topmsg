@@ -6,6 +6,8 @@ purpose:
   nixos systemd unit implementation
   keep old PHP-5.2 working even though its horrible outdated.
 
+  make PHP know about /var/setuid-wrappers/sendmail (path is configurable)
+
 keep everything in one file, because most code is the same, eg the code to build
 extensions (apc, xdebug, ..)
 

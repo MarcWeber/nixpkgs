@@ -1109,11 +1109,11 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
 
   deform = buildPythonPackage rec {
-    name = "deform-0.9.7";
+    name = "deform-0.9.8";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/d/deform/${name}.tar.gz";
-      md5 = "d450eef05432d473257da5621c72c8b7";
+      sha256 = "15500rm33n6kxsdpqyn3ih25y3rvab4nxy2yzsj2754kdlhlyjpx";
     };
 
     buildInputs = [] ++ optional isPy26 unittest2;
@@ -1140,11 +1140,11 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
 
   deform_bootstrap = buildPythonPackage rec {
-    name = "deform_bootstrap-0.2";
+    name = "deform_bootstrap-0.2.9";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/d/deform_bootstrap/${name}.tar.gz";
-      md5 = "57812251f327367761f32d49a8286aa4";
+      sha256 = "1hgq3vqsfqdmlyahnlc40w13viawhpzqf4jzigsggdb41x545fda";
     };
 
     propagatedBuildInputs = [ deform ];
@@ -1259,7 +1259,6 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     propagatedBuildInputs = [ sphinx ];
   };
 
-
   googlecl = buildPythonPackage rec {
     version = "0.9.14";
     name    = "googlecl-${version}";
@@ -1280,6 +1279,21 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     propagatedBuildInputs = [ gdata ];
   };
 
+  gtimelog = buildPythonPackage rec {
+    name = "gtimelog-0.8.1";
+    src = fetchurl {
+      url = https://launchpad.net/gtimelog/devel/0.8.1/+download/gtimelog-0.8.1.tar.gz;
+      sha256 = "010sbw4rmslf5ifg9bgicn0f6mgsy76v8218xi0jndi9z6pva7y6";
+    };
+    propagatedBuildInputs = [ pygtk ];
+    meta = with stdenv.lib; {
+      description = "A small Gtk+ app for keeping track of your time. It's main goal is to be as unintrusive as possible.";
+      homepage = http://mg.pov.lt/gtimelog/;
+      license = licenses.gpl2Plus;
+      maintainers = [ maintainers.ocharles ];
+      platforms = platforms.unix;
+    };
+  };
 
   logilab_astng = buildPythonPackage rec {
     name = "logilab-astng-0.24.1";
@@ -2189,17 +2203,18 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     };
   };
 
-
-  flexget = buildPythonPackage (rec {
-    name = "FlexGet-1.0.3353";
+  flexget = buildPythonPackage rec {
+    name = "FlexGet-1.1.121";
 
     src = fetchurl {
-      url = "http://download.flexget.com/archive/${name}.tar.gz";
-      md5 = "cffc4e51b5c5efddb339d265524e46b8";
+      url = "https://pypi.python.org/packages/source/F/FlexGet/${name}.tar.gz";
+      md5 = "44521bcbc2c1e941b656ecfa358adcaa";
     };
 
     buildInputs = [ nose ];
-    propagatedBuildInputs = [ beautifulsoup4 pyrss2gen feedparser pynzb html5lib dateutil beautifulsoup flask jinja2 requests sqlalchemy pyyaml cherrypy progressbar deluge ];
+    propagatedBuildInputs = [ beautifulsoup4 pyrss2gen feedparser pynzb html5lib dateutil
+        beautifulsoup flask jinja2 requests sqlalchemy pyyaml cherrypy progressbar deluge
+        python_tvrage jsonschema ];
 
     meta = {
       homepage = http://flexget.com/;
@@ -2207,8 +2222,51 @@ pythonPackages = modules // import ./python-packages-generated.nix {
       license = stdenv.lib.licenses.mit;
       maintainers = [ stdenv.lib.maintainers.iElectric ];
     };
+  };
+
+  python_tvrage = buildPythonPackage (rec {
+    version = "0.4.1";
+    name = "tvrage-${version}";
+
+    src = fetchurl {
+      url = "https://pypi.python.org/packages/source/p/python-tvrage/python-tvrage-${version}.tar.gz";
+      md5 = "cdfec252158c5047b626861900186dfb";
+    };
+
+    # has mostly networking dependent tests
+    doCheck = false;
+    propagatedBuildInputs = [ beautifulsoup ];
+
+    meta = {
+      homepage = https://github.com/ckreutzer/python-tvrage;
+      description = "Client interface for tvrage.com's XML-based api feeds";
+      license = stdenv.lib.licenses.bsd3;
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
   });
 
+  jsonschema = buildPythonPackage (rec {
+    version = "2.0.0";
+    name = "jsonschema-${version}";
+
+    src = fetchurl {
+      url = "https://pypi.python.org/packages/source/j/jsonschema/jsonschema-${version}.tar.gz";
+      md5 = "1793d97a668760ef540fadd342aa08e5";
+    };
+
+    buildInputs = [ nose mock ];
+
+    checkPhase = ''
+      nosetests
+    '';
+
+    meta = {
+      homepage = https://github.com/Julian/jsonschema;
+      description = "An implementation of JSON Schema validation for Python";
+      license = stdenv.lib.licenses.mit;
+      maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  });
 
   flup = buildPythonPackage (rec {
     name = "flup-1.0.2";
@@ -2553,10 +2611,10 @@ pythonPackages = modules // import ./python-packages-generated.nix {
   };
 
   ipdbplugin = buildPythonPackage {
-    name = "ipdbplugin-1.2";
+    name = "ipdbplugin-1.4";
     src = fetchurl {
-      url = "https://pypi.python.org/packages/source/i/ipdbplugin/ipdbplugin-1.2.tar.gz";
-      md5 = "39169b00a2186b99469249c5b0613753";
+      url = "https://pypi.python.org/packages/source/i/ipdbplugin/ipdbplugin-1.4.tar.gz";
+      md5 = "f9a41512e5d901ea0fa199c3f648bba7";
     };
     propagatedBuildInputs = [ pythonPackages.nose pythonPackages.ipython ];
   };
@@ -3793,14 +3851,16 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     };
   };
 
-  pip = buildPythonPackage {
-    name = "pip-1.2.1";
+  pip = buildPythonPackage rec {
+    version = "1.4.1";
+    name = "pip-${version}";
     src = fetchurl {
-      url = "http://pypi.python.org/packages/source/p/pip/pip-1.2.1.tar.gz";
-      md5 = "db8a6d8a4564d3dc7f337ebed67b1a85";
+      url = "http://pypi.python.org/packages/source/p/pip/pip-${version}.tar.gz";
+      sha256 = "0knhj3c1nqqzxgqin8l0gzy6nzsbcxinyr0cbp1j99hi8xahcyjf";
     };
     buildInputs = [ mock scripttest virtualenv nose ];
     # ValueError: Working directory tests not found, or not a directory
+    # see https://github.com/pypa/pip/issues/92
     doCheck = false;
   };
 
@@ -3890,13 +3950,13 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
 
   powerline = buildPythonPackage rec {
-    rev = "72ea6730ead85fc19b983bd70173d15e6caa4965";
+    rev  = "db80fc95ed01d2c559c4bdc7da8514ed3cc7fcd9";
     name = "powerline-beta_${rev}";
 
     src = fetchurl {
-      url = "https://github.com/Lokaltog/powerline/tarball/${rev}";
-      name = "${name}.tar.bz";
-      sha256 = "08sr8ymhphh7rsn2gcmpdz3kzd04b7w3k4pc35h8w60jvg9i449s";
+      url    = "https://github.com/Lokaltog/powerline/tarball/${rev}";
+      name   = "${name}.tar.bz";
+      sha256 = "1csd4vasy0avwfxrpdr61plj6k1nzf36f6qvd9kl15s3lnspsfaz";
     };
 
     propagatedBuildInputs = [ pkgs.git pkgs.mercurial pkgs.bazaar pythonPackages.psutil pythonPackages.pygit2 ];
@@ -3920,11 +3980,12 @@ pythonPackages = modules // import ./python-packages-generated.nix {
       install -m644 "powerline/bindings/tmux/powerline.conf" "$out/share/tmux/powerline.conf"
     '';
 
-    meta = {
-      homepage = https://github.com/Lokaltog/powerline;
+    meta = with stdenv.lib; {
+      homepage    = https://github.com/Lokaltog/powerline;
       description = "The ultimate statusline/prompt utility.";
-      license = with stdenv.lib.licenses; mit;
-      platforms = with stdenv.lib.platforms; all;
+      license     = licenses.mit;
+      maintainers = with maintainers; [ lovek323 ];
+      platforms   = platforms.all;
     };
   };
 
@@ -4110,13 +4171,13 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
 
   pyblock = stdenv.mkDerivation rec {
-    name = "python-pyblock-${version}";
-    version = "0.52-1";
+    name = "pyblock-${version}";
+    version = "0.53";
 
-    src = fetchurl {
-      url = "https://git.fedorahosted.org/cgit/pyblock.git/snapshot/"
-          + "pyblock-${version}.tar.bz2";
-      sha256 = "1jj5hd1dcr8xx00rg3jynsf4ak88wwr5id3fmb0qf6zvim1whj7l";
+    src = fetchurl rec {
+      url = "http://pkgs.fedoraproject.org/repo/pkgs/python-pyblock/"
+          + "${name}.tar.bz2/${md5}/${name}.tar.bz2";
+      md5 = "f6d33a8362dee358517d0a9e2ebdd044";
     };
 
     postPatch = ''
@@ -4345,12 +4406,12 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
   pykickstart = buildPythonPackage rec {
     name = "pykickstart-${version}";
-    version = "1.99.32-1";
+    version = "1.99.39";
 
-    src = fetchurl {
-      url = "https://git.fedorahosted.org/cgit/pykickstart.git/snapshot/"
-          + "r${version}.tar.bz2";
-      sha256 = "1sq68jvc39k9wrkcc4xlabhwi8gdz019yh2k5nrl7ya35b8daqw0";
+    src = fetchurl rec {
+      url = "http://pkgs.fedoraproject.org/repo/pkgs/pykickstart/"
+          + "${name}.tar.gz/${md5}/${name}.tar.gz";
+      md5 = "d249f60aa89b1b4facd63f776925116d";
     };
 
     postPatch = ''
@@ -5104,10 +5165,10 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
   selenium =
     buildPythonPackage rec {
-      name = "selenium-2.25.0";
+      name = "selenium-2.35.0";
       src = pkgs.fetchurl {
-        url = http://pypi.python.org/packages/source/s/selenium/selenium-2.25.0.tar.gz;
-        sha256 = "0iinpry1vr4dydh44sc0ny22sa9fqhy2302hf56pf8fakvza9m0a";
+        url = "http://pypi.python.org/packages/source/s/selenium/${name}.tar.gz";
+        sha256 = "0c8apd538ji8kmryvcdiz0dndf33mnf8wzpp9k8zmkpmfdfcwnk0";
       };
 
       buildInputs = [pkgs.xlibs.libX11];
@@ -5197,6 +5258,118 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     };
   });
 
+  sigal = buildPythonPackage rec {
+    name = "sigal-0.5.0";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/s/sigal/${name}.tar.gz";
+      md5 = "93c93725674c0702583a638f5a09c9e4";
+    };
+
+    propagatedBuildInputs = [ jinja2 markdown pillow pilkit clint argh ];
+
+    meta = with stdenv.lib; {
+      description = "Yet another simple static gallery generator";
+      homepage = http://sigal.saimon.org/en/latest/index.html;
+      license = licenses.mit;
+      maintainers = [ maintainers.iElectric ];
+    };
+  };
+
+  pilkit = buildPythonPackage rec {
+    name = "pilkit-1.1.4";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/p/pilkit/${name}.tar.gz";
+      md5 = "659dd67440f4b576889f2cd350f43d7b";
+    };
+
+    preConfigure = ''
+      substituteInPlace setup.py --replace 'nose==1.2.1' 'nose'
+    '';
+
+    # tests fail, see https://github.com/matthewwithanm/pilkit/issues/9
+    doCheck = false;
+
+    buildInputs = [ pillow nose_progressive nose mock blessings ];
+
+    meta = with stdenv.lib; {
+      maintainers = [ maintainers.iElectric ];
+    };
+  };
+
+  clint = buildPythonPackage rec {
+    name = "clint-0.3.1";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/c/clint/${name}.tar.gz";
+      md5 = "7dcd43fb08bfb84c7d63e9356ada7b73";
+    };
+
+    checkPhase = ''
+      nosetests
+    '';
+
+    buildInputs = [ pillow nose_progressive nose mock blessings nose ];
+
+    meta = with stdenv.lib; {
+      maintainers = [ maintainers.iElectric ];
+    };
+  };
+
+  argh = buildPythonPackage rec {
+    name = "argh-0.23.3";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/a/argh/${name}.tar.gz";
+      md5 = "25bb02c6552b42875f2c36714e0ff16c";
+    };
+
+    preCheck = ''
+      export LANG="en_US.UTF-8"
+      export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
+    '';
+
+    buildInputs = [ pytest py mock ];
+
+    meta = with stdenv.lib; {
+      maintainers = [ maintainers.iElectric ];
+    };
+  };
+
+  nose_progressive = buildPythonPackage rec {
+    name = "nose-progressive-1.3";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/n/nose-progressive/${name}.tar.gz";
+      md5 = "180be93929c5962044a35489f193259d";
+    };
+
+    buildInputs = [ pillow blessings nose ];
+    propagatedBuildInputs = [ modules.curses ];
+
+    meta = with stdenv.lib; {
+      maintainers = [ maintainers.iElectric ];
+    };
+  };
+
+  blessings = buildPythonPackage rec {
+    name = "blessings-1.5.1";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/b/blessings/${name}.tar.gz";
+      md5 = "fbbddbf20b1f9a13e3fa612b1e086fd8";
+    };
+
+    # 4 failing tests
+    doCheck = false; 
+
+    buildInputs = [ nose modules.curses ];
+
+    meta = with stdenv.lib; {
+      maintainers = [ maintainers.iElectric ];
+    };
+  };
 
   sexpdata = buildPythonPackage rec {
     name = "sexpdata-0.0.2";
@@ -5562,11 +5735,11 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
 
   trac = buildPythonPackage {
-    name = "trac-0.12.2";
+    name = "trac-1.0.1";
 
     src = fetchurl {
-      url = http://ftp.edgewall.com/pub/trac/Trac-0.12.2.tar.gz;
-      sha256 = "1ihf5031pc1wpwbxpfzzz2bcpwww795n5y22baglyim1lalivd65";
+      url = http://ftp.edgewall.com/pub/trac/Trac-1.0.1.tar.gz;
+      sha256 = "1nqa95fcnkpyq4jk6az7l7sqgm3b3pjq3bx1n7y4v3bad5jr1m4x";
     };
 
     # couple of failing tests

@@ -1,15 +1,16 @@
 { stdenv, fetchurl, file, openssl, mlton, mysql, postgresql, sqlite, pkgconfig
-, version ? "20120807"
+, version ? "20130421"
 }:
 
 stdenv.mkDerivation ( stdenv.lib.mergeAttrsByVersion "urweb" version {
-    "20120807" = rec {
+    "20130421" = rec {
       pname = "urweb";
-      version = "20120807";
+      version = "20130421";
       name = "${pname}-${version}";
+
       src = fetchurl {
         url = "http://www.impredicative.com/ur/${name}.tgz";
-        sha256 = "d4344a6c9dcaf968dbeb6fe9a4d9371e08674e37e5b131c8a57f3604c267e195";
+        sha256 = "1dglcial9bzximw778wbfqx99khy34qpf9gw4bbncn9f742ji872";
       };
     };
     "hg" = {

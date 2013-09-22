@@ -10,7 +10,7 @@
 , faacSupport ? false, faac ? null
 , dc1394Support ? false, libdc1394 ? null
 , x11grabSupport ? true, libX11, libXext, libXfixes
-, versionedDerivation, version ? "git"
+, versionedDerivation, version ? "0.10"
 }:
 
 assert speexSupport -> speex != null;

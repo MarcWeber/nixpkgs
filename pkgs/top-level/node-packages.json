@@ -95,4 +95,5 @@
 , "lcov-result-merger"
 , "coveralls"
 , "js-yaml"
+, "node-inspector"
 ]

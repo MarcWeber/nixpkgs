@@ -657,7 +657,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   Cabal_1_14_0 = callPackage ../development/libraries/haskell/Cabal/1.14.0.nix { cabal = self.cabal.override { Cabal = null; }; };
   Cabal_1_16_0_3 = callPackage ../development/libraries/haskell/Cabal/1.16.0.3.nix { cabal = self.cabal.override { Cabal = null; }; };
-  Cabal_1_18_0 = callPackage ../development/libraries/haskell/Cabal/1.18.0.nix {
+  Cabal_1_18_1 = callPackage ../development/libraries/haskell/Cabal/1.18.1.nix {
     cabal = self.cabal.override { Cabal = null; };
     deepseq = self.deepseq_1_3_0_1;
   };
@@ -832,6 +832,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   dataMemocombinators = callPackage ../development/libraries/haskell/data-memocombinators {};
 
+  dataPprint = callPackage ../development/libraries/haskell/data-pprint {};
+
   dataReify = callPackage ../development/libraries/haskell/data-reify {};
 
   dateCache = callPackage ../development/libraries/haskell/date-cache {};
@@ -932,6 +934,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   encoding = callPackage ../development/libraries/haskell/encoding {};
 
   enumerator = callPackage ../development/libraries/haskell/enumerator {};
+
+  enummapset = callPackage ../development/libraries/haskell/enummapset {};
 
   entropy = callPackage ../development/libraries/haskell/entropy {};
 
@@ -1346,6 +1350,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   kansasLava = callPackage ../development/libraries/haskell/kansas-lava {};
 
+  keys = callPackage ../development/libraries/haskell/keys {};
+
   knob = callPackage ../development/libraries/haskell/knob {};
 
   languageC = callPackage ../development/libraries/haskell/language-c {};
@@ -1398,9 +1404,13 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   ListZipper = callPackage ../development/libraries/haskell/ListZipper {};
 
-  llvmGeneral = callPackage ../development/libraries/haskell/llvm-general {
+  llvmGeneral_3_3_5 = callPackage ../development/libraries/haskell/llvm-general/3.3.5.nix {
     llvmConfig = pkgs.llvm;
   };
+  llvmGeneral_3_3_8_2 = callPackage ../development/libraries/haskell/llvm-general/3.3.8.2.nix {
+    llvmConfig = pkgs.llvm;
+  };
+  llvmGeneral = self.llvmGeneral_3_3_8_2;
 
   llvmGeneralPure = callPackage ../development/libraries/haskell/llvm-general-pure {};
 
@@ -1461,8 +1471,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   monadLogger = callPackage ../development/libraries/haskell/monad-logger {};
 
   monadPar_0_1_0_3 = callPackage ../development/libraries/haskell/monad-par/0.1.0.3.nix {};
-  monadPar_0_3_4_4 = callPackage ../development/libraries/haskell/monad-par/0.3.4.4.nix {};
-  monadPar = self.monadPar_0_3_4_4;
+  monadPar_0_3_4_5 = callPackage ../development/libraries/haskell/monad-par/0.3.4.5.nix {};
+  monadPar = self.monadPar_0_3_4_5;
 
   monadParExtras = callPackage ../development/libraries/haskell/monad-par-extras {};
 
@@ -1661,6 +1671,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   pipesAeson = callPackage ../development/libraries/haskell/pipes-aeson {};
 
   pipesAttoparsec = callPackage ../development/libraries/haskell/pipes-attoparsec {};
+
+  pipesBytestring = callPackage ../development/libraries/haskell/pipes-bytestring {};
 
   pipesConcurrency = callPackage ../development/libraries/haskell/pipes-concurrency {};
 
@@ -2402,7 +2414,9 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   darcs = callPackage ../applications/version-management/darcs {};
 
-  idris_plain = callPackage ../development/compilers/idris {};
+  idris_plain = callPackage ../development/compilers/idris {
+    llvmGeneral = self.llvmGeneral_3_3_5;
+  };
 
   idris = callPackage ../development/compilers/idris/wrapper.nix {};
 
@@ -2435,7 +2449,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   cabalInstall_0_14_0 = callPackage ../tools/package-management/cabal-install/0.14.0.nix {};
   cabalInstall_1_16_0_2 = callPackage ../tools/package-management/cabal-install/1.16.0.2.nix {};
   cabalInstall_1_18_0_1 = callPackage ../tools/package-management/cabal-install/1.18.0.1.nix {
-    Cabal = self.Cabal_1_18_0;
+    Cabal = self.Cabal_1_18_1;
   };
   cabalInstall = self.cabalInstall_1_18_0;
 

@@ -395,6 +395,8 @@ let
   acoustidFingerprinter = callPackage
     ../tools/audio/acoustid-fingerprinter { };
 
+  actdiag = pythonPackages.actdiag;
+
   aefs = callPackage ../tools/filesystems/aefs { };
 
   aespipe = callPackage ../tools/security/aespipe { };
@@ -408,6 +410,8 @@ let
   analog = callPackage ../tools/admin/analog {};
 
   archivemount = callPackage ../tools/filesystems/archivemount { };
+
+  arandr = callPackage ../tools/X11/arandr { };
 
   arduino_core = callPackage ../development/arduino/arduino-core {
     jdk = jdk;
@@ -519,6 +523,8 @@ let
 
   bfr = callPackage ../tools/misc/bfr { };
 
+  blockdiag = pythonPackages.blockdiag;
+
   bmon = callPackage ../tools/misc/bmon { };
 
   boomerang = callPackage ../development/tools/boomerang {
@@ -558,7 +564,9 @@ let
 
   mcelog = callPackage ../os-specific/linux/mcelog { };
 
-  asciidoc = callPackage ../tools/typesetting/asciidoc { };
+  asciidoc = callPackage ../tools/typesetting/asciidoc {
+    inherit (pythonPackages) matplotlib numpy aafigure recursivePthLoader;
+  };
 
   autossh = callPackage ../tools/networking/autossh { };
 
@@ -1397,6 +1405,8 @@ let
 
   nssmdns = callPackage ../tools/networking/nss-mdns { };
 
+  nwdiag = pythonPackages.nwdiag;
+
   nylon = callPackage ../tools/networking/nylon { };
 
   nzbget = callPackage ../tools/networking/nzbget { };
@@ -1704,6 +1714,8 @@ let
   setserial = builderDefsPackage (import ../tools/system/setserial) {
     inherit groff;
   };
+
+  seqdiag = pythonPackages.seqdiag;
 
   sg3_utils = callPackage ../tools/system/sg3_utils { };
 
@@ -3209,6 +3221,8 @@ let
   });
 
   pythonLinkmeWrapper = callPackage ../development/interpreters/python/python-linkme-wrapper.nix { };
+
+  pypi2nix = python27Packages.pypi2nix;
 
   pyrex = pyrex095;
 
@@ -6852,6 +6866,15 @@ let
 
   systemd = callPackage ../os-specific/linux/systemd { };
 
+  # In nixos, you can set systemd.package = pkgs.systemd_with_lvm2 to get
+  # LVM2 working in systemd.
+  systemd_with_lvm2 = pkgs.lib.overrideDerivation pkgs.systemd (p: {
+      name = p.name + "-with-lvm2";
+      postInstall = p.postInstall + ''
+        cp ${pkgs.lvm2}/lib/systemd/system-generators/* $out/lib/systemd/system-generators
+      '';
+  });
+
   sysvinit = callPackage ../os-specific/linux/sysvinit { };
 
   sysvtools = callPackage ../os-specific/linux/sysvinit {
@@ -8148,7 +8171,6 @@ let
   };
 
   mopidy = callPackage ../applications/audio/mopidy { };
-  mopidy_git = callPackage ../applications/audio/mopidy/git.nix { };
 
   mozilla = callPackage ../applications/networking/browsers/mozilla {
     inherit (gnome) libIDL;
@@ -9496,6 +9518,8 @@ let
   paml = callPackage ../applications/science/biology/paml { };
 
   pal2nal = callPackage ../applications/science/biology/pal2nal { };
+
+  plink = callPackage ../applications/science/biology/plink/default.nix { };
 
 
   ### SCIENCE/MATH

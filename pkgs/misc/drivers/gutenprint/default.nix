@@ -23,7 +23,7 @@
 # for ppds
 , runCommand
 
-, version ? "5.2.7"
+, version ? "5.2.9"
 }:
 let
 
@@ -63,10 +63,21 @@ let gutenprint = (stdenv.mkDerivation (lib.mergeAttrsByVersion "gutenprint" vers
       };
     };
 
+    "5.2.9" = {
+      name = "gutenprint-${version}";
+
+      NIX_CFLAGS_COMPILE="-include stdio.h";
+
+      src = fetchurl {
+        url = "mirror://sourceforge/gimp-print/gutenprint-${version}.tar.bz2";
+        sha256 = "185wai9hk0z0144hpxn5mqncy6xikc4bdv49vxqh5lrjdzqf89sb";
+      };
+    };
+
     cvs = {
       # REGION AUTO UPDATE: { name="gutenprint"; type = "cvs"; cvsRoot = ":pserver:anonymous@gimp-print.cvs.sourceforge.net:/cvsroot/gimp-print"; module="print"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gutenprint-cvs-F_13-02-47.tar.bz2"; sha256 = "0686cdacc79a0ffd807f562bec53ad79521a039fd579e31c02406ea23b1e8b7e"; });
-      name = "gutenprint-cvs-F_13-02-47";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gutenprint-cvs-F_11-34-54.tar.bz2"; sha256 = "71c90a9eeabb1203287516fa1efe19964492f54e0d46fcf069579c50ebed648a"; });
+      name = "gutenprint-cvs-F_11-34-54";
       # END
       buildInputs = [ automake autoconf libtool gettext imagemagick flex bison docbook2x docbook_sgml_utils db2X openjade docbook_xml_dtd_42];
 

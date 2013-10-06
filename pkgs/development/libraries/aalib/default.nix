@@ -17,4 +17,8 @@ stdenv.mkDerivation {
 
   buildInputs = [ncurses];
   inherit ncurses;
+
+  meta = {
+    description = "ASCII art graphics library";
+  };
 }

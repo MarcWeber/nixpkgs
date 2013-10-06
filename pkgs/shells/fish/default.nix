@@ -1,37 +1,33 @@
-{stdenv, fetchurl, xsel, ncurses, gettext}:
+{ stdenv, fetchurl, autoconf, ncurses, which, groff, gettext }:
 
-stdenv.mkDerivation {
+stdenv.mkDerivation rec {
   name = "fish-2.0.0";
-
-  enableParallelBuilding = true;
-
-  configureFlags = "--with-xsel=${xsel}/bin/xsel";
 
   src = fetchurl {
     url = http://fishshell.com/files/2.0.0/fish-2.0.0.tar.gz;
     sha1 = "2d28553e2ff975f8e5fed6b266f7a940493b6636";
   };
 
+  nativeBuildInputs = [ autoconf ];
 
-  # hacky: force reading /etc/fish/config.fish so that nixos can set path.
-  # using --synconfdir=/etc does not work because fish wants to put files there
-  preBuild = ''
-    sed -i 's@SYSCONFDIR@"/etc"@g' fish.c
+  buildInputs = [ ncurses which ];
+
+  preConfigure = ''
+    autoconf
   '';
 
-  buildInputs = [
-    ncurses
-    # bc
-    gettext
-    # htmlview ?
-    xsel
-  ];
+  postInstall = ''
+    sed -i "s|which |command -v |" "$out/share/fish/functions/type.fish"
+    sed -i "s|nroff |${groff}/bin/nroff |" "$out/share/fish/functions/__fish_print_help.fish"
+    sed -e "s|gettext |${gettext}/bin/gettext |" \
+        -e "s|which |command -v |" \
+        -i "$out/share/fish/functions/_.fish"
+  '';
 
-  meta = {
-    description = "fish is the Friendly Interactive Shell";
-    homepage = "http://fishshell.com/";
-    license = "GPLv2";
-    maintainers = [stdenv.lib.maintainers.marcweber];
-    platforms = stdenv.lib.platforms.linux;
+  meta = with stdenv.lib; {
+    description = "Smart and user-friendly command line shell";
+    homepage = http://fishshell.com/;
+    license = licenses.gpl2;
+    platforms = platforms.linux;
   };
 }

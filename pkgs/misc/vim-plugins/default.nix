@@ -63,12 +63,8 @@ How to install VAM? eg provide such a bash function:
     EOF
     }
 
-<<<<<<< HEAD
-IMHO having no plugins listed might be better than having outdated ones.
-=======
 Marc Weber thinks that having no plugins listed might be better than having
 outdated ones.
->>>>>>> refs/top-bases/experimental/marc
 
 So which plugins to add here according to what Marc Weber thinks is best?
 Complicated plugins requiring dependencies, such as YouCompleteMe.
@@ -132,12 +128,8 @@ in
       cmake -G "Unix Makefiles" . $target/cpp -DPYTHON_LIBRARIES:PATH=${python}/lib/libpython2.7.so -DPYTHON_INCLUDE_DIR:PATH=${python}/include/python2.7
       make -j -j''${NIX_BUILD_CORES} -l''${NIX_BUILD_CORES}}
 
-<<<<<<< HEAD
-      ${vimHelptags "$out/vim-plugins/YouCompleteMe/doc"}
-=======
       ${vimHelpTags}
       vimHelpTags $target
->>>>>>> refs/top-bases/experimental/marc
     '';
 
     # TODO: implement proper install phase rather than keeping everything in store

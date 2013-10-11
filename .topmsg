@@ -1,0 +1,4 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] marc-nixos/virtualbox-server
+
+provide simple service loading kernel modules

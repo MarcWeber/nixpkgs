@@ -11,4 +11,7 @@ purpose:
 keep everything in one file, because most code is the same, eg the code to build
 extensions (apc, xdebug, ..)
 
+Now includes nixos/nixpkgs patches because nixos was 
+merged into nixpkgs
+
 Signed-off-by: Marc Weber <marco-oweber@gmx.de>

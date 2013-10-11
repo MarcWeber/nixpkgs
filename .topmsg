@@ -13,3 +13,6 @@ TODO: think about difference to what Eelco contributed recently, patch with comm
   Scripts to set up and run the absolute minimal pure Nix
   environment; that is, an operating system environment in which there
   is (essentially) only a store.
+
+Problems: passwd is not empty. You have to boot once, reboot into rescue and
+set passowrd (TODO !!)

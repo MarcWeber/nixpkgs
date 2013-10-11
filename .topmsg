@@ -1,5 +1,8 @@
 From: Marc Weber <marco-oweber@gmx.de>
 Subject: [PATCH] experimental/vsftpd
 
-<patch description>
-
+small vsftpd improvements
+- add userlist and userlistFile options
+- make docummentation strings more understandable.
+- Use environment.etc."vsftpd".text because I can't think about any
+  reason why a shell script should be used. That code was written in 2009.

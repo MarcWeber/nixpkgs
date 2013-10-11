@@ -1,17 +1,4 @@
 From: Marc Weber <marco-oweber@gmx.de>
-Subject: [PATCH] experimental/multiple-versions-in-one-file
+Subject: [PATCH] experimental/php-koellner-phonetic
 
-purpose:
-  PHP: fpm support (including patches for systemd socket activation)
-  nixos systemd unit implementation
-  keep old PHP-5.2 working even though its horrible outdated.
-
-  make PHP know about /var/setuid-wrappers/sendmail (path is configurable)
-
-keep everything in one file, because most code is the same, eg the code to build
-extensions (apc, xdebug, ..)
-
-Now includes nixos/nixpkgs patches because nixos was 
-merged into nixpkgs
-
-Signed-off-by: Marc Weber <marco-oweber@gmx.de>
+provide my own koellner-phonetic search. Its like soundex but specializes on German language.

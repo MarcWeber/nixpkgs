@@ -4060,7 +4060,10 @@ let
 
   fcgi = callPackage ../development/libraries/fcgi { };
 
-  ffmpegGit = ffmpeg.override { version = "git"; };
+  ffmpegGit = ffmpeg.override { 
+    version = "git"; 
+    stdenv = overrideGCC stdenv gcc47;
+  };
   ffmpeg = callPackage ../development/libraries/ffmpeg {
     vpxSupport = !stdenv.isMips;
 

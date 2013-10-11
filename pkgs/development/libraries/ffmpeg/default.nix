@@ -35,8 +35,8 @@ versionedDerivation "ffpmeg" version {
 
   "git" = {
     # REGION AUTO UPDATE: { name="ffmpeg"; type="git"; url="git://source.ffmpeg.org/ffmpeg.git"; }
-    src = (fetchurl { url = "http://mawercer.de/~nix/repos/ffmpeg-git-92b7e.tar.bz2"; sha256 = "faf84c6744edb0b7b61b89408b4dde17da931ec1638dab7f855908f9b25faabb"; });
-    name = "ffmpeg-git-92b7e";
+    src = (fetchurl { url = "http://mawercer.de/~nix/repos/ffmpeg-git-a72bf.tar.bz2"; sha256 = "c378fe417e5a014af30190850b71b70ae4f29a17f8f8645b6e9c846bfcd77ae2"; });
+    name = "ffmpeg-git-a72bf";
     # END
   };
 

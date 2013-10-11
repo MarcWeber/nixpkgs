@@ -10,7 +10,7 @@ with import ./trivial.nix;
 
 rec {
 
-  isType = type: x: (x._type or "") == type;
+  isType = type: x: isAttrs x && (x._type or "") == type;
   hasType = x: isAttrs x && x ? _type;
   typeOf = x: x._type or "";
 

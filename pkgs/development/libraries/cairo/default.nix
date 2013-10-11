@@ -13,7 +13,6 @@ with { inherit (stdenv.lib) optional optionals; };
 stdenv.mkDerivation rec {
   name = "cairo-1.12.16";
 
-  # when updating check Eclipse, maybe the older version there can be removed then
   src = fetchurl {
     url = "http://cairographics.org/releases/${name}.tar.xz";
     sha256 = "0inqwsylqkrzcjivdirkjx5nhdgxbdc62fq284c3xppinfg9a195";

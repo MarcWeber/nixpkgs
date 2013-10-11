@@ -1347,6 +1347,7 @@ pythonPackages = modules // import ./python-packages-generated.nix {
       homepage = http://pythonhosted.org/evdev;
       license = licenses.bsd3;
       maintainers = [ maintainers.goibhniu ];
+      platforms = stdenv.lib.platforms.linux;
     };
   };
 
@@ -4319,26 +4320,6 @@ pythonPackages = modules // import ./python-packages-generated.nix {
   };
 
 
-  psycopg2 = buildPythonPackage rec {
-    name = "psycopg2-2.5.1";
-
-    # error: invalid command 'test'
-    doCheck = false;
-
-    src = fetchurl {
-      url = "https://pypi.python.org/packages/source/p/psycopg2/psycopg2-2.5.1.tar.gz";
-      sha256 = "1v7glzzzykbaqj7dhpr0qds9cf4maxmn7f5aazpqnbg0ly40r9v5";
-    };
-
-    propagatedBuildInputs = [ pkgs.postgresql ];
-
-    meta = {
-      description = "PostgreSQL database adapter for the Python programming language";
-      license = "GPLv2/ZPL";
-    };
-  };
-
-
   publicsuffix = buildPythonPackage rec {
     name = "publicsuffix-${version}";
     version = "1.0.2";
@@ -4628,6 +4609,7 @@ pythonPackages = modules // import ./python-packages-generated.nix {
       homepage = "http://www.pyglet.org/";
       description = "A cross-platform windowing and multimedia library";
       license = stdenv.lib.licenses.bsd3;
+      platforms = stdenv.lib.platforms.mesaPlatforms;
     };
   };
 
@@ -4795,7 +4777,8 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     meta = {
       homepage = "https://fedorahosted.org/pyparted/";
       description = "Python interface for libparted";
-      license = pkgs.lib.licenses.gpl2Plus;
+      license = stdenv.lib.licenses.gpl2Plus;
+      platforms = stdenv.lib.platforms.linux;
     };
   };
 
@@ -4851,6 +4834,7 @@ pythonPackages = modules // import ./python-packages-generated.nix {
       homepage = "http://pyudev.readthedocs.org/";
       description = "Pure Python libudev binding";
       license = stdenv.lib.licenses.lgpl21Plus;
+      platforms = stdenv.lib.platforms.linux;
     };
   };
 
@@ -4974,6 +4958,7 @@ pythonPackages = modules // import ./python-packages-generated.nix {
           '';
 
           license = "BSD-style";
+          platforms = stdenv.lib.platforms.mesaPlatforms;
         };
       };
 
@@ -5342,7 +5327,7 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     propagatedBuildInputs =
       [ recaptcha_client pytz memcached dateutil_1_5 paramiko flup pygments
         djblets django_1_3 django_evolution pycrypto modules.sqlite3
-        pysvn pil psycopg2
+        pysvn pil pythonPackages.psycopg2
       ];
   };
 

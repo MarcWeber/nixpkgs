@@ -24,3 +24,4 @@ experimental/firebird
 experimental/fonts
 experimental/vsftpd
 marc-nixos/multi-shell-support
+marc-nixos/virtualbox-server

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # provides actions preparing nixos installation such as guessing config,
-# checking out nixos/nixpkgs etc:
+# checking out nixpkgs etc:
 
 set -e
 
@@ -37,7 +37,7 @@ usage(){
                       eventually also less up to date.
 
     # as alternative you can checkout nixos/nixpkgs into
-    # T/{nixos,nixpkgs} yourself
+    # T/nixpkgs yourself
 
     # you probably have to run these actions, too:
 
@@ -73,7 +73,7 @@ CMD_ECHO(){ echo "running $@"; $@; }
 # = configuration =
 
 FORCE_ACTIONS=${FORCE_ACTIONS:-}
-ALL_REPOS="nixpkgs nixos"
+ALL_REPOS="nixpkgs"
 mountPoint=${mountPoint:-/mnt}
 
 if [ -e $mountPoint/README-BOOTSTRAP-NIXOS ]; then
@@ -215,15 +215,15 @@ realise_repo(){
 
   case "$action" in
     iso-source)
-      INFO "copying nixos/nixpkgs source from iso"
+      INFO "copying nixpkgs source from iso"
       maybe_copy_repo nixos
       maybe_copy_repo nixpkgs
     ;;
     official-source)
       local git_base=https://github.com/NixOS
       provide git
-      CMD_ECHO git clone --depth=1 $git_base/nixos.git "$T/nixos"
       CMD_ECHO git clone --depth=1 $git_base/nixpkgs.git "$T/nixpkgs"
+      # TODO need symlink for backward compatibility?
     ;;
     *)
       die "unkown source $action"

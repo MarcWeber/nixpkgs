@@ -26,3 +26,4 @@ experimental/vsftpd
 marc-nixos/multi-shell-support
 marc-nixos/virtualbox-server
 marc-nixos/minimal-install-archive
+marc-nixos/postfix

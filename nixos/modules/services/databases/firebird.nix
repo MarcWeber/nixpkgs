@@ -11,6 +11,8 @@
 # CONNECT '/var/db/firebird/data/test.fdb' USER 'SYSDBA' PASSWORD 'masterkey';
 # CREATE TABLE test ( text varchar(100) );
 # DROP DATABASE;
+#
+# Be careful, virtuoso-opensource also provides a different isql command !
 
 # There are at least two ways to run firebird. superserver has been choosen
 # however there are no strong reasons to prefer this or the other one AFAIK
@@ -149,7 +151,7 @@ in
     '';
     };
 
-    users.extraUsers.mysql = {
+    users.extraUsers.firebird = {
       description = "firebird server user";
       group = "firebird";
       uid = config.ids.uids.firebird;

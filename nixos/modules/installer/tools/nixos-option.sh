@@ -195,7 +195,7 @@ if $generate; then
     echo "A hardware configuration file exists, generation skipped."
   else
     echo "Generating a hardware configuration file in $hardware_config..."
-    nixos-hardware-scan > "$hardware_config"
+    @nixosHardwareScan@/bin/nixos-hardware-scan > "$hardware_config"
   fi
 
   if test -e "$NIXOS_CONFIG"; then

@@ -68,7 +68,7 @@ stdenv.mkDerivation rec {
   patches = [
     ./debug-coercion-failures-for-unstable.patch
     ./write-file-hashed.patch
-  ];
+    ];
 
   meta = {
     description = "The Nix Deployment System";

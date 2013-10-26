@@ -4,27 +4,27 @@ with pkgs.lib;
 
 let
 
-  inherit (pkgs) cups;
-
   cfg = config.services.printing;
+
+  inherit (cfg) cupsPackages;
 
   additionalBackends = pkgs.runCommand "additional-cups-backends" { }
     ''
       mkdir -p $out
-      if [ ! -e ${pkgs.cups}/lib/cups/backend/smb ]; then
+      if [ ! -e ${cupsPackages.cups}/lib/cups/backend/smb ]; then
         mkdir -p $out/lib/cups/backend
-        ln -sv ${pkgs.samba}/bin/smbspool $out/lib/cups/backend/smb
+        ln -sv ${cupsPackages.samba}/bin/smbspool $out/lib/cups/backend/smb
       fi
 
       # Provide support for printing via HTTPS.
-      if [ ! -e ${pkgs.cups}/lib/cups/backend/https ]; then
+      if [ ! -e ${cupsPackages.cups}/lib/cups/backend/https ]; then
         mkdir -p $out/lib/cups/backend
-        ln -sv ${pkgs.cups}/lib/cups/backend/ipp $out/lib/cups/backend/https
+        ln -sv ${cupsPackages.cups}/lib/cups/backend/ipp $out/lib/cups/backend/https
       fi
 
       # Import filter configuration from Ghostscript.
       mkdir -p $out/share/cups/mime/
-      ln -v -s "${pkgs.ghostscript}/etc/cups/"* $out/share/cups/mime/
+      ln -v -s "${cupsPackages.ghostscript}/etc/cups/"* $out/share/cups/mime/
     '';
 
   # Here we can enable additional backends, filters, etc. that are not
@@ -76,6 +76,29 @@ in
         '';
       };
 
+      cupsPackages = mkOption {
+        # cups is a dependency of quite a lot of packages, same applies to ghostscript
+        # So it might be a good idea to allow overriding anything easily
+        default =
+          let cups = pkgs.cups.override { version = "1.5.4"; }; in
+
+          # include this cups
+          { inherit cups; }
+
+          # and important packages and force version of cups, ghostscript in
+          # the dependency chain
+          // (mapAttrs (name: value: value.deepOverride {
+               inherit cups;
+               # newer version do no longer contain some files
+               ghostscript = pkgs.ghostscriptMainline_9_06;
+             }) { inherit (pkgs) cups_pdf_filter samba splix ghostscript gutenprint gutenprintCVS; });
+
+        description = ''
+          A attrset containing all cups related derivations to be used to build
+          up this service.
+        '';
+      };
+
       drivers = mkOption {
         example = [ pkgs.splix ];
         description = ''
@@ -106,9 +129,9 @@ in
         description = "CUPS printing services";
       };
 
-    environment.systemPackages = [ cups ];
+    environment.systemPackages = [ cupsPackages.cups ];
 
-    services.dbus.packages = [ cups ];
+    services.dbus.packages = [ cupsPackages.cups ];
 
     # Cups uses libusb to talk to printers, and does not use the
     # linux kernel driver. If the driver is not in a black list, it
@@ -121,7 +144,7 @@ in
         wantedBy = [ "multi-user.target" ];
         after = [ "network-interfaces.target" ];
 
-        path = [ cups ];
+        path = [ cupsPackages.cups ];
 
         preStart =
           ''
@@ -132,12 +155,13 @@ in
           '';
 
         serviceConfig.Type = "forking";
-        serviceConfig.ExecStart = "@${cups}/sbin/cupsd cupsd -c ${pkgs.writeText "cupsd.conf" cfg.cupsdConf}";
+        serviceConfig.ExecStart = "@${cupsPackages.cups}/sbin/cupsd cupsd -c ${pkgs.writeText "cupsd.conf" cfg.cupsdConf}";
       };
 
     services.printing.drivers =
-      [ pkgs.cups pkgs.cups_pdf_filter pkgs.ghostscript additionalBackends pkgs.perl pkgs.coreutils pkgs.gnused ];
+      [ cupsPackages.cups cupsPackages.cups_pdf_filter cupsPackages.ghostscript additionalBackends pkgs.perl pkgs.coreutils pkgs.gnused ];
 
+    # Set LogLevel to debug2 to get most useful information
     services.printing.cupsdConf =
       ''
         LogLevel info
@@ -147,7 +171,7 @@ in
         Listen localhost:631
         Listen /var/run/cups/cups.sock
 
-        # Note: we can't use ${cups}/etc/cups as the ServerRoot, since
+        # Note: we can't use ${cupsPackages.cups}/etc/cups as the ServerRoot, since
         # CUPS will write in the ServerRoot when e.g. adding new printers
         # through the web interface.
         ServerRoot /etc/cups

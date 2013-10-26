@@ -25,3 +25,4 @@ fixes:
 new packages: ijs, qpdf
 ghostscript: get back the update which got reverted while keeping the old version
 
+This includes b96fc98306a pull/1115

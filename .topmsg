@@ -1,31 +1,27 @@
 From: Marc Weber <marco-oweber@gmx.de>
-Subject: [PATCH] experimental/gutenprint
+Subject: [PATCH] experimental/cups-1.6-and-1.7
 
-gutenprint updates
+opt-out cups update:
 
-- add ppds attr which can be used in configuration.nix in such a way:
+The new cupsd-1.6.nix file is default, you can still uncomment the old one.
+Both module have a new option "cupsPackages" which is the way to specifiy which
+cups/ghostscript versions to use.
 
-  printing = {
-    enable = true;
+1.6.4+ comes with some changes:
+- default filter chain is PDF, gs is only used for gs printers
+- some stuff has been moved into cupsFilters and is maintained by
+  openprinting now
+- cups has 2 configuration files now
+- some more less important changes such as compressing print files sent over
+  the network and whatnot (I didn't test them)
 
-    bindirCmds = ''
-      echo START
-      PATH=$PATH:${pkgs.coreutils}/bin:${pkgs.gnused}/bin
-      # find canon (cupsBjnp)
-      ln -s ${pkgs.gutenprintCVS}/lib/cups/backend/* $out/lib/cups/backend/
-      ln -s ${pkgs.gutenprintCVS}/lib/cups/filter/* $out/lib/cups/filter/
-      mkdir -p $out/lib/cups/model
+Issues:
+- printing test pages does not work yet
 
-      cp -a ${pkgs.gutenprintCVS.ppds { names = ["bjc-MULTIPASS-MP800" /* "stp-bjc-MULTIPASS-MP980"*/]; }}/ppds/*.ppd.gz $out/lib/cups/model/
-      for x in $out/lib/cups/model/*.ppd.gz; do gunzip $x; done
+fixes:
+- printing on canon-bjc like printers using gutentprint drivers.
+  1.5.4 only prints 30% of page for whatever reason.
 
-      cat ${pkgs.gutenprintCVS.ppds { names = /*["stp-bjc-MULTIPASS-MP980.5.2"]*/ null; }}/ppds/stp-bjc-MULTIPASS-MP980.5.2.ppd.gz | gunzip > $out/lib/cups/model/stp-bjc-MULTIPASS-MP980.4.2.ppd
-    '';
-  }
+new packages: ijs, qpdf
+ghostscript: get back the update which got reverted while keeping the old version
 
-
-- add option to build cvs version
-
-- drop composable derivation which is overkill in this simple case
-
-Signed-off-by: Marc Weber <marco-oweber@gmx.de>

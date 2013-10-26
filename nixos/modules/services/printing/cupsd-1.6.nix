@@ -218,9 +218,9 @@ in
         ServerBin ${bindir}/lib/cups
         DataDir ${bindir}/share/cups
 
-        # AccessLog syslog
-        # ErrorLog syslog
-        # PageLog syslog
+        AccessLog syslog
+        ErrorLog syslog
+        PageLog syslog
 
         TempDir ${cfg.tempDir}
 

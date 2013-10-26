@@ -3,29 +3,11 @@ Subject: [PATCH] experimental/gutenprint
 
 gutenprint updates
 
-- add ppds attr which can be used in configuration.nix in such a way:
-
-  printing = {
-    enable = true;
-
-    bindirCmds = ''
-      echo START
-      PATH=$PATH:${pkgs.coreutils}/bin:${pkgs.gnused}/bin
-      # find canon (cupsBjnp)
-      ln -s ${pkgs.gutenprintCVS}/lib/cups/backend/* $out/lib/cups/backend/
-      ln -s ${pkgs.gutenprintCVS}/lib/cups/filter/* $out/lib/cups/filter/
-      mkdir -p $out/lib/cups/model
-
-      cp -a ${pkgs.gutenprintCVS.ppds { names = ["bjc-MULTIPASS-MP800" /* "stp-bjc-MULTIPASS-MP980"*/]; }}/ppds/*.ppd.gz $out/lib/cups/model/
-      for x in $out/lib/cups/model/*.ppd.gz; do gunzip $x; done
-
-      cat ${pkgs.gutenprintCVS.ppds { names = /*["stp-bjc-MULTIPASS-MP980.5.2"]*/ null; }}/ppds/stp-bjc-MULTIPASS-MP980.5.2.ppd.gz | gunzip > $out/lib/cups/model/stp-bjc-MULTIPASS-MP980.4.2.ppd
-    '';
-  }
-
-
 - add option to build cvs version
 
 - drop composable derivation which is overkill in this simple case
+
+TODO: Check wether this patch can be simplified, eg are openjade patches still
+neccessary or whether there is a more current upstream and such
 
 Signed-off-by: Marc Weber <marco-oweber@gmx.de>

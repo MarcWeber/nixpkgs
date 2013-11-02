@@ -4011,8 +4011,7 @@ let
 
   db48 = callPackage ../development/libraries/db4/db4-4.8.nix { };
 
-  dbus = let dbus_all = callPackage ../development/libraries/dbus { };
-    in dbus_all.libs // dbus_all; # previously dbus.libs also contained the daemon
+  dbus = callPackage ../development/libraries/dbus { };
   dbus_cplusplus  = callPackage ../development/libraries/dbus-cplusplus { };
   dbus_glib       = callPackage ../development/libraries/dbus-glib { };
   dbus_java       = callPackage ../development/libraries/java/dbus-java { };
@@ -4355,6 +4354,8 @@ let
     inherit (gnome) gtkdoc;
   };
 
+  qpdf = callPackage ../development/libraries/qpdf { };
+
   qt_gstreamer = callPackage ../development/libraries/gstreamer/qt-gstreamer {};
 
   gnet = callPackage ../development/libraries/gnet { };
@@ -4516,6 +4517,8 @@ let
   icu = callPackage ../development/libraries/icu { };
 
   id3lib = callPackage ../development/libraries/id3lib { };
+
+  ijs = callPackage ../development/libraries/ijs { };
 
   iksemel = callPackage ../development/libraries/iksemel { };
 
@@ -5392,8 +5395,7 @@ let
 
   policykit = callPackage ../development/libraries/policykit { };
 
-  poppler = let popplers = callPackage ../development/libraries/poppler { lcms = lcms2; };
-    in popplers // popplers.poppler_glib;
+  poppler = callPackage ../development/libraries/poppler { lcms = lcms2; };
   popplerQt4 = poppler.poppler_qt4;
 
   poppler_0_18 = callPackage ../development/libraries/poppler/0.18.nix {
@@ -9857,9 +9859,23 @@ let
 
   auctex = callPackage ../tools/typesetting/tex/auctex { };
 
+  # This is for testing builds only. See cupsPackages in modules/cupsd*.nix files
   cups = callPackage ../misc/cups { libusb = libusb1; };
+  cupsPackages = thisCups: {
+    cups = thisCups;
+    cupsFilters = cupsFilters.override { cups = thisCups; };
+    gutenprint = gutenprint.override { cups = thisCups; };
+    gutenprintCVS = gutenprint.override { cups = thisCups; version = "cvs"; };
+    ghostscript = ghostscriptMainline_9_10;
+  };
+  cups16 = cupsPackages (cups.override { version = "1.6.4"; });
+  cups17 = cupsPackages (cups.override { version = "1.7.x"; });
 
+  # cups 1.5.4
   cups_pdf_filter = callPackage ../misc/cups/pdf-filter.nix { };
+
+  # cups 1.6.4+
+  cupsFilters = callPackage ../misc/cups/filters.nix { };
 
   gutenprint = callPackage ../misc/drivers/gutenprint { };
   gutenprintCVS = callPackage ../misc/drivers/gutenprint { 
@@ -9867,6 +9883,8 @@ let
     version = "cvs";
   };
 
+  # Now that even CVS gutenprint can be built I don't think we still need
+  # binaries .. (TODO remove it)
   gutenprintBin = callPackage ../misc/drivers/gutenprint/bin.nix { };
 
   cupsBjnp = callPackage ../misc/cups/drivers/cups-bjnp { };
@@ -9908,7 +9926,13 @@ let
   ghostscript = callPackage ../misc/ghostscript {
     x11Support = false;
     cupsSupport = config.ghostscript.cups or true;
-    gnuFork = config.ghostscript.gnu or false;
+    version = if config.ghostscript.gnu or false then "gnu-fork-9.04.x" else "9.06";
+  };
+
+  ghostscriptMainline_9_06 = ghostscript.override { version = "9.06"; };
+  ghostscriptMainline_9_10 = ghostscript.override { version = "9.10"; };
+  ghostscriptGnu = ghostscript.override {
+    version = "gnu-fork-9.04.x";
   };
 
   ghostscriptX = appendToName "with-X" (ghostscript.override {

@@ -5,10 +5,14 @@ We're all pretty helpless seeing messages like:
 
   value is an attribute set while a list was expected
 
-This patch add sthe flag --xml-debug-coercion-failure
-making nix output the xml representation of the attribute set
-- which of course may fail eg if infinite recursions are used.
-However its more often useful than failing.
+This patch add the flag --xml-debug-coercion-failure
+making nix output the xml representation of the attribute set.
+
+Please not that this may fail if the thing to be coerced
+cannot be turned into xml, eg because its evaluation does not end, eg due to
+infinite recursion.
+
+TODO: document this flag
 
 Signed-off-by: Marc Weber <marco-oweber@gmx.de>
 
@@ -23,10 +27,10 @@ Signed-off-by: Marc Weber <marco-oweber@gmx.de>
  7 files changed, 40 insertions(+), 12 deletions(-)
 
 diff --git a/src/libexpr/eval-inline.hh b/src/libexpr/eval-inline.hh
-index 57a9e4c..d114e64 100644
+index 722273d..a768685 100644
 --- a/src/libexpr/eval-inline.hh
 +++ b/src/libexpr/eval-inline.hh
-@@ -42,7 +42,7 @@ inline void EvalState::forceAttrs(Value & v)
+@@ -45,7 +45,7 @@ inline void EvalState::forceAttrs(Value & v)
  {
      forceValue(v);
      if (v.type != tAttrs)
@@ -35,7 +39,7 @@ index 57a9e4c..d114e64 100644
  }
  
  
-@@ -50,7 +50,7 @@ inline void EvalState::forceList(Value & v)
+@@ -53,7 +53,7 @@ inline void EvalState::forceList(Value & v)
  {
      forceValue(v);
      if (v.type != tList)
@@ -45,7 +49,7 @@ index 57a9e4c..d114e64 100644
  
  }
 diff --git a/src/libexpr/eval.cc b/src/libexpr/eval.cc
-index 2f9601e..476d170 100644
+index 29b3e3c..024fa9e 100644
 --- a/src/libexpr/eval.cc
 +++ b/src/libexpr/eval.cc
 @@ -4,6 +4,7 @@
@@ -56,7 +60,7 @@ index 2f9601e..476d170 100644
  #include "eval-inline.hh"
  
  #include <cstring>
-@@ -205,6 +206,18 @@ void EvalState::addConstant(const string & name, Value & v)
+@@ -208,6 +209,18 @@ void EvalState::addConstant(const string & name, Value & v)
  }
  
  
@@ -75,7 +79,7 @@ index 2f9601e..476d170 100644
  void EvalState::addPrimOp(const string & name,
      unsigned int arity, PrimOpFun primOp)
  {
-@@ -453,7 +466,7 @@ inline bool EvalState::evalBool(Env & env, Expr * e)
+@@ -479,7 +492,7 @@ inline bool EvalState::evalBool(Env & env, Expr * e)
      Value v;
      e->eval(*this, env, v);
      if (v.type != tBool)
@@ -84,7 +88,7 @@ index 2f9601e..476d170 100644
      return v.boolean;
  }
  
-@@ -462,7 +475,7 @@ inline void EvalState::evalAttrs(Env & env, Expr * e, Value & v)
+@@ -488,7 +501,7 @@ inline void EvalState::evalAttrs(Env & env, Expr * e, Value & v)
  {
      e->eval(*this, env, v);
      if (v.type != tAttrs)
@@ -93,8 +97,8 @@ index 2f9601e..476d170 100644
  }
  
  
-@@ -726,7 +739,7 @@ void EvalState::callFunction(Value & fun, Value & arg, Value & v)
-     
+@@ -734,7 +747,7 @@ void EvalState::callFunction(Value & fun, Value & arg, Value & v)
+ 
      if (fun.type != tLambda)
          throwTypeError("attempt to call something which is not a function but %1%",
 -            showType(fun));
@@ -102,7 +106,7 @@ index 2f9601e..476d170 100644
  
      unsigned int size =
          (fun.lambda.fun->arg.empty() ? 0 : 1) +
-@@ -1000,7 +1013,7 @@ int EvalState::forceInt(Value & v)
+@@ -1019,7 +1032,7 @@ NixInt EvalState::forceInt(Value & v)
  {
      forceValue(v);
      if (v.type != tInt)
@@ -111,7 +115,7 @@ index 2f9601e..476d170 100644
      return v.integer;
  }
  
-@@ -1009,7 +1022,7 @@ bool EvalState::forceBool(Value & v)
+@@ -1028,7 +1041,7 @@ bool EvalState::forceBool(Value & v)
  {
      forceValue(v);
      if (v.type != tBool)
@@ -120,7 +124,7 @@ index 2f9601e..476d170 100644
      return v.boolean;
  }
  
-@@ -1018,7 +1031,7 @@ void EvalState::forceFunction(Value & v)
+@@ -1037,7 +1050,7 @@ void EvalState::forceFunction(Value & v)
  {
      forceValue(v);
      if (v.type != tLambda && v.type != tPrimOp && v.type != tPrimOpApp)
@@ -129,7 +133,7 @@ index 2f9601e..476d170 100644
  }
  
  
-@@ -1026,7 +1039,7 @@ string EvalState::forceString(Value & v)
+@@ -1045,7 +1058,7 @@ string EvalState::forceString(Value & v)
  {
      forceValue(v);
      if (v.type != tString)
@@ -138,7 +142,7 @@ index 2f9601e..476d170 100644
      return string(v.string.s);
  }
  
-@@ -1107,7 +1120,7 @@ string EvalState::coerceToString(Value & v, PathSet & context,
+@@ -1126,7 +1139,7 @@ string EvalState::coerceToString(Value & v, PathSet & context,
      if (v.type == tAttrs) {
          Bindings::iterator i = v.attrs->find(sOutPath);
          if (i == v.attrs->end())
@@ -147,16 +151,16 @@ index 2f9601e..476d170 100644
          return coerceToString(*i->value, context, coerceMore, copyToStore);
      }
  
-@@ -1134,7 +1147,7 @@ string EvalState::coerceToString(Value & v, PathSet & context,
+@@ -1153,7 +1166,7 @@ string EvalState::coerceToString(Value & v, PathSet & context,
          }
      }
-     
+ 
 -    throwTypeError("cannot coerce %1% to a string", showType(v));
 +    throwTypeError("cannot coerce %1% to a string", showTypeOrXml(v));
  }
  
  
-@@ -1220,7 +1233,7 @@ bool EvalState::eqValues(Value & v1, Value & v2)
+@@ -1239,7 +1252,7 @@ bool EvalState::eqValues(Value & v1, Value & v2)
              return false;
  
          default:
@@ -166,23 +170,23 @@ index 2f9601e..476d170 100644
  }
  
 diff --git a/src/libexpr/eval.hh b/src/libexpr/eval.hh
-index a3c55a3..c737b09 100644
+index 8707182..65ee4d0 100644
 --- a/src/libexpr/eval.hh
 +++ b/src/libexpr/eval.hh
-@@ -205,6 +205,8 @@ private:
+@@ -204,6 +204,8 @@ private:
      void addPrimOp(const string & name,
          unsigned int arity, PrimOpFun primOp);
  
 +    string showTypeOrXml(Value &v);
 +
-     inline Value * lookupVar(Env * env, const VarRef & var);
-     
-     friend class ExprVar;
+ public:
+ 
+     void getBuiltin(const string & name, Value & v);
 diff --git a/src/libmain/shared.cc b/src/libmain/shared.cc
-index 9e5964a..f1bcec4 100644
+index b71bca6..7a70577 100644
 --- a/src/libmain/shared.cc
 +++ b/src/libmain/shared.cc
-@@ -196,6 +196,9 @@ static void initAndRun(int argc, char * * argv)
+@@ -215,6 +215,9 @@ static void initAndRun(int argc, char * * argv)
              settings.useBuildHook = false;
          else if (arg == "--show-trace")
              showTrace = true;
@@ -193,10 +197,10 @@ index 9e5964a..f1bcec4 100644
              ++i; if (i == args.end()) throw UsageError("`--option' requires two arguments");
              string name = *i;
 diff --git a/src/libstore/globals.cc b/src/libstore/globals.cc
-index 9b22d54..bab3df1 100644
+index 7e0157c..1ff6eb4 100644
 --- a/src/libstore/globals.cc
 +++ b/src/libstore/globals.cc
-@@ -22,6 +22,7 @@ Settings::Settings()
+@@ -30,6 +30,7 @@ Settings::Settings()
      maxBuildJobs = 1;
      buildCores = 1;
      readOnlyMode = false;
@@ -205,10 +209,10 @@ index 9b22d54..bab3df1 100644
      maxSilentTime = 0;
      buildTimeout = 0;
 diff --git a/src/libstore/globals.hh b/src/libstore/globals.hh
-index d25ee6a..7951428 100644
+index cbc6d4e..948dd05 100644
 --- a/src/libstore/globals.hh
 +++ b/src/libstore/globals.hh
-@@ -78,6 +78,12 @@ struct Settings {
+@@ -81,6 +81,12 @@ struct Settings {
         the database. */
      bool readOnlyMode;
  
@@ -222,10 +226,10 @@ index d25ee6a..7951428 100644
      string thisSystem;
  
 diff --git a/src/nix-instantiate/nix-instantiate.cc b/src/nix-instantiate/nix-instantiate.cc
-index ab0c8cf..513f14a 100644
+index fd2c04e..46d304a 100644
 --- a/src/nix-instantiate/nix-instantiate.cc
 +++ b/src/nix-instantiate/nix-instantiate.cc
-@@ -96,6 +96,9 @@ void run(Strings args)
+@@ -107,6 +107,9 @@ void run(Strings args)
              settings.readOnlyMode = true;
              evalOnly = true;
          }
@@ -236,4 +240,29 @@ index ab0c8cf..513f14a 100644
              settings.readOnlyMode = true;
              parseOnly = evalOnly = true;
 -- 
-tg: (dde6486..) experimental/debug-coercions-as-xml (depends on: master)
+tg: (9e4bb20..) experimental/debug-coercions-as-xml (depends on: master)
+diff --git a/src/libmain/shared.cc b/src/libmain/shared.cc
+index 7a70577..3d093da 100644
+--- a/src/libmain/shared.cc
++++ b/src/libmain/shared.cc
+@@ -216,7 +216,7 @@ static void initAndRun(int argc, char * * argv)
+         else if (arg == "--show-trace")
+             showTrace = true;
+         else if (arg == "--xml-debug-coercion-failure") {
+-            settings.set("xmldebugCorecionFailure", "true");
++            settings.set("xml-debug-corecion-failure", "true");
+         }
+         else if (arg == "--option") {
+             ++i; if (i == args.end()) throw UsageError("`--option' requires two arguments");
+diff --git a/src/libstore/globals.cc b/src/libstore/globals.cc
+index 1ff6eb4..158f9b6 100644
+--- a/src/libstore/globals.cc
++++ b/src/libstore/globals.cc
+@@ -129,6 +129,7 @@ void Settings::update()
+     get(tryFallback, "build-fallback");
+     get(maxBuildJobs, "build-max-jobs");
+     get(buildCores, "build-cores");
++    get(xmldebugCorecionFailure, "xml-debug-corecion-failure");
+     get(thisSystem, "system");
+     get(maxSilentTime, "build-max-silent-time");
+     get(buildTimeout, "build-timeout");

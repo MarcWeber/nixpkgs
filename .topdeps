@@ -6,7 +6,7 @@ experimental/opencascade
 experimental/nodejs
 experimental/shadow
 experimental/mingw
-experimental/gutenprint
+experimental/cups-1.6-and-1.7
 experimental/haxe
 experimental/nix
 experimental/blender

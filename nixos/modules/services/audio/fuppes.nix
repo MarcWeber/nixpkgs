@@ -21,7 +21,7 @@ with pkgs.lib;
 
       name = mkOption {
         example = "Media Center";
-        type = with types; uniq string;
+        type = types.str;
         description = ''
           Enables Fuppes (UPnP A/V Media Server).  Can be used to watch
           photos, video and listen to music from a phone/tv connected to the
@@ -41,7 +41,7 @@ with pkgs.lib;
 
         file = mkOption {
           default = "/var/log/fuppes.log";
-          type = with types; uniq string;
+          type = types.str;
           description = ''
             File which will contains the log produced by the daemon.
           '';
@@ -50,7 +50,7 @@ with pkgs.lib;
 
       config = mkOption {
         example = "/etc/fuppes/fuppes.cfg";
-        type = with types; uniq string;
+        type = types.str;
         description = ''
           Mutable configuration file which can be edited with the web
           interface.  Due to possible modification, double quote the full
@@ -60,8 +60,7 @@ with pkgs.lib;
       };
 
       vfolder = mkOption {
-        default = ./fuppes/vfolder.cfg;
-        example = /etc/fuppes/vfolder.cfg;
+        example = literalExample "/etc/fuppes/vfolder.cfg";
         description = ''
           XML file describing the layout of virtual folder visible by the
           client.
@@ -70,7 +69,7 @@ with pkgs.lib;
 
       database = mkOption {
         default = "/var/lib/fuppes/fuppes.db";
-        type = with types; uniq string;
+        type = types.str;
         description = ''
           Database file which index all shared files.
         '';
@@ -89,7 +88,7 @@ with pkgs.lib;
       user = mkOption {
         default = "root"; # The default is not secure.
         example = "fuppes";
-        type = with types; uniq string;
+        type = types.str;
         description = ''
           Name of the user which own the configuration files and under which
           the fuppes daemon will be executed.
@@ -108,6 +107,8 @@ with pkgs.lib;
     };
 
     services.fuppesd.name = mkDefault config.networking.hostName;
+
+    services.fuppesd.vfolder = mkDefault ./fuppes/vfolder.cfg;
 
     security.sudo.enable = true;
   };

@@ -8,7 +8,7 @@ let
 
   cfg = config.security.pam.usb;
 
-  anyUsbAuth = any (attrByPath ["usbAuth"] false) config.security.pam.services;
+  anyUsbAuth = any (attrByPath ["usbAuth"] false) (attrValues config.security.pam.services);
 
 in
 
@@ -17,10 +17,11 @@ in
 
     security.pam.usb = {
       enable = mkOption {
+        type = types.bool;
         default = false;
         description = ''
-          Enable USB login for all login system unless the service disabled
-          it.  For more information, visit <link
+          Enable USB login for all login systems that support it.  For
+          more information, visit <link
           xlink:href="http://pamusb.org/doc/quickstart#setting_up" />.
         '';
       };

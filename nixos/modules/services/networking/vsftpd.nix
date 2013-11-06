@@ -60,11 +60,11 @@ let
       names to allow or deny access.
       The default <literal>false</literal> means whitelist/allow.
     '')
-    (yesNoOption "forceLocalLoginsSSL" "force_local_logins_ssl" true ''
+    (yesNoOption "forceLocalLoginsSSL" "force_local_logins_ssl" false ''
     Only applies if <option>sslEnable</option> is true. Non anonymous (local) users
     must use a secure SSL connection to send a password.
     '')
-    (yesNoOption "forceLocalDataSSL" "force_local_data_ssl" true ''
+    (yesNoOption "forceLocalDataSSL" "force_local_data_ssl" false ''
     Only applies if <option>sslEnable</option> is true. Non anonymous (local) users
     must use a secure SSL connection for sending/receiving data on data connection.
     '')
@@ -75,7 +75,7 @@ let
     {
       cfgText = if cfg.rsaCertFile == null then ""
         else ''
-        sslEnable=YES
+        ssl_enable=YES
         rsa_cert_file=${cfg.rsaCertFile}
       '';
 
@@ -124,6 +124,13 @@ in
 
           If explicitely set to null userlist_file will not be set in vsftpd's config file.
         '';
+      };
+
+      anonymousUserHome = mkOption {
+        default = "/home/ftp/";
+	description = ''
+	  Directory to consider the HOME of the anonymous user.
+	'';
       };
 
     } // (listToAttrs (catAttrs "nixosOption" optionDescription)) ;

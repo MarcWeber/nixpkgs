@@ -40,10 +40,10 @@ with pkgs.lib;
 
           # Register the paths in the Nix database.
           printRegistration=1 perl ${pkgs.pathsFromGraph} /tmp/xchg/closure | \
-              chroot /mnt ${config.environment.nix}/bin/nix-store --load-db
+              chroot /mnt ${config.nix.package}/bin/nix-store --load-db
 
           # Create the system profile to allow nixos-rebuild to work.
-          chroot /mnt ${config.environment.nix}/bin/nix-env \
+          chroot /mnt ${config.nix.package}/bin/nix-env \
               -p /nix/var/nix/profiles/system --set ${config.system.build.toplevel}
 
           # `nixos-rebuild' requires an /etc/NIXOS.
@@ -160,4 +160,9 @@ with pkgs.lib;
   environment.systemPackages = [ pkgs.cryptsetup ];
 
   boot.initrd.supportedFilesystems = [ "unionfs-fuse" ];
+
+  # Prevent logging in as root without a password.  This doesn't really matter,
+  # since the only PAM services that allow logging in with a null
+  # password are local ones that are inaccessible on EC2 machines.
+  security.initialRootPassword = "!";
 }

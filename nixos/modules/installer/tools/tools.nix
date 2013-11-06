@@ -1,10 +1,10 @@
 # This module generates nixos-install, nixos-rebuild,
-# nixos-hardware-scan, etc.
+# nixos-generate-config, etc.
 
 { config, pkgs, modulesPath, ... }:
 
 let
-  ### implementation
+
   cfg = config.installer;
 
   makeProg = args: pkgs.substituteAll (args // {
@@ -12,53 +12,48 @@ let
     isExecutable = true;
   });
 
-  nixosBuildVMS = makeProg {
+  nixos-build-vms = makeProg {
     name = "nixos-build-vms";
     src = ./nixos-build-vms/nixos-build-vms.sh;
   };
 
-  nixosInstall = makeProg {
+  nixos-install = makeProg {
     name = "nixos-install";
     src = ./nixos-install.sh;
 
     inherit (pkgs) perl pathsFromGraph;
-    nix = config.environment.nix;
+    nix = config.nix.package;
 
     nixClosure = pkgs.runCommand "closure"
-      { exportReferencesGraph = ["refs" config.environment.nix]; }
+      { exportReferencesGraph = ["refs" config.nix.package]; }
       "cp refs $out";
   };
 
-  nixosRebuild = makeProg {
+  nixos-rebuild = makeProg {
     name = "nixos-rebuild";
     src = ./nixos-rebuild.sh;
   };
 
-  /*
-  nixosGenSeccureKeys = makeProg {
-    name = "nixos-gen-seccure-keys";
-    src = ./nixos-gen-seccure-keys.sh;
-  };
-  */
-
-  nixosHardwareScan = makeProg {
-    name = "nixos-hardware-scan";
-    src = ./nixos-hardware-scan.pl;
-    inherit (pkgs) perl dmidecode;
+  nixos-generate-config = makeProg {
+    name = "nixos-generate-config";
+    src = ./nixos-generate-config.pl;
+    perl = "${pkgs.perl}/bin/perl -I${pkgs.perlPackages.FileSlurp}/lib/perl5/site_perl";
+    inherit (pkgs) dmidecode;
   };
 
-  nixosOption = makeProg {
+  nixos-option = makeProg {
     name = "nixos-option";
     src = ./nixos-option.sh;
   };
 
-  nixosVersion = makeProg {
+  nixos-version = makeProg {
     name = "nixos-version";
     src = ./nixos-version.sh;
     inherit (config.system) nixosVersion nixosCodeName;
   };
 
-  nixosGui = pkgs.xulrunnerWrapper {
+  /*
+  nixos-gui = pkgs.xulrunnerWrapper {
     launcher = "nixos-gui";
     application = pkgs.stdenv.mkDerivation {
       name = "nixos-gui";
@@ -77,10 +72,12 @@ let
       };
     };
   };
+  */
 
 in
 
 {
+  /*
   options = {
 
     installer.enableGraphicalTools = pkgs.lib.mkOption {
@@ -93,20 +90,20 @@ in
     };
 
   };
+  */
 
   config = {
     environment.systemPackages =
-      [ nixosBuildVMS
-        nixosInstall
-        nixosRebuild
-        nixosHardwareScan
-        #nixosGenSeccureKeys
-        nixosOption
-        nixosVersion
-      ] ++ pkgs.lib.optional cfg.enableGraphicalTools nixosGui;
+      [ nixos-build-vms
+        nixos-install
+        nixos-rebuild
+        nixos-generate-config
+        nixos-option
+        nixos-version
+      ];
 
     system.build = {
-      inherit nixosInstall nixosHardwareScan nixosOption;
+      inherit nixos-install nixos-generate-config nixos-option nixos-rebuild;
     };
   };
 }

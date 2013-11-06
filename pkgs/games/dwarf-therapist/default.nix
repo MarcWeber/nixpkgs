@@ -55,6 +55,7 @@ stdenv.mkDerivation rec {
     maintainers = with stdenv.lib.maintainers; [ the-kenny ];
     license = "MIT";
     platforms = stdenv.lib.platforms.linux;
+    hydraPlatforms = [];
     homepage = https://code.google.com/r/splintermind-attributes/;
   };
 }

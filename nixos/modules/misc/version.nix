@@ -7,18 +7,34 @@ with pkgs.lib;
   options = {
 
     system.nixosVersion = mkOption {
-      type = types.uniq types.string;
+      internal = true;
+      type = types.str;
       description = "NixOS version.";
     };
 
     system.nixosVersionSuffix = mkOption {
-      type = types.uniq types.string;
+      internal = true;
+      type = types.str;
       description = "NixOS version suffix.";
     };
 
+    system.nixosRevision = mkOption {
+      internal = true;
+      type = types.str;
+      description = "NixOS Git revision hash.";
+    };
+
     system.nixosCodeName = mkOption {
-      type = types.uniq types.string;
+      internal = true;
+      type = types.str;
       description = "NixOS release code name.";
+    };
+
+    system.defaultChannel = mkOption {
+      internal = true;
+      type = types.str;
+      default = https://nixos.org/channels/nixos-unstable;
+      description = "Default NixOS channel to which the root user is subscribed.";
     };
 
   };
@@ -26,29 +42,31 @@ with pkgs.lib;
   config = {
 
     system.nixosVersion =
-      mkDefault (builtins.readFile ../../../.version + config.system.nixosVersionSuffix);
+      mkDefault (readFile "${toString pkgs.path}/.version" + config.system.nixosVersionSuffix);
 
     system.nixosVersionSuffix =
-      mkDefault (if builtins.pathExists ../../../.version-suffix then builtins.readFile ../../../.version-suffix else "pre-git");
+      let suffixFile = "${toString pkgs.path}/.version-suffix"; in
+      mkDefault (if pathExists suffixFile then readFile suffixFile else "pre-git");
+
+    system.nixosRevision =
+      let fn = "${toString pkgs.path}/.git-revision"; in
+      mkDefault (if pathExists fn then readFile fn else "master");
 
     # Note: code names must only increase in alphabetical order.
-    system.nixosCodeName = "Aardvark";
+    system.nixosCodeName = "Baboon";
 
     # Generate /etc/os-release.  See
     # http://0pointer.de/public/systemd-man/os-release.html for the
     # format.
-    environment.etc = singleton
-      { source = pkgs.writeText "os-release"
-          ''
-            NAME=NixOS
-            ID=nixos
-            VERSION="${config.system.nixosVersion} (${config.system.nixosCodeName})"
-            VERSION_ID="${config.system.nixosVersion}"
-            PRETTY_NAME="NixOS ${config.system.nixosVersion} (${config.system.nixosCodeName})"
-            HOME_URL="http://nixos.org/"
-          '';
-        target = "os-release";
-      };
+    environment.etc."os-release".text =
+      ''
+        NAME=NixOS
+        ID=nixos
+        VERSION="${config.system.nixosVersion} (${config.system.nixosCodeName})"
+        VERSION_ID="${config.system.nixosVersion}"
+        PRETTY_NAME="NixOS ${config.system.nixosVersion} (${config.system.nixosCodeName})"
+        HOME_URL="http://nixos.org/"
+      '';
 
   };
 

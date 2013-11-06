@@ -7,30 +7,27 @@
 , baseModules ? import ../modules/module-list.nix
 , extraArgs ? {}
 , modules
+, check ? true
 }:
 
 let extraArgs_ = extraArgs; pkgs_ = pkgs; system_ = system; in
 
 rec {
 
-  # These are the NixOS modules that constitute the system configuration.
-  configComponents = modules ++ baseModules;
-
   # Merge the option definitions in all modules, forming the full
-  # system configuration.  It's not checked for undeclared options.
-  systemModule =
-    pkgs.lib.fixMergeModules configComponents extraArgs;
-
-  optionDefinitions = systemModule.config;
-  optionDeclarations = systemModule.options;
-  inherit (systemModule) options;
+  # system configuration.
+  inherit (pkgs.lib.evalModules {
+    modules = modules ++ baseModules;
+    args = extraArgs;
+    check = check && options.environment.checkConfigurationOptions.value;
+  }) config options;
 
   # These are the extra arguments passed to every module.  In
   # particular, Nixpkgs is passed through the "pkgs" argument.
   extraArgs = extraArgs_ // {
     inherit pkgs modules baseModules;
     modulesPath = ../modules;
-    pkgs_i686 = import ../.. { system = "i686-linux"; };
+    pkgs_i686 = import ./nixpkgs.nix { system = "i686-linux"; };
     utils = import ./utils.nix pkgs;
   };
 
@@ -47,7 +44,7 @@ rec {
   pkgs =
     if pkgs_ != null
     then pkgs_
-    else import ../.. (
+    else import ./nixpkgs.nix (
       let
         system = if nixpkgsOptions.system != "" then nixpkgsOptions.system else system_;
         nixpkgsOptions = (import ./eval-config.nix {
@@ -55,18 +52,13 @@ rec {
           # For efficiency, leave out most NixOS modules; they don't
           # define nixpkgs.config, so it's pointless to evaluate them.
           baseModules = [ ../modules/misc/nixpkgs.nix ];
-          pkgs = import ../.. { system = system_; config = {}; };
-        }).optionDefinitions.nixpkgs;
+          pkgs = import ./nixpkgs.nix { system = system_; config = {}; };
+          check = false;
+        }).config.nixpkgs;
       in
       {
         inherit system;
         inherit (nixpkgsOptions) config;
       });
 
-  # Optionally check wether all config values have corresponding
-  # option declarations.
-  config =
-    let doCheck = optionDefinitions.environment.checkConfigurationOptions; in
-    assert doCheck -> pkgs.lib.checkModule "" systemModule;
-    systemModule.config;
 }

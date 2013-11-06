@@ -62,12 +62,16 @@ in
 
       port = mkOption {
         default = "3050";
-        description = ''Port Firebird uses.'';
+        description = ''
+          Port Firebird uses.
+        '';
       };
 
       user = mkOption {
         default = "firebird";
-        description = ''User account under which firebird runs.'';
+        description = ''
+          User account under which firebird runs.
+        '';
       };
 
       baseDir = mkOption {
@@ -86,8 +90,6 @@ in
   ###### implementation
 
   config = mkIf config.services.firebird.enable {
-
-    users.extraUsers.firebird.description =  "Firebird server user";
 
     environment.systemPackages = [cfg.package];
 
@@ -149,12 +151,12 @@ in
       #RemoteBindAddress =
       # there are some additional settings which should be reviewed
     '';
-    };
 
     users.extraUsers.firebird = {
-      description = "firebird server user";
+      description = "Firebird server user";
       group = "firebird";
       uid = config.ids.uids.firebird;
     };
 
+  };
 }

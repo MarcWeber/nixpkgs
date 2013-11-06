@@ -15,17 +15,21 @@
 
 , sapi ? "apxs2" # SAPI support: only one can be used at a time ? (PHP >= 5.3)
 
+# keep *Support args sorted
 , bcmathSupport ? true
 , curlSupport ? true
 , fastcgiSupport ? false
 , gdSupport ? true
 , gettextSupport ? true
+, imapSupport ? false
+, ldapSupport ? true
 , libxml2Support ? true
 , mbstringSupport ? true
 , mcryptSupport ? true
-, mysqliSupport ? true
 , mysqlSupport ? true
+, mysqliSupport ? true
 , opensslSupport ? true
+, pcntlSupport ? true
 , pdo_mysqlSupport ? true
 , postgresqlSupport ? true
 , readlineSupport ? true
@@ -33,11 +37,9 @@
 , socketsSupport ? true
 , sqliteSupport ? true
 , tidySupport ? true
+, ttfSupport ? true
 , zipSupport ? true
 , zlibSupport ? true
-, ttfSupport ? true
-, ldapSupport ? true
-, imapSupport ? false
 
 , gdShared ? true
 
@@ -84,18 +86,41 @@
 let
 
   true_version = if version == "5.3.x" then "5.3.27"
-  else if version == "5.4.x" then "5.4.19"
+  else if version == "5.4.x" then "5.4.21"
+  else if version == "5.5.x" then "5.5.5"
   else version;
 
   libxml2 = if lessThan53 then pkgs.libxml2.override { version = "2.7.8"; } else pkgs.libxml2;
 
   # used to calculate php id based on features
-  options = [ /* sapi */ "bcmathSupport" "curlSupport" "fastcgiSupport"
-    "gdSupport" "gettextSupport" "libxml2Support" "mbstringSupport"
-    "mcryptSupport" "mysqliSupport" "mysqlSupport" "opensslSupport"
-    "pdo_mysqlSupport" "postgresqlSupport" "readlineSupport" "soapSupport"
-    "socketsSupport" "sqliteSupport" "tidySupport" "zipSupport" "zlibSupport"
-    "ttfSupport" "ldapSupport" "fpmSystemdSocketActivationPatchSupport" "imapSupport"];
+  options = [ /* sapi */ 
+    # keep sorted
+    "bcmathSupport"
+    "curlSupport"
+    "fastcgiSupport"
+    "fpmSystemdSocketActivationPatchSupport"
+    "gdSupport"
+    "gettextSupport"
+    "imapSupport"
+    "ldapSupport"
+    "libxml2Support"
+    "mbstringSupport"
+    "mcryptSupport"
+    "mysqlSupport"
+    "mysqliSupport"
+    "opensslSupport"
+    "pdo_mysqlSupport"
+    "postgresqlSupport"
+    "pcntlSupport"
+    "readlineSupport"
+    "soapSupport"
+    "socketsSupport"
+    "sqliteSupport"
+    "tidySupport"
+    "ttfSupport"
+    "zipSupport"
+    "zlibSupport"
+    ];
 
   # note: this derivation contains a small hack: It contains several PHP
   # versions
@@ -210,6 +235,10 @@ let
           "--with-iconv-dir=${libiconv}"
           ];
         buildInputs = [ libxml2 ];
+      };
+
+      pcntl = {
+        configureFlags = [ "--enable-pcntl" ];
       };
 
       readline = {
@@ -411,19 +440,18 @@ let
   '';
 
    src = fetchurl {
-     url = 
-       if lessThan55 then "http://de2.php.net/distributions/php-${true_version}.tar.bz2"
-       else "http://downloads.php.net/dsp/php-${true_version}.tar.bz2";
+     url = "http://de2.php.net/distributions/php-${true_version}.tar.bz2";
      md5 = lib.maybeAttr true_version (throw "unkown php version ${true_version}") {
-      "5.5.0RC1" = "0b8eaea490888bc7881f60f54798f1cb";
+      # "5.5.0RC1" = "0b8eaea490888bc7881f60f54798f1cb";
+      "5.5.5" = "186c330c272d6322d254db9b2d18482a";
 
       # does not built, due to patch?
       # "5.4.5" = "ffcc7f4dcf2b79d667fe0c110e6cb724";
       # "5.4.7" = "9cd421f1cc8fa8e7f215e44a1b06199f";
       # "5.4.14" = "cfdc044be2c582991a1fe0967898fa38";
       # "5.4.15" = "145ea5e845e910443ff1eddb3dbcf56a";
-      "5.4.19" = "f06f99b9872b503758adab5ba7a7e755";
-
+      # "5.4.19" = "f06f99b9872b503758adab5ba7a7e755";
+      "5.4.21" = "3dcf021e89b039409d0b1c346b936b5f";
 
       # those older versions are likely to be buggy - there should be no reason to compile them
       # "5.3.3" = "21ceeeb232813c10283a5ca1b4c87b48";

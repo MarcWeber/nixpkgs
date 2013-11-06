@@ -69,11 +69,7 @@ rec {
   };
 
 
-<<<<<<< HEAD
-  isSystem = x: isType "system"
-=======
   isSystem = x: isType "system" x
->>>>>>> refs/top-bases/experimental/marc
     && isCpuType x.cpu
     && isArchitecture x.arch
     && isKernel x.kernel;

@@ -9,12 +9,7 @@ with import ./strings.nix;
 
 rec {
 
-<<<<<<< HEAD
-  isType = type: x: isAttrs x && (x._type or "") == type;
-  hasType = x: isAttrs x && x ? _type;
-=======
   isType = type: x: (x._type or "") == type;
->>>>>>> refs/top-bases/experimental/marc
   typeOf = x: x._type or "";
 
   setType = typeName: value: value // {

@@ -1,6 +1,6 @@
 # Global configuration for the SSH client.
 
-{config, pkgs, ...}:
+{ config, pkgs, ... }:
 
 with pkgs.lib;
 
@@ -16,6 +16,7 @@ in
     programs.ssh = {
 
       forwardX11 = mkOption {
+        type = types.bool;
         default = false;
         description = ''
           Whether to request X11 forwarding on outgoing connections by default.
@@ -29,27 +30,33 @@ in
       };
 
       setXAuthLocation = mkOption {
+        type = types.bool;
         default = true;
         description = ''
-          Whether to set the path to xauth for X11-forwarded connections.
-          Pulls in X11 dependency.
+          Whether to set the path to <command>xauth</command> for X11-forwarded connections.
+          This causes a dependency on X11 packages.
         '';
       };
 
       extraConfig = mkOption {
+        type = types.lines;
         default = "";
         description = ''
           Extra configuration text appended to <filename>ssh_config</filename>.
-          See the ssh_config(5) man page for help.
+          See <citerefentry><refentrytitle>ssh_config</refentrytitle><manvolnum>5</manvolnum></citerefentry>
+          for help.
         '';
       };
     };
   };
 
-  assertions = [{ assertion = if cfg.forwardX11 then cfg.setXAuthLocation else true;
-                  message = "cannot enable X11 forwarding without setting xauth location";}];
-
   config = {
+
+    assertions = singleton
+      { assertion = cfg.forwardX11 -> cfg.setXAuthLocation;
+        message = "cannot enable X11 forwarding without setting XAuth location";
+      };
+
     environment.etc =
       [ { # SSH configuration.  Slight duplication of the sshd_config
           # generation in the sshd service.

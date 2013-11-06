@@ -14,7 +14,7 @@ let
         [ ../modules/installer/cd-dvd/installation-cd-graphical.nix
           ../modules/testing/test-instrumentation.nix
           { key = "serial";
-            boot.loader.grub.timeout = mkOverrideTemplate 0 {} 0;
+            boot.loader.grub.timeout = mkOverride 0 0;
 
             # The test cannot access the network, so any sources we
             # need must be included in the ISO.
@@ -38,7 +38,7 @@ let
       { config, pkgs, modulesPath, ... }:
 
       { imports =
-          [ ./hardware.nix
+          [ ./hardware-configuration.nix
             "''${modulesPath}/testing/test-instrumentation.nix"
           ];
 
@@ -48,10 +48,7 @@ let
         ''}
         boot.loader.grub.device = "${grubDevice}";
         boot.loader.grub.extraConfig = "serial; terminal_output.serial";
-        boot.initrd.kernelModules = [ "ext3" "ext4" "xfs" "virtio_console" ];
-
-        ${fileSystems}
-        swapDevices = [ { label = "swap"; } ];
+        boot.initrd.kernelModules = [ "virtio_console" ];
 
         environment.systemPackages = [ ${optionalString testChannel "pkgs.rlwrap"} ];
       }
@@ -143,12 +140,10 @@ let
 
       # Create the NixOS configuration.
       $machine->succeed(
-          "mkdir -p /mnt/etc/nixos",
-          "nixos-hardware-scan > /mnt/etc/nixos/hardware.nix",
+          "nixos-generate-config --root /mnt",
       );
 
-      my $cfg = $machine->succeed("cat /mnt/etc/nixos/hardware.nix");
-      print STDERR "Result of the hardware scan:\n$cfg\n";
+      $machine->succeed("cat /mnt/etc/nixos/hardware-configuration.nix >&2");
 
       $machine->copyFileFromHost(
           "${ config { inherit fileSystems testChannel grubVersion grubDevice; } }",
@@ -178,6 +173,11 @@ let
           or die "nix-env failed";
 
       $machine->succeed("nixos-rebuild switch >&2");
+
+      # Test nixos-option.
+      $machine->succeed("nixos-option boot.initrd.kernelModules | grep virtio_console");
+      $machine->succeed("nixos-option -d boot.initrd.kernelModules | grep 'List of modules'");
+      $machine->succeed("nixos-option -l boot.initrd.kernelModules | grep /etc/nixos/configuration.nix");
 
       $machine->shutdown;
 

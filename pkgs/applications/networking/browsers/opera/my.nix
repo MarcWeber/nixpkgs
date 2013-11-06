@@ -1,7 +1,7 @@
 { stdenv, fetchurl, zlib, libX11, libXext, libXft, freetype, libSM, libICE,
   libXt, libXrender, libXcursor, fontconfig, libuuid, glibc, libXi, xz
 # qt gui:
-, qt47, kde4
+, qt48, kde4
 # gtk gui
 , gtkLibs, cairo
 
@@ -27,7 +27,7 @@ let
   libsForGuis = {
       # Debug Dialog Toolkits with opera --full-version (see last line)
       # See: http://www.opera.com/support/usingopera/operaini/
-      qt  = [qt47 kde4.kdelibs];                      # "Dialog Toolkit" = 1
+      qt  = [qt48 kde4.kdelibs];                      # "Dialog Toolkit" = 1
       gtk = with gtkLibs; [gtk glib atk pango cairo]; # "Dialog Toolkit" = 2
       kde = [];                                       # "Dialog Toolkit" = 3 (not supported by nixpkgs yet)
   }; in

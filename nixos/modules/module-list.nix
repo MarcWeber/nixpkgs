@@ -55,6 +55,7 @@
   ./programs/venus.nix
   ./programs/wvdial.nix
   ./programs/zsh/zsh.nix
+  ./programs/screen.nix
   ./rename.nix
   ./security/apparmor.nix
   ./security/apparmor-suid.nix
@@ -62,6 +63,7 @@
   ./security/pam.nix
   ./security/pam_usb.nix
   ./security/polkit.nix
+  ./security/prey.nix
   ./security/rngd.nix
   ./security/rtkit.nix
   ./security/setuid-wrappers.nix
@@ -129,6 +131,7 @@
   ./services/monitoring/dd-agent.nix
   ./services/monitoring/graphite.nix
   ./services/monitoring/monit.nix
+  ./services/monitoring/munin.nix
   ./services/monitoring/nagios/default.nix
   ./services/monitoring/smartd.nix
   ./services/monitoring/statsd.nix
@@ -148,12 +151,12 @@
   ./services/networking/cntlm.nix
   ./services/networking/chrony.nix
   ./services/networking/ddclient.nix
-  #./services/networking/dhclient.nix
   ./services/networking/dhcpcd.nix
   ./services/networking/dhcpd.nix
   ./services/networking/dnsmasq.nix
   ./services/networking/ejabberd.nix
   ./services/networking/firewall.nix
+  ./services/networking/haproxy.nix
   ./services/networking/tcpcrypt.nix
   ./services/networking/flashpolicyd.nix
   ./services/networking/freenet.nix
@@ -236,6 +239,7 @@
   ./services/x11/window-managers/twm.nix
   ./services/x11/window-managers/wmii.nix
   ./services/x11/window-managers/xmonad.nix
+  ./services/x11/redshift.nix
   ./services/x11/xfs.nix
   ./services/x11/xserver.nix
   ./system/activation/activation-script.nix
@@ -273,8 +277,8 @@
   ./tasks/scsi-link-power-management.nix
   ./tasks/swraid.nix
   ./virtualisation/libvirtd.nix
-  ./virtualisation/nova.nix
+  #./virtualisation/nova.nix
   ./virtualisation/virtualbox-guest.nix
   ./virtualisation/virtualbox-server.nix
-  ./virtualisation/xen-dom0.nix
+  #./virtualisation/xen-dom0.nix
 ]

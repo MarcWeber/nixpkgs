@@ -27,7 +27,7 @@ let
 
     openssh.authorizedKeys = {
       keys = mkOption {
-        type = types.listOf types.string;
+        type = types.listOf types.str;
         default = [];
         description = ''
           A list of verbatim OpenSSH public keys that should be added to the
@@ -39,6 +39,7 @@ let
       };
 
       keyFiles = mkOption {
+        type = types.listOf types.unspecified;
         default = [];
         description = ''
           A list of files each containing one OpenSSH public key that should be
@@ -77,6 +78,7 @@ in
     services.openssh = {
 
       enable = mkOption {
+        type = types.bool;
         default = false;
         description = ''
           Whether to enable the OpenSSH secure shell daemon, which
@@ -85,6 +87,7 @@ in
       };
 
       forwardX11 = mkOption {
+        type = types.bool;
         default = cfgc.setXAuthLocation;
         description = ''
           Whether to allow X11 connections to be forwarded.
@@ -92,6 +95,7 @@ in
       };
 
       allowSFTP = mkOption {
+        type = types.bool;
         default = true;
         description = ''
           Whether to enable the SFTP subsystem in the SSH daemon.  This
@@ -102,7 +106,7 @@ in
 
       permitRootLogin = mkOption {
         default = "without-password";
-        check = permitRootLoginCheck;
+        type = types.addCheck types.str permitRootLoginCheck;
         description = ''
           Whether the root user can login using ssh. Valid values are
           <literal>yes</literal>, <literal>without-password</literal>,
@@ -112,6 +116,7 @@ in
       };
 
       gatewayPorts = mkOption {
+        type = types.str;
         default = "no";
         description = ''
           Specifies whether remote hosts are allowed to connect to
@@ -122,31 +127,23 @@ in
       };
 
       ports = mkOption {
+        type = types.listOf types.int;
         default = [22];
         description = ''
           Specifies on which ports the SSH daemon listens.
         '';
       };
 
-      usePAM = mkOption {
-        default = true;
-        description = ''
-          Specifies whether the OpenSSH daemon uses PAM to authenticate
-          login attempts.
-        '';
-      };
-
       passwordAuthentication = mkOption {
+        type = types.bool;
         default = true;
         description = ''
-          Specifies whether password authentication is allowed. Note
-          that setting this value to <literal>false</literal> is most
-          probably not going to have the desired effect unless
-          <literal>usePAM</literal> is disabled as well.
+          Specifies whether password authentication is allowed.
         '';
       };
 
       challengeResponseAuthentication = mkOption {
+        type = types.bool;
         default = true;
         description = ''
           Specifies whether challenge/response authentication is allowed.
@@ -154,6 +151,7 @@ in
       };
 
       hostKeys = mkOption {
+        type = types.listOf types.attrs;
         default =
           [ { path = "/etc/ssh/ssh_host_dsa_key";
               type = "dsa";
@@ -174,11 +172,13 @@ in
       };
 
       authorizedKeysFiles = mkOption {
+        type = types.listOf types.unspecified;
         default = [];
         description = "Files from with authorized keys are read.";
       };
 
       extraConfig = mkOption {
+        type = types.lines;
         default = "";
         description = "Verbatim contents of <filename>sshd_config</filename>.";
       };
@@ -192,11 +192,11 @@ in
         example = [
           {
             hostNames = [ "myhost" "myhost.mydomain.com" "10.10.1.4" ];
-            publicKeyFile = ./pubkeys/myhost_ssh_host_dsa_key.pub;
+            publicKeyFile = literalExample "./pubkeys/myhost_ssh_host_dsa_key.pub";
           }
           {
             hostNames = [ "myhost2" ];
-            publicKeyFile = ./pubkeys/myhost2_ssh_host_dsa_key.pub;
+            publicKeyFile = literalExample "./pubkeys/myhost2_ssh_host_dsa_key.pub";
           }
         ];
         options = {
@@ -213,7 +213,7 @@ in
               The path to the public key file for the host. The public
               key file is read at build time and saved in the Nix store.
               You can fetch a public key file from a running SSH server
-              with the <literal>ssh-keyscan</literal> command.
+              with the <command>ssh-keyscan</command> command.
             '';
           };
         };
@@ -284,7 +284,11 @@ in
 
     networking.firewall.allowedTCPPorts = cfg.ports;
 
-    security.pam.services = optional cfg.usePAM { name = "sshd"; startSession = true; showMotd = true; };
+    security.pam.services.sshd =
+      { startSession = true;
+        showMotd = true;
+        unixAuth = cfg.passwordAuthentication;
+      };
 
     services.openssh.authorizedKeysFiles =
       [ ".ssh/authorized_keys" ".ssh/authorized_keys2" "/etc/ssh/authorized_keys.d/%u" ];
@@ -295,7 +299,7 @@ in
 
         Protocol 2
 
-        UsePAM ${if cfg.usePAM then "yes" else "no"}
+        UsePAM yes
 
         AddressFamily ${if config.networking.enableIPv6 then "any" else "inet"}
         ${concatMapStrings (port: ''

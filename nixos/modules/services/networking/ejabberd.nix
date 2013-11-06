@@ -44,7 +44,7 @@ in
       loadDumps = mkOption {
         default = [];
         description = "Configuration dump that should be loaded on the first startup";
-        example = [ ./myejabberd.dump ];
+        example = literalExample "[ ./myejabberd.dump ]";
       };
     };
 
@@ -129,6 +129,8 @@ in
             ejabberdctl --config-dir ${cfg.confDir} --logs ${cfg.logsDir} --spool ${cfg.spoolDir} stop
           '';
       };
+
+    security.pam.services.ejabberd = {};
 
   };
 

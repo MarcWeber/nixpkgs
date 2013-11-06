@@ -17,6 +17,7 @@ in
   options = {
 
     security.sudo.enable = mkOption {
+      type = types.bool;
       default = true;
       description =
         ''
@@ -26,6 +27,7 @@ in
     };
 
     security.sudo.wheelNeedsPassword = mkOption {
+      type = types.bool;
       default = true;
       description =
         ''
@@ -35,6 +37,7 @@ in
       };
 
     security.sudo.configFile = mkOption {
+      type = types.lines;
       # Note: if syntax errors are detected in this file, the NixOS
       # configuration will fail to build.
       description =
@@ -74,7 +77,7 @@ in
 
     environment.systemPackages = [ sudo ];
 
-    security.pam.services = [ { name = "sudo"; sshAgentAuth = true; } ];
+    security.pam.services.sudo = { sshAgentAuth = true; };
 
     environment.etc = singleton
       { source = pkgs.writeText "sudoers-in" cfg.configFile;

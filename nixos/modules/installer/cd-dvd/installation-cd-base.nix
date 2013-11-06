@@ -37,6 +37,12 @@ with pkgs.lib;
   # Because github.com/nixos/* are official repositories make it easy to check them out using git
   environment.systemPackages = [ pkgs.git ];
 
+  # EFI booting
+  isoImage.makeEfiBootable = true;
+
   # Add Memtest86+ to the CD.
   boot.loader.grub.memtest86 = true;
+
+  # Get a console as soon as the initrd loads fbcon on EFI boot
+  boot.initrd.kernelModules = [ "fbcon" ];
 }

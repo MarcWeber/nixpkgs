@@ -7,8 +7,6 @@ with pkgs.lib;
 
 let
 
-  cfg = config.environment;
-
   extraManpages = pkgs.runCommand "extra-manpages" { buildInputs = [ pkgs.help2man ]; }
     ''
       mkdir -p $out/share/man/man1
@@ -16,7 +14,7 @@ let
     '';
 
   requiredPackages =
-    [ config.environment.nix
+    [ config.nix.package
       pkgs.acl
       pkgs.attr
       pkgs.bashInteractive # bash with ncurses support
@@ -62,6 +60,7 @@ in
     environment = {
 
       systemPackages = mkOption {
+        type = types.listOf types.path;
         default = [];
         example = "[ pkgs.icecat3 pkgs.thunderbird ]";
         description = ''
@@ -76,6 +75,7 @@ in
       };
 
       pathsToLink = mkOption {
+        type = types.listOf types.str;
         # Note: We need `/lib' to be among `pathsToLink' for NSS modules
         # to work.
         default = [];
@@ -87,33 +87,10 @@ in
     system = {
 
       path = mkOption {
-        default = cfg.systemPackages;
+        internal = true;
         description = ''
           The packages you want in the boot environment.
         '';
-
-        apply = list: pkgs.buildEnv {
-          name = "system-path";
-          paths = list;
-          inherit (cfg) pathsToLink;
-          ignoreCollisions = true;
-          # !!! Hacky, should modularise.
-          postBuild =
-            ''
-              if [ -x $out/bin/update-mime-database -a -w $out/share/mime/packages ]; then
-                  $out/bin/update-mime-database -V $out/share/mime
-              fi
-
-              if [ -x $out/bin/gtk-update-icon-cache -a -f $out/share/icons/hicolor/index.theme ]; then
-                  $out/bin/gtk-update-icon-cache $out/share/icons/hicolor
-              fi
-
-              if [ -x $out/bin/glib-compile-schemas -a -w $out/share/glib-2.0/schemas ]; then
-                  $out/bin/glib-compile-schemas $out/share/glib-2.0/schemas
-              fi
-            '';
-        };
-
       };
 
     };
@@ -137,6 +114,28 @@ in
         "/share/terminfo"
         "/share/man"
       ];
+
+    system.path = pkgs.buildEnv {
+      name = "system-path";
+      paths = config.environment.systemPackages;
+      inherit (config.environment) pathsToLink;
+      ignoreCollisions = true;
+      # !!! Hacky, should modularise.
+      postBuild =
+        ''
+          if [ -x $out/bin/update-mime-database -a -w $out/share/mime/packages ]; then
+              XDG_DATA_DIRS=$out/share $out/bin/update-mime-database -V $out/share/mime > /dev/null
+          fi
+
+          if [ -x $out/bin/gtk-update-icon-cache -a -f $out/share/icons/hicolor/index.theme ]; then
+              $out/bin/gtk-update-icon-cache $out/share/icons/hicolor
+          fi
+
+          if [ -x $out/bin/glib-compile-schemas -a -w $out/share/glib-2.0/schemas ]; then
+              $out/bin/glib-compile-schemas $out/share/glib-2.0/schemas
+          fi
+        '';
+    };
 
   };
 }

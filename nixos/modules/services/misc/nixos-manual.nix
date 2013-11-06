@@ -3,7 +3,7 @@
 # of the virtual consoles.  The latter is useful for the installation
 # CD.
 
-{ config, pkgs, options, ... }:
+{ config, pkgs, baseModules, ... } @ extraArgs:
 
 with pkgs.lib;
 
@@ -11,9 +11,21 @@ let
 
   cfg = config.services.nixosManual;
 
+  versionModule =
+    { system.nixosVersionSuffix = config.system.nixosVersionSuffix;
+      system.nixosRevision = config.system.nixosRevision;
+    };
+
+  eval = evalModules {
+    modules = [ versionModule ] ++ baseModules;
+    args = (removeAttrs extraArgs ["config" "options"]) // { modules = [ ]; };
+  };
+
   manual = import ../../../doc/manual {
-    inherit (cfg) revision;
-    inherit pkgs options;
+    inherit pkgs;
+    version = config.system.nixosVersion;
+    revision = config.system.nixosRevision;
+    options = eval.options;
   };
 
   entry = "${manual.manual}/share/doc/nixos/manual.html";
@@ -42,14 +54,15 @@ in
   options = {
 
     services.nixosManual.enable = mkOption {
-      default = true;
       type = types.bool;
+      default = true;
       description = ''
         Whether to build the NixOS manual pages.
       '';
     };
 
     services.nixosManual.showManual = mkOption {
+      type = types.bool;
       default = false;
       description = ''
         Whether to show the NixOS manual on one of the virtual
@@ -65,19 +78,10 @@ in
     };
 
     services.nixosManual.browser = mkOption {
+      type = types.path;
       default = "${pkgs.w3m}/bin/w3m";
       description = ''
         Browser used to show the manual.
-      '';
-    };
-
-    services.nixosManual.revision = mkOption {
-      default = "local";
-      type = types.uniq types.string;
-      description = ''
-        Revision of the targeted source file.  This value can either be
-        <literal>"local"</literal>, <literal>"HEAD"</literal> or any
-        revision number embedded in a string.
       '';
     };
 

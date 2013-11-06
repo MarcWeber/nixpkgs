@@ -12,11 +12,11 @@ let
       xauth_path ${dmcfg.xauthBin}
       default_xserver ${dmcfg.xserverBin}
       xserver_arguments ${dmcfg.xserverArgs}
-      sessions ${pkgs.lib.concatStringsSep "," (dmcfg.session.names ++ ["custom"])}
+      sessiondir ${dmcfg.session.desktops}
       login_cmd exec ${pkgs.stdenv.shell} ${dmcfg.session.script} "%session"
       halt_cmd ${config.systemd.package}/sbin/shutdown -h now
       reboot_cmd ${config.systemd.package}/sbin/shutdown -r now
-      ${optionalString (cfg.defaultUser != "") ("default_user " + cfg.defaultUser)}
+      ${optionalString (cfg.defaultUser != null) ("default_user " + cfg.defaultUser)}
       ${optionalString cfg.autoLogin "auto_login yes"}
     '';
 
@@ -45,18 +45,22 @@ in
     services.xserver.displayManager.slim = {
 
       enable = mkOption {
-        default = true;
+        type = types.bool;
+        default = config.services.xserver.enable;
         description = ''
           Whether to enable SLiM as the display manager.
         '';
       };
 
       theme = mkOption {
+        type = types.nullOr types.path;
         default = null;
-        example = pkgs.fetchurl {
-          url = http://download.berlios.de/slim/slim-wave.tar.gz;
-          sha256 = "0ndr419i5myzcylvxb89m9grl2xyq6fbnyc3lkd711mzlmnnfxdy";
-        };
+        example = literalExample ''
+          pkgs.fetchurl {
+            url = http://download.berlios.de/slim/slim-wave.tar.gz;
+            sha256 = "0ndr419i5myzcylvxb89m9grl2xyq6fbnyc3lkd711mzlmnnfxdy";
+          }
+        '';
         description = ''
           The theme for the SLiM login manager.  If not specified, SLiM's
           default theme is used.  See <link
@@ -66,7 +70,8 @@ in
       };
 
       defaultUser = mkOption {
-        default = "";
+        type = types.nullOr types.str;
+        default = null;
         example = "login";
         description = ''
           The default user to load. If you put a username here you
@@ -76,8 +81,8 @@ in
       };
 
       autoLogin = mkOption {
+        type = types.bool;
         default = false;
-        example = true;
         description = ''
           Automatically log in as the default user.
         '';
@@ -106,7 +111,12 @@ in
 
     # Allow null passwords so that the user can login as root on the
     # installation CD.
-    security.pam.services = [ { name = "slim"; allowNullPassword = true; startSession = true; } ];
+    security.pam.services.slim = { allowNullPassword = true; startSession = true; };
+
+    # Allow slimlock to work.
+    security.pam.services.slimlock = {};
+
+    environment.systemPackages = [ pkgs.slim ];
 
   };
 

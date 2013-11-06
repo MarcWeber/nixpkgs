@@ -3238,7 +3238,7 @@ let
   php5_4 = php.override { version = "5.4.x"; };
   php5_4fpm = php5_4.override { sapi = "fpm"; };
 
-  php5_5 = php.override { version = "5.5.0RC1"; };
+  php5_5 = php.override { version = "5.5.x"; };
   php5_5fpm = php5_4.override { sapi = "fpm"; };
 
   # use php.apc/xcache/Xdebug instead

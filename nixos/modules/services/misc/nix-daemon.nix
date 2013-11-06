@@ -6,7 +6,7 @@ let
 
   cfg = config.nix;
 
-  inherit (config.environment) nix;
+  nix = cfg.package;
 
   makeNixBuildUser = nr:
     { name = "nixbld${toString nr}";
@@ -55,19 +55,20 @@ in
 
   options = {
 
-    environment.nix = mkOption {
-      default = pkgs.nix;
-      merge = mergeOneOption;
-      description = ''
-        This option specifies the Nix package instance to use throughout the system.
-      '';
-    };
-
     nix = {
 
+      package = mkOption {
+        type = types.path;
+        default = pkgs.nix;
+        description = ''
+          This option specifies the Nix package instance to use throughout the system.
+        '';
+      };
+
       maxJobs = mkOption {
+        type = types.int;
         default = 1;
-        example = 2;
+        example = 64;
         description = "
           This option defines the maximum number of jobs that Nix will try
           to build in parallel.  The default is 1.  You should generally
@@ -77,8 +78,8 @@ in
       };
 
       useChroot = mkOption {
+        type = types.bool;
         default = false;
-        example = true;
         description = "
           If set, Nix will perform builds in a chroot-environment that it
           will set up automatically for each build.  This prevents
@@ -88,6 +89,7 @@ in
       };
 
       chrootDirs = mkOption {
+        type = types.listOf types.str;
         default = [];
         example = [ "/dev" "/proc" ];
         description =
@@ -98,53 +100,45 @@ in
       };
 
       extraOptions = mkOption {
+        type = types.lines;
         default = "";
-        example = "
+        example = ''
           gc-keep-outputs = true
           gc-keep-derivations = true
-        ";
+        '';
         description = "Additional text appended to <filename>nix.conf</filename>.";
       };
 
       distributedBuilds = mkOption {
+        type = types.bool;
         default = false;
-        description = "
+        description = ''
           Whether to distribute builds to the machines listed in
           <option>nix.buildMachines</option>.
-          If you know that the <option>buildMachines</option> are not
-          always available either use nixos
-          <command>nixos-rebuild --no-build-hook</command>
-          or consider managing <filename>/etc/nix.machines</filename> manually
-          by setting <option>manualNixMachines</option>. Then you can comment
-          unavailable build machines.
-        ";
-      };
-
-      manualNixMachines = mkOption {
-        default = false;
-        description = "
-          Whether to manually manage the list of build machines used in distributed
-          builds in /etc/nix.machines.
-        ";
+        '';
       };
 
       daemonNiceLevel = mkOption {
+        type = types.int;
         default = 0;
-        description = "
+        description = ''
           Nix daemon process priority. This priority propagates to build processes.
           0 is the default Unix process priority, 20 is the lowest.
-        ";
+        '';
       };
 
       daemonIONiceLevel = mkOption {
+        type = types.int;
         default = 0;
-        description = "
+        description = ''
           Nix daemon process I/O priority. This priority propagates to build processes.
           0 is the default Unix process I/O priority, 7 is the lowest.
-        ";
+        '';
       };
 
       buildMachines = mkOption {
+        type = types.listOf types.attrs;
+        default = [];
         example = [
           { hostName = "voila.labs.cs.uu.nl";
             sshUser = "nix";
@@ -161,7 +155,7 @@ in
             mandatoryFeatures = "perf";
           }
         ];
-        description = "
+        description = ''
           This option lists the machines to be used if distributed
           builds are enabled (see
           <option>nix.distributedBuilds</option>).  Nix will perform
@@ -173,7 +167,7 @@ in
           user name to be used for the SSH connection
           (<varname>sshUser</varname>), the Nix system type
           (<varname>system</varname>, e.g.,
-          <literal>\"i686-linux\"</literal>), the maximum number of
+          <literal>"i686-linux"</literal>), the maximum number of
           jobs to be run in parallel on that machine
           (<varname>maxJobs</varname>), the path to the SSH private
           key to be used to connect (<varname>sshKey</varname>), a
@@ -185,28 +179,30 @@ in
           key should be added to
           <filename>~<replaceable>sshUser</replaceable>/authorized_keys</filename>
           on the remote machine.
-        ";
+        '';
       };
 
       proxy = mkOption {
+        type = types.str;
         default = "";
-        description = "
+        description = ''
           This option specifies the proxy to use for fetchurl. The real effect
           is just exporting http_proxy, https_proxy and ftp_proxy with that
           value.
-        ";
+        '';
         example = "http://127.0.0.1:3128";
       };
 
       # Environment variables for running Nix.
       envVars = mkOption {
+        type = types.attrs;
         internal = true;
         default = {};
-        type = types.attrs;
         description = "Environment variables used by Nix.";
       };
 
       nrBuildUsers = mkOption {
+        type = types.int;
         default = 10;
         description = ''
           Number of <literal>nixbld</literal> user accounts created to
@@ -217,6 +213,7 @@ in
       };
 
       readOnlyStore = mkOption {
+        type = types.bool;
         default = true;
         description = ''
           If set, NixOS will enforce the immutability of the Nix store
@@ -227,8 +224,8 @@ in
       };
 
       binaryCaches = mkOption {
+        type = types.listOf types.str;
         default = [ http://cache.nixos.org/ ];
-        type = types.listOf types.string;
         description = ''
           List of binary cache URLs used to obtain pre-built binaries
           of Nix packages.
@@ -236,9 +233,9 @@ in
       };
 
       trustedBinaryCaches = mkOption {
+        type = types.listOf types.str;
         default = [ ];
         example = [ http://hydra.nixos.org/ ];
-        type = types.listOf types.string;
         description = ''
           List of binary cache URLs that non-root users can use (in
           addition to those specified using
@@ -262,8 +259,8 @@ in
 
     # List of machines for distributed Nix builds in the format
     # expected by build-remote.pl.
-    environment.etc."nix.machines" =
-      { enable = cfg.distributedBuilds && !cfg.manualNixMachines;
+    environment.etc."nix/machines" =
+      { enable = cfg.buildMachines != [];
         text =
           concatMapStrings (machine:
             "${machine.sshUser}@${machine.hostName} "
@@ -307,17 +304,17 @@ in
     nix.envVars =
       { NIX_CONF_DIR = "/etc/nix";
 
-        # Enable the copy-from-other-stores substituter, which allows builds
-        # to be sped up by copying build results from remote Nix stores.  To
-        # do this, mount the remote file system on a subdirectory of
-        # /var/run/nix/remote-stores.
-        NIX_OTHER_STORES = "/var/run/nix/remote-stores/*/nix";
+        # Enable the copy-from-other-stores substituter, which allows
+        # builds to be sped up by copying build results from remote
+        # Nix stores.  To do this, mount the remote file system on a
+        # subdirectory of /run/nix/remote-stores.
+        NIX_OTHER_STORES = "/run/nix/remote-stores/*/nix";
       }
 
       // optionalAttrs cfg.distributedBuilds {
-        NIX_BUILD_HOOK = "${config.environment.nix}/libexec/nix/build-remote.pl";
-        NIX_REMOTE_SYSTEMS = "/etc/nix.machines";
-        NIX_CURRENT_LOAD = "/var/run/nix/current-load";
+        NIX_BUILD_HOOK = "${nix}/libexec/nix/build-remote.pl";
+        NIX_REMOTE_SYSTEMS = "/etc/nix/machines";
+        NIX_CURRENT_LOAD = "/run/nix/current-load";
       }
 
       # !!! These should not be defined here, but in some general proxy configuration module!

@@ -89,6 +89,9 @@ in
   };
 
   config = mkIf cfg.enable {
+
+    services.xserver.displayManager.slim.enable = false;
+
     services.xserver.displayManager.job = {
       logsXsession = true;
 
@@ -102,10 +105,8 @@ in
     services.dbus.enable = true;
     services.dbus.packages = [ lightdm ];
 
-    security.pam.services = [
-      { name = "lightdm"; allowNullPassword = true; startSession = true; }
-      { name = "lightdm-greeter"; allowNullPassword = true; startSession = true; }
-    ];
+    security.pam.services.lightdm = { allowNullPassword = true; startSession = true; };
+    security.pam.services.lightdm-greeter = { allowNullPassword = true; startSession = true; };
 
     users.extraUsers.lightdm = {
       createHome = true;

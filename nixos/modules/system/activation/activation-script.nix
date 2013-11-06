@@ -44,11 +44,15 @@ in
       };
 
       description = ''
-        Activate the new configuration (i.e., update /etc, make accounts,
-        and so on).
+        A set of shell script fragments that are executed when a NixOS
+        system configuration is activated.  Examples are updating
+        /etc, creating accounts, and so on.  Since these are executed
+        every time you boot the system or run
+        <command>nixos-rebuild</command>, it's important that they are
+        idempotent and fast.
       '';
 
-      merge = mergeTypedOption "script" builtins.isAttrs (fold mergeAttrs {});
+      type = types.attrsOf types.unspecified; # FIXME
 
       apply = set: {
         script =
@@ -112,18 +116,10 @@ in
         mkdir -m 0755 -p /var/run/nix/current-load # for distributed builds
         mkdir -m 0700 -p /var/run/nix/remote-stores
 
-        # Directory holding symlinks to currently running Upstart
-        # jobs.  Used to determine which jobs need to be restarted
-        # when switching to a new configuration.
-        mkdir -m 0700 -p /var/run/upstart-jobs
-
         mkdir -m 0755 -p /var/log
 
-        touch /var/log/wtmp # must exist
-        chmod 644 /var/log/wtmp
-
-        touch /var/log/lastlog
-        chmod 644 /var/log/lastlog
+        touch /var/log/wtmp /var/log/lastlog # must exist
+        chmod 644 /var/log/wtmp /var/log/lastlog
 
         mkdir -m 1777 -p /var/tmp
 

@@ -26,7 +26,7 @@ let
   configType = mkOptionType {
     name = "nixpkgs config";
     check = traceValIfNot isConfig;
-    merge = fold mergeConfig {};
+    merge = args: fold (def: mergeConfig def.value) {};
   };
 
 in
@@ -59,7 +59,7 @@ in
     };
 
     nixpkgs.system = mkOption {
-      default = pkgs.stdenv.system;
+      type = types.str;
       description = ''
         Specifies the Nix platform type for which NixOS should be built.
         If unset, it defaults to the platform type of your host system
@@ -72,16 +72,6 @@ in
   };
 
   config = {
-
-    # FIXME
-    nixpkgs.config.packageOverrides = pkgs: {
-      #udev = pkgs.systemd;
-      slim = pkgs.slim.override (args: if args ? consolekit then { consolekit = null; } else { });
-      lvm2 = pkgs.lvm2.override { udev = pkgs.systemd; };
-      upower = pkgs.upower.override { useSystemd = true; };
-      polkit = pkgs.polkit.override { useSystemd = true; };
-      consolekit = null;
-    };
-
+    nixpkgs.system = mkDefault pkgs.stdenv.system;
   };
 }

@@ -4855,7 +4855,7 @@ rec {
   };
 
   MailIMAPClient = buildPerlPackage {
-    name = "Mail-IMAPClient-2.2.9";
+    name = "Mail-IMAPClient-3.32";
     src = fetchurl {
       url = mirror://cpan/authors/id/D/DJ/DJKERNEN/Mail-IMAPClient-2.2.9.tar.gz;
       sha256 = "1jb04mn66d6022xjqmax49cdn55f2fdzp6knfnchmrcmf90a8rzs";

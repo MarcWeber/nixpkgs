@@ -1,44 +1,7 @@
 #! @shell@ -e
 
 showSyntax() {
-    # !!! more or less cut&paste from
-    # system/switch-to-configuration.sh (which we call, of course).
-    cat <<EOF
-Usage: $0 [OPTIONS...] OPERATION
-
-The operation is one of the following:
-
-  switch:   make the configuration the boot default and activate now
-  boot:     make the configuration the boot default
-  test:     activate the configuration, but don't make it the boot default
-  build:    build the configuration, but don't make it the default or
-            activate it
-  build-vm: build a virtual machine containing the configuration
-            (useful for testing)
-  build-vm-with-bootloader:
-            like build-vm, but include a boot loader in the VM
-  dry-run:  just show what store paths would be built/downloaded
-
-Options:
-
-  --upgrade              fetch the latest version of NixOS before rebuilding
-  --install-grub         (re-)install the Grub bootloader
-  --no-build-nix         don't build the latest Nix from Nixpkgs before
-                           building NixOS
-  --rollback             restore the previous NixOS configuration (only
-                           with switch, boot, test, build)
-  --profile-name / -p    install in the specified system profile
-  --fast                 same as --no-build-nix --show-trace
-
-Various nix-build options are also accepted, in particular:
-
-  --show-trace           show a detailed stack trace for evaluation errors
-
-Environment variables affecting nixos-rebuild:
-
-  \$NIX_PATH              Nix expression search path
-  \$NIXOS_CONFIG          path to the NixOS system configuration specification
-EOF
+    exec man nixos-rebuild
     exit 1
 }
 
@@ -146,8 +109,8 @@ fi
 # more conservative.
 if [ "$action" != dry-run -a -n "$buildNix" ]; then
     echo "building Nix..." >&2
-    if ! nix-build '<nixos>' -A config.environment.nix -o $tmpDir/nix "${extraBuildFlags[@]}" > /dev/null; then
-        if ! nix-build '<nixos>' -A nixFallback -o $tmpDir/nix "${extraBuildFlags[@]}" > /dev/null; then
+    if ! nix-build '<nixpkgs/nixos>' -A config.nix.package -o $tmpDir/nix "${extraBuildFlags[@]}" > /dev/null; then
+        if ! nix-build '<nixpkgs/nixos>' -A nixFallback -o $tmpDir/nix "${extraBuildFlags[@]}" > /dev/null; then
             nix-build '<nixpkgs>' -A nixUnstable -o $tmpDir/nix "${extraBuildFlags[@]}" > /dev/null
         fi
     fi
@@ -157,10 +120,10 @@ fi
 
 # Update the version suffix if we're building from Git (so that
 # nixos-version shows something useful).
-if nixos=$(nix-instantiate --find-file nixos "${extraBuildFlags[@]}"); then
-    suffix=$(@shell@ $nixos/modules/installer/tools/get-version-suffix "${extraBuildFlags[@]}")
+if nixpkgs=$(nix-instantiate --find-file nixpkgs "${extraBuildFlags[@]}"); then
+    suffix=$(@shell@ $nixpkgs/nixos/modules/installer/tools/get-version-suffix "${extraBuildFlags[@]}" || true)
     if [ -n "$suffix" ]; then
-        echo -n "$suffix" > "$nixos/.version-suffix" || true
+        echo -n "$suffix" > "$nixpkgs/.version-suffix" || true
     fi
 fi
 
@@ -176,16 +139,16 @@ fi
 if [ -z "$rollback" ]; then
     echo "building the system configuration..." >&2
     if [ "$action" = switch -o "$action" = boot ]; then
-        nix-env "${extraBuildFlags[@]}" -p "$profile" -f '<nixos>' --set -A system
+        nix-env "${extraBuildFlags[@]}" -p "$profile" -f '<nixpkgs/nixos>' --set -A system
         pathToConfig="$profile"
     elif [ "$action" = test -o "$action" = build -o "$action" = dry-run ]; then
-        nix-build '<nixos>' -A system -K -k "${extraBuildFlags[@]}" > /dev/null
+        nix-build '<nixpkgs/nixos>' -A system -K -k "${extraBuildFlags[@]}" > /dev/null
         pathToConfig=./result
     elif [ "$action" = build-vm ]; then
-        nix-build '<nixos>' -A vm -K -k "${extraBuildFlags[@]}" > /dev/null
+        nix-build '<nixpkgs/nixos>' -A vm -K -k "${extraBuildFlags[@]}" > /dev/null
         pathToConfig=./result
     elif [ "$action" = build-vm-with-bootloader ]; then
-        nix-build '<nixos>' -A vmWithBootLoader -K -k "${extraBuildFlags[@]}" > /dev/null
+        nix-build '<nixpkgs/nixos>' -A vmWithBootLoader -K -k "${extraBuildFlags[@]}" > /dev/null
         pathToConfig=./result
     else
         showSyntax

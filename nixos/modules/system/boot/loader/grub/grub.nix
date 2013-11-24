@@ -65,7 +65,7 @@ in
       device = mkOption {
         default = "";
         example = "/dev/hda";
-        type = types.uniq types.string;
+        type = types.str;
         description = ''
           The device on which the GRUB boot loader will be installed.
           The special value <literal>nodev</literal> means that a GRUB
@@ -78,7 +78,7 @@ in
       devices = mkOption {
         default = [];
         example = [ "/dev/hda" ];
-        type = types.listOf types.string;
+        type = types.listOf types.str;
         description = ''
           The devices on which the boot loader, GRUB, will be
           installed. Can be used instead of <literal>device</literal> to
@@ -86,16 +86,10 @@ in
         '';
       };
 
-      # !!! How can we mark options as obsolete?
-      bootDevice = mkOption {
-        default = "";
-        description = "Obsolete.";
-      };
-
       configurationName = mkOption {
         default = "";
         example = "Stable 2.6.21";
-        type = types.uniq types.string;
+        type = types.str;
         description = ''
           GRUB entry name instead of default.
         '';
@@ -162,7 +156,7 @@ in
       extraFiles = mkOption {
         default = {};
         example = literalExample ''
-          { "memtest.bin" = "${pkgs.memtest86plus}/memtest.bin"; }
+          { "memtest.bin" = "''${pkgs.memtest86plus}/memtest.bin"; }
         '';
         description = ''
           A set of files to be copied to <filename>/boot</filename>.
@@ -173,15 +167,7 @@ in
       };
 
       splashImage = mkOption {
-        default =
-          if cfg.version == 1
-          then pkgs.fetchurl {
-            url = http://www.gnome-look.org/CONTENT/content-files/36909-soft-tux.xpm.gz;
-            sha256 = "14kqdx2lfqvh40h6fjjzqgff1mwk74dmbjvmqphi6azzra7z8d59";
-          }
-          # GRUB 1.97 doesn't support gzipped XPMs.
-          else ./winkler-gnu-blue-640x480.png;
-        example = null;
+        example = literalExample "./my-background.png";
         description = ''
           Background image used for GRUB.  It must be a 640x480,
           14-colour image in XPM format, optionally compressed with
@@ -233,29 +219,43 @@ in
 
   ###### implementation
 
-  config = mkIf cfg.enable {
+  config = mkMerge [
 
-    boot.loader.grub.devices = optional (cfg.device != "") cfg.device;
+    { boot.loader.grub.splashImage = mkDefault (
+        if cfg.version == 1 then pkgs.fetchurl {
+          url = http://www.gnome-look.org/CONTENT/content-files/36909-soft-tux.xpm.gz;
+          sha256 = "14kqdx2lfqvh40h6fjjzqgff1mwk74dmbjvmqphi6azzra7z8d59";
+        }
+        # GRUB 1.97 doesn't support gzipped XPMs.
+        else ./winkler-gnu-blue-640x480.png);
+    }
 
-    system.build = mkAssert (cfg.devices != [])
-      "You must set the ‘boot.loader.grub.device’ option to make the system bootable."
-      { installBootLoader =
+    (mkIf cfg.enable {
+
+      boot.loader.grub.devices = optional (cfg.device != "") cfg.device;
+
+      system.build.installBootLoader =
+        if cfg.devices == [] then
+          throw "You must set the option ‘boot.loader.grub.device’ to make the system bootable."
+        else
           "PERL5LIB=${makePerlPath [ pkgs.perlPackages.XMLLibXML pkgs.perlPackages.XMLSAX ]} " +
           "${pkgs.perl}/bin/perl ${./install-grub.pl} ${grubConfig}";
-        inherit grub;
-      };
 
-    # Common attribute for boot loaders so only one of them can be
-    # set at once.
-    system.boot.loader.id = "grub";
+      system.build.grub = grub;
 
-    environment.systemPackages = [ grub ];
+      # Common attribute for boot loaders so only one of them can be
+      # set at once.
+      system.boot.loader.id = "grub";
 
-    boot.loader.grub.extraPrepareConfig =
-      concatStrings (mapAttrsToList (n: v: ''
-        ${pkgs.coreutils}/bin/cp -pf "${v}" "/boot/${n}"
-      '') config.boot.loader.grub.extraFiles);
+      environment.systemPackages = optional (grub != null) grub;
 
-  };
+      boot.loader.grub.extraPrepareConfig =
+        concatStrings (mapAttrsToList (n: v: ''
+          ${pkgs.coreutils}/bin/cp -pf "${v}" "/boot/${n}"
+        '') config.boot.loader.grub.extraFiles);
+
+    })
+
+  ];
 
 }

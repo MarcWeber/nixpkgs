@@ -51,11 +51,13 @@ let
   gmicDerivation = {zart ? false, src, name, runQmake ? false}: # zart builds but segfaults for some reason.
   let imagemagick = pkgs.imagemagickBig; # maybe the non big version is enough?
       zart = false;
+      # pkgs.fftwSinglePrec
+      fftw = pkgs.fftw.override {pthreads = true;};
   in pluginDerivation {
       enableParallelBuilding = true;
       propagatedBuildInputs = [ imagemagick ];
       buildInputs = [
-            pkgconfig pkgconfig gimp pkgs.fftwSinglePrec pkgs.ffmpeg pkgs.fftw pkgs.openexr
+            pkgconfig pkgconfig gimp fftw pkgs.ffmpeg pkgs.fftw pkgs.openexr
             pkgs.opencv pkgs.perl
           ] 
           ++ gimp.nativeBuildInputs
@@ -124,7 +126,7 @@ rec {
     installPhase = "installScripts Eg-ISONoiseReduction.scm";
   };
 
-  fourier = pluginDerivation {
+  fourier = pluginDerivation rec {
     /* menu:
        Filters/Generic/FFT Forward
        Filters/Generic/FFT Inverse
@@ -132,13 +134,13 @@ rec {
     name = "fourier-0.4.1";
     buildInputs = [ gimp pkgs.fftw  pkgconfig gimp.gtkLibs.glib] ++ gimp.nativeBuildInputs;
     postInstall = "fail";
-    preConfigure = ''
-      NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags glib-2.0 fftw3 gimp-2.0)"
-      NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l glib-2.0 gimp-2.0 fftw3)"
-    '';
+    # preConfigure = ''
+    #   NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags glib-2.0 fftw3 gimp-2.0)"
+    #   NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l glib-2.0 gimp-2.0 fftw3)"
+    # '';
     installPhase = "installPlugins fourier";
     src = fetchurl {
-      url = http://people.via.ecp.fr/~remi/soft/gimp/fourier-0.4.1.tar.gz;
+      url = "http://registry.gimp.org/files/${name}.tar.gz";
       sha256 = "1pr3y3zl9w8xs1circdrxpr98myz9m8wfzy022al79z4pdanwvs1";
     };
   };
@@ -168,7 +170,7 @@ rec {
 
   # http://registry.gimp.org/node/25342
   h_localdenoise3 = pluginDerivation {
-    name = "harrys-denoise3";
+    ame = "harrys-denoise3";
     src = fetchurl {
       url = http://registry.gimp.org/files/h_localdenoise3.scm;
       sha256 = "0c2r20ljz9a2n3fjs24yax5183g07661vvdn2lkag0k0bmbf155j";
@@ -221,6 +223,9 @@ rec {
       url = mirror://sourceforge/gimp-texturize/texturize-2.1_src.tgz;
       sha256 = "0cdjq25g3yfxx6bzx6nid21kq659s1vl9id4wxyjs2dhcv229cg3";
     };
+    patchPhase = ''
+      sed -i '/.*gimpimage_pdb.h.*/ d' src/*.c*
+    '';
     installPhase = "installPlugins src/texturize";
   };
 
@@ -267,14 +272,12 @@ rec {
     installPhase = "installPlugins src/gimp-lqr-plugin";
   };
 
-  # this is more than a gimp plugin !
-  # it can be made to compile the gimp plugin only though..
   gmic =
     gmicDerivation {
-      name = "gmic-1.5.5.0";
+      name = "gmic-1.5.7.2";
       src = fetchurl {
-        url = mirror://sourceforge/project/gmic/gmic_1.5.5.0.tar.gz;
-        sha256 = "05f4l69lgmhf9ss6z5816ggpnl8vhn9zvr5ny5g95f3sn89krdii";
+        url = mirror://sourceforge/gmic/gmic_1.5.7.2.tar.gz;
+        sha256 = "1cpbxb3p2c8bcv2cbr150whapzjc7w09i3jza0z9x3xj8c0vdyv1";
       };
     };
 
@@ -282,19 +285,14 @@ rec {
       runQmake = true;
       # REGION AUTO UPDATE: { name="gmic"; type = "cvs"; cvsRoot = ":pserver:anonymous@gmic.cvs.sourceforge.net:/cvsroot/gmic"; module="gmic"; }
       src = (fetchurl { url = "http://mawercer.de/~nix/repos/gmic-cvs-F_13-43-56.tar.bz2"; sha256 = "a69f3fa828d8892645db8534310243c472fc98cd2b9c0acbf61d3fbeba626407"; });
-      name = "gmic-cvs-F_13-43-56";
-      # END
   };
 
   # this is more than a gimp plugin !
   # either load the raw image with gimp (and the import dialog will popup)
   # or use the binary
-  ufraw = pluginDerivation {
+  ufraw = pluginDerivation rec {
     name = "ufraw-0.19.2";
-
-    buildInputs = [pkgs.lcms pkgs.gtk pkgs.gtkimageview pkgs.gettext pkgs.bzip2 pkgs.zlib pkgs.libjpeg
-                  pkgs.cfitsio pkgs.exiv2 pkgs.lcms
-          gimp] ++ gimp.nativeBuildInputs;
+    buildInputs = [pkgs.gtkimageview pkgs.lcms gimp] ++ gimp.nativeBuildInputs;
       # --enable-mime - install mime files, see README for more information
       # --enable-extras - build extra (dcraw, nikon-curve) executables
       # --enable-dst-correction - enable DST correction for file timestamps.
@@ -306,12 +304,12 @@ rec {
     configureFlags = "--enable-extras --enable-dst-correction --enable-contrast";
 
     src = fetchurl {
-      url = "mirror://sourceforge/ufraw/ufraw-0.19.2.tar.gz";
+      url = "mirror://sourceforge/ufraw/${name}.tar.gz";
       sha256 = "1lxba7pb3vcsq94dwapg9bk9mb3ww6r3pvvcyb0ah5gh2sgzxgkk";
     };
     installPhase = "
       installPlugins ufraw-gimp
-      ensureDir $out/bin
+      mkdir -p $out/bin
       cp ufraw $out/bin
     ";
   };

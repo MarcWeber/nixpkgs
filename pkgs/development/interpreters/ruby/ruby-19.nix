@@ -50,7 +50,13 @@ stdenv.mkDerivation rec {
 
   installFlags = stdenv.lib.optionalString docSupport "install-doc";
   # Bundler tries to create this directory
-  postInstall = "mkdir -pv $out/${passthru.gemPath}";
+  postInstall = ''
+    mkdir -pv $out/${passthru.gemPath}
+
+    # required for ruby-line ruby-debug like libraries
+    cp *.h *.inc $out/include
+    cp -a include/* $out/include
+  '';
 
   meta = {
     license     = "Ruby";

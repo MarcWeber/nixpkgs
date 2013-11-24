@@ -2739,7 +2739,7 @@ let
   haskellPackages_ghc702              =                   haskell.packages_ghc702;
   haskellPackages_ghc703              =                   haskell.packages_ghc703;
   haskellPackages_ghc704              =                   haskell.packages_ghc704;
-  haskellPackages_ghc721              =                   haskell.packages_ghc721;
+  # haskellPackages_ghc721              =                   haskell.packages_ghc721;
   haskellPackages_ghc722              =                   haskell.packages_ghc722;
   haskellPackages_ghc741              =                   haskell.packages_ghc741;
   haskellPackages_ghc742              =                   haskell.packages_ghc742;

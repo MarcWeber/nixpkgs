@@ -1,0 +1,15 @@
+diff --git a/xmalloc.c b/xmalloc.c
+index 4e59594..2ea9a72 100644
+--- a/xmalloc.c
++++ b/xmalloc.c
+@@ -6,8 +6,8 @@
+ #include <curses.h>
+ #include "sc.h"
+ 
+-extern char	*malloc();
+-extern char	*realloc();
++extern void	*malloc();
++extern void	*realloc();
+ extern void	free();
+ void		fatal();
+ 

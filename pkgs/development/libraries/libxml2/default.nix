@@ -1,19 +1,17 @@
 { stdenv, fetchurl, zlib, xz, python ? null, pythonSupport ? true
-, version ? "2.9.0"
+, version ? "2.9.x"
 }:
 
 assert pythonSupport -> python != null;
 
 stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "libxml2" version {
-  "2.9.0" = rec {
-      name = "libxml2-2.9.0";
+  "2.9.x" = rec {
+    name = "libxml2-2.9.1";
 
-      patches = [ ./pthread-once-init.patch ];
-
-      src = fetchurl {
-        url = "ftp://xmlsoft.org/libxml2/${name}.tar.gz";
-        sha256 = "10ib8bpar2pl68aqksfinvfmqknwnk7i35ibq6yjl8dpb0cxj9dd";
-      };
+    src = fetchurl {
+      url = "ftp://xmlsoft.org/libxml2/${name}.tar.gz";
+      sha256 = "1nqgd1qqmg0cg09mch78m2ac9klj9n87blilx4kymi7jcv5n8g7x";
+    };
   };
 
   # required to build PHP 5.2 (testing only)
@@ -28,10 +26,10 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "libxml2" version {
 }
 {
 
-  configureFlags = stdenv.lib.optionalString pythonSupport "--with-python=${python}";
+#TODO: share most stuff between python and non-python builds, perhaps via multiple-output
 
-  buildInputs = (stdenv.lib.optional pythonSupport [ python ])
 
+  buildInputs = stdenv.lib.optional pythonSupport python
     # Libxml2 has an optional dependency on liblzma.  However, on impure
     # platforms, it may end up using that from /usr/lib, and thus lack a
     # RUNPATH for that, leading to undefined references for its users.
@@ -52,4 +50,14 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "libxml2" version {
     platforms = stdenv.lib.platforms.unix;
     maintainers = [ stdenv.lib.maintainers.eelco ];
   };
+
+} // stdenv.lib.optionalAttrs pythonSupport {
+  configureFlags = "--with-python=${python}";
+
+  # this is a pair of ugly hacks to make python stuff install into the right place
+  preInstall = ''substituteInPlace python/libxml2mod.la --replace "${python}" "$out"'';
+  installFlags = ''pythondir="$(out)/lib/${python.libPrefix}/site-packages"'';
+
+} // stdenv.lib.optionalAttrs (!pythonSupport && stdenv.isFreeBSD) {
+  configureFlags = "--with-python=no"; # otherwise build impurity bites us
 })

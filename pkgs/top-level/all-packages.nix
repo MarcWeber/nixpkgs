@@ -2923,7 +2923,7 @@ let
 
     cryptokit = callPackage ../development/ocaml-modules/cryptokit { };
 
-    deriving = callPackage ../development/tools/ocaml/deriving { };
+    deriving = callPackage ../development/tools/ocaml/derivivg { };
 
     findlib = callPackage ../development/tools/ocaml/findlib { };
 
@@ -3757,7 +3757,6 @@ let
   scons = callPackage ../development/tools/build-managers/scons { };
 
   simpleBuildTool = callPackage ../development/tools/build-managers/simple-build-tool { };
-  xsbt = simpleBuildTool.override { version = "xsbt-scala-2.9"; };
 
   slimerjs = callPackage ../development/tools/slimerjs {};
 

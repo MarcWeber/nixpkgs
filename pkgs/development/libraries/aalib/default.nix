@@ -8,6 +8,8 @@ stdenv.mkDerivation {
     md5 = "d5aa8e9eae07b7441298b5c30490f6a6";
   };
 
+  enableParallelBuilding = true;
+
   # The fuloong2f is not supported by aalib still
   preConfigure = ''
     cp ${automake}/share/automake*/config.{sub,guess} .

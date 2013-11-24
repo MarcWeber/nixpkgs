@@ -170,7 +170,7 @@ rec {
 
   # http://registry.gimp.org/node/25342
   h_localdenoise3 = pluginDerivation {
-    ame = "harrys-denoise3";
+    name = "harrys-denoise3";
     src = fetchurl {
       url = http://registry.gimp.org/files/h_localdenoise3.scm;
       sha256 = "0c2r20ljz9a2n3fjs24yax5183g07661vvdn2lkag0k0bmbf155j";

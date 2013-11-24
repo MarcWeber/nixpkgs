@@ -12,7 +12,7 @@ let
     (import ../lib/eval-config.nix {
       inherit system;
       modules =
-        [ ../modules/installer/cd-dvd/installation-cd-efi.nix
+        [ ../modules/installer/cd-dvd/installation-cd-minimal.nix
           ../modules/testing/test-instrumentation.nix
           { key = "serial";
 
@@ -37,13 +37,12 @@ let
   # The config to install
   config = builtins.toFile "configuration.nix" ''
     { pkgs, ... }: {
-      imports = [ ./hardware.nix <nixos/modules/testing/test-instrumentation.nix> ];
+      imports = [ ./hardware-configuration.nix <nixos/modules/testing/test-instrumentation.nix> ];
       boot.kernelPackages = pkgs.linuxPackages_3_10;
       boot.loader.grub.enable = false;
       boot.loader.efi.canTouchEfiVariables = true;
       boot.loader.gummiboot.enable = true;
       fonts.enableFontConfig = false;
-      fileSystems."/".label = "nixos";
     }
   '';
 
@@ -60,7 +59,7 @@ in {
       createDisk("harddisk", 4 * 1024);
 
       my $machine = createMachine({ hda => "harddisk",
-        hdaInterface => "virtio",
+        hdaInterface => "scsi",
         cdrom => glob("${iso}/iso/*.iso"),
         qemuFlags => '-L ${biosDir} ${optionalString (pkgs.stdenv.system == "x86_64-linux") "-cpu kvm64"}'});
       $machine->start;
@@ -69,14 +68,13 @@ in {
       $machine->succeed("echo hello");
       $machine->waitForUnit("rogue");
       $machine->waitForUnit("nixos-manual");
-      $machine->waitForUnit("dhcpcd");
 
       # Partition the disk.
       $machine->succeed(
-          "sgdisk -Z /dev/vda",
-          "sgdisk -n 1:0:+256M -N 2 -t 1:ef00 -t 2:8300 -c 1:boot -c 2:root /dev/vda",
-          "mkfs.vfat -n BOOT /dev/vda1",
-          "mkfs.ext3 -L nixos /dev/vda2",
+          "sgdisk -Z /dev/sda",
+          "sgdisk -n 1:0:+256M -N 2 -t 1:ef00 -t 2:8300 -c 1:boot -c 2:root /dev/sda",
+          "mkfs.vfat -n BOOT /dev/sda1",
+          "mkfs.ext3 -L nixos /dev/sda2",
           "mount LABEL=nixos /mnt",
           "mkdir /mnt/boot",
           "mount LABEL=BOOT /mnt/boot",
@@ -84,12 +82,10 @@ in {
 
       # Create the NixOS configuration.
       $machine->succeed(
-          "mkdir -p /mnt/etc/nixos",
-          "nixos-hardware-scan > /mnt/etc/nixos/hardware.nix",
+          "nixos-generate-config --root /mnt",
       );
 
-      my $cfg = $machine->succeed("cat /mnt/etc/nixos/hardware.nix");
-      print STDERR "Result of the hardware scan:\n$cfg\n";
+      $machine->succeed("cat /mnt/etc/nixos/hardware-configuration.nix >&2");
 
       $machine->copyFileFromHost(
           "${config}",

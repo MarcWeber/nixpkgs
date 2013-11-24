@@ -285,6 +285,8 @@ rec {
       runQmake = true;
       # REGION AUTO UPDATE: { name="gmic"; type = "cvs"; cvsRoot = ":pserver:anonymous@gmic.cvs.sourceforge.net:/cvsroot/gmic"; module="gmic"; }
       src = (fetchurl { url = "http://mawercer.de/~nix/repos/gmic-cvs-F_13-43-56.tar.bz2"; sha256 = "a69f3fa828d8892645db8534310243c472fc98cd2b9c0acbf61d3fbeba626407"; });
+      name = "gmic-cvs-F_13-43-56";
+      # END
   };
 
   # this is more than a gimp plugin !

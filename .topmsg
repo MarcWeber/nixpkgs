@@ -1,0 +1,18 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] marc-nixos/minimal-install-archive
+
+experimental/minimal-install-archive
+
+keep my minmial boot archive working. Its a simple archive which is self contained
+and does
+- chroot
+- ship glibc, nix, .. so that you can install nixos
+
+TODO: think about difference to what Eelco contributed recently, patch with comment:
+
+  Scripts to set up and run the absolute minimal pure Nix
+  environment; that is, an operating system environment in which there
+  is (essentially) only a store.
+
+Problems: passwd is not empty. You have to boot once, reboot into rescue and
+set passowrd (TODO !!)

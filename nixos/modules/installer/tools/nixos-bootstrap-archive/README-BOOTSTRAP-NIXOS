@@ -1,0 +1,81 @@
+ALTERNATIVE NIXOS INSTALLER 2
+=============================
+
+nixos-install works fine if you use an ISO. If you can't you have to follow one of the guides:
+https://nixos.org/wiki/Install_NixOS_on_Linode
+https://nixos.org/wiki/Install_NixOS_on_Rackspace_Cloud_Servers
+or use this alternative installer
+
+This installer provides:
+
+nixos-prepare-install:
+  initialise nix, write sample configuration.nix file etc
+
+nixos-bootstrap:
+  build the system in the chroot optionally installing grub
+
+run-in-chroot: helper script which you can use this way 
+
+  mountPoint=/mnt run-in-chroot /bin/sh 
+  To debug your system. Yes, I know you can bind mount dev proc sys and chroot yourself,
+  but it also sets PATH to /nix/var/nix/profiles/system/sw/{bin,sbin}
+
+
+The scripts can be either used with the install iso, or using the minimal install archive.
+
+IF-ARCHIVE:
+  P="bash $mountPoint/nix/store/" 
+
+IF-ISO:
+  P=""
+
+HOWTO
+=====
+
+export mountPoint=/mnt # and mount it
+
+IF-ARCHIVE:
+  tar xJf $THIS_ARCHIVE -C $mountPoint 
+
+PREPARE:
+  ${P}nixos-prepare-install copy-nix guess-config iso-source|official-source create-etc-files
+  # lookup items by using --help
+
+Adjust $mountPoint/etc/nixos/configuration.nix [1], then install:
+  ${P}nixos-prepare-install install --show-trace -j NUM_CORES_PLUS_1 --install --keep-going [--no-grub]
+
+This runs $mountPoint/nix/store/prepare-install using run-in-chroot
+
+
+NOTES:
+$mountPoint/nix/store contains the helper scripts listed at the beginning. They
+should be gone the next time you run the garbage collector.
+
+[1]
+For most server systems you may want to give this nixos option a try:
+    boot.loader.initScript.enable = true
+
+Then you can boot by /sbin/init
+
+That file contains pointers to the older configurations because there is no grub menu.
+Rolling back can be done manually by editing it if necessary.
+
+
+SUMMARY:
+Why?
+
+- split scripts into pieces, so that you can use the run-in-chroot feature (eg
+  if you've forgotten to set a password, of if your system didn't boot)
+
+- allows you to use your own sources if you check them out into
+  /etc/nixos/{nixos,nixpkgs}
+
+- How does it compare to the nix binary package [2]
+  I think they should be merged .. Whether the binary package contains some
+  additional scripts - who cares?
+
+[2] http://hydra.nixos.org/build/4767129/download/1/manual/ section 3.2
+
+==== TROUBLE ?:
+If you have trouble contact marco-oweber@gmx.de who is maintaining this way of
+installing nixos

@@ -55,6 +55,26 @@ let
         ''; # */
 
 
+  # copy paste from makeIso
+  makeMinimalinstallArchive =
+    { module, type, description ? type, maintainers ? ["eelco"], system }:
+
+    with import <nixpkgs> { inherit system; };
+
+    let
+
+      versionModule =
+        { system.nixosVersionSuffix = lib.optionalString (!officialRelease) versionSuffix;
+          isoImage.isoBaseName = "nixos-${type}";
+        };
+
+      config = (import lib/eval-config.nix {
+        inherit system;
+        modules = [ module versionModule ];
+      }).config;
+
+    in config.system.build.minimalInstallArchive;
+
   makeSystemTarball =
     { module, maintainers ? ["viric"], system }:
 
@@ -216,4 +236,11 @@ in rec {
         mapAttrsRecursiveCond (x: !x ? test) (n: v: listToAttrs [(nameValuePair system v.test)])
           (import ./tests { inherit nixpkgs system; });
     in fold recursiveUpdate {} (map testsFor systems);
+
+  # Hacky: doesn't depend on configuration. Yet configuration is evaluated (TODO)
+  minimal_install_archive = pkgs.lib.genAttrs systems (system: makeMinimalinstallArchive {
+    module = ./modules/installer/cd-dvd/installation-cd-minimal.nix;
+    type = "minimal";
+    inherit system;
+  });
 }

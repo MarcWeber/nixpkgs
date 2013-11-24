@@ -65,6 +65,11 @@ stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
 
+  # patches = [
+  #   ./debug-coercion-failures-for-unstable.patch
+  #   ./write-file-hashed.patch
+  # ];
+
   meta = {
     description = "The Nix Deployment System";
     homepage = http://nixos.org/;

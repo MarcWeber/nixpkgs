@@ -69,7 +69,7 @@ rec {
   };
 
 
-  isSystem = x: isType "system"
+  isSystem = x: isType "system" x
     && isCpuType x.cpu
     && isArchitecture x.arch
     && isKernel x.kernel;

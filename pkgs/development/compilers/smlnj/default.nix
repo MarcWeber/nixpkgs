@@ -1,110 +1,66 @@
-{stdenv, fetchurl, p7zip, coreutils, gnugrep}:
-
+{ stdenv, fetchurl }:
 let
-  version = "110.72";
+  version = "110.76";
+  baseurl = "http://smlnj.cs.uchicago.edu/dist/working/${version}";
 
-  # gentoo is using these files:
   sources = map fetchurl [
-    { url = "http://smlnj.cs.uchicago.edu/dist/working/${version}/config.tgz"; sha256 = "0x99sgrpg6r8prsbnxg54zwnbd74kx35h2hxr9145c9yclgmidf7"; }
-    { url = "http://smlnj.cs.uchicago.edu/dist/working/${version}/cm.tgz"; sha256 = "0bfs4mk1xvbz5qm8wk1ncb6c0x3dzkkwxgf7b9q150lmr13y97gx"; }
-    { url = "http://smlnj.cs.uchicago.edu/dist/working/${version}/compiler.tgz"; sha256 = "0pxi012mj7yda9wsvlgq5ij80ypgcyhi9rarnc3dgirrrz2378hp"; }
-    { url = "http://smlnj.cs.uchicago.edu/dist/working/${version}/runtime.tgz"; sha256 = "0z2m55f69snz4wp1530lhhnsqk8hjzbr4iqp1pqfj6pnc45wd8kv"; }
-    { url = "http://smlnj.cs.uchicago.edu/dist/working/${version}/system.tgz"; sha256 = "0nxjj00381ql1yas9a57ggzykk11sfzg2wcfhlskia1zvivwmjri"; }
-    { url = "http://smlnj.cs.uchicago.edu/dist/working/${version}/MLRISC.tgz"; sha256 = "13ns0sjlq7qizm4ycsix4yacnif5bkp0qci9zcnqmhdhrbs01hwx"; }
-    { url = "http://smlnj.cs.uchicago.edu/dist/working/${version}/smlnj-lib.tgz"; sha256 = "0sv385axq0wjc9qx5410imk1b05lw3mwyaj3a5his2i4c8n1vq4a"; }
-    { url = "http://smlnj.cs.uchicago.edu/dist/working/${version}/ckit.tgz"; sha256 = "13dmx0bv57xmh5qza0pdqfjzlq6cdfj3yplaqbgwfw3aisp22glj"; }
-    { url = "http://smlnj.cs.uchicago.edu/dist/working/${version}/nlffi.tgz"; sha256 = "1dhfns546skynfy1k31q4ac0mdw2ci84b6pb8bvs6p7yzvdk3sm5"; }
-    { url = "http://smlnj.cs.uchicago.edu/dist/working/${version}/cml.tgz"; sha256 = "08qi5wbfac74z4wx0rcw7r92l6jvrz5j5rfb8q4rck5vi0v25yay"; }
-    { url = "http://smlnj.cs.uchicago.edu/dist/working/${version}/eXene.tgz"; sha256 = "0gzcyy1h0rh9n89yijnxqv0wg01a39rn80zm9xzayaal6sv8rs4f"; }
-    { url = "http://smlnj.cs.uchicago.edu/dist/working/${version}/ml-lex.tgz"; sha256 = "0pjpxirrcczjrk1lb721argq10n00ah08w9rij09vqcdcmlca1fm"; }
-    { url = "http://smlnj.cs.uchicago.edu/dist/working/${version}/ml-yacc.tgz"; sha256 = "0gir4nch67b2pbcnlc3jygrjh7vwsvir212r332w46my1d954rgp"; }
-    { url = "http://smlnj.cs.uchicago.edu/dist/working/${version}/ml-burg.tgz"; sha256 = "026kjmaf14j968phsxlk1lcc3n3zl7rlzllxkagj3janzma50rqm"; }
-    { url = "http://smlnj.cs.uchicago.edu/dist/working/${version}/ml-lpt.tgz"; sha256 = "0q8fpr2hvcr040n6iwaa3z7a8d4ivjm4nvsnizry7bjc854khdfd"; }
-    { url = "http://smlnj.cs.uchicago.edu/dist/working/${version}/pgraph.tgz"; sha256 = "0ykw80ji3i3h4cx57fbk73w5izgrvchriyg1cgp3a743bv41ifr4"; }
-    { url = "http://smlnj.cs.uchicago.edu/dist/working/${version}/trace-debug-profile.tgz"; sha256 = "1fh4v402iham9mhxwr5m8hr4ll70qr1d6p7f7vpp3bpy14sdf4in"; }
-    { url = "http://smlnj.cs.uchicago.edu/dist/working/${version}/heap2asm.tgz"; sha256 = "0p2mj0gxhdxkm39s2viwmn1db5fvzyibygvglaqcrdn04n0pqdbj"; }
-    { url = "http://smlnj.cs.uchicago.edu/dist/working/${version}/smlnj-c.tgz"; sha256 = "15nykiv6j2id59smh50d95ciayh1bd92fznpjp3y6fx5zs6qlz8i"; }
+    { url = "${baseurl}/config.tgz";              sha256 = "0mx5gib1jq5hl3j6gvkkfh60x2hx146xiisclaz4jgy452ywikj1"; }
+    { url = "${baseurl}/cm.tgz";                  sha256 = "14y1pqqw5p5va3rvpk2jddx2gcm37z5hwp5zdm43z02afscq37jk"; }
+    { url = "${baseurl}/compiler.tgz";            sha256 = "10gn7cwqzbnh4k3l6brb9hp59k9vz2m9fcaarv2fw1gilfw5a9rj"; }
+    { url = "${baseurl}/runtime.tgz";             sha256 = "0zqajizayzrlrxm47q492mqgfxya7rwqrq4faafai8qfwga6q27n"; }
+    { url = "${baseurl}/system.tgz";              sha256 = "0dys0f0cdgnivk1niam9g736c3mzrjf9r29051g0579an8yi8slg"; }
+    { url = "${baseurl}/MLRISC.tgz";              sha256 = "00n1zk65cwf2kf669mn09lp0ya6bfap1czhyq0nfza409vm4v54x"; }
+    { url = "${baseurl}/smlnj-lib.tgz";           sha256 = "1mx1vjxbpfgcq6fkmh2qirjfqzn3wcnjf4a9ijr7k2bwgnh99sc1"; }
+    { url = "${baseurl}/ckit.tgz";                sha256 = "1fqdxs2cgzffj0i9rmzv1aljwnhx98hyvj3c2kivw3ligxp4wly4"; }
+    { url = "${baseurl}/nlffi.tgz";               sha256 = "08dmvs95xmbas3hx7n0csxxl0d0bmhxg7gav1ay02gy9n8iw3g87"; }
+    { url = "${baseurl}/cml.tgz";                 sha256 = "1qc1hs2k2xmn03ldyz2zf0pzbryd1n4bwix226ch8z9pnfimglyb"; }
+    { url = "${baseurl}/eXene.tgz";               sha256 = "01z69rgmshh694wkcwrzi72z5d5glpijj7mqxb17yz106xyzmgim"; }
+    { url = "${baseurl}/ml-lpt.tgz";              sha256 = "13gw4197ivzvd6qcbg5pzclhv1f2jy2c433halh021d60qjv4w4r"; }
+    { url = "${baseurl}/ml-lex.tgz";              sha256 = "0sqa533zca1l7p79qhkb7lspvhk4k2r3839745sci32fzwy1804x"; }
+    { url = "${baseurl}/ml-yacc.tgz";             sha256 = "1kzi0dpybd9hkklk460mgbwfkixjhav225kkmwnk3jxby3zgflci"; }
+    { url = "${baseurl}/ml-burg.tgz";             sha256 = "0kjrba8l0v6jn3g6gv9dvrklpvxx9x57b7czwnrrd33pi28sv7fm"; }
+    { url = "${baseurl}/pgraph.tgz";              sha256 = "174n22m7zibgk68033qql86kyk6mxjni4j0kcadafs0g2xmh6i6z"; }
+    { url = "${baseurl}/trace-debug-profile.tgz"; sha256 = "1pq4wwx5ad7zx1306ka06lqwnjv446zz6ndpq6s9ak6ha79f2s9p"; }
+    { url = "${baseurl}/heap2asm.tgz";            sha256 = "0p91fzwkfr7hng7c026gy5ggl5l9isxpm007iq6ivpjrfjy547wc"; }
+    { url = "${baseurl}/smlnj-c.tgz";             sha256 = "0vra4gi91w0cjsw3rm162hgz5xsqbr7yds44q7zhs27kccsirpqc"; }
+    { url = "${baseurl}/boot.x86-unix.tgz";       sha256 = "0qcvdhlvpr02c1ssk4jz6175lb9pkdg7zrfscqz6f7crnsgmc5nx"; }
   ];
-
-  binSources =
-      let x86 = fetchurl { url = http://smlnj.cs.uchicago.edu/dist/working/110.72/boot.x86-unix.tgz; sha256 = "0mz6rz5118ly9d7675aw5v4vanrzpaa36jjr76jwdy771wwmnifi"; };
-      in {
-        "x86_64-linux" = x86;
-        "i686-linux" = x86; 
-      };
-  binSource = stdenv.lib.maybeAttr stdenv.system (throw "no binary smlnj") binSources;
-
 in stdenv.mkDerivation {
+  name = "smlnj-${version}";
 
-  name = "smlnj-and-libs-${version}";
+  inherit sources;
 
-  srcsOther = sources;
-  srcConfig = builtins.head sources;
-  inherit binSource;
-
-  # code partially taken from gentoo ebuild
-  unpackPhase = ''
-    set -x
-
-    for s in $srcsOther $binSource; do
-      b=$(basename "$s")
-      # while copying drop hash
-      cp $s ''${b#*-}
-    done
-
-    unpackFile ''${srcConfig}
-    rm config/*.bat
+  patchPhase = ''
+    sed -i '/PATH=/d' config/_arch-n-opsys base/runtime/config/gen-posix-names.sh
     echo SRCARCHIVEURL="file:/$TMP" > config/srcarchiveurl
-    mkdir base
-    ./config/unpack $TMP runtime heap2asm || die
   '';
 
-  buildInputs = [p7zip coreutils
-  gnugrep # <- used for assertion only
-  ];
+  unpackPhase = ''
+    for s in $sources; do
+      b=$(basename $s)
+      cp $s ''${b#*-}
+    done
+    unpackFile config.tgz
+    mkdir base
+    ./config/unpack $TMP runtime
+  '';
 
   buildPhase = ''
-    set -x
-    uname -s
-    sed -i '/PATH=/d' config/_arch-n-opsys base/runtime/config/gen-posix-names.sh # don't set PATH to /bin:/usr/bin
-    # assertion: PATH=/bin:/usr/bin may cause failure in remaining scripts. So have a look at those!
-    ! grep -ri PATH=/bin:/usr/bin . 
-    
-    # smlnj also works on 3.x kernels:
-    sed -i 's@2.6.*)@2.6.*|3.*)@' config/_arch-n-opsys
-    SMLNJ_HOME="$TMP" ./config/install.sh
+    ./config/install.sh
   '';
 
   installPhase = ''
-    ensureDir $out
-    cp -r --target-directory=$out bin lib 
+    mkdir -pv $out
+    cp -rv bin lib $out
 
-    for file in "''${out}"/bin/{*,.*}; do
-         [[ -f ''${file} ]] && sed "2iSMLNJ_HOME=$out/" -i ''${file}
-    #	 [[ -f ''${file} ]] && sed "s:''${WORKDIR}:$out:" -i ''${file}
+    for i in $out/bin/*; do
+      sed -i "2iSMLNJ_HOME=$out/" $i
     done
-
-    # bootstrap heap2asm to build heap2asm as executable
-    (
-      cd heap2asm
-      ./build
-      heap=heap2asm.x86-linux
-      cat >> ../bin/heap2asm << EOF
-    #!/bin/sh
-    $out/bin/sml @SMLload=`pwd`/$heap "\$@"
-    EOF
-      chmod +x ../bin/heap2asm
-      PATH=$PATH:../bin
-      heap2exec $heap $out/bin/heap2asm 
-    )
-
   '';
 
   meta = {
-    description = "smlnj";
-    homepage = http://www.smlnj.org;
-    license = "BSD";
-    maintainers = [stdenv.lib.maintainers.marcweber];
-    platforms = ["i686-linux"]; # there is no boot for x86_64-linux
+    description = "Standard ML of New Jersey, a compiler";
+    homepage = http://smlnj.org;
+    license = stdenv.lib.licenses.bsd3;
   };
 }

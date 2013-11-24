@@ -159,18 +159,19 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
 
   actdiag = buildPythonPackage rec {
-    name = "actdiag-0.4.3";
+    name = "actdiag-0.5.1";
 
     src = fetchurl {
       url = "https://pypi.python.org/packages/source/a/actdiag/${name}.tar.gz";
-      md5 = "428aaab849f04668fa12388b964a56ea";
+      md5 = "171c47bc1f70e5fadfffd9df0c3157be";
     };
 
     buildInputs = [ pep8 nose unittest2 docutils ];
 
     propagatedBuildInputs = [ blockdiag ];
 
-    # One test fails, because of missing simple.diag input file
+    # One test fails:
+    #   UnicodeEncodeError: 'ascii' codec can't encode character u'\u3042' in position 0: ordinal not in range(128)
     doCheck = false;
 
     meta = with stdenv.lib; {
@@ -573,16 +574,16 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
 
   blockdiag = buildPythonPackage rec {
-    name = "blockdiag-1.2.4";
+    name = "blockdiag-1.3.2";
 
     src = fetchurl {
       url = "https://pypi.python.org/packages/source/b/blockdiag/${name}.tar.gz";
-      md5 = "244334f60cc10b0cb73b5df5279bcdd1";
+      md5 = "602a8750f312eeee84d6d138055dfae7";
     };
 
     buildInputs = [ pep8 nose unittest2 docutils ];
 
-    propagatedBuildInputs = [ pil webcolors funcparserlib ];
+    propagatedBuildInputs = [ pillow webcolors funcparserlib ];
 
     # One test fails:
     #   ...
@@ -2626,6 +2627,26 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     };
   });
 
+  fs = buildPythonPackage rec {
+    name = "fs-0.4.0";
+
+    src = fetchurl {
+      url    = "https://pyfilesystem.googlecode.com/files/fs-0.4.0.tar.gz";
+      sha256 = "1fk7ilwd01qgj4anw9k1vjp0amxswzzxbp6bk4nncp7210cxp3vz";
+    };
+
+    meta = with stdenv.lib; {
+      description = "Filesystem abstraction";
+      homepage    = http://pypi.python.org/pypi/fs;
+      license     = licenses.bsd3;
+      maintainers = with maintainers; [ lovek323 ];
+      platforms   = platforms.unix;
+    };
+
+    # Fails: "error: invalid command 'test'"
+    doCheck = false;
+  };
+
   fuse = buildPythonPackage (rec {
     baseName = "fuse";
     version = "0.2.1";
@@ -2786,6 +2807,24 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     };
   };
 
+  goobook = buildPythonPackage rec {
+    name = "goobook-1.5";
+
+    src = fetchurl {
+      url    = "https://pypi.python.org/packages/source/g/goobook/${name}.tar.gz";
+      sha256 = "05vpriy391l5i05ckl5ja5bswqyvl3rwrbmks9pi46w1813j7p5z";
+    };
+
+    meta = with stdenv.lib; {
+      description = "Search your google contacts from the command-line or mutt.";
+      homepage    = "https://pypi.python.org/pypi/goobook";
+      license     = licenses.gpl3;
+      maintainers = with maintainers; [ lovek323 ];
+      platforms   = platforms.unix;
+    };
+
+    propagatedBuildInputs = [ distribute gdata hcs_utils keyring simplejson ];
+  };
 
   greenlet = buildPythonPackage rec {
     name = "greenlet-0.3.1";
@@ -2821,6 +2860,23 @@ pythonPackages = modules // import ./python-packages-generated.nix {
       homepage = http://code.google.com/p/gyp;
       license = stdenv.lib.licenses.bsd3;
       description = "Generate Your Projects";
+    };
+  };
+
+  hcs_utils = buildPythonPackage rec {
+    name = "hcs_utils-1.3";
+
+    src = fetchurl {
+      url    = "https://pypi.python.org/packages/source/h/hcs_utils/hcs_utils-1.3.tar.gz";
+      sha256 = "0mcjfc0ssil86i74dg323z7mikkw1xazqyr92347x1y33zyffgxh";
+    };
+
+    meta = with stdenv.lib; {
+      description = "Library collecting some useful snippets";
+      homepage    = https://pypi.python.org/pypi/hcs_utils/1.3;
+      license     = licenses.isc;
+      maintainers = with maintainers; [ lovek323 ];
+      platforms   = platforms.unix;
     };
   };
 
@@ -3054,6 +3110,25 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     };
   };
 
+  keyring = buildPythonPackage rec {
+    name = "keyring-3.2";
+
+    src = fetchurl {
+      url    = "https://pypi.python.org/packages/source/k/keyring/${name}.zip";
+      sha256 = "1flccphpyrb8y8dra2fq2s2v3fg615d77kjjmzl0gmiidabkkdqf";
+    };
+
+    meta = with stdenv.lib; {
+      description = "Store and access your passwords safely";
+      homepage    = "https://pypi.python.org/pypi/keyring";
+      license     = licenses.psfl;
+      maintainers = with maintainers; [ lovek323 ];
+      platforms   = platforms.unix;
+    };
+
+    buildInputs =
+      [ pkgs.unzip fs gdata python_keyczar mock pyasn1 pycrypto pytest ];
+  };
 
   pylast = buildPythonPackage rec {
     name = "pylast-${version}";
@@ -3967,11 +4042,11 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
 
   nwdiag = buildPythonPackage rec {
-    name = "nwdiag-0.9.4";
+    name = "nwdiag-1.0.0";
 
     src = fetchurl {
       url = "https://pypi.python.org/packages/source/n/nwdiag/${name}.tar.gz";
-      md5 = "199b22f66ec3012c3999177d376a3842";
+      md5 = "d81581a028840f8f7362ab21bf73e941";
     };
 
     buildInputs = [ pep8 nose unittest2 docutils ];
@@ -4882,11 +4957,11 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
 
   pyodbc = buildPythonPackage rec {
-    name = "pyodbc-3.0.6";
+    name = "pyodbc-3.0.7";
 
     src = fetchurl {
       url = "https://pyodbc.googlecode.com/files/${name}.zip";
-      sha256 = "0v9nymllw5zq5294rqp8ip3l0g6l3l3mljwhxn5jajyzxlnz39z5";
+      sha256 = "0ldkm8xws91j7zbvpqb413hvdz8r66bslr451q3qc0xi8cnmydfq";
     };
 
     buildInputs = [ pkgs.unzip pkgs.libiodbc ];
@@ -4989,6 +5064,24 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     };
   });
 
+  python_keyczar = buildPythonPackage rec {
+    name = "python-keyczar-0.71c";
+
+    src = fetchurl {
+      url    = "https://pypi.python.org/packages/source/p/python-keyczar/${name}.tar.gz";
+      sha256 = "18mhiwqq6vp65ykmi8x3i5l3gvrvrrr8z2kv11z1rpixmyr7sw1p";
+    };
+
+    meta = with stdenv.lib; {
+      description = "Toolkit for safe and simple cryptography";
+      homepage    = https://pypi.python.org/pypi/python-keyczar;
+      license     = licenses.asl20;
+      maintainers = with maintainers; [ lovek323 ];
+      platforms   = platforms.unix;
+    };
+
+    buildInputs = [ pyasn1 pycrypto ];
+  };
 
   pyudev = buildPythonPackage rec {
     name = "pyudev-${version}";
@@ -5683,20 +5776,20 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
 
   seqdiag = buildPythonPackage rec {
-    name = "seqdiag-0.8.2";
+    name = "seqdiag-0.9.0";
 
     src = fetchurl {
       url = "https://pypi.python.org/packages/source/s/seqdiag/${name}.tar.gz";
-      md5 = "61b3da29b5efaa89701b4db6d2d4d5fa";
+      md5 = "92946555ce219df18002e6c88b4055d3";
     };
 
     buildInputs = [ pep8 nose unittest2 docutils ];
 
     propagatedBuildInputs = [ blockdiag ];
 
-    # Some tests fail (because of missing input files?):
+    # Tests fail:
     #   ...
-    #   IOError: [Errno 2] No such file or directory: '/tmp/nix-build-python2.7-seqdiag-0.8.2.drv-0/seqdiag-0.8.2/src/seqdiag/tests/diagrams/separators.diag'
+    #   ERROR: Failure: OSError ([Errno 2] No such file or directory: '/tmp/nix-build-python2.7-seqdiag-0.9.0.drv-0/seqdiag-0.9.0/src/seqdiag/tests/diagrams/')
     doCheck = false;
 
     meta = with stdenv.lib; {

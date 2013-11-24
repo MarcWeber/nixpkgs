@@ -1,0 +1,10 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] experimental/vsftpd
+
+vsftpd improvements:
+- intorduce one declarative list of options
+- make docummentation strings more understandable and add missing options
+  such as SSL/TLS support
+- Use environment.etc."vsftpd".text because I can't think about any
+  reason why a shell script should be used.
+  That code was written in 2009.

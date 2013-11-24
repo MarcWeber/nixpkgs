@@ -25,15 +25,15 @@ versionedDerivation "haxe" version
     # '';
 
     # REGION AUTO UPDATE: { name="haxe-unstable"; type="git"; url="git://github.com/HaxeFoundation/haxe.git"; groups = "haxe_group"; }
-    src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-unstable-git-1cc67.tar.bz2"; sha256 = "4711bb4829c9906337c3679d52462bd0cab5855734b7d23b2097bd3ab8bccb38"; });
-    name = "haxe-unstable-git-1cc67";
+    src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-unstable-git-ad6b0.tar.bz2"; sha256 = "a47a5efa4c587f480f7d6f8b1a5c6f174292d44e96ed458911431867e167cb61"; });
+    name = "haxe-unstable-git-ad6b0";
     # END
 
     ocamllibs =
       {
       # REGION AUTO UPDATE: { name="haxe-ocamllibs"; type="git"; url="git://github.com/HaxeFoundation/ocamllibs.git"; groups = "haxe_group"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-ocamllibs-git-97ddb.tar.bz2"; sha256 = "da9ab1ab21f19fdf968439309ac1b65a6767730e02a680098d45c2e36b9218a6"; });
-      name = "haxe-ocamllibs-git-97ddb";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-ocamllibs-git-dd5b8.tar.bz2"; sha256 = "f49be5a4ad161845de5552f871fd338d58051aa6a8bcb3934ce657046b5a822b"; });
+      name = "haxe-ocamllibs-git-dd5b8";
       # END
       }.src;
     };

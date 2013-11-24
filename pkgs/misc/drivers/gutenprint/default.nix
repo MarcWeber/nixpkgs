@@ -6,6 +6,7 @@
 # 3) add it by uploading the PPD in the cups admin interface (worked for me)
 { fetchurl, stdenv, pkgconfig, cups
 , libtiff, libpng, openssl, gimp
+, makeWrapper
 
 # for cvs version
 , automake, autoconf
@@ -52,16 +53,17 @@ let
 in
 
 let gutenprint = (stdenv.mkDerivation (lib.mergeAttrsByVersion "gutenprint" version {
-    "5.2.7" = {
-      name = "gutenprint-${version}";
+    # TODO: check whether this can be removed?
+    # "5.2.7" = {
+    #   name = "gutenprint-${version}";
 
-      NIX_CFLAGS_COMPILE="-include stdio.h";
+    #   NIX_CFLAGS_COMPILE="-include stdio.h";
 
-      src = fetchurl {
-        url = "mirror://sourceforge/gimp-print/gutenprint-${version}.tar.bz2";
-        sha256 = "114c899227e3ebb0753c1db503e6a5c1afaa4b1f1235fdfe02fb6bbd533beed1";
-      };
-    };
+    #   src = fetchurl {
+    #     url = "mirror://sourceforge/gimp-print/gutenprint-${version}.tar.bz2";
+    #     sha256 = "114c899227e3ebb0753c1db503e6a5c1afaa4b1f1235fdfe02fb6bbd533beed1";
+    #   };
+    # };
 
     "5.2.9" = {
       name = "gutenprint-${version}";
@@ -143,6 +145,11 @@ let gutenprint = (stdenv.mkDerivation (lib.mergeAttrsByVersion "gutenprint" vers
     for i in filter/*; do
       ln -s ../../../$i $out/lib/cups/$i
     done
+
+    mkdir -p $out/lib/cups
+    ln -s $out/filter $out/lib/cups/
+    wrapProgram $out/filter/rastertogutenprint.5.2 --prefix LD_LIBRARY_PATH : $out/lib
+    wrapProgram $out/sbin/cups-genppd.5.2 --prefix LD_LIBRARY_PATH : $out/lib
   '';
 
   meta = { 

@@ -1,5 +1,5 @@
 { pkgs
-, version ? "2.8.0"
+, version ? "2.8.x"
 , applyGlobalOverrides
 }:
 
@@ -107,10 +107,10 @@ let
     #   };
     # };
 
-    "2.8.0" = {
+    "2.8.x" = {
       src = fetchurl {
-        url = "ftp://ftp.gimp.org/pub/gimp/v2.8/gimp-2.8.0.tar.bz2";
-        md5 = "28997d14055f15db063eb92e1c8a7ebb";
+        url = "ftp://ftp.gimp.org/pub/gimp/v2.8/gimp-2.8.8.tar.bz2";
+        md5 = "ef2547c3514a1096931637bd6250635a";
       };
       buildInputs = commonBuildInputs ++ commonBuildInputs28 ++ [ p.babl p.gegl p.libpng ];
 

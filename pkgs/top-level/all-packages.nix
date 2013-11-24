@@ -8331,10 +8331,13 @@ let
 
   mercurial = callPackage ../applications/version-management/mercurial {
     inherit (pythonPackages) curses docutils;
-    guiSupport = false; # use mercurialFull to get hgk GUI
+    inherit pkgs;
   };
 
-  mercurialFull = lowPrio (appendToName "full" (pkgs.mercurial.override { guiSupport = true; }));
+  mercurialFull = # for historical reasons this only contains gui
+    lowPrio (appendToName "full" (pkgs.mercurial.withExtensions ["gui"]));
+  mercurialWithAllExt = # eventually this should be called "full"
+    lowPrio (appendToName "full" (pkgs.mercurial.withExtensions mercurial.availableExtensions));
 
   merkaartor = callPackage ../applications/misc/merkaartor { };
 

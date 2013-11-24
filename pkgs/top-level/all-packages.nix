@@ -8548,6 +8548,11 @@ let
   opera = callPackage ../applications/networking/browsers/opera {
     inherit (pkgs.kde4) kdelibs;
   };
+  opera_my = callPackage ../applications/networking/browsers/opera/my.nix { };
+  # TODO merge with upstream opera to support HTML 5 viedos?
+  # testpages:
+  # http://www.planetoftunes.com/web_site/videoforweb/html5_example/index.html
+  # http://www.youtube.com/html5
 
   opusTools = callPackage ../applications/audio/opus-tools { };
 

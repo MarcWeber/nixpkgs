@@ -92,6 +92,7 @@
   ./services/databases/virtuoso.nix
   ./services/games/ghost-one.nix
   ./services/hardware/acpid.nix
+  ./services/hardware/amd-hybrid-graphics.nix
   ./services/hardware/bluetooth.nix
   ./services/hardware/nvidia-optimus.nix
   ./services/hardware/pcscd.nix
@@ -275,6 +276,7 @@
   ./tasks/network-interfaces.nix
   ./tasks/scsi-link-power-management.nix
   ./tasks/swraid.nix
+  ./testing/service-runner.nix
   ./virtualisation/libvirtd.nix
   #./virtualisation/nova.nix
   ./virtualisation/virtualbox-guest.nix

@@ -3760,6 +3760,7 @@ let
   scons = callPackage ../development/tools/build-managers/scons { };
 
   simpleBuildTool = callPackage ../development/tools/build-managers/simple-build-tool { };
+  xsbt = simpleBuildTool.override { version = "xsbt-scala-2.9"; };
 
   slimerjs = callPackage ../development/tools/slimerjs {};
 

@@ -86,7 +86,7 @@
 let
 
   true_version = if version == "5.3.x" then "5.3.27"
-  else if version == "5.4.x" then "5.4.21"
+  else if version == "5.4.x" then "5.4.22"
   else if version == "5.5.x" then "5.5.5"
   else version;
 
@@ -451,7 +451,8 @@ let
       # "5.4.14" = "cfdc044be2c582991a1fe0967898fa38";
       # "5.4.15" = "145ea5e845e910443ff1eddb3dbcf56a";
       # "5.4.19" = "f06f99b9872b503758adab5ba7a7e755";
-      "5.4.21" = "3dcf021e89b039409d0b1c346b936b5f";
+      # "5.4.21" = "3dcf021e89b039409d0b1c346b936b5f";
+      "5.4.22" = "0a7400d1d7f1f55b2b36285bf1a00762";
 
       # those older versions are likely to be buggy - there should be no reason to compile them
       # "5.3.3" = "21ceeeb232813c10283a5ca1b4c87b48";

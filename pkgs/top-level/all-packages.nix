@@ -2749,6 +2749,7 @@ let
   haskellPackages_ghcHEAD             =                   haskell.packages_ghcHEAD;
 
   haxe = callPackage ../development/compilers/haxe { };
+  haxeLatest = haxe.override { version = "latest"; };
 
   hiphopvm = callPackage ../development/interpreters/hiphopvm {
     libevent = libevent14;

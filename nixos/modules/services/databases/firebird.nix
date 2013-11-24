@@ -11,6 +11,8 @@
 # CONNECT '/var/db/firebird/data/test.fdb' USER 'SYSDBA' PASSWORD 'masterkey';
 # CREATE TABLE test ( text varchar(100) );
 # DROP DATABASE;
+#
+# Be careful, virtuoso-opensource also provides a different isql command !
 
 # There are at least two ways to run firebird. superserver has been choosen
 # however there are no strong reasons to prefer this or the other one AFAIK
@@ -60,12 +62,16 @@ in
 
       port = mkOption {
         default = "3050";
-        description = ''Port Firebird uses.'';
+        description = ''
+          Port Firebird uses.
+        '';
       };
 
       user = mkOption {
         default = "firebird";
-        description = ''User account under which firebird runs.'';
+        description = ''
+          User account under which firebird runs.
+        '';
       };
 
       baseDir = mkOption {
@@ -84,8 +90,6 @@ in
   ###### implementation
 
   config = mkIf config.services.firebird.enable {
-
-    users.extraUsers.firebird.description =  "Firebird server user";
 
     environment.systemPackages = [cfg.package];
 
@@ -147,12 +151,12 @@ in
       #RemoteBindAddress =
       # there are some additional settings which should be reviewed
     '';
-    };
 
-    users.extraUsers.mysql = {
-      description = "firebird server user";
+    users.extraUsers.firebird = {
+      description = "Firebird server user";
       group = "firebird";
       uid = config.ids.uids.firebird;
     };
 
+  };
 }

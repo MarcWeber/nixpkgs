@@ -126,9 +126,6 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     inherit python buildPythonPackage pygobject pycairo;
   };
 
-  # A patched version of buildout, useful for buildout based development on Nix
-  zc_buildout_nix = callPackage ../development/python-modules/buildout-nix { };
-
   # packages defined here
 
   aafigure = buildPythonPackage rec {
@@ -725,7 +722,26 @@ pythonPackages = modules // import ./python-packages-generated.nix {
   buildout = zc_buildout;
   buildout152 = zc_buildout152;
 
+  # A patched version of buildout, useful for buildout based development on Nix
+  zc_buildout_nix = callPackage ../development/python-modules/buildout-nix { };
+
   zc_buildout = zc_buildout171;
+  zc_buildout2 = zc_buildout221;
+  zc_buildout221 = buildPythonPackage rec {
+    name = "zc.buildout-2.2.1";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/z/zc.buildout/${name}.tar.gz";
+      md5 = "476a06eed08506925c700109119b6e41";
+    };
+
+   meta = {
+      homepage = "http://www.buildout.org";
+      description = "A software build and configuration system";
+      license = pkgs.lib.licenses.zpt21;
+      maintainers = [ stdenv.lib.maintainers.garbas ];
+    };
+  };
   zc_buildout171 = buildPythonPackage rec {
     name = "zc.buildout-1.7.1";
 
@@ -2128,13 +2144,15 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     };
   };
 
-  django = buildPythonPackage rec {
+  django = django_1_6;
+  
+  django_1_6 = buildPythonPackage rec {
     name = "Django-${version}";
-    version = "1.4.1";
+    version = "1.6";
 
     src = fetchurl {
-      url = "http://www.djangoproject.com/m/releases/1.4/${name}.tar.gz";
-      sha256 = "16s0anvpaccbqmdrhl71z73k0dy2sl166nnc2fbd5lshlgmj13ad";
+      url = "http://www.djangoproject.com/m/releases/1.6/${name}.tar.gz";
+      sha256 = "165bd5wmv2an9h365d12k0112z0l375dxsy7dlxa7r8kyg4gvnfk";
     };
 
     # error: invalid command 'test'
@@ -2146,6 +2164,41 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     };
   };
 
+  django_1_5 = buildPythonPackage rec {
+    name = "Django-${version}";
+    version = "1.5.5";
+
+    src = fetchurl {
+      url = "http://www.djangoproject.com/m/releases/1.5/${name}.tar.gz";
+      sha256 = "07fp8ycx76q2nz96mxld1svvpfsrivjgpql0mr20r7gwzcfrrrka";
+    };
+
+    # error: invalid command 'test'
+    doCheck = false;
+
+    meta = {
+      description = "A high-level Python Web framework";
+      homepage = https://www.djangoproject.com/;
+    };
+  };
+
+  django_1_4 = buildPythonPackage rec {
+    name = "Django-${version}";
+    version = "1.4.10";
+
+    src = fetchurl {
+      url = "http://www.djangoproject.com/m/releases/1.4/${name}.tar.gz";
+      sha256 = "1pi9mi14f19xlp29j2c8dz8rs749c1m41d9j1i0b3nlz0cy0h7rx";
+    };
+
+    # error: invalid command 'test'
+    doCheck = false;
+
+    meta = {
+      description = "A high-level Python Web framework";
+      homepage = https://www.djangoproject.com/;
+    };
+  };
 
   django_1_3 = buildPythonPackage rec {
     name = "Django-1.3.7";
@@ -3503,6 +3556,27 @@ pythonPackages = modules // import ./python-packages-generated.nix {
   };
 
 
+  mpmath = buildPythonPackage rec {
+    name = "mpmath-0.17";
+
+    src = fetchurl {
+      url    = "https://mpmath.googlecode.com/files/${name}.tar.gz";
+      sha256 = "1blgzwq4irzaf8abb4z0d2r48903n9zxf51fhnv3gv09bgxjqzxh";
+    };
+
+    meta = with stdenv.lib; {
+      homepage    = http://mpmath.googlecode.com;
+      description = "A pure-Python library for multiprecision floating arithmetic";
+      license     = licenses.bsd3;
+      maintainers = with maintainers; [ lovek323 ];
+      platforms   = platforms.unix;
+    };
+
+    # error: invalid command 'test'
+    doCheck = false;
+  };
+
+
   mrbob = buildPythonPackage rec {
     name = "mrbob-${version}";
     version = "0.1a9";
@@ -4279,11 +4353,11 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
 
   pillow = buildPythonPackage rec {
-    name = "Pillow-2.1.0";
+    name = "Pillow-2.2.1";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/P/Pillow/${name}.zip";
-      md5 = "ec630d8ae15d4a3c4ae7b7efdeac8200";
+      md5 = "d1d20d3db5d1ab312da0951ff061e6bf";
     };
 
     buildInputs = [ pkgs.freetype pkgs.libjpeg pkgs.unzip pkgs.zlib pkgs.libtiff pkgs.libwebp ];
@@ -5506,6 +5580,67 @@ pythonPackages = modules // import ./python-packages-generated.nix {
       homepage = http://www.rdflib.net/;
     };
   });
+
+
+  robotframework = buildPythonPackage rec {
+    version = "2.8.1";
+    name = "robotframework-${version}";
+
+    src = fetchurl {
+      url = "https://robotframework.googlecode.com/files/${name}.tar.gz";
+      sha256 = "04zwjri1j5py3fpbhy1xlc18bhbmdm2gbd58fwa2jnhmrha5dgnw";
+    };
+
+    # error: invalid command 'test'
+    doCheck = false;
+
+    meta = with stdenv.lib; {
+      description = "Generic test automation framework";
+      homepage = http://robotframework.org/;
+      license = licenses.asl20;
+      platforms = platforms.linux;
+      maintainers = [ maintainers.bjornfor ];
+    };
+  };
+
+
+  robotframework-ride = buildPythonPackage rec {
+    version = "1.2.2";
+    name = "robotframework-ride-${version}";
+
+    src = fetchurl {
+      url = "https://robotframework-ride.googlecode.com/files/${name}.tar.gz";
+      sha256 = "1yfvl0hdjjkwk90w3f3i23dxxk3yiyv4pbvnp4l7yd6cmxsia8f3";
+    };
+
+    propagatedBuildInputs = [ pygments wxPython modules.sqlite3 ];
+
+    # Stop copying (read-only) permission bits from the nix store into $HOME,
+    # because that leads to this:
+    #   IOError: [Errno 13] Permission denied: '/home/bfo/.robotframework/ride/settings.cfg'
+    postPatch = ''
+      sed -i "s|shutil\.copy(|shutil.copyfile(|" src/robotide/preferences/settings.py
+    '';
+
+    # ride_postinstall.py checks that needed deps are installed and creates a
+    # desktop shortcut. We don't really need it and it clutters up bin/ so
+    # remove it.
+    postInstall = ''
+      rm -f "$out/bin/ride_postinstall.py"
+    '';
+
+    # error: invalid command 'test'
+    doCheck = false;
+
+    meta = with stdenv.lib; {
+      description = "Light-weight and intuitive editor for Robot Framework test case files";
+      homepage = https://code.google.com/p/robotframework-ride/;
+      license = licenses.asl20;
+      platforms = platforms.linux;
+      maintainers = [ maintainers.bjornfor ];
+    };
+  };
+
 
   rope = buildPythonPackage rec {
     version = "0.9.4";

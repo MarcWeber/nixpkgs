@@ -485,6 +485,7 @@ let
   };
 
   in php_with_id // {
+    koellner_phonetik = callPackage ../../interpreters/koellner-phonetik { php = php_with_id; };
     xdebug = callPackage ../../interpreters/php-xdebug { php = php_with_id; };
     xcache = callPackage ../../libraries/php-xcache { php = php_with_id; };
     apc = callPackage ../../libraries/php-apc { php = php_with_id; };

@@ -338,7 +338,7 @@ in {
   # config = mkIf cfg.enable (mkMerge phpFpmDaemons);
   # is too strict, need to evaluate "config", so pick attrs which are used only
   config = {
-    environment = mkMerge (catAttrs "environment" phpFpmDaemons);
+    environment.etc = mkMerge (catAttrs "etc" (catAttrs "environment" phpFpmDaemons));
     systemd = mkMerge (catAttrs "systemd" phpFpmDaemons);
   };
 }

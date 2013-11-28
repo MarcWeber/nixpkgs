@@ -231,7 +231,7 @@ in
         description ="
           Domain to use. Leave blank to use hostname minus first component.
         ";
-        type = addCheck null nullOrValue;
+        type = types.addCheck null nullOrValue;
       };
 
       origin = mkOption {
@@ -239,7 +239,7 @@ in
         description ="
           Origin to use in outgoing e-mail. Leave null to use hostname.
         ";
-        type = addCheck null string;
+        type = types.addCheck null string;
       };
 
       destination = mkOption {
@@ -381,7 +381,7 @@ in
           Pay attention to not list the same domain in destination and
           virtualMailboxDomains else destination (local delivery) will win.
         '';
-        type = addCheck null (x:
+        type = types.addCheck null (x:
           let valid = table:
               isAttrs table
             && table ? name

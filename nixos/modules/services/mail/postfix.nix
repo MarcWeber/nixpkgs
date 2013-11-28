@@ -22,8 +22,6 @@ let
   '';
   # helper functions
 
-  nullOrValue = x: x == null || (x != "" && builtins.isString x);
-
   aliasFile = name: list: # list= [ [key value]  .. ]
     let inherit (builtins) head tail; inherit (pkgs) writeText;
         text = concatMapStrings (key_v: "${head key_v}:${head (tail key_v)}\n") list;
@@ -231,7 +229,7 @@ in
         description ="
           Domain to use. Leave blank to use hostname minus first component.
         ";
-        type = types.addCheck null nullOrValue;
+        type = types.nullOr types.str;
       };
 
       origin = mkOption {
@@ -239,7 +237,7 @@ in
         description ="
           Origin to use in outgoing e-mail. Leave null to use hostname.
         ";
-        type = types.addCheck null string;
+        type = types.nullOr types.str;
       };
 
       destination = mkOption {
@@ -381,12 +379,16 @@ in
           Pay attention to not list the same domain in destination and
           virtualMailboxDomains else destination (local delivery) will win.
         '';
-        type = types.addCheck null (x:
-          let valid = table:
-              isAttrs table
-            && table ? name
-            && any (n: hasAttr n table) ["static" "aliases" "map"];
-          in isList x && all valid x);
+        type = mkOptionType {
+          name = "postfyi-tables-type";
+          check = x:
+            let valid = table:
+                isAttrs table
+              && table ? name
+              && any (n: hasAttr n table) ["static" "aliases" "map"];
+            in isList x && all valid x;
+
+        };
       };
 
     };

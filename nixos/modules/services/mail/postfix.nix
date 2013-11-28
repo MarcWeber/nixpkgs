@@ -1,6 +1,7 @@
 { config, pkgs, ... }:
 
 # TODO: merge with upstream changes
+# TODO: proper types instead of addCheck null ..
 
 with pkgs.lib;
 
@@ -230,7 +231,7 @@ in
         description ="
           Domain to use. Leave blank to use hostname minus first component.
         ";
-        check = nullOrValue;
+        type = addCheck null nullOrValue;
       };
 
       origin = mkOption {
@@ -238,7 +239,7 @@ in
         description ="
           Origin to use in outgoing e-mail. Leave null to use hostname.
         ";
-        check = nullOrValue;
+        type = addCheck null string;
       };
 
       destination = mkOption {
@@ -380,12 +381,12 @@ in
           Pay attention to not list the same domain in destination and
           virtualMailboxDomains else destination (local delivery) will win.
         '';
-        check = x:
+        type = addCheck null (x:
           let valid = table:
               isAttrs table
             && table ? name
             && any (n: hasAttr n table) ["static" "aliases" "map"];
-          in isList x && all valid x;
+          in isList x && all valid x);
       };
 
     };

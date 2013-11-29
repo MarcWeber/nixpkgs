@@ -63,7 +63,7 @@ let
       inherit nixClosure nix;
 
       # TODO shell ?
-      nixosURL = if  cfg ? nixosURL then cfg.nixosURL else "installer.nixosURL was not defined at buildtime";
+      nixosURL = ""; # if  cfg ? nixosURL then cfg.nixosURL else "installer.nixosURL was not defined at buildtime";
 
     };
 

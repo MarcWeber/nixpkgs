@@ -98,7 +98,7 @@ let gutenprint = (stdenv.mkDerivation (lib.mergeAttrsByVersion "gutenprint" vers
   enableParallelBuilding = true;
 
   # gimp, gui is still not working (TODO)
-  buildInputs = [ openssl pkgconfig ]
+  buildInputs = [ openssl pkgconfig makeWrapper ]
     ++ lib.optionals cupsSupport [cups libtiff libpng ]
     ++ lib.optionals gimp2Support [gimp gimp.gtk]
   ;
@@ -146,8 +146,9 @@ let gutenprint = (stdenv.mkDerivation (lib.mergeAttrsByVersion "gutenprint" vers
       ln -s ../../../$i $out/lib/cups/$i
     done
 
+    # usptream changes: TODO, merge
     mkdir -p $out/lib/cups
-    ln -s $out/filter $out/lib/cups/
+    # ln -s $out/filter $out/lib/cups/
     wrapProgram $out/filter/rastertogutenprint.5.2 --prefix LD_LIBRARY_PATH : $out/lib
     wrapProgram $out/sbin/cups-genppd.5.2 --prefix LD_LIBRARY_PATH : $out/lib
   '';

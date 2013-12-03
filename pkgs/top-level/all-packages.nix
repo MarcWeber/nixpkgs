@@ -540,6 +540,8 @@ let
 
   bmon = callPackage ../tools/misc/bmon { };
 
+  bochs = callPackage ../applications/virtualization/bochs { };
+
   boomerang = callPackage ../development/tools/boomerang {
     stdenv = overrideGCC stdenv gcc47;
   };
@@ -594,6 +596,8 @@ let
   autossh = callPackage ../tools/networking/autossh { };
 
   bacula = callPackage ../tools/backup/bacula { };
+
+  beanstalkd = callPackage ../servers/beanstalkd { };
 
   bgs = callPackage ../tools/X11/bgs { };
 
@@ -1026,6 +1030,8 @@ let
 
   gptfdisk = callPackage ../tools/system/gptfdisk { };
 
+  grafx2 = callPackage ../applications/graphics/grafx2 {};
+
   graphviz = callPackage ../tools/graphics/graphviz { };
 
   /* Readded by Michael Raskin. There are programs in the wild
@@ -1218,6 +1224,8 @@ let
     neededNatives = [python] ++ lib.optional (lib.elem system lib.platforms.linux) utillinux;
     self = pkgs.nodePackages;
   });
+
+  ldapvi = callPackage ../tools/misc/ldapvi { };
 
   ldns = callPackage ../development/libraries/ldns { };
 
@@ -1489,9 +1497,7 @@ let
 
   openresolv = callPackage ../tools/networking/openresolv { };
 
-  opensc_0_11_7 = callPackage ../tools/security/opensc/0.11.7.nix { };
-
-  opensc = opensc_0_11_7;
+  opensc = callPackage ../tools/security/opensc { };
 
   opensc_dnie_wrapper = callPackage ../tools/security/opensc-dnie-wrapper { };
 
@@ -2234,6 +2240,10 @@ let
   bigloo = callPackage ../development/compilers/bigloo { };
 
   chicken = callPackage ../development/compilers/chicken { };
+
+  chicken-dev = chicken.override {
+    devSnapshot = true;
+  };
 
   ccl = builderDefsPackage ../development/compilers/ccl {};
 
@@ -3194,7 +3204,8 @@ let
 
   kona = callPackage ../development/interpreters/kona {};
 
-  love = callPackage ../development/interpreters/love {};
+  love = callPackage ../development/interpreters/love {lua=lua5;};
+  love_luajit = callPackage ../development/interpreters/love {lua=luajit;};
 
   lua4 = callPackage ../development/interpreters/lua-4 { };
   lua5_0 = callPackage ../development/interpreters/lua-5/5.0.3.nix { };
@@ -5328,7 +5339,9 @@ let
     includeTools = true;
   };
 
-  ntrack = callPackage ../development/libraries/ntrack { };
+  ntrack = callPackage ../development/libraries/ntrack {
+    libnl = libnl_3_2_19;
+  };
 
   ode = builderDefsPackage (import ../development/libraries/ode) { };
 
@@ -5376,9 +5389,7 @@ let
 
   openlierox = callPackage ../games/openlierox { };
 
-  libopensc_dnie = callPackage ../development/libraries/libopensc-dnie {
-    opensc = opensc_0_11_7;
-  };
+  libopensc_dnie = callPackage ../development/libraries/libopensc-dnie { };
 
   opencolorio = callPackage ../development/libraries/opencolorio { };
 
@@ -6493,6 +6504,8 @@ let
 
   atop = callPackage ../os-specific/linux/atop { };
 
+  audit = callPackage ../os-specific/linux/audit { };
+
   b43Firmware_5_1_138 = callPackage ../os-specific/linux/firmware/b43-firmware/5.1.138.nix { };
 
   b43FirmwareCutter = callPackage ../os-specific/linux/firmware/b43-firmware-cutter { };
@@ -6634,6 +6647,7 @@ let
   libcgroup = callPackage ../os-specific/linux/libcgroup { };
 
   libnl = callPackage ../os-specific/linux/libnl { };
+  libnl_3_2_19 = callPackage ../os-specific/linux/libnl/3.2.19.nix { };
 
   linuxHeaders = linuxHeaders37;
 
@@ -6673,12 +6687,7 @@ let
       ];
   };
 
-  # Note: grsec is not enabled automatically, you need to specify which kernel
-  # config options you need (e.g. by overriding extraConfig). See list of options here:
-  # https://en.wikibooks.org/wiki/Grsecurity/Appendix/Grsecurity_and_PaX_Configuration_Options
-  linux_3_2_grsecurity = lowPrio (lib.overrideDerivation (linux_3_2.override (args: {
-    kernelPatches = args.kernelPatches ++ [ kernelPatches.grsecurity_2_9_1_3_2_52 ];
-  })) (args: {
+  grsecurityOverrider = args: {
     # Install gcc plugins. These are needed for compiling dependant packages.
     postInstall = ''
       ${args.postInstall or ""}
@@ -6693,7 +6702,18 @@ let
       sed -i 's|HOST_EXTRACFLAGS +=|HOST_EXTRACFLAGS += -I${gmp}/include|' tools/gcc/Makefile
       sed -i 's|HOST_EXTRACXXFLAGS +=|HOST_EXTRACXXFLAGS += -I${gmp}/include|' tools/gcc/Makefile
     '';
-  }));
+  };
+
+  # Note: grsec is not enabled automatically, you need to specify which kernel
+  # config options you need (e.g. by overriding extraConfig). See list of options here:
+  # https://en.wikibooks.org/wiki/Grsecurity/Appendix/Grsecurity_and_PaX_Configuration_Options
+  linux_3_2_grsecurity = lowPrio (lib.overrideDerivation (linux_3_2.override (args: {
+    kernelPatches = args.kernelPatches ++ [ kernelPatches.grsecurity_3_0_3_2_52 kernelPatches.grsec_path ];
+  })) (args: grsecurityOverrider args));
+
+  linux_3_12_grsecurity = lowPrio (lib.overrideDerivation (linux_3_12.override (args: {
+    kernelPatches = args.kernelPatches ++ [ kernelPatches.grsecurity_3_0_3_12_1 kernelPatches.grsec_path ];
+  })) (args: grsecurityOverrider args));
 
   linux_3_2_apparmor = lowPrio (linux_3_2.override {
     kernelPatches = [ kernelPatches.apparmor_3_2 ];
@@ -6898,6 +6918,7 @@ let
   linuxPackages_3_10_tuxonice = linuxPackagesFor pkgs.linux_3_10_tuxonice linuxPackages_3_10_tuxonice;
   linuxPackages_3_11 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_11 linuxPackages_3_11);
   linuxPackages_3_12 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_12 linuxPackages_3_12);
+  linuxPackages_3_12_grsecurity = linuxPackagesFor pkgs.linux_3_12_grsecurity linuxPackages_3_12_grsecurity;
   # Update this when adding a new version!
   linuxPackages_latest = pkgs.linuxPackages_3_12;
 
@@ -7049,6 +7070,8 @@ let
   sdparm = callPackage ../os-specific/linux/sdparm { };
 
   sepolgen = callPackage ../os-specific/linux/sepolgen { };
+
+  setools = callPackage ../os-specific/linux/setools { };
 
   shadow = callPackage ../os-specific/linux/shadow { };
 
@@ -8477,11 +8500,12 @@ let
       cursesSupport = true;
     };
 
-    inherit gettext highline iconv locale lockfile mime_types rmail_sup text
-      trollop unicode xapian_ruby which;
+    inherit gettext highline iconv locale lockfile rmail_sup
+      text trollop unicode xapian_ruby which;
 
     chronic      = chronic_0_9_1;
     gpgme        = ruby_gpgme;
+    mime_types   = mime_types_1_25;
     ncursesw_sup = ruby_ncursesw_sup;
     rake         = rake_10_1_0;
   };
@@ -8569,6 +8593,8 @@ let
   pavucontrol = callPackage ../applications/audio/pavucontrol { };
 
   paraview = callPackage ../applications/graphics/paraview { };
+
+  pencil = callPackage ../applications/graphics/pencil { };
 
   petrifoo = callPackage ../applications/audio/petrifoo {
     inherit (gnome) libgnomecanvas;
@@ -9022,7 +9048,9 @@ let
 
   vorbisTools = callPackage ../applications/audio/vorbis-tools { };
 
-  vue = callPackage ../applications/misc/vue {};
+  vue = callPackage ../applications/misc/vue {
+    jre = oraclejre;
+  };
 
   vwm = callPackage ../applications/window-managers/vwm { };
 
@@ -9471,6 +9499,8 @@ let
   teeworlds = callPackage ../games/teeworlds { };
 
   tennix = callPackage ../games/tennix { };
+
+  tintin = callPackage ../games/tintin { };
 
   tpm = callPackage ../games/thePenguinMachine { };
 

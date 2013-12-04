@@ -11,6 +11,8 @@ stdenv.mkDerivation rec {
   version = "1.0.23";
   name = "sane-backends-${version}";
 
+  enableParallelBuilding = true;
+  
   src = fetchurl {
     url = "https://launchpad.net/ubuntu/+archive/primary/+files/sane-backends_${version}.orig.tar.gz";
     sha256 = "4d4f5b2881615af7fc0ed75fdde7dc623a749e80e40f3f792fe4010163cbb029";

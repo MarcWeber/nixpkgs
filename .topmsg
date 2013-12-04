@@ -1,29 +1,4 @@
 From: Marc Weber <marco-oweber@gmx.de>
-Subject: [PATCH] experimental/multiple-versions-in-one-file
+Subject: [PATCH] experimental/php-koellner-phonetic
 
-php nixpkgs:
-  PHP: fpm support (including patches for systemd socket activation)
-  nixos systemd unit implementation
-  keep old PHP-5.2 working even though its horrible outdated.
-
-  make PHP know about /var/setuid-wrappers/sendmail (path is configurable)
-
-  keep everything in one file, because most code is the same, eg the code to
-  build extensions (apc, xdebug, ..)
-
-  Well - yes - there have been quite a lot of changes in nixpkgs master.
-  I tried to keep my branch up to date.
-
-nixos:
-  provide php-fpm module which figures out how many php-fpm daemoens to use
-  automatically. Its still your task to to configure apache/ nginx.
-  You do so by using a function returning the socket path based on
-  your configuration.
-  nixos/modules/services/misc/phpfpm.nix contains a usage example.
-
-  Enabling xdebug is very easy now.
-
-Till this gets merged you can follow the topic branch experimental/php at
-github.com/MarcWeber/nixpkgs.
-
-Signed-off-by: Marc Weber <marco-oweber@gmx.de>
+provide my own koellner-phonetic search. Its like soundex but specializes on German language.

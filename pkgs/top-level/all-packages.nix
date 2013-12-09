@@ -3221,6 +3221,8 @@ let
 
   kaffe = callPackage ../development/interpreters/kaffe { };
 
+  kakoune = callPackage ../applications/editors/kakoune { };
+
   kona = callPackage ../development/interpreters/kona {};
 
   love = callPackage ../development/interpreters/love {lua=lua5;};

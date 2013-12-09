@@ -7,7 +7,7 @@
 , x264Support ? true, x264 ? null
 , xvidSupport ? true, xvidcore ? null
 , vdpauSupport ? true, libvdpau ? null
-, faacSupport ? false, faac ? null
+, faacSupport ? true, faac ? null
 , dc1394Support ? false, libdc1394 ? null
 , x11grabSupport ? true, libX11, libXext, libXfixes
 , versionedDerivation, version ? "0.10"

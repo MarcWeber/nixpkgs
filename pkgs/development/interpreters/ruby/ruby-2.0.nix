@@ -47,7 +47,16 @@ stdenv.mkDerivation rec {
   installFlags = stdenv.lib.optionalString docSupport "install-doc";
   # Bundler tries to create this directory
   postInstall = ''
+    # Bundler tries to create this directory
     mkdir -pv $out/${passthru.gemPath}
+    mkdir -p $out/nix-support
+    cat > $out/nix-support/setup-hook <<EOF
+    addGemPath() {
+      addToSearchPath GEM_PATH \$1/${passthru.gemPath}
+    }
+
+    envHooks+=(addGemPath)
+    EOF
 
     # required for ruby-line ruby-debug like libraries
     cp *.h *.inc $out/include

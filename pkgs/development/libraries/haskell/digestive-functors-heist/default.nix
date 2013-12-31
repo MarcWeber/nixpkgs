@@ -3,8 +3,8 @@
 
 cabal.mkDerivation (self: {
   pname = "digestive-functors-heist";
-  version = "0.8.1.0";
-  sha256 = "0f9nhfy8rc1w9nnhq1yf9y2kwxlb9b6v8y1jz5q3lrpb1cnq31j0";
+  version = "0.8.3.1";
+  sha256 = "11hrp3j3pz1ljp4mh5770fn70bga90kxgwqrm1fl6ki10q2q6z2h";
   buildDepends = [
     blazeBuilder digestiveFunctors heist mtl text xmlhtml
   ];

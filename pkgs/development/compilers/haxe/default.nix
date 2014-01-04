@@ -25,8 +25,8 @@ versionedDerivation "haxe" version
     # '';
 
     # REGION AUTO UPDATE: { name="haxe-unstable"; type="git"; url="git://github.com/HaxeFoundation/haxe.git"; groups = "haxe_group"; }
-    src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-unstable-git-ad6b0.tar.bz2"; sha256 = "a47a5efa4c587f480f7d6f8b1a5c6f174292d44e96ed458911431867e167cb61"; });
-    name = "haxe-unstable-git-ad6b0";
+    src = (fetchurl { url = "http://mawercer.de/~nix/repos/haxe-unstable-git-d312d.tar.bz2"; sha256 = "62a39ef9db8629b785f5068c2c48aea4b5410fa7c0b06a93df4635b88bfc15d2"; });
+    name = "haxe-unstable-git-d312d";
     # END
 
     ocamllibs =

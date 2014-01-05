@@ -39,9 +39,9 @@ let
     else
       throw "openjdk requires i686-linux or x86_64 linux";
 
-  update = "6";
+  update = "40";
 
-  build = "24";
+  build = "43";
 
 in
 
@@ -54,11 +54,11 @@ stdenv.mkDerivation rec {
   '';
 
   src = fetchurl {
-    url = "http://www.java.net/download/openjdk/jdk7u6/promoted/b24/openjdk-7u6-fcs-src-b24-28_aug_2012.zip";
-    sha256 = "1x1iq8ga0hqqh0bpcmydzzy19757hknn2yvgzib85p7b7dx0vfx9";
+    url = http://www.java.net/download/openjdk/jdk7u40/promoted/b43/openjdk-7u40-fcs-src-b43-26_aug_2013.zip;
+    sha256 = "15h5nmbw6yn5596ccakqdbs0vd8hmslsfg5sfk8wmjvn31bfmy00";
   };
 
-#  outputs = [ "out" ] ++ stdenv.lib.optionals (! jreOnly) [ "jre" ];
+  #  outputs = [ "out" ] ++ stdenv.lib.optionals (! jreOnly) [ "jre" ];
 
   buildInputs = [
     unzip
@@ -95,10 +95,7 @@ stdenv.mkDerivation rec {
       openjdk/jdk/src/solaris/native/sun/java2d/x11/XRSurfaceData.c
   '';
 
-  patches = [
-    ./cppflags-include-fix.patch
-    ./no-crypto-restrictions.patch
-  ];
+  patches = [ ./cppflags-include-fix.patch ];
 
   makeFlags = [
     "SORT=${coreutils}/bin/sort"
@@ -113,6 +110,7 @@ stdenv.mkDerivation rec {
     "DEVTOOLS_PATH="
     "UNIXCOMMAND_PATH="
     "BOOTDIR=${jdk}"
+    "UNLIMITED_CRYPTO=1"
   ];
 
   configurePhase = ''
@@ -122,6 +120,14 @@ stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out
     cp -av build/*/j2${if jreOnly then "re" else "sdk"}-image/* $out
+
+    # Remove some broken manpages.
+    rm -rf $out/share/man/ja*
+
+    # Remove crap from the installation.
+    rm -rf $out/demo $out/sample
+
+    # Generate certificates.
     pushd $out/${if ! jreOnly then "jre/" else ""}lib/security
     rm cacerts
     perl ${./generate-cacerts.pl} $out/bin/keytool ${cacert}/etc/ca-bundle.crt

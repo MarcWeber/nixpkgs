@@ -85,9 +85,9 @@
 
 let
 
-  true_version = if version == "5.3.x" then "5.3.27"
-  else if version == "5.4.x" then "5.4.22"
-  else if version == "5.5.x" then "5.5.5"
+  true_version = if version == "5.3.x" then "5.3.28"
+  else if version == "5.4.x" then "5.4.23"
+  else if version == "5.5.x" then "5.5.7"
   else version;
 
   libxml2 = if lessThan53 then pkgs.libxml2.override { version = "2.7.8"; } else pkgs.libxml2;
@@ -443,7 +443,8 @@ let
      url = "http://de2.php.net/distributions/php-${true_version}.tar.bz2";
      md5 = lib.maybeAttr true_version (throw "unkown php version ${true_version}") {
       # "5.5.0RC1" = "0b8eaea490888bc7881f60f54798f1cb";
-      "5.5.5" = "186c330c272d6322d254db9b2d18482a";
+      # "5.5.5" = "186c330c272d6322d254db9b2d18482a";
+      "5.5.7" = "19d1ca0a58e192bcc133f700c7e78037";
 
       # does not built, due to patch?
       # "5.4.5" = "ffcc7f4dcf2b79d667fe0c110e6cb724";
@@ -452,7 +453,8 @@ let
       # "5.4.15" = "145ea5e845e910443ff1eddb3dbcf56a";
       # "5.4.19" = "f06f99b9872b503758adab5ba7a7e755";
       # "5.4.21" = "3dcf021e89b039409d0b1c346b936b5f";
-      "5.4.22" = "0a7400d1d7f1f55b2b36285bf1a00762";
+      # "5.4.22" = "0a7400d1d7f1f55b2b36285bf1a00762";
+      "5.4.23" = "023857598b92ea5c78137543817f4bc5";
 
       # those older versions are likely to be buggy - there should be no reason to compile them
       # "5.3.3" = "21ceeeb232813c10283a5ca1b4c87b48";
@@ -463,7 +465,8 @@ let
       # "5.3.18" = "52539c19d0f261560af3c030143dfa8f";
       # "5.3.24" = "9820604df98c648297dcd31ffb8214e8";
       # "5.3.25" = "347625ed7fbf2fe1f1c70b0f879fee2a";
-      "5.3.27" = "25ae23a5b9615fe8d33de5b63e1bb788";
+      # "5.3.27" = "25ae23a5b9615fe8d33de5b63e1bb788";
+      "5.3.28" = "56ff88934e068d142d6c0deefd1f396b";
 
       # 5.2 is no longer supported. However PHP 5.2 -> 5.3 has had many
       # incompatibilities which is why it may be useful to continue supporting it

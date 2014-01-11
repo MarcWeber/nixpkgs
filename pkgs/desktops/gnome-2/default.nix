@@ -1,7 +1,5 @@
 { callPackage, self, stdenv, gettext, gvfs, libunique, overrides ? {} }:
-{
-  __overrides = overrides;
-
+let overridden = set // overrides; set = with overridden; {
   # Backward compatibility.
   gtkdoc = self.gtk_doc;
   startupnotification = self.startup_notification;
@@ -107,8 +105,6 @@
 
   gtksourceview = callPackage ./desktop/gtksourceview { };
 
-  nautilus = callPackage ./desktop/nautilus { };
-
   gnome_icon_theme = callPackage ./desktop/gnome-icon-theme { };
 
   vte = callPackage ./desktop/vte { };
@@ -117,4 +113,4 @@
 
   libglademm = callPackage ./bindings/libglademm { };
 
-}
+}; in overridden

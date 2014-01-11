@@ -1709,11 +1709,11 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
 
   pyramid_jinja2 = buildPythonPackage rec {
-    name = "pyramid_jinja2-1.6";
+    name = "pyramid_jinja2-1.9";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/p/pyramid_jinja2/${name}.zip";
-      md5 = "b7df1ab97f90f39529d27ba6da1f6b1c";
+      md5 = "a6728117cad24749ddb39d2827cd9033";
     };
 
     buildInputs = [ pkgs.unzip webtest ];
@@ -2347,11 +2347,11 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
 
   docutils = buildPythonPackage rec {
-    name = "docutils-0.8.1";
+    name = "docutils-0.11";
 
     src = fetchurl {
       url = "mirror://sourceforge/docutils/${name}.tar.gz";
-      sha256 = "0wfz4nxl95jcr2f2mc5gijgighavcghg33plzbz5jyi531jpffss";
+      sha256 = "1jbybs5a396nrjy9m13pgvsxdwaj7jw7nsawkhl4fi1nvxm1dx4s";
     };
 
     # error: invalid command 'test'
@@ -3141,11 +3141,11 @@ pythonPackages = modules // import ./python-packages-generated.nix {
   });
 
   jinja2 = buildPythonPackage rec {
-    name = "Jinja2-2.7";
+    name = "Jinja2-2.7.1";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/J/Jinja2/${name}.tar.gz";
-      sha256 = "0kgsd7h27jl2jpqa1ks88h93z50bsg0yr7qkicqpxbl9s4c1aks7";
+      sha256 = "12scn3zmmj76rzyc0axjzf6dsazyj9xgp0l46q41rjhxm23s1h2w";
     };
 
     propagatedBuildInputs = [ pythonPackages.markupsafe ];
@@ -3473,14 +3473,7 @@ pythonPackages = modules // import ./python-packages-generated.nix {
   };
 
 
-  # not sure if this is the best way to accomplish this -- needed to provide
-  # objective-c compiler on darwin
-  matplotlibStdenv = if stdenv.isDarwin
-    then pkgs.clangStdenv
-    else pkgs.stdenv;
-
-  # TODO: refactor to use pythonBuildPackage
-  matplotlib = matplotlibStdenv.mkDerivation (rec {
+  matplotlib = buildPythonPackage rec {
     name = "matplotlib-1.3.1";
 
     src = fetchurl {
@@ -3488,26 +3481,11 @@ pythonPackages = modules // import ./python-packages-generated.nix {
       sha256 = "0smgpn7lwbn02nbyhawyn0n6r3pb65zk501f21bjgavnjjfnf5pa";
     };
 
-    # error: invalid command 'test'
-    doCheck = false;
-
-    buildInputs = [ python pkgs.which pkgs.ghostscript ];
+    buildInputs = [ python pkgs.which pkgs.ghostscript ] ++
+        (if stdenv.isDarwin then [ pkgs.clangStdenv ] else [ pkgs.stdenv ]);
 
     propagatedBuildInputs =
-      [ dateutil nose numpy pyparsing tornado pkgs.freetype pkgs.libpng pkgs.pkgconfig pkgs.tcl
-        pkgs.tk pkgs.xlibs.libX11 ];
-    
-    buildPhase = ''
-      sed -i '/use_setuptools/d' setup.py
-      ${python}/bin/${python.executable} setup.py build
-    '';
-
-    # The sed expression parses out the python version from an executable with appended characters
-    installPhase = ''
-      SITE="$out/lib/${python.libPrefix}/site-packages"
-      mkdir -p "$SITE"
-      PYTHONPATH="$PYTHONPATH:$SITE" ${python}/bin/${python.executable} setup.py install --prefix=$out
-    '';
+      [ dateutil nose numpy pyparsing tornado pkgs.freetype pkgs.libpng pkgs.pkgconfig ];
 
     meta = with stdenv.lib; {
       description = "python plotting library, making publication quality plots";
@@ -3515,7 +3493,7 @@ pythonPackages = modules // import ./python-packages-generated.nix {
       maintainers = with maintainers; [ lovek323 ];
       platforms   = platforms.unix;
     };
-  });
+  };
 
 
   mccabe = buildPythonPackage (rec {
@@ -3978,6 +3956,7 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     checkPhase = if python.is_py3k or false then ''
       ${python}/bin/${python.executable} setup.py build_tests
     '' else "" + ''
+      rm functional_tests/test_multiprocessing/test_concurrent_shared.py # see https://github.com/nose-devs/nose/commit/226bc671c73643887b36b8467b34ad485c2df062
       ${python}/bin/${python.executable} selftest.py
     '';
 
@@ -3991,7 +3970,7 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     name = "nose-selecttests-${version}";
 
     src = fetchurl {
-      url = "http://pypi.python.org/packages/source/n/nose/${name}.zip";
+      url = "http://pypi.python.org/packages/source/n/nose-selecttests/${name}.zip";
       sha256 = "0lgrfgp3sq8xi8d9grrg0z8jsyk0wl8a3rxw31hb7vdncin5b7n5";
     };
 
@@ -4691,10 +4670,10 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
 
   py = buildPythonPackage rec {
-    name = "py-1.4.13";
+    name = "py-1.4.19";
 
     src = fetchurl {
-      url = "https://pypi.python.org/packages/source/p/py/py-1.4.13.tar.gz";
+      url = "https://pypi.python.org/packages/source/p/py/${name}.tar.gz";
       md5 = "3857dc8309d5f284669b81184253c2bb";
     };
   };
@@ -5280,11 +5259,11 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
 
   pymacs = pkgs.stdenv.mkDerivation rec {
-    version = "v0.25";
+    version = "0.25";
     name = "Pymacs-${version}";
 
     src = fetchurl {
-      url = "https://github.com/pinard/Pymacs/tarball/${version}";
+      url = "https://github.com/pinard/Pymacs/tarball/v${version}";
       name = "${name}.tar.gz";
       sha256 = "1hmy76c5igm95rqbld7gvk0az24smvc8hplfwx2f5rhn6frj3p2i";
     };
@@ -6372,11 +6351,11 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
 
   sphinx = buildPythonPackage (rec {
-    name = "Sphinx-1.1.3";
+    name = "Sphinx-1.2";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/S/Sphinx/${name}.tar.gz";
-      md5 = "8f55a6d4f87fc6d528120c5d1f983e98";
+      md5 = "8516046aad73fe46dedece4e8e434328";
     };
 
     propagatedBuildInputs = [docutils jinja2 pygments];
@@ -6566,11 +6545,11 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
   subunit = buildPythonPackage rec {
     name = "subunit-${version}";
-    version = "0.0.13";
+    version = "0.0.16";
 
     src = fetchurl {
       url = "https://launchpad.net/subunit/trunk/${version}/+download/python-${name}.tar.gz";
-      sha256 = "0f3xni4z1hbmg4dqxak85ibpf9pajxn6qzw1xj79gwnr8xxb66zj";
+      sha256 = "1ylla1wlmv29vdr76r5kgr7y21bz4ahi3v26mxsys42w90rfkahi";
     };
 
     propagatedBuildInputs = [ testtools ];
@@ -6666,14 +6645,14 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
   testtools = buildPythonPackage rec {
     name = "testtools-${version}";
-    version = "0.9.32";
+    version = "0.9.34";
 
     src = fetchurl {
       url = "https://pypi.python.org/packages/source/t/testtools/${name}.tar.gz";
-      sha256 = "1smgk3y7xfzh5xk5wydb6n5lx4g5i6y4w8ajrdnskx1jqr67wyyq";
+      sha256 = "0s6sn9h26dif2c9sayf875x622kq8jb2f4qbc6if7gwh2sssgicn";
     };
 
-    propagatedBuildInputs = [ pythonPackages.python_mimeparse pythonPackages.extras ];
+    propagatedBuildInputs = [ pythonPackages.python_mimeparse pythonPackages.extras lxml ];
 
     meta = {
       description = "A set of extensions to the Python standard library's unit testing framework";
@@ -6885,6 +6864,10 @@ pythonPackages = modules // import ./python-packages-generated.nix {
            md5 = "a0af5cac92bbbfa0c3b0e99571390e0f";
          };
 
+    preConfigure = ''
+      sed -i 's/unittest2py3k/unittest2/' setup.py
+    '';
+
     meta = {
       description = "A backport of the new features added to the unittest testing framework in Python 2.7";
       homepage = http://pypi.python.org/pypi/unittest2;
@@ -7055,18 +7038,18 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
 
   webtest = buildPythonPackage rec {
-    version = "2.0.3";
+    version = "2.0.11";
     name = "webtest-${version}";
-
+  
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/W/WebTest/WebTest-${version}.zip";
-      md5 = "a1266d4db421963fd3deb172c6689e4b";
+      md5 = "e51da21da8815cef07f543d8688effea";
     };
-
-    buildInputs = [ pkgs.unzip ] ++ optionals isPy26 [ pythonPackages.ordereddict ];
 
     # XXX: skipping two tests fails in python2.6
     doCheck = ! isPy26;
+
+    buildInputs = [ pkgs.unzip ] ++ optionals isPy26 [ pythonPackages.ordereddict unittest2 ];
 
     propagatedBuildInputs = [
       nose
@@ -7074,7 +7057,6 @@ pythonPackages = modules // import ./python-packages-generated.nix {
       six
       beautifulsoup4
       waitress
-      unittest2
       mock
       pyquery
       wsgiproxy2
@@ -7084,7 +7066,7 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
     meta = {
       description = "Helper to test WSGI applications";
-      homepage = http://pythonpaste.org/webtest/;
+      homepage = http://webtest.readthedocs.org/en/latest/;
       platforms = stdenv.lib.platforms.all;
     };
   };
@@ -7217,11 +7199,11 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
   zconfig = buildPythonPackage rec {
     name = "zconfig-${version}";
-    version = "2.9.3";
+    version = "3.0.3";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/Z/ZConfig/ZConfig-${version}.tar.gz";
-      md5 = "2c5f73c216140a705be3d9c44b988722";
+      md5 = "60a107c5857c3877368dfe5930559804";
     };
 
     propagatedBuildInputs = [ zope_testrunner ];
@@ -7710,7 +7692,7 @@ pythonPackages = modules // import ./python-packages-generated.nix {
 
     buildInputs = [ pkgs.unzip ];
 
-    propagatedBuildInputs = [ subunit zope_interface zope_exceptions zope_testing six ];
+    propagatedBuildInputs = [ zope_interface zope_exceptions zope_testing six ] ++ optional (!python.is_py3k or false) subunit;
 
     meta = {
       description = "A flexible test runner with layer support";

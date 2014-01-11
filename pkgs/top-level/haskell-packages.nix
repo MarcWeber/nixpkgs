@@ -154,7 +154,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
     HTTP         = self.HTTP_4000_2_10;
     HUnit        = self.HUnit_1_2_5_2;
     mtl          = self.mtl_2_1_2;
-    network      = self.network_2_4_2_1;
+    network      = self.network_2_4_2_2;
     OpenGL       = self.OpenGL_2_9_1_0;
     OpenGLRaw    = self.OpenGLRaw_1_4_0_0;
     parallel     = self.parallel_3_2_0_4;
@@ -167,7 +167,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
     split        = self.split_0_2_2;
     stm          = self.stm_2_4_2;
     syb          = self.syb_0_4_1;
-    text         = self.text_1_0_0_0;
+    text         = self.text_1_0_0_1;
     transformers = self.transformers_0_3_0_0;   # this has become a core package in GHC 7.7
     unorderedContainers = self.unorderedContainers_0_2_3_3;
     vector       = self.vector_0_10_9_1;
@@ -602,7 +602,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   binary_0_6_0_0 = callPackage ../development/libraries/haskell/binary/0.6.0.0.nix {};
   binary_0_7_1_0 = callPackage ../development/libraries/haskell/binary/0.7.1.0.nix {};
-  binary = self.binary_0_7_1_0;
+  binary = null;                # core package starting with GHC 7.4.x
 
   binaryConduit = callPackage ../development/libraries/haskell/binary-conduit {};
 
@@ -642,13 +642,16 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   bmp_1_2_2_1 = callPackage ../development/libraries/haskell/bmp/1.2.2.1.nix {};
   bmp_1_2_5_2 = callPackage ../development/libraries/haskell/bmp/1.2.5.2.nix {};
-  bmp = self.bmp_1_2_5_2;
+  bmp = self.bmp_1_2_2_1;       # the latest version needs a very recent 'binary' library
 
   Boolean = callPackage ../development/libraries/haskell/Boolean {};
 
   brainfuck = callPackage ../development/libraries/haskell/brainfuck {};
 
-  bson = callPackage ../development/libraries/haskell/bson {};
+  bson = callPackage ../development/libraries/haskell/bson {
+    binary = self.binary_0_7_1_0;
+    dataBinaryIeee754 = self.dataBinaryIeee754.override { binary = self.binary_0_7_1_0; };
+  };
 
   boomerang = callPackage ../development/libraries/haskell/boomerang {};
 
@@ -722,6 +725,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   cipherAes = callPackage ../development/libraries/haskell/cipher-aes {};
 
+  cipherAes128 = callPackage ../development/libraries/haskell/cipher-aes128 {};
+
   cipherBlowfish = callPackage ../development/libraries/haskell/cipher-blowfish {};
 
   cipherCamellia = callPackage ../development/libraries/haskell/cipher-camellia {};
@@ -761,6 +766,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   compactStringFix = callPackage ../development/libraries/haskell/compact-string-fix {};
 
   concatenative = callPackage ../development/libraries/haskell/concatenative {};
+
+  concreteTyperep = callPackage ../development/libraries/haskell/concreteTyperep {};
 
   conduit = callPackage ../development/libraries/haskell/conduit {};
 
@@ -835,6 +842,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   dataAccessorTemplate = callPackage ../development/libraries/haskell/data-accessor/data-accessor-template.nix {};
 
   dataAccessorTransformers = callPackage ../development/libraries/haskell/data-accessor/data-accessor-transformers.nix {};
+
+  dataAccessorMtl = callPackage ../development/libraries/haskell/data-accessor/data-accessor-mtl.nix {};
 
   dataBinaryIeee754 = callPackage ../development/libraries/haskell/data-binary-ieee754 {};
 
@@ -935,6 +944,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   downloadCurl = callPackage ../development/libraries/haskell/download-curl {};
 
+  DRBG = callPackage ../development/libraries/haskell/DRBG {};
+
   DSH = callPackage ../development/libraries/haskell/DSH {};
 
   dstring = callPackage ../development/libraries/haskell/dstring {};
@@ -1011,6 +1022,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   extensibleExceptions = null; # a core package in recent GHCs
 
   failure = callPackage ../development/libraries/haskell/failure {};
+
+  fastcgi = callPackage ../development/libraries/haskell/fastcgi {};
 
   fastLogger = callPackage ../development/libraries/haskell/fast-logger {};
 
@@ -1452,6 +1465,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   lens = callPackage ../development/libraries/haskell/lens {};
 
+  lensAeson = callPackage ../development/libraries/haskell/lens-aeson {};
+
   lensDatetime = callPackage ../development/libraries/haskell/lens-datetime {};
 
   lenses = callPackage ../development/libraries/haskell/lenses {};
@@ -1518,7 +1533,9 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   minimorph = callPackage ../development/libraries/haskell/minimorph {};
 
-  miniutter = callPackage ../development/libraries/haskell/miniutter {};
+  miniutter = callPackage ../development/libraries/haskell/miniutter {
+    binary = self.binary_0_7_1_0;
+  };
 
   mimeMail = callPackage ../development/libraries/haskell/mime-mail {};
 
@@ -1628,8 +1645,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   network_2_3_0_13 = callPackage ../development/libraries/haskell/network/2.3.0.13.nix {};
   network_2_3_1_0 = callPackage ../development/libraries/haskell/network/2.3.1.0.nix {};
   network_2_4_1_2 = callPackage ../development/libraries/haskell/network/2.4.1.2.nix {};
-  network_2_4_2_1 = callPackage ../development/libraries/haskell/network/2.4.2.1.nix {};
-  network = self.network_2_4_2_1;
+  network_2_4_2_2 = callPackage ../development/libraries/haskell/network/2.4.2.2.nix {};
+  network = self.network_2_4_2_2;
 
   networkConduit = callPackage ../development/libraries/haskell/network-conduit {};
   networkConduitTls = callPackage ../development/libraries/haskell/network-conduit-tls {};
@@ -1682,6 +1699,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   OpenGL_2_8_0_0 = callPackage ../development/libraries/haskell/OpenGL/2.8.0.0.nix {};
   OpenGL_2_9_1_0 = callPackage ../development/libraries/haskell/OpenGL/2.9.1.0.nix {
     OpenGLRaw = self.OpenGLRaw_1_4_0_0;
+    GLURaw = self.GLURaw_1_4_0_0.override { OpenGLRaw = self.OpenGLRaw_1_4_0_0; };
   };
   OpenGL = self.OpenGL_2_9_1_0;
 
@@ -1781,9 +1799,16 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   pointed = callPackage ../development/libraries/haskell/pointed {};
 
+  pointedlist = callPackage ../development/libraries/haskell/pointedlist {};
+
   poolConduit = callPackage ../development/libraries/haskell/pool-conduit {};
 
   pop3client = callPackage ../development/libraries/haskell/pop3-client {};
+
+  poppler = callPackage ../development/libraries/haskell/poppler {
+    popplerGlib = pkgs.poppler.poppler_glib;
+    libc = pkgs.stdenv.gcc.libc;
+  };
 
   postgresqlLibpq = callPackage ../development/libraries/haskell/postgresql-libpq {
     inherit (pkgs) postgresql;
@@ -1793,11 +1818,13 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   ppm = callPackage ../development/libraries/haskell/ppm {};
 
+  prettyclass = callPackage ../development/libraries/haskell/prettyclass {};
+
   prettyShow_1_2 = callPackage ../development/libraries/haskell/pretty-show/1.2.nix {};
-  prettyShow_1_6_3 = callPackage ../development/libraries/haskell/pretty-show/1.6.3.nix {
+  prettyShow_1_6_5 = callPackage ../development/libraries/haskell/pretty-show/1.6.5.nix {
     happy = self.happy_1_19_2;
   };
-  prettyShow = self.prettyShow_1_6_3;
+  prettyShow = self.prettyShow_1_6_5;
 
   punycode = callPackage ../development/libraries/haskell/punycode {};
 
@@ -2013,7 +2040,10 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   StateVar = callPackage ../development/libraries/haskell/StateVar {};
 
-  statistics = callPackage ../development/libraries/haskell/statistics {};
+  statistics = callPackage ../development/libraries/haskell/statistics {
+    binary = self.binary_0_7_1_0;
+    vectorBinaryInstances = self.vectorBinaryInstances.override { binary = self.binary_0_7_1_0; };
+  };
 
   statvfs = callPackage ../development/libraries/haskell/statvfs {};
 
@@ -2187,8 +2217,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   text_0_11_2_0 = callPackage ../development/libraries/haskell/text/0.11.2.0.nix {};
   text_0_11_2_3 = callPackage ../development/libraries/haskell/text/0.11.2.3.nix {};
   text_0_11_3_1 = callPackage ../development/libraries/haskell/text/0.11.3.1.nix {};
-  text_1_0_0_0 = callPackage ../development/libraries/haskell/text/1.0.0.0.nix {};
-  text = self.text_1_0_0_0;
+  text_1_0_0_1 = callPackage ../development/libraries/haskell/text/1.0.0.1.nix {};
+  text = self.text_1_0_0_1;
 
   textFormat = callPackage ../development/libraries/haskell/text-format {};
 
@@ -2332,6 +2362,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   waiExtra = callPackage ../development/libraries/haskell/wai-extra {};
 
   waiHandlerLaunch = callPackage ../development/libraries/haskell/wai-handler-launch {};
+
+  waiHandlerFastcgi = callPackage ../development/libraries/haskell/wai-handler-fastcgi { inherit (pkgs) fcgi; };
 
   waiLogger = callPackage ../development/libraries/haskell/wai-logger {};
 
@@ -2577,6 +2609,10 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   leksah = callPackage ../applications/editors/leksah {
     QuickCheck = self.QuickCheck2;
   };
+
+  yi = callPackage ../applications/editors/yi/yi.nix {};
+  
+  yiContrib = callPackage ../applications/editors/yi/yi-contrib.nix {};
 
   xmobar = callPackage ../applications/misc/xmobar {};
 

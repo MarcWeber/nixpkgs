@@ -52,7 +52,7 @@ let
   let imagemagick = pkgs.imagemagickBig; # maybe the non big version is enough?
       zart = false;
       # pkgs.fftwSinglePrec
-      fftw = pkgs.fftw.override {pthreads = true;};
+      fftw = pkgs.fftw;
   in pluginDerivation {
       enableParallelBuilding = true;
       propagatedBuildInputs = [ imagemagick ];
@@ -63,7 +63,7 @@ let
           ++ gimp.nativeBuildInputs
           ++ (pkgs.lib.optionals zart [
             pkgs.qt4
-            pkgs.fftw
+            fftw
           ]);
 
       inherit src name;

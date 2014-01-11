@@ -18,6 +18,8 @@ rec {
 
   at_spi2_core = callPackage ./core/at-spi2-core { };
 
+  dconf = callPackage ./core/dconf { };
+
   evince = callPackage ./core/evince { }; # ToDo: dbus would prevent compilation, enable tests
 
   gconf = callPackage ./core/gconf { };
@@ -33,13 +35,23 @@ rec {
 
   gnome_terminal = callPackage ./core/gnome-terminal { };
 
+  gnome_themes_standard = callPackage ./core/gnome-themes-standard { };
+
   gsettings_desktop_schemas = callPackage ./core/gsettings-desktop-schemas { };
 
   gvfs = pkgs.gvfs.override { gnome = pkgs.gnome3; };
 
+  eog = callPackage ./core/eog { };
+
   libcroco = callPackage ./core/libcroco {};
 
-  libgweather = callPackage ./core/libgweather { };
+  libgee = callPackage ./core/libgee { };
+
+  libpeas = callPackage ./core/libpeas {};
+
+  libgweather = callPackage ./core/libgweather { libsoup = pkgs.libsoup_2_44; };
+
+  nautilus = callPackage ./core/nautilus { };
 
   vte = callPackage ./core/vte { };
 
@@ -48,13 +60,13 @@ rec {
 
 #### Apps (http://ftp.acc.umu.se/pub/GNOME/apps/)
 
+  file-roller = callPackage ./desktop/file-roller { };
+
   gnome_dictionary = callPackage ./desktop/gnome-dictionary { };
 
   gnome_desktop = callPackage ./desktop/gnome-desktop { };
 
-
-  # Removed from recent GNOME releases, but still required
-  scrollkeeper = callPackage ./desktop/scrollkeeper { };
+  gtksourceview = callPackage ./desktop/gtksourceview { };
 
   # scrollkeeper replacement
   rarian = callPackage ./desktop/rarian { };
@@ -64,4 +76,7 @@ rec {
 
   goffice = callPackage ./misc/goffice { };
 
+  gitg = callPackage ./misc/gitg { };
+
+  libgit2-glib = callPackage ./misc/libgit2-glib { automake = pkgs.automake111x; };
 }

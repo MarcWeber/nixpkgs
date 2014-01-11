@@ -12,6 +12,11 @@ stdenv.mkDerivation rec {
     sha256 = "0f9095aabe3399436a75162c046fdc1e4d0c1e9a98f7d8ffcd3d910b19c8c265";
   };
 
+  # patches = [
+  #   ./debug-coercion-failures-for-unstable.patch
+  #   ./write-file-hashed.patch
+  # ];
+
   nativeBuildInputs = [ perl pkgconfig ];
 
   buildInputs = [ curl openssl boehmgc sqlite ];
@@ -64,11 +69,6 @@ stdenv.mkDerivation rec {
   };
 
   enableParallelBuilding = true;
-
-  # patches = [
-  #   ./debug-coercion-failures-for-unstable.patch
-  #   ./write-file-hashed.patch
-  # ];
 
   meta = {
     description = "The Nix Deployment System";

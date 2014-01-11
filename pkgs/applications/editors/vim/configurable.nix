@@ -19,10 +19,13 @@ composableDerivation {
     src = 
       builtins.getAttr source (rec {
       "default" =
-        args.fetchurl {
-            url = ftp://ftp.vim.org/pub/vim/unix/vim-7.4.tar.bz2;
-            sha256 = "1pjaffap91l2rb9pjnlbrpvb3ay5yhhr3g91zabjvw1rqk9adxfh";
-          };
+        # latest release
+      args.fetchhg {
+            url = "https://vim.googlecode.com/hg/";
+            tag = "v7-4-131";
+            sha256 = "1akr0i4pykbrkqwrglm0dfn5nwpncb9pgg4h7fl6a8likbr5f3wb";
+      };
+
       "vim-nox" =
           {
             # vim nox branch: client-server without X by uing sockets
@@ -57,14 +60,6 @@ composableDerivation {
 
     prePatch = "cd src";
     
-    patches =
-      [ ./patches/7.4.001 ./patches/7.4.002 ./patches/7.4.003 ./patches/7.4.004
-        ./patches/7.4.005 ./patches/7.4.006 ./patches/7.4.007 ./patches/7.4.008
-        ./patches/7.4.009 ./patches/7.4.010 ./patches/7.4.011 ./patches/7.4.012
-        ./patches/7.4.013 ./patches/7.4.014 ./patches/7.4.015 ./patches/7.4.016
-        ./patches/7.4.017 ./patches/7.4.018 ./patches/7.4.019 ./patches/7.4.020
-        ./patches/7.4.021 ./patches/7.4.022 ./patches/7.4.023 ];
-
     # most interpreters aren't tested yet.. (see python for example how to do it)
     flags = {
         ftNix = {
@@ -97,7 +92,17 @@ composableDerivation {
 
       // edf { name = "tcl"; enable = { nativeBuildInputs = [tcl]; }; } #Include Tcl interpreter.
       // edf { name = "ruby"; feat = "rubyinterp"; enable = { nativeBuildInputs = [ruby]; };} #Include Ruby interpreter.
-      // edf { name = "lua" ; feat = "luainterp"; enable = { nativeBuildInputs = [lua]; configureFlags = ["--with-lua-prefix=${args.lua}"];};}
+      // edf {
+        name = "lua";
+        feat = "luainterp";
+        enable = {
+          nativeBuildInputs = [lua];
+          configureFlags = [
+            "--with-lua-prefix=${args.lua}"
+            "--enable-luainterp"
+          ];
+        };
+      }
       // edf { name = "cscope"; } #Include cscope interface.
       // edf { name = "workshop"; } #Include Sun Visual Workshop support.
       // edf { name = "netbeans"; } #Disable NetBeans integration support.
@@ -112,6 +117,7 @@ composableDerivation {
       ;
 
   cfg = {
+    luaSupport       = config.vim.lua or true;
     pythonSupport    = config.vim.python or true;
     rubySupport      = config.vim.ruby or true;
     nlsSupport       = config.vim.nls or false;

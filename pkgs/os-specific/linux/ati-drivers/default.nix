@@ -78,7 +78,6 @@ stdenv.mkDerivation {
     maintainers = [stdenv.lib.maintainers.marcweber];
     platforms = [ "x86_64-linux" ];
     hydraPlatforms = [];
-    broken = true;
   };
 
   # moved assertions here because the name is evaluated when the NixOS manual is generated

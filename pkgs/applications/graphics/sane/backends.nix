@@ -11,6 +11,8 @@ stdenv.mkDerivation rec {
   version = "1.0.24";
   name = "sane-backends-${version}";
 
+  enableParallelBuilding = true;
+  
   src = fetchurl {
     url = "https://alioth.debian.org/frs/download.php/file/3958/${name}.tar.gz";
     curlOpts = "--insecure";

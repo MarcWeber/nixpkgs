@@ -3003,7 +3003,7 @@ let
 
     cryptokit = callPackage ../development/ocaml-modules/cryptokit { };
 
-    deriving = callPackage ../development/tools/ocaml/deriving { };
+    deriving = callPackage ../development/tools/ocaml/derivivg { };
 
     findlib = callPackage ../development/tools/ocaml/findlib { };
 

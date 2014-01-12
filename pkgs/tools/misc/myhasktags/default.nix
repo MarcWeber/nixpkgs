@@ -1,37 +1,24 @@
-{fetchurl, stdenv, ghcPlain} :
+{ fetchurl, cabal, json, HUnit }:
 
-/* use case:
+# notes:
+# * This should probably replace default hasktags - I uploaded this version to Hackage
+# * This previously contained hasktags-modified, now its just bin/hasktags
 
-   packageOverrides = {
+cabal.mkDerivation (self: {
+  sha256 = "094jqnx37r6pjsicxmfc67hqh7gps5yqbq4qpl6labk80h63ric9";
+  isLibrary = false;
+  isExecutable = true;
+  buildDepends = [ json HUnit ];
+  configureFlags = "";
+  pname = "hasktags";
+  version = "git";
 
-    haskellCollection =
-     let hp = haskellPackages;
-         install = [ hp.QuickCheck /* ... * /];
-      in
-      misc.collection {
-        name = "my-haskell-packages-collection";
-        list = install ++ (map (x : sourceWithTagsDerivation (sourceWithTagsFromDerivation (addHasktagsTaggingInfo x) ))
-                            (lib.filter (x : builtins.hasAttr "src" x) install ) );
-      };
-   };
-
-*/
-
-stdenv.mkDerivation {
-  name = "hasktags-modified";
-  version = "0.0"; # Haskell Platform 2009.0.0
-  src = fetchurl {
-    url = http://mawercer.de/~nix/hasktags.hs;
-    sha256 = "0zdin03n357viyyqbn2d029jxd83nyazhaxbxfc8v3jrz5pkwl2c";
-  };
-  phases="buildPhase";
-  buildPhase = ''
-    mkdir -p $out/bin
-    ghc --make $src -o $out/bin/hasktags-modified
-  '';
-  buildInputs = [ ghcPlain ];
+  # REGION AUTO UPDATE: { name="hasktags"; type="git"; url="https://github.com/MarcWeber/hasktags.git"; }
+  src = (fetchurl { url = "http://mawercer.de/~nix/repos/hasktags-git-363d9.tar.bz2"; sha256 = "518cad059e39dd30f78d288c91fe200958a2652e1d8ac2015edcbf57f0491468"; });
+  name = "hasktags-git-363d9";
+  # END
 
   meta = {
     description = "my patched version of hasktags. Should be merged into hasktags?";
   };
-}
+})

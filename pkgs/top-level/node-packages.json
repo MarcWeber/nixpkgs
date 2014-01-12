@@ -54,6 +54,7 @@
 , "gzippo"
 , "walk"
 , "forever"
+, "forever-monitor"
 , "kue"
 , "supertest"
 , "should"
@@ -111,4 +112,6 @@
 , "posix"
 , "node-protobuf"
 , "rethinkdb"
+, "bower2nix"
+, "fetch-bower"
 ]

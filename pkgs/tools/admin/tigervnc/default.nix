@@ -10,17 +10,24 @@
 with stdenv.lib;
 
 stdenv.mkDerivation rec {
-  # Release version = "1.2.0";
-  revision = 5005;
-  version = "r${toString revision}";
-  name = "tigervnc-${version}";
 
-  src = fetchsvn {
-    # Release url = "mirror://sourceforge/tigervnc/${version}/${name}.tar.gz";
-    url = "https://tigervnc.svn.sourceforge.net/svnroot/tigervnc/trunk";
-    rev = revision;
-    sha256 = "2401e0ede9a2d50a37caeb094e5e832d24878749239578f44ae2acd42de01b43";
-  };
+  # REGION AUTO UPDATE: { name="tigervnc"; type="svn"; url="https://tigervnc.svn.sourceforge.net/svnroot/tigervnc/trunk"; }
+  src = (fetchurl { url = "http://mawercer.de/~nix/repos/tigervnc-svn-5154.tar.bz2"; sha256 = "7fdbeeadbe9e39035dd1a1d9d3d847c1c34d9a33961f3ef5c86e0d8f0a3ebf6b"; });
+  name = "tigervnc-svn-5154";
+  # END
+
+  enableParallelBilding = true;
+
+  # # Release version = "1.3.0";
+  # revision = 5129;
+  # version = "r${toString revision}";
+  # name = "tigervnc-${version}";
+  # src = fetchsvn {
+  #   # Release url = "mirror://sourceforge/tigervnc/${version}/${name}.tar.gz";
+  #   url = "https://tigervnc.svn.sourceforge.net/svnroot/tigervnc/trunk";
+  #   rev = revision;
+  #   sha256 = "1qszlqr8z16iqkm05gbs0knj4fxc3bb6gjayky1abmf8pjazi0j8";
+  # };
 
   inherit fontDirectories;
 
@@ -52,12 +59,12 @@ stdenv.mkDerivation rec {
     tar xf ${xorgserver.src}
     cp -R xorg*/* unix/xserver
     pushd unix/xserver
-    for a in $xorgPatches
+    for a in $xorgPatches ../xserver114.patch
     do
       patch -p1 < $a
     done
     autoreconf -vfi
-    ./configure $configureFlags --disable-xinerama --disable-xvfb --disable-xnest --disable-xorg --disable-dmx --disable-dri --disable-dri2 --disable-glx --prefix="$out"
+    ./configure $configureFlags --disable-xinerama --disable-xvfb --disable-xnest --disable-xorg --disable-dmx --disable-dri --disable-dri2 --disable-glx --prefix="$out" --disable-unit-tests
     make TIGERVNC_SRCDIR=`pwd`/../..
     popd
   '';

@@ -142,7 +142,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   haskellPlatformArgs_future = self : {
     inherit (self) cabal ghc;
     async        = self.async_2_0_1_5;
-    attoparsec   = self.attoparsec_0_10_4_0;
+    attoparsec   = self.attoparsec_0_11_1_0;
     caseInsensitive = self.caseInsensitive_1_1_0_2;
     cgi          = self.cgi_3001_1_8_4;
     fgl          = self.fgl_5_4_2_4;
@@ -158,7 +158,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
     OpenGL       = self.OpenGL_2_9_1_0;
     OpenGLRaw    = self.OpenGLRaw_1_4_0_0;
     parallel     = self.parallel_3_2_0_4;
-    parsec       = self.parsec_3_1_4;
+    parsec       = self.parsec_3_1_5;
     QuickCheck   = self.QuickCheck_2_6;
     random       = self.random_1_0_1_1;
     regexBase    = self.regexBase_0_93_2;
@@ -167,7 +167,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
     split        = self.split_0_2_2;
     stm          = self.stm_2_4_2;
     syb          = self.syb_0_4_1;
-    text         = self.text_1_0_0_1;
+    text         = self.text_1_1_0_0;
     transformers = self.transformers_0_3_0_0;   # this has become a core package in GHC 7.7
     unorderedContainers = self.unorderedContainers_0_2_3_3;
     vector       = self.vector_0_10_9_1;
@@ -530,6 +530,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   alsaCore = callPackage ../development/libraries/haskell/alsa-core {};
 
+  alsaMixer = callPackage ../development/libraries/haskell/alsa-mixer {};
+
   alsaPcm = callPackage ../development/libraries/haskell/alsa-pcm {};
 
   amqp = callPackage ../development/libraries/haskell/amqp {};
@@ -566,6 +568,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   attempt = callPackage ../development/libraries/haskell/attempt {};
 
   attoparsec_0_10_4_0 = callPackage ../development/libraries/haskell/attoparsec/0.10.4.0.nix {};
+  attoparsec_0_11_1_0 = callPackage ../development/libraries/haskell/attoparsec/0.11.1.0.nix {};
   attoparsec = self.attoparsec_0_10_4_0;
 
   attoparsecBinary = callPackage ../development/libraries/haskell/attoparsec-binary {};
@@ -1126,6 +1129,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   gloss = callPackage ../development/libraries/haskell/gloss {};
 
   glossAccelerate = callPackage ../development/libraries/haskell/gloss-accelerate {};
+
+  glossRaster = callPackage ../development/libraries/haskell/gloss-raster {};
 
   glossRasterAccelerate = callPackage ../development/libraries/haskell/gloss-raster-accelerate {};
 
@@ -1740,9 +1745,9 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   parsec_3_1_1   = callPackage ../development/libraries/haskell/parsec/3.1.1.nix {};
   parsec_3_1_2   = callPackage ../development/libraries/haskell/parsec/3.1.2.nix {};
   parsec_3_1_3   = callPackage ../development/libraries/haskell/parsec/3.1.3.nix {};
-  parsec_3_1_4   = callPackage ../development/libraries/haskell/parsec/3.1.4.nix {};
+  parsec_3_1_5   = callPackage ../development/libraries/haskell/parsec/3.1.5.nix {};
   parsec2 = self.parsec_2_1_0_1;
-  parsec3 = self.parsec_3_1_4;
+  parsec3 = self.parsec_3_1_5;
   parsec  = self.parsec3;
 
   parsers_0_9 = callPackage ../development/libraries/haskell/parsers/0.9.nix {};
@@ -2217,8 +2222,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   text_0_11_2_0 = callPackage ../development/libraries/haskell/text/0.11.2.0.nix {};
   text_0_11_2_3 = callPackage ../development/libraries/haskell/text/0.11.2.3.nix {};
   text_0_11_3_1 = callPackage ../development/libraries/haskell/text/0.11.3.1.nix {};
-  text_1_0_0_1 = callPackage ../development/libraries/haskell/text/1.0.0.1.nix {};
-  text = self.text_1_0_0_1;
+  text_1_1_0_0 = callPackage ../development/libraries/haskell/text/1.1.0.0.nix {};
+  text = self.text_1_1_0_0;
 
   textFormat = callPackage ../development/libraries/haskell/text-format {};
 
@@ -2611,7 +2616,7 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   };
 
   yi = callPackage ../applications/editors/yi/yi.nix {};
-  
+
   yiContrib = callPackage ../applications/editors/yi/yi-contrib.nix {};
 
   xmobar = callPackage ../applications/misc/xmobar {};

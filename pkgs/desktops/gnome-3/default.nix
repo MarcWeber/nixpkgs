@@ -10,7 +10,7 @@ rec {
 #### Overrides of libraries
 
   librsvg = pkgs.librsvg.override { inherit gtk2; }; # gtk2 mysteriously needed in librsvg for goffice (commented in Gentoo)
-
+  libsoup = pkgs.libsoup_2_44;
 
 #### Core (http://ftp.acc.umu.se/pub/GNOME/core/)
 
@@ -26,12 +26,18 @@ rec {
 
   gcr = callPackage ./core/gcr { }; # ToDo: tests fail
 
+  gdm = callPackage ./core/gdm { };
+
   gnome_icon_theme = callPackage ./core/gnome-icon-theme { };
 
   gnome-menus = callPackage ./core/gnome-menus { };
 
   gnome_keyring = callPackage ./core/gnome-keyring { };
   libgnome_keyring = callPackage ./core/libgnome-keyring { };
+
+  gnome_online_accounts = callPackage ./core/gnome-online-accounts { };
+
+  gnome_session = callPackage ./core/gnome-session { };
 
   gnome_terminal = callPackage ./core/gnome-terminal { };
 
@@ -47,11 +53,19 @@ rec {
 
   libgee = callPackage ./core/libgee { };
 
+  libgxps = callPackage ./core/libgxps { };
+
   libpeas = callPackage ./core/libpeas {};
 
-  libgweather = callPackage ./core/libgweather { libsoup = pkgs.libsoup_2_44; };
+  libqmi = callPackage ./core/libqmi {};
+
+  libgweather = callPackage ./core/libgweather { };
+
+  libzapojit = callPackage ./core/libzapojit { };
 
   nautilus = callPackage ./core/nautilus { };
+
+  rest = callPackage ./core/rest { };
 
   vte = callPackage ./core/vte { };
 
@@ -79,4 +93,5 @@ rec {
   gitg = callPackage ./misc/gitg { };
 
   libgit2-glib = callPackage ./misc/libgit2-glib { automake = pkgs.automake111x; };
+
 }

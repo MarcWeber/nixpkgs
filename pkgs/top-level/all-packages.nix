@@ -685,6 +685,10 @@ let
 
   conspy = callPackage ../os-specific/linux/conspy {};
 
+  connman = callPackage ../tools/networking/connman { };
+
+  connmanui = callPackage ../tools/networking/connmanui { };
+
   convertlit = callPackage ../tools/text/convertlit { };
 
   collectd = callPackage ../tools/system/collectd { };
@@ -801,6 +805,8 @@ let
   dirmngr = callPackage ../tools/security/dirmngr { };
 
   disper = callPackage ../tools/misc/disper { };
+
+  dmd = callPackage ../development/compilers/dmd { };
 
   dmg2img = callPackage ../tools/misc/dmg2img { };
 
@@ -1668,6 +1674,8 @@ let
 
   prey-bash-client = callPackage ../tools/security/prey { };
 
+  projectm = callPackage ../applications/audio/projectm { };
+
   proxychains = callPackage ../tools/networking/proxychains { };
 
   proxytunnel = callPackage ../tools/misc/proxytunnel { };
@@ -1741,6 +1749,8 @@ let
   reptyr = callPackage ../os-specific/linux/reptyr {};
 
   rdiff_backup = callPackage ../tools/backup/rdiff-backup { };
+
+  rdmd = callPackage ../development/compilers/rdmd { };
 
   ripmime = callPackage ../tools/networking/ripmime {};
 
@@ -1865,6 +1875,8 @@ let
     # Boost 1.54 causes the "test_regexranges" test to fail
     boost = boost149;
   };
+
+  spaceFM = callPackage ../applications/misc/spacefm { };
 
   squashfsTools = callPackage ../tools/filesystems/squashfs { };
 
@@ -3256,6 +3268,9 @@ let
   lua5_0 = callPackage ../development/interpreters/lua-5/5.0.3.nix { };
   lua5_1 = callPackage ../development/interpreters/lua-5/5.1.nix { };
   lua5_2 = callPackage ../development/interpreters/lua-5/5.2.nix { };
+  lua5_2_compat = callPackage ../development/interpreters/lua-5/5.2.nix { 
+    compat = true;
+  };
   lua5 = lua5_1;
 
   luarocks = callPackage ../development/tools/misc/luarocks {
@@ -3936,6 +3951,8 @@ let
 
   aalib = callPackage ../development/libraries/aalib { };
 
+  accountservice = callPackage ../development/libraries/accountservice { };
+
   acl = callPackage ../development/libraries/acl { };
 
   activemq = callPackage ../development/libraries/apache-activemq { };
@@ -4401,6 +4418,8 @@ let
   mpfr = callPackage ../development/libraries/mpfr { };
   mpfr_3_1_2 = callPackage ../development/libraries/mpfr/3.1.2.nix { };
 
+  gst_all_1 = recurseIntoAttrs(callPackage ../development/libraries/gstreamer { });
+
   gst_all = {
     inherit (pkgs) gstreamer gnonlin gst_python qt_gstreamer;
     gstPluginsBase = pkgs.gst_plugins_base;
@@ -4410,29 +4429,29 @@ let
     gstFfmpeg = pkgs.gst_ffmpeg;
   };
 
-  gstreamer = callPackage ../development/libraries/gstreamer/gstreamer {};
+  gstreamer = callPackage ../development/libraries/gstreamer/legacy/gstreamer {};
 
-  gst_plugins_base = callPackage ../development/libraries/gstreamer/gst-plugins-base {};
+  gst_plugins_base = callPackage ../development/libraries/gstreamer/legacy/gst-plugins-base {};
 
-  gst_plugins_good = callPackage ../development/libraries/gstreamer/gst-plugins-good {};
+  gst_plugins_good = callPackage ../development/libraries/gstreamer/legacy/gst-plugins-good {};
 
-  gst_plugins_bad = callPackage ../development/libraries/gstreamer/gst-plugins-bad {};
+  gst_plugins_bad = callPackage ../development/libraries/gstreamer/legacy/gst-plugins-bad {};
 
-  gst_plugins_ugly = callPackage ../development/libraries/gstreamer/gst-plugins-ugly {};
+  gst_plugins_ugly = callPackage ../development/libraries/gstreamer/legacy/gst-plugins-ugly {};
 
-  gst_ffmpeg = callPackage ../development/libraries/gstreamer/gst-ffmpeg {
+  gst_ffmpeg = callPackage ../development/libraries/gstreamer/legacy/gst-ffmpeg {
     ffmpeg = ffmpeg_0_10;
   };
 
-  gst_python = callPackage ../development/libraries/gstreamer/gst-python {};
+  gst_python = callPackage ../development/libraries/gstreamer/legacy/gst-python {};
 
-  gnonlin = callPackage ../development/libraries/gstreamer/gnonlin {};
+  gnonlin = callPackage ../development/libraries/gstreamer/legacy/gnonlin {};
 
   gusb = callPackage ../development/libraries/gusb {
     inherit (gnome) gtkdoc;
   };
 
-  qt_gstreamer = callPackage ../development/libraries/gstreamer/qt-gstreamer {};
+  qt_gstreamer = callPackage ../development/libraries/gstreamer/legacy/qt-gstreamer {};
 
   gnet = callPackage ../development/libraries/gnet { };
 
@@ -5727,6 +5746,8 @@ let
     inherit (pythonPackages) pyparsing;
   };
 
+  spice_gtk = callPackage ../development/libraries/spice-gtk { };
+
   spice_protocol = callPackage ../development/libraries/spice-protocol { };
 
   sratom = callPackage ../development/libraries/audio/sratom { };
@@ -6181,9 +6202,9 @@ let
 
   rhpl = callPackage ../development/python-modules/rhpl { };
 
-  sip = callPackage ../development/python-modules/python-sip { };
+  sip = callPackage ../development/python-modules/sip { };
 
-  pyqt4 = callPackage ../development/python-modules/pyqt {
+  pyqt4 = callPackage ../development/python-modules/pyqt/4.x.nix {
     stdenv = if stdenv.isDarwin
       then clangStdenv
       else stdenv;
@@ -8340,6 +8361,8 @@ let
 
   lastwatch = callPackage ../applications/audio/lastwatch { };
 
+  lastfmsubmitd = callPackage ../applications/audio/lastfmsubmitd { };
+
   lbdb = callPackage ../tools/misc/lbdb { };
 
   lci = callPackage ../applications/science/logic/lci {};
@@ -8847,17 +8870,7 @@ let
 
   smartdeblur = callPackage ../applications/graphics/smartdeblur { };
 
-  sndBase = lowPrio (builderDefsPackage (import ../applications/audio/snd) {
-    inherit fetchurl stdenv stringsWithDeps lib fftw;
-    inherit pkgconfig gmp gettext;
-    inherit (xlibs) libXpm libX11;
-    inherit gtk glib;
-  });
-
-  snd = sndBase.passthru.function {
-    inherit mesa libtool jackaudio alsaLib;
-    guile = guile_1_8;
-  };
+  snd = callPackage ../applications/audio/snd { };
 
   shntool = callPackage ../applications/audio/shntool { };
 
@@ -8925,7 +8938,7 @@ let
 
   tahoelafs = callPackage ../tools/networking/p2p/tahoe-lafs {
     inherit (pythonPackages) twisted foolscap simplejson nevow zfec
-      pycryptopp pysqlite darcsver setuptoolsTrial setuptoolsDarcs
+      pycryptopp sqlite3 darcsver setuptoolsTrial setuptoolsDarcs
       numpy pyasn1 mock;
   };
 
@@ -10084,6 +10097,8 @@ let
   msieve = callPackage ../applications/science/math/msieve { };
 
   weka = callPackage ../applications/science/math/weka { };
+
+  yad = callPackage ../tools/misc/yad { };
 
   yacas = callPackage ../applications/science/math/yacas { };
 

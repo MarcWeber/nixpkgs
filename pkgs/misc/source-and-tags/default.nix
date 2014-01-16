@@ -62,7 +62,7 @@ args: with args; {
                     ${if args.stdenv.isLinux then "export LOCALE_ARCHIVE=${args.pkgs.glibcLocales}/lib/locale/locale-archive;" else ""}
  
                     ${toString hasktags}/bin/hasktags --ignore-close-implementation --ctags .
-                    sort tags > \$TAG_FILE
+                    mv tags \$TAG_FILE
                    }";
               }
           ];

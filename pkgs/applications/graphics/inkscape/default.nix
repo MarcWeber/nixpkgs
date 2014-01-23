@@ -30,6 +30,10 @@ versionedDerivation "inkscape" version {
   };
 } {
 
+  postPatch = ''
+    patch -p0 < ${./spuriouscomma.patch}
+  '';
+
   propagatedBuildInputs = [
     # Python is used at run-time to execute scripts, e.g., those from
     # the "Effects" menu.

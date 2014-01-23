@@ -18,7 +18,9 @@ let
 
   cfg = config.services.vsftpd;
 
-  inherit (pkgs) vsftpd;
+  vsftpd = if cfg.rsaCertFile == null
+    then pkgs.vsftpd
+    else (pkgs.vsftpd.override { sslEnable = true; });
 
   yesNoOption = nixosName: vsftpdName: default: description: {
     cfgText = "${vsftpdName}=${if getAttr nixosName cfg then "YES" else "NO"}";

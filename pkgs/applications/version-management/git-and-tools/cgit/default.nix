@@ -1,4 +1,7 @@
-{ stdenv, fetchurl, openssl, zlib, asciidoc, libxml2, libxslt, docbook_xml_xslt }:
+{ stdenv, fetchurl, openssl, zlib, asciidoc, libxml2, libxslt
+, docbook_xml_xslt, pkgconfig, luajit
+, gzip, bzip2, xz
+}:
 
 stdenv.mkDerivation rec {
   name = "cgit-0.10";
@@ -17,7 +20,16 @@ stdenv.mkDerivation rec {
     sha256 = "08vbq8y3jx1da417hkqmrkdkysac1sqjvrjmaj1v56dmkghm43w7";
   };
 
-  buildInputs = [ openssl zlib asciidoc libxml2 libxslt docbook_xml_xslt ];
+  buildInputs = [
+    openssl zlib asciidoc libxml2 libxslt docbook_xml_xslt pkgconfig luajit
+  ];
+
+  postPatch = ''
+    sed -e 's|"gzip"|"${gzip}/bin/gzip"|' \
+        -e 's|"bzip2"|"${bzip2}/bin/bzip2"|' \
+        -e 's|"xz"|"${xz}/bin/xz"|' \
+        -i ui-snapshot.c
+  '';
 
   # Give cgit a git source tree and pass configuration parameters (as make
   # variables).

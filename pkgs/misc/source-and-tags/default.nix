@@ -61,8 +61,8 @@ args: with args; {
                     export LANG=en_US.UTF-8
                     ${if args.stdenv.isLinux then "export LOCALE_ARCHIVE=${args.pkgs.glibcLocales}/lib/locale/locale-archive;" else ""}
  
-                    ${toString hasktags}/bin/hasktags-modified --ignore-close-implementation --ctags . || DISPLAY=:0.0 /home/marc/.nix-profile/bin/urxvt
-                    sort tags > \$TAG_FILE
+                    ${toString hasktags}/bin/hasktags --ignore-close-implementation --ctags .
+                    mv tags \$TAG_FILE
                    }";
               }
           ];

@@ -70,6 +70,7 @@ stdenv.mkDerivation rec {
     "DEVTOOLS_PATH="
     "UNIXCOMMAND_PATH="
     "BOOTDIR=${jdk}"
+    "STATIC_CXX=false"
     "UNLIMITED_CRYPTO=1"
   ];
 

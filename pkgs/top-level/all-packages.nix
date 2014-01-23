@@ -3110,8 +3110,6 @@ let
 
   jmeter = callPackage ../applications/networking/jmeter {};
 
-  kaffe = callPackage ../development/interpreters/kaffe { };
-
   kakoune = callPackage ../applications/editors/kakoune { };
 
   kona = callPackage ../development/interpreters/kona {};

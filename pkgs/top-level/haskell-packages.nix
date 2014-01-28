@@ -548,6 +548,15 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   ariadne = callPackage ../development/libraries/haskell/ariadne {
     Cabal = self.Cabal_1_18_1_2;
+    haskellPackages = self.haskellPackages.override {
+      Cabal = self.Cabal_1_18_1_2;
+    };
+    haskellNames = self.haskellNames.override {
+      Cabal = self.Cabal_1_18_1_2;
+      haskellPackages = self.haskellPackages.override {
+        Cabal = self.Cabal_1_18_1_2;
+      };
+    };
   };
 
   arithmoi = callPackage ../development/libraries/haskell/arithmoi {};
@@ -570,6 +579,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   atomicPrimops = callPackage ../development/libraries/haskell/atomic-primops {};
 
   attempt = callPackage ../development/libraries/haskell/attempt {};
+
+  attoLisp = callPackage ../development/libraries/haskell/atto-lisp {};
 
   attoparsec_0_10_4_0 = callPackage ../development/libraries/haskell/attoparsec/0.10.4.0.nix {};
   attoparsec_0_11_1_0 = callPackage ../development/libraries/haskell/attoparsec/0.11.1.0.nix {};
@@ -613,7 +624,9 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   binary_0_7_1_0 = callPackage ../development/libraries/haskell/binary/0.7.1.0.nix {};
   binary = null;                # core package starting with GHC 7.4.x
 
-  binaryConduit = callPackage ../development/libraries/haskell/binary-conduit {};
+  binaryConduit = callPackage ../development/libraries/haskell/binary-conduit {
+    binary = self.binary_0_7_1_0;
+  };
 
   binaryShared = callPackage ../development/libraries/haskell/binary-shared {};
 
@@ -1023,6 +1036,9 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   executablePath = callPackage ../development/libraries/haskell/executable-path {};
 
+  fay = callPackage ../development/libraries/haskell/fay {};
+  fayBase = callPackage ../development/libraries/haskell/fay-base {};
+
   filepath_1_3_0_0 = callPackage ../development/libraries/haskell/filepath {};
   filepath = null; # a core package in recent GHCs
 
@@ -1333,13 +1349,13 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   hoodleBuilder = callPackage ../development/libraries/haskell/hoodle-builder {};
 
-  hoodleCore = callPackage ../development/libraries/haskell/hoodle-core {}; 
+  hoodleCore = callPackage ../development/libraries/haskell/hoodle-core {};
 
-  hoodleParser = callPackage ../development/libraries/haskell/hoodle-parser {}; 
+  hoodleParser = callPackage ../development/libraries/haskell/hoodle-parser {};
 
-  hoodleRender = callPackage ../development/libraries/haskell/hoodle-render {}; 
+  hoodleRender = callPackage ../development/libraries/haskell/hoodle-render {};
 
-  hoodleTypes = callPackage ../development/libraries/haskell/hoodle-types {}; 
+  hoodleTypes = callPackage ../development/libraries/haskell/hoodle-types {};
 
   hoogle = callPackage ../development/libraries/haskell/hoogle {};
 
@@ -1420,6 +1436,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   hxtRegexXmlschema = callPackage ../development/libraries/haskell/hxt-regex-xmlschema {};
 
   hxtUnicode = callPackage ../development/libraries/haskell/hxt-unicode {};
+
+  iCalendar = callPackage ../development/libraries/haskell/iCalendar {};
 
   idna = callPackage ../development/libraries/haskell/idna {};
 
@@ -1537,7 +1555,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   ListZipper = callPackage ../development/libraries/haskell/ListZipper {};
 
   llvmGeneral = callPackage ../development/libraries/haskell/llvm-general {
-    llvmConfig = pkgs.llvm;
+    # !!! llvm-general pre-release supports 3.4...
+    llvmConfig = pkgs.llvm_33;
   };
 
   llvmGeneralPure = callPackage ../development/libraries/haskell/llvm-general-pure {};
@@ -1571,6 +1590,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   mersenneRandomPure64 = callPackage ../development/libraries/haskell/mersenne-random-pure64 {};
 
   midi = callPackage ../development/libraries/haskell/midi {};
+
+  mime = callPackage ../development/libraries/haskell/mime {};
 
   minimorph = callPackage ../development/libraries/haskell/minimorph {};
 
@@ -1755,6 +1776,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   optparseApplicative = callPackage ../development/libraries/haskell/optparse-applicative {};
 
   pathPieces = callPackage ../development/libraries/haskell/path-pieces {};
+
+  patience = callPackage ../development/libraries/haskell/patience {};
 
   pandoc = callPackage ../development/libraries/haskell/pandoc {};
 
@@ -2158,6 +2181,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   SMTPClient = callPackage ../development/libraries/haskell/SMTPClient {};
 
   socketActivation = callPackage ../development/libraries/haskell/socket-activation {};
+
+  sourcemap = callPackage ../development/libraries/haskell/sourcemap {};
 
   split_0_2_1_1 = callPackage ../development/libraries/haskell/split/0.2.1.1.nix {};
   split_0_2_2 = callPackage ../development/libraries/haskell/split/0.2.2.nix {};

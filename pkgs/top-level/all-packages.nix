@@ -1114,11 +1114,11 @@ let
     inherit (gnome) libsoup;
   };
 
+  gupnp_av = callPackage ../development/libraries/gupnp-av {};
+
   gupnp_igd = callPackage ../development/libraries/gupnp-igd {};
 
-  gupnptools = callPackage ../tools/networking/gupnp-tools {
-    inherit (gnome) libsoup libglade gnomeicontheme;
-  };
+  gupnptools = callPackage ../tools/networking/gupnp-tools {};
 
   gvpe = builderDefsPackage ../tools/networking/gvpe {
     inherit openssl gmp nettools iproute;
@@ -1630,6 +1630,8 @@ let
 
   briss = callPackage ../tools/graphics/briss { };
 
+  bully = callPackage ../tools/networking/bully { };
+
   pdnsd = callPackage ../tools/networking/pdnsd { };
 
   pg_top = callPackage ../tools/misc/pg_top { };
@@ -2078,8 +2080,6 @@ let
   time = callPackage ../tools/misc/time { };
 
   tkabber = callPackage ../applications/networking/instant-messengers/tkabber { };
-
-  tkabber_plugins = callPackage ../applications/networking/instant-messengers/tkabber-plugins { };
 
   qfsm = callPackage ../applications/science/electronics/qfsm { };
 
@@ -2705,6 +2705,7 @@ let
   hiphopvm = callPackage ../development/interpreters/hiphopvm {
     libevent = libevent14;
     boost = boost149;
+    stdenv = overrideGCC stdenv gcc48;
   };
 
   falcon = builderDefsPackage (import ../development/interpreters/falcon) {
@@ -3151,6 +3152,8 @@ let
     compat = true;
   };
   lua5 = lua5_1;
+
+  lua5_sockets = callPackage ../development/interpreters/lua-5/sockets.nix {};
 
   luarocks = callPackage ../development/tools/misc/luarocks {
      lua = lua5;
@@ -3995,6 +3998,10 @@ let
 
   db48 = callPackage ../development/libraries/db4/db4-4.8.nix { };
 
+  db5 = db53;
+
+  db53 = callPackage ../development/libraries/db/db-5.3.nix { };
+
   dbus = callPackage ../development/libraries/dbus { };
   dbus_cplusplus  = callPackage ../development/libraries/dbus-cplusplus { };
   dbus_glib       = callPackage ../development/libraries/dbus-glib { };
@@ -4151,9 +4158,7 @@ let
 
   geoclue = callPackage ../development/libraries/geoclue {};
 
-  geoclue2 = callPackage ../development/libraries/geoclue/2.0.nix {
-    libsoup = libsoup_2_44;
-  };
+  geoclue2 = callPackage ../development/libraries/geoclue/2.0.nix {};
 
   geoip = builderDefsPackage ../development/libraries/geoip {
     inherit zlib;
@@ -4252,6 +4257,8 @@ let
       ;
 
   glm = callPackage ../development/libraries/glm { };
+
+  glog = callPackage ../development/libraries/glog { };
 
   glpk = callPackage ../development/libraries/glpk { };
 
@@ -4618,6 +4625,8 @@ let
 
   inherit (gnome3) libcroco;
 
+  libcangjie = callPackage ../development/libraries/libcangjie { };
+
   libctemplate = callPackage ../development/libraries/libctemplate { };
 
   libcue = callPackage ../development/libraries/libcue { };
@@ -4963,7 +4972,6 @@ let
   libsodium = callPackage ../development/libraries/libsodium { };
 
   libsoup = callPackage ../development/libraries/libsoup { };
-  libsoup_2_44 = callPackage ../development/libraries/libsoup/2.44.nix { };
 
   libssh = callPackage ../development/libraries/libssh { };
 
@@ -5101,6 +5109,8 @@ let
 
   libyamlcpp = callPackage ../development/libraries/libyaml-cpp { };
   libyamlcpp03 = callPackage ../development/libraries/libyaml-cpp/0.3.x.nix { };
+
+  libyubikey = callPackage ../development/libraries/libyubikey {};
 
   libzip = callPackage ../development/libraries/libzip { };
 
@@ -5769,7 +5779,6 @@ let
     };
 
   webkitgtk = callPackage ../development/libraries/webkitgtk {
-    libsoup = libsoup_2_44;
     harfbuzz = harfbuzz.override {
       withIcu = true;
     };
@@ -6137,7 +6146,9 @@ let
 
   dico = callPackage ../servers/dico { };
 
-  dict = callPackage ../servers/dict { };
+  dict = callPackage ../servers/dict {
+      libmaa = callPackage ../servers/dict/libmaa.nix {};
+  };
 
   dictdDBs = recurseIntoAttrs (import ../servers/dict/dictd-db.nix {
     inherit builderDefs;
@@ -6635,11 +6646,6 @@ let
   };
 
   grsecurityOverrider = args: {
-    # Install gcc plugins. These are needed for compiling dependant packages.
-    postInstall = ''
-      ${args.postInstall or ""}
-      cp "tools/gcc/"*.so $out/lib/modules/$version/build/tools/gcc/
-    '';
     # Apparently as of gcc 4.6, gcc-plugin headers (which are needed by PaX plugins)
     # include libgmp headers, so we need these extra tweaks
     buildInputs = args.buildInputs ++ [ gmp ];
@@ -6655,11 +6661,13 @@ let
   # config options you need (e.g. by overriding extraConfig). See list of options here:
   # https://en.wikibooks.org/wiki/Grsecurity/Appendix/Grsecurity_and_PaX_Configuration_Options
   linux_3_2_grsecurity = lowPrio (lib.overrideDerivation (linux_3_2.override (args: {
-    kernelPatches = args.kernelPatches ++ [ kernelPatches.grsecurity_3_0_3_2_53 kernelPatches.grsec_path ];
+    modDirVersion = "${linux_3_2.version}-grsec";
+    kernelPatches = args.kernelPatches ++ [ kernelPatches.grsecurity_3_0_3_2_54 kernelPatches.grsec_path ];
   })) (args: grsecurityOverrider args));
 
   linux_3_12_grsecurity = lowPrio (lib.overrideDerivation (linux_3_12.override (args: {
-    kernelPatches = args.kernelPatches ++ [ kernelPatches.grsecurity_3_0_3_12_2 kernelPatches.grsec_path ];
+    modDirVersion = "${linux_3_12.version}-grsec";
+    kernelPatches = args.kernelPatches ++ [ kernelPatches.grsecurity_3_0_3_12_8 kernelPatches.grsec_path ];
   })) (args: grsecurityOverrider args));
 
   linux_3_2_apparmor = lowPrio (linux_3_2.override {
@@ -6853,7 +6861,7 @@ let
   linuxPackages = linuxPackages_3_10;
 
   # A function to build a manually-configured kernel
-  linuxManualConfig = builtins.trace "linuxManualConfig is now called buildLinux" pkgs.buildLinux;
+  linuxManualConfig = pkgs.buildLinux;
   buildLinux = import ../os-specific/linux/kernel/manual-config.nix {
     inherit (pkgs) stdenv runCommand nettools bc perl kmod writeTextFile ubootChooser;
   };
@@ -7948,11 +7956,11 @@ let
   gimp_2_8 = gimp.override { version = "2.8.x"; };
   gimpGit = gimp.override { version = "git"; };
 
-
   # gimp_2_8 = callPackage ../applications/graphics/gimp/2.8.nix {
   #   inherit (gnome) libart_lgpl;
   #   webkit = null;
   #   lcms = lcms2;
+  #   wrapPython = pythonPackages.wrapPython;
   # };
 
   gimpPlugins = recurseIntoAttrs (import ../applications/graphics/gimp/plugins {
@@ -8112,7 +8120,7 @@ let
 
   hexedit = callPackage ../applications/editors/hexedit { };
 
-  hipchat = callPackage_i686 ../applications/networking/instant-messengers/hipchat { };
+  hipchat = callPackage ../applications/networking/instant-messengers/hipchat { };
 
   homebank = callPackage ../applications/office/homebank { };
 
@@ -8330,6 +8338,8 @@ let
 
   matchbox = callPackage ../applications/window-managers/matchbox { };
 
+  mcpp = callPackage ../development/compilers/mcpp { };
+
   mda_lv2 = callPackage ../applications/audio/mda-lv2 { };
 
   meld = callPackage ../applications/version-management/meld {
@@ -8461,12 +8471,14 @@ let
       withLibdnssdCompat = true;
     };
     jackSupport = config.mumble.jackSupport or false;
+    speechdSupport = config.mumble.speechdSupport or false;
   };
 
   murmur = callPackage ../applications/networking/mumble/murmur.nix {
     avahi = avahi.override {
       withLibdnssdCompat = true;
     };
+    iceSupport = config.murmur.iceSupport or true;
   };
 
   mutt = callPackage ../applications/networking/mailreaders/mutt { };
@@ -8606,7 +8618,7 @@ let
     openssl = if config.pidgin.openssl or true then openssl else null;
     gnutls = if config.pidgin.gnutls or false then gnutls else null;
     libgcrypt = if config.pidgin.gnutls or false then libgcrypt else null;
-    inherit (gnome) startupnotification;
+    startupnotification = libstartup_notification;
   };
 
   pidginlatex = callPackage ../applications/networking/instant-messengers/pidgin-plugins/pidgin-latex {
@@ -9225,6 +9237,8 @@ let
 
   qgis = callPackage ../applications/misc/qgis {};
 
+  ykpers = callPackage ../applications/misc/ykpers {};
+
   yoshimi = callPackage ../applications/audio/yoshimi {
     fltk = fltk13;
   };
@@ -9234,6 +9248,8 @@ let
       import ../applications/misc/zathura { inherit callPackage pkgs fetchurl; });
 
   zathura = zathuraCollection.zathuraWrapper;
+
+  zeroc_ice = callPackage ../development/libraries/zeroc-ice { };
 
   girara = callPackage ../applications/misc/girara {
     gtk = gtk3;
@@ -9826,6 +9842,8 @@ let
 
 
   ### SCIENCE/MATH
+
+  arpack = callPackage ../development/libraries/science/math/arpack { };
 
   atlas = callPackage ../development/libraries/science/math/atlas {
     # The build process measures CPU capabilities and optimizes the

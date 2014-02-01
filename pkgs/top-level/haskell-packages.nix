@@ -522,6 +522,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   abstractPar = callPackage ../development/libraries/haskell/abstract-par {};
 
+  adjunctions = callPackage ../development/libraries/haskell/adjunctions {};
+
   aeson_0_6_2_1 = callPackage ../development/libraries/haskell/aeson/0.6.2.1.nix {};
   aeson_0_7_0_0 = callPackage ../development/libraries/haskell/aeson/0.7.0.0.nix {};
   aeson = self.aeson_0_6_2_1;
@@ -539,6 +541,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   alsaPcm = callPackage ../development/libraries/haskell/alsa-pcm {};
 
   amqp = callPackage ../development/libraries/haskell/amqp {};
+
+  annotatedWlPprint = callPackage ../development/libraries/haskell/annotated-wl-pprint {};
 
   appar = callPackage ../development/libraries/haskell/appar {};
 
@@ -566,6 +570,10 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   assertFailure = callPackage ../development/libraries/haskell/assert-failure {};
 
   asn1Data = callPackage ../development/libraries/haskell/asn1-data {};
+
+  asn1Encoding = callPackage ../development/libraries/haskell/asn1-encoding {};
+
+  asn1Parse = callPackage ../development/libraries/haskell/asn1-parse {};
 
   asn1Types = callPackage ../development/libraries/haskell/asn1-types {};
 
@@ -1884,6 +1892,8 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   ppm = callPackage ../development/libraries/haskell/ppm {};
 
+  pqueue = callPackage ../development/libraries/haskell/pqueue {};
+
   prettyclass = callPackage ../development/libraries/haskell/prettyclass {};
 
   prettyShow_1_2 = callPackage ../development/libraries/haskell/pretty-show/1.2.nix {};
@@ -2324,8 +2334,6 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   tls = callPackage ../development/libraries/haskell/tls {};
 
-  tlsExtra = callPackage ../development/libraries/haskell/tls-extra {};
-
   transformers_0_2_2_0 = callPackage ../development/libraries/haskell/transformers/0.2.2.0.nix {};
   transformers_0_3_0_0 = if (pkgs.stdenv.lib.versionOlder ghc.version "7.7") then
      (callPackage ../development/libraries/haskell/transformers/0.3.0.0.nix {}) else null;
@@ -2502,6 +2510,14 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
 
   wxdirect = callPackage ../development/libraries/haskell/wxHaskell/wxdirect.nix {};
 
+  x509 = callPackage ../development/libraries/haskell/x509 {};
+
+  x509Store = callPackage ../development/libraries/haskell/x509-store {};
+
+  x509System = callPackage ../development/libraries/haskell/x509-system {};
+
+  x509Validation = callPackage ../development/libraries/haskell/x509-validation {};
+
   X11 = callPackage ../development/libraries/haskell/X11 {};
 
   X11Xft = callPackage ../development/libraries/haskell/X11-xft {};
@@ -2559,8 +2575,6 @@ let result = let callPackage = x : y : modifyPrio (newScope result.finalReturn x
   yesodJson = callPackage ../development/libraries/haskell/yesod-json {};
 
   yesodPersistent = callPackage ../development/libraries/haskell/yesod-persistent {};
-
-  yesodPlatform = callPackage ../development/libraries/haskell/yesod-platform {};
 
   yesodRoutes = callPackage ../development/libraries/haskell/yesod-routes {};
 

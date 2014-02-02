@@ -2,8 +2,8 @@
 
 cabal.mkDerivation (self: {
   pname = "cipher-aes128";
-  version = "0.6.1";
-  sha256 = "0alvsz6l3ihjbl2ygml6k117j4z3485d7ny6cjv1cz3by688s76g";
+  version = "0.6.4";
+  sha256 = "093zpw86wimniwmd73g3nnbfy530q52kynccssqf7jxafbsw75aa";
   isLibrary = true;
   isExecutable = true;
   buildDepends = [ cereal cryptoApi tagged ];

@@ -13,8 +13,8 @@
 # See http://thread.gmane.org/gmane.linux.distributions.nixos/4145 for a
 # workaround (TODO)
 
-# The gentoo ebuild contains much more magic..
-# gentoo portage usually is a great resource to find patches :)
+# The gentoo ebuild contains much more magic and is usually a great resource to
+# find patches :)
 
 # http://wiki.cchtml.com/index.php/Main_Page
 
@@ -31,18 +31,17 @@ stdenv.mkDerivation {
   builder = ./builder.sh;
 
   inherit libXxf86vm xf86vidmodeproto;
+  gcc = stdenv.gcc.gcc;
 
   src = fetchurl {
-    url = file:///tmp/amd-catalyst-13.12-linux-x86.x86_64.zip;
-    sha256 = "024033f4847d1c2a182fc44e0b3df29b2d133e24aeaba390f4504a8f3361a0ca";
+    url = http://www2.ati.com/drivers/linux/amd-catalyst-13.12-linux-x86.x86_64.zip;
+    sha256 = "1jm0c4rqyjjhyj8a7axf4hz16bcvy8yhnkn45wc2l73xhks36h02";
+    curlOpts = "--referer http://support.amd.com/en-us/download/desktop?os=Linux%20x86_64";
   };
 
   # most patches are taken from gentoo
   patchPhase = "patch -p1 < ${./gentoo-patches.patch}";
   patchPhaseSamples = "patch -p2 < ${./patch-samples.patch}";
-
-  # they don't build (haven't had time to fix all compilation issues), maybe gentoo has patches
-  BUILD_SAMPLES = true;
 
   buildInputs =
     [ xlibs.libXext xlibs.libX11 xlibs.libXinerama
@@ -67,15 +66,15 @@ stdenv.mkDerivation {
   # without this some applications like blender don't start, but they start
   # with nvidia. This causes them to be symlinked to $out/lib so that they
   # appear in /run/opengl-driver/lib which get's added to LD_LIBRARY_PATH
- extraDRIlibs = [ xorg.libXext ];
+  extraDRIlibs = [ xorg.libXext ];
 
   inherit mesa; # only required to build examples
 
-  meta = {
+  meta = with stdenv.lib; {
     description = "ATI drivers";
     homepage = http://support.amd.com/us/gpudownload/Pages/index.aspx;
-    license = "unfree";
-    maintainers = [stdenv.lib.maintainers.marcweber];
+    license = licenses.unfree;
+    maintainers = with maintainers; [marcweber offline];
     platforms = [ "x86_64-linux" ];
     hydraPlatforms = [];
   };

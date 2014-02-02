@@ -532,6 +532,8 @@ let
 
   bc = callPackage ../tools/misc/bc { };
 
+  bcache-tools = callPackage ../tools/filesystems/bcache-tools { };
+
   bchunk = callPackage ../tools/cd-dvd/bchunk { };
 
   bfr = callPackage ../tools/misc/bfr { };
@@ -2344,7 +2346,8 @@ let
 
   cmucl_binary = callPackage ../development/compilers/cmucl/binary.nix { };
 
-  cython = callPackage ../development/interpreters/cython { };
+  cython = callPackage ../development/interpreters/cython/2 { };
+  cython3 = callPackage ../development/interpreters/cython/3 { };
 
   dylan = callPackage ../development/compilers/gwydion-dylan {
     dylan = callPackage ../development/compilers/gwydion-dylan/binary.nix {  };
@@ -3774,6 +3777,8 @@ let
 
   xc3sprog = callPackage ../development/tools/misc/xc3sprog { };
 
+  xmlindent = callPackage ../development/web/xmlindent {};
+
   xxdiff = callPackage ../development/tools/misc/xxdiff {
     bison = bison2;
   };
@@ -4450,6 +4455,8 @@ let
   iksemel = callPackage ../development/libraries/iksemel { };
 
   ilbc = callPackage ../development/libraries/ilbc { };
+
+  ilixi = callPackage ../development/libraries/ilixi { };
 
   ilmbase = callPackage ../development/libraries/ilmbase { };
 

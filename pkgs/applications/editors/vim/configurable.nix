@@ -10,13 +10,14 @@ composableDerivation {
                    then stdenvAdapters.overrideGCC stdenv gccApple
                    else stdenv ).mkDerivation;
 } (fix: {
+    inherit (args) vimNox;
 
     name = "vim_configurable-7.4.23";
 
     enableParallelBuilding = true; # test this
 
     src = 
-      builtins.getAttr source {
+      builtins.getAttr source (rec {
       "default" =
         # latest release
       args.fetchhg {
@@ -33,7 +34,11 @@ composableDerivation {
             name = "vim-nox-hg-2082fc3";
             # END
           }.src;
-      };
+      "latest" = default;
+         # vim latest usually is vim + bug fixes. So it should be very stable
+         # REGION AUTO UPDATE: { name="vim"; type="hg"; url="https://vim.googlecode.com/hg"; }
+         # END
+    });
 
     # if darwin support is enabled, we want to make sure we're not building with
     # OS-installed python framework
@@ -119,7 +124,6 @@ composableDerivation {
     tclSupport       = config.vim.tcl or false;
     multibyteSupport = config.vim.multibyte or false;
     cscopeSupport    = config.vim.cscope or false;
-    netbeansSupport  = config.netbeans or true; # eg envim is using it
 
     # by default, compile with darwin support if we're compiling on darwin, but
     # allow this to be disabled by setting config.vim.darwin to false
@@ -127,6 +131,7 @@ composableDerivation {
 
     # add .nix filetype detection and minimal syntax highlighting support
     ftNixSupport     = config.vim.ftNix or true;
+    netbeansSupport = config.netbeans or true; # eg envim is using it
   };
 
   #--enable-gui=OPTS     X11 GUI default=auto OPTS=auto/no/gtk/gtk2/gnome/gnome2/motif/athena/neXtaw/photon/carbon
@@ -157,8 +162,8 @@ composableDerivation {
   meta = with stdenv.lib; {
     description = "The most popular clone of the VI editor";
     homepage    = http://www.vim.org;
-    maintainers = with maintainers; [ lovek323 ];
+    maintainers = with maintainers; [ lovek323  marcweber ];
     platforms   = platforms.unix;
   };
-})
 
+})

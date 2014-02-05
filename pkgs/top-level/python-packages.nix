@@ -1418,6 +1418,27 @@ pythonPackages = modules // import ./python-packages-generated.nix {
   };
 
 
+  dpkt = buildPythonPackage rec {
+    name = "dpkt-1.8";
+
+    src = fetchurl {
+      url = "https://dpkt.googlecode.com/files/${name}.tar.gz";
+      sha256 = "01q5prynymaqyfsfi2296xncicdpid2hs3yyasim8iigvkwy4vf5";
+    };
+
+    # error: invalid command 'test'
+    doCheck = false;
+
+    meta = with stdenv.lib; {
+      description = "Fast, simple packet creation / parsing, with definitions for the basic TCP/IP protocols";
+      homepage = https://code.google.com/p/dpkt/;
+      license = licenses.bsd3;
+      maintainers = [ maintainers.bjornfor ];
+      platforms = stdenv.lib.platforms.all;
+    };
+  };
+
+
   evdev = buildPythonPackage rec {
     version = "0.3.2";
     name = "evdev-${version}";
@@ -5401,6 +5422,21 @@ pythonPackages = modules // import ./python-packages-generated.nix {
     };
   };
 
+  pysphere = buildPythonPackage rec {
+    name = "pysphere-0.1.8";
+
+    src = fetchurl {
+      url = "http://pysphere.googlecode.com/files/${name}.zip";
+      md5 = "c57cba33626ac4b1e3d1974923d59232";
+    };
+
+    buildInputs = [ pkgs.unzip ];
+    meta = {
+      homepage    = "https://code.google.com/p/pysphere/";
+      license     = "BSD";
+      description = "Python API for interaction with the VMWare vSphere";
+    };
+  };
 
   pysqlite = buildPythonPackage (rec {
     name = "pysqlite-2.6.3";

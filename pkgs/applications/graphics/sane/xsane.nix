@@ -8,6 +8,8 @@ assert gimpSupport -> gimp_2_8 != null;
 stdenv.mkDerivation rec {
   name = "xsane-0.999";
 
+  enableParallelBuilding = true;
+
   src = fetchurl {
     url = "http://www.xsane.org/download/${name}.tar.gz";
     sha256 = "0jrb918sfb9jw3vmrz0z7np4q55hgsqqffpixs0ir5nwcwzd50jp";

@@ -11,6 +11,8 @@ stdenv.mkDerivation rec {
   version = "1.0.24";
   name = "sane-backends-${version}";
 
+  enableParallelBuilding = true;
+  
   src = fetchurl {
     urls = [
       "http://pkgs.fedoraproject.org/repo/pkgs/sane-backends/sane-backends-1.0.24.tar.gz/1ca68e536cd7c1852322822f5f6ac3a4/${name}.tar.gz"

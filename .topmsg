@@ -1,8 +1,5 @@
-From: Marc Weber <marco-oweber@gmx.de>
-Subject: [PATCH] experimental/marc
+From: Your Name <you@example.com>
+Subject: [PATCH] experimental/mm
 
-top git driven merge of topic branches I use
+MM branch
 
-disable zprofilehack because I have nixos patch multiple shell support
-
-Signed-off-by: Marc Weber <marco-oweber@gmx.de>

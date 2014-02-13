@@ -19,10 +19,9 @@ composableDerivation.composableDerivation {} {
 
   enableParallelBilding = true;
 
-  nativeBuildInputs = [ pkgconfig
-
-  # only required because of patch
-  automake autoconf libtool
+  nativeBuildInputs = [
+    pkgconfig
+    automake autoconf libtool # only required because of patch
   ];
 
   flags =

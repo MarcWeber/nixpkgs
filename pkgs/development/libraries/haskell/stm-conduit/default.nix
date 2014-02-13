@@ -1,19 +1,19 @@
-{ cabal, async, conduit, HUnit, liftedAsync, liftedBase
-, monadControl, monadLoops, QuickCheck, resourcet, stm, stmChans
-, testFramework, testFrameworkHunit, testFrameworkQuickcheck2
-, transformers
+{ cabal, async, cereal, cerealConduit, conduit, HUnit, liftedAsync
+, liftedBase, monadControl, monadLoops, QuickCheck, resourcet, stm
+, stmChans, testFramework, testFrameworkHunit
+, testFrameworkQuickcheck2, transformers
 }:
 
 cabal.mkDerivation (self: {
   pname = "stm-conduit";
-  version = "2.2";
-  sha256 = "14fz8izr8fxi3s78fhz4p5yfdkfcipcfpcj6dn5w0fkcd2hc2a66";
+  version = "2.2.1.1";
+  sha256 = "0rqn6xhqhaqiy0n2g46z58zzccq1i749p97aihrvjpikrz5kypka";
   buildDepends = [
-    async conduit liftedAsync liftedBase monadControl monadLoops
-    resourcet stm stmChans transformers
+    async cereal cerealConduit conduit liftedAsync liftedBase
+    monadControl monadLoops resourcet stm stmChans transformers
   ];
   testDepends = [
-    conduit HUnit QuickCheck stm stmChans testFramework
+    conduit HUnit QuickCheck resourcet stm stmChans testFramework
     testFrameworkHunit testFrameworkQuickcheck2 transformers
   ];
   meta = {

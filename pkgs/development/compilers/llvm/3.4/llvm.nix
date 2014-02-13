@@ -10,6 +10,7 @@
 , valgrind
 , ncurses
 , version
+, zlib
 }:
 
 let
@@ -25,7 +26,9 @@ in stdenv.mkDerivation rec {
     mv compiler-rt-${version} $sourceRoot/projects/compiler-rt
   '';
 
-  buildInputs = [ perl groff cmake libxml2 python libffi valgrind ncurses ];
+  buildInputs = [ perl groff cmake libxml2 python libffi ncurses ] ++ stdenv.lib.optional stdenv.isLinux valgrind;
+
+  propagatedBuildInputs = [ ncurses zlib ];
 
   # hacky fix: created binaries need to be run before installation
   preBuild = ''

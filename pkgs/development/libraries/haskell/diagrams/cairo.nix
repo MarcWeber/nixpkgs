@@ -1,14 +1,14 @@
 { cabal, cairo, colour, dataDefaultClass, diagramsCore, diagramsLib
-, filepath, lens, mtl, split, statestack, time
+, filepath, hashable, lens, mtl, split, statestack, time
 }:
 
 cabal.mkDerivation (self: {
   pname = "diagrams-cairo";
-  version = "1.0";
-  sha256 = "1m549ryfyfjc6sg3xi0wlcpi4c0xj6yfrpjmxgiyl76rwaqns989";
+  version = "1.0.1.1";
+  sha256 = "0mjc24sir0mm1kqhkk26mfbz90kc71hdylral4bjymxs6fpx7crh";
   buildDepends = [
     cairo colour dataDefaultClass diagramsCore diagramsLib filepath
-    lens mtl split statestack time
+    hashable lens mtl split statestack time
   ];
   meta = {
     homepage = "http://projects.haskell.org/diagrams";

@@ -200,6 +200,11 @@ in rec {
 
   );
 
+  iso_matthias_mundelfingen = pkgs.lib.genAttrs systems (system: makeIso {
+    module = ./modules/iso-matthia-lug.nix;
+    type = "minimal";
+    inherit system;
+  });
 
   # Provide a tarball that can be unpacked into an SD card, and easily
   # boot that system from uboot (like for the sheevaplug).

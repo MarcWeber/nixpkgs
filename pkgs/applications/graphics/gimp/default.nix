@@ -136,8 +136,8 @@ let
       sed -i 's@gegl >= 0.1.6@gegl-2.0 >= 0.1.6@' configure
       '';
       # REGION AUTO UPDATE: { name="gimp"; type="git"; url="git://git.gnome.org/gimp"; groups = "gimp_group"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-afa4b.tar.bz2"; sha256 = "fdfaab23f06ac5e0fe6cdb8f4eb12a21298e0e5be6584210b37baf71d35d61a3"; });
-      name = "gimp-git-afa4b";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-6208d.tar.bz2"; sha256 = "04b022cb4e49d3cd3c9ca41e5ae24353f3df96dd6a81ac6f722bb8b856d83c5e"; });
+      name = "gimp-git-6208d";
       # END
 
       passthru = {

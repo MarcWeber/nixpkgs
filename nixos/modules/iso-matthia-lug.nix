@@ -136,7 +136,7 @@ in
       ./profiles/minimal.nix
     ];
 
-  # services.mesa.videoDrivers = [mesa_treiber];
+  services.mesa.videoDrivers = [mesa_treiber];
   services.xserver = {
     enable = true;
     displayManager.kdm.enable = true;
@@ -180,7 +180,7 @@ in
       # pkgs.xlsfonts
       # pkgs.base14Fonts
       ];
-    enableGnostscriptFonts = true;
+    # enableGnostscriptFonts = true;
   };
 
   users.defaultUserShell = "/run/current-system/sw/bin/bash";
@@ -190,24 +190,40 @@ in
     bup.par2Support = true;
   };
 
+  services.virtualbox.host.enable = true;
+
   environment.systemPackages = [
     # graphical:
+    pkgs.parted
+    pkgs.btrfsProgs
+    pkgs.ntfsprogs
+    pkgs.xz
     pkgs.glxinfo
-
+    pkgs.unzip
     pkgs.file
+    pkgs.nano
+    pkgs.smartmontools
     backupHilfe
+    pkgs.acpi
     # backupBupHilfe
+    pkgs.dosfstools
     sshMawercer
+    pkgs.bridge_utils
     pkgs.screen
     pkgs.storeBackup
     # pkgs.bup
+    pkgs.sysstat
+    pkgs.lsof
     sshForward
+    pkgs.cryptsetup
     sonstigesHilfe
 
     pkgs.thunderbird
     pkgs.firefoxWrapper
     pkgs.gimp
+    pkgs.gimpGit
     pkgs.pv
+    pkgs.libreoffice
   ];
 
   services.openssh = {
@@ -228,7 +244,16 @@ in
       ==> hilfe-zugriff-fuer-marc (oder jemand anderes per SSH)
       ==> loadkeys de (Deutsches Tastaturlayout)
 
-      ==> systemctl start display-manager (X-Server xfce starten, treiber ${mesa_treiber}): 
+      ==>
+        # matthias user erstellen um einzuloggen:
+        useradd -m matthias -u 1000
+        # passwort vergeben:
+        passwd matthias
+
+        # X-Server xfce starten, treiber ${mesa_treiber}:
+        systemctl start display-manager
+        # als session (Pfeil xfce) auswaehlen, und einloggen
+
       Firefox, Gimp, Thunderbird sind verfügbar
 
       Erinnerung <tab> Taste ergänzt Befehle

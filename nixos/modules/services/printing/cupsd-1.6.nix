@@ -33,6 +33,8 @@ let
 
   inherit (cfg) cupsPackages;
 
+  gutenprintPackageList = optional (cfg.gutenprintPackage != null) cfg.gutenprintPackage;
+
   additionalBackends = pkgs.runCommand "additional-cups-backends" { }
     ''
       mkdir -p $out
@@ -114,6 +116,15 @@ in
         '';
       };
 
+      gutenprintPackage = mkOption {
+        default = null;
+        description = ''
+          Enable gutenprint by setting this options to config.services.printing.cupsPackages.gutenprint(CVS).
+          Unless this setting is null (default) gutenprint.ppds will be symlinked to /run/current-system/sw/ppds/.
+          When installing a new printer in cupsd web interface select the matching ppd file.
+        '';
+      };
+
       cupsPackages = mkOption {
         # cups is a dependency of quite a lot of packages, same applies to ghostscript
         # So it might be a good idea to allow overriding anything easily
@@ -140,6 +151,7 @@ in
         example = [ config.services.printing.cupsPackages.splix ];
         description = ''
           CUPS drivers (CUPS, gs and samba are added unconditionally).
+          gutenprint see <option>gutenprintPackage</option>
         '';
       };
 
@@ -166,7 +178,7 @@ in
         description = "CUPS printing services";
       };
 
-    environment.systemPackages = [ cupsPackages.cups ];
+    environment.systemPackages = [ cupsPackages.cups ] ++ gutenprintPackageList;
 
     services.dbus.packages = [ cupsPackages.cups ];
 
@@ -203,8 +215,7 @@ in
         cupsPackages.cupsFilters
         # cupsPackages.cups_pdf_filter # does not compile ..
         cupsPackages.ghostscript additionalBackends pkgs.perl pkgs.coreutils pkgs.gnused
-        cupsPackages.gutenprint
-      ];
+      ] ++ gutenprintPackageList;
 
     services.printing.cupsFilesConf =
       ''
@@ -236,7 +247,7 @@ in
     services.printing.cupsdConf =
       ''
         # See AccessLog in cups-files.conf
-        LogLevel info
+        LogLevel debug3
 
         Listen localhost:631
         Listen /var/run/cups/cups.sock

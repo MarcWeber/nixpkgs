@@ -4713,6 +4713,8 @@ let
 
   libelf = callPackage ../development/libraries/libelf { };
 
+  libetpan = callPackage ../development/libgadu/libetpan { };
+
   libgadu = callPackage ../development/libraries/libgadu { };
 
   libgdata = gnome3.libgdata;
@@ -8301,6 +8303,8 @@ let
   };
 
   caps = callPackage ../applications/audio/caps { };
+
+  claws-mail = callPackage ../applications/networking/mailreaders/claws-mail { };
 
   lastwatch = callPackage ../applications/audio/lastwatch { };
 

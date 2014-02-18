@@ -1,6 +1,6 @@
 { pkgs, stdenv } :
 
-let inherit (pkgs) stdenv runCommand perl lib;
+let inherit (pkgs) stdenv runCommand perl lib fetchurl;
 
 in
 
@@ -167,4 +167,30 @@ in
       find . -name "*.o" -exec rm {} \;
     '';
   });
+
+  pathSelector =  stdenv.mkDerivation {
+
+    # REGION AUTO UPDATE: { name="path-selector"; type="git"; url="git@github.com:MarcWeber/path-selector.git"; }
+    src = (fetchurl { url = "http://mawercer.de/~nix/repos/path-selector-git-a9e05.tar.bz2"; sha256 = "6aa4cc15a9d08fc125a8f812d3a7d270ec7f7e0d5d119def1dc8d8bc50426eea"; });
+    name = "path-selector-git-a9e05";
+    # END
+
+    buildInputs = [ pkgs.gnused ];
+    
+    installPhase = ''
+      ensureDir $out/{bin,fpath}
+      cp path-selector.sh $out/bin/path-selector
+      cp -rp fpath $out/
+      chmod +x $out/bin/*
+      sed -i "s@\$HQUICKFILE@$out/bin/path-selector@g" $out/fpath/* 
+    '';
+
+    meta = {
+      description = "DSL like file path finder. Eg C /hy cds into /home/you";
+      homepage = https://github.com/MarcWeber/path-selector;
+      license = "GPLv2";
+      maintainers = [stdenv.lib.maintainers.marcweber];
+      platforms = stdenv.lib.platforms.linux;
+    };
+  };
 }

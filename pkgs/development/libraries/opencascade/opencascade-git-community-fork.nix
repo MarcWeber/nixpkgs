@@ -1,16 +1,38 @@
-{stdenv, fetchurl, mesa, tcl, tk, file, libXmu, makeWrapper
-  ,xorg, zlib, freetype, expat, xlibs, libuuid, fontconfig, jdk
-  ,cmake
-  , ftgl
+{ stdenv, fetchurl, mesa, tcl, tk, file, libXmu, makeWrapper
+, xorg, zlib, freetype, expat, xlibs, libuuid, fontconfig, jdk
+, cmake
+, ftgl
+, versionedDerivation
+, version ? "0.15"
 }:
 
-stdenv.mkDerivation rec {
-  # name = "opencascade-6.3.0";
+versionedDerivation "opencascade" version {
+  "git" = {
+    # latest: (pythonocc cannot be built with it, thus try older releases)
 
-  # REGION AUTO UPDATE: { name="opencascade"; type="git"; url="git://github.com/tpaviot/oce.git"; }
-  src = (fetchurl { url = "http://mawercer.de/~nix/repos/opencascade-git-13965.tar.bz2"; sha256 = "51bba5b4f9140701754d256ac77df1a739a74b5ae71e688952e52b48072adb9d"; });
-  name = "opencascade-git-13965";
-  # END
+    # REGION AUTO UPDATE: { name="opencascade"; type="git"; url="git://github.com/tpaviot/oce.git"; }
+    src = (fetchurl { url = "http://mawercer.de/~nix/repos/opencascade-git-2de15.tar.bz2"; sha256 = "c175981beddb1e8835043ac2488c3b1697254d8f4564be195d911ec781097149"; });
+    name = "opencascade-git-2de15";
+    # END
+  };
+
+  "0.15" = {
+    src = fetchurl {
+      url = https://github.com/tpaviot/oce/archive/OCE-0.15.tar.gz;
+      sha256 = "1lay9lccwdlmv9l0pqpd3l6inkzbdl3jb802jb3nvq1vlvfk4xid";
+    };
+  };
+
+  "0.14" = {
+    src = fetchurl {
+      url = https://github.com/tpaviot/oce/archive/OCE-0.14.tar.gz;
+      sha256 = "042ynf6xxfnwbwhp72m6qy7bji11vsi51zd918i9ph1kz2g5vgqi";
+    };
+  };
+
+}
+{
+  enableParallelBuilding = true; # test this
 
   buildInputs = [
     mesa tcl tk file libXmu 

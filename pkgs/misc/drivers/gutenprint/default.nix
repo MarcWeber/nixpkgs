@@ -1,9 +1,3 @@
-# this package was called gimp-print in the past
-# nixos usage: 
-# 1) cups.bindirCmds : ln -s ${pkgs.gutenprint}/lib/cups/filter/* $out/lib/cups/filter/
-#    or add to cups.driver 
-# 2) generate the PPD for you printer 
-# 3) add it by uploading the PPD in the cups admin interface (worked for me)
 { fetchurl, stdenv, pkgconfig, cups
 , libtiff, libpng, openssl, gimp
 , makeWrapper
@@ -165,26 +159,10 @@ let gutenprint = (stdenv.mkDerivation (lib.mergeAttrsByVersion "gutenprint" vers
 in gutenprint // {
 
   # ppds:  helper generating .ppd files. Looks like gutenprint could also do this
-  #
-  # usage like this:
-  # printing = {
-  #   enable = true;
-  #
-  #   bindirCmds = ''
-  #     echo START
-  #     PATH=$PATH:${pkgs.coreutils}/bin:${pkgs.gnused}/bin
-  #     # find canon (cupsBjnp)
-  #     ln -s ${pkgs.gutenprintCVS}/lib/cups/backend/* $out/lib/cups/backend/
-  #     ln -s ${pkgs.gutenprintCVS}/lib/cups/filter/* $out/lib/cups/filter/
-  #     mkdir -p $out/lib/cups/model
-  #
-  #     cp -a ${pkgs.gutenprintCVS.ppds { names = ["bjc-MULTIPASS-MP800" /* "stp-bjc-MULTIPASS-MP980"*/]; }}/ppds/*.ppd.gz $out/lib/cups/model/
-  #     for x in $out/lib/cups/model/*.ppd.gz; do gunzip $x; done
-  #
-  #     cat ${pkgs.gutenprintCVS.ppds { names = /*["stp-bjc-MULTIPASS-MP980.5.2"]*/ null; }}/ppds/stp-bjc-MULTIPASS-MP980.5.2.ppd.gz | gunzip > $out/lib/cups/model/stp-bjc-MULTIPASS-MP980.4.2.ppd
-  #   '';
-  # }
-  ppds = { names ?  null }:
+  # Usage: see nixos/modules/services/printing/cupsd-1.6.nix (set cupsPackages)
+  # Then in cups management interface select /run/current-system/sw/ppds/* .ppd
+  # file when adding a printer
+  ppds = { names ? null }:
 
     # see man. You can generate some ppd files only
     runCommand  "${gutenprint.name}-ppds" {} ''

@@ -35,6 +35,9 @@ let
 
   gutenprintPackageList = optional (cfg.gutenprintPackage != null) cfg.gutenprintPackage;
 
+  # it would be possible to build only a couple of ppd files - disk is cheap ..
+  gutenprintPackageListAndPPds = optionals (cfg.gutenprintPackage != null) [cfg.gutenprintPackage (cfg.gutenprintPackage.ppds {names = null;})];
+
   additionalBackends = pkgs.runCommand "additional-cups-backends" { }
     ''
       mkdir -p $out
@@ -178,7 +181,7 @@ in
         description = "CUPS printing services";
       };
 
-    environment.systemPackages = [ cupsPackages.cups ] ++ gutenprintPackageList;
+    environment.systemPackages = [ cupsPackages.cups ] ++ gutenprintPackageListAndPPds;
 
     services.dbus.packages = [ cupsPackages.cups ];
 

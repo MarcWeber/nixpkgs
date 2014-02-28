@@ -29,7 +29,9 @@
   ./hardware/network/intel-3945abg.nix
   ./hardware/network/ralink.nix
   ./hardware/network/rtl8192c.nix
+  ./hardware/opengl.nix
   ./hardware/pcmcia.nix
+  ./hardware/video/bumblebee.nix
   ./installer/tools/nixos-checkout.nix
   ./installer/tools/tools.nix
   ./misc/assertions.nix
@@ -80,12 +82,12 @@
   ./services/backup/rsnapshot.nix
   ./services/databases/4store-endpoint.nix
   ./services/databases/4store.nix
+  ./services/databases/couchdb.nix
   ./services/databases/firebird.nix
   ./services/databases/memcached.nix
   ./services/databases/mongodb.nix
   ./services/databases/redis.nix
   ./services/databases/mysql.nix
-  ./services/databases/mysql55.nix
   ./services/databases/openldap.nix
   ./services/databases/postgresql.nix
   ./services/databases/virtuoso.nix
@@ -123,6 +125,7 @@
   ./services/misc/gpsd.nix
   ./services/misc/nix-daemon.nix
   ./services/misc/nix-gc.nix
+  ./services/misc/nix-ssh-serve.nix
   ./services/misc/nixos-manual.nix
   ./services/misc/rogue.nix
   ./services/misc/svnserve.nix
@@ -235,7 +238,6 @@
   ./services/x11/hardware/multitouch.nix
   ./services/x11/hardware/synaptics.nix
   ./services/x11/hardware/wacom.nix
-  ./services/x11/mesa.nix
   ./services/x11/window-managers/awesome.nix
   #./services/x11/window-managers/compiz.nix
   ./services/x11/window-managers/default.nix

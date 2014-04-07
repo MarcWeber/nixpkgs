@@ -1,18 +1,18 @@
-{ cabal, aeson, attoparsec, Cabal, deepseq, filepath, lens
-, QuickCheck, random, systemPosixRedirect, text, time, transformers
+{ cabal, aeson, attoparsec, Cabal, deepseq, filepath, mtl
+, profunctors, QuickCheck, random, systemPosixRedirect, text, time
 , vector, vectorSpace
 }:
 
 cabal.mkDerivation (self: {
   pname = "thyme";
-  version = "0.3.1.0";
-  sha256 = "0dhnsqn6miiqnbpqln2vmkq7cbm8bz5jz1dwc1bif6dwl16fvhm6";
+  version = "0.3.2.0";
+  sha256 = "1jrhqrvmkq8n943l6dkyszg4qz47jbddr80qg7k51a9nrg8fins4";
   buildDepends = [
-    aeson attoparsec deepseq lens QuickCheck random text time
-    transformers vector vectorSpace
+    aeson attoparsec deepseq mtl profunctors QuickCheck random text
+    time vector vectorSpace
   ];
   testDepends = [
-    attoparsec Cabal filepath lens QuickCheck random
+    attoparsec Cabal filepath mtl profunctors QuickCheck random
     systemPosixRedirect text time vectorSpace
   ];
   doCheck = false;

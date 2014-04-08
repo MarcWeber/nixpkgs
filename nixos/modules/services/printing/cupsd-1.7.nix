@@ -29,7 +29,7 @@ with pkgs.lib;
 
 let
 
-  cfg = config.services.printing;
+  cfg = config.services.cupsd_1_7;
 
   inherit (cfg) cupsPackages;
 

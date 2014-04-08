@@ -8,9 +8,11 @@
 
 with stdenv.lib;
 
+assert (!libsOnly) -> kernel != null;
+
 let
 
-  versionNumber = "331.20";
+  versionNumber = "331.49";
 
 in
 
@@ -23,12 +25,12 @@ stdenv.mkDerivation {
     if stdenv.system == "i686-linux" then
       fetchurl {
         url = "http://us.download.nvidia.com/XFree86/Linux-x86/${versionNumber}/NVIDIA-Linux-x86-${versionNumber}.run";
-        sha256 = "0icpmfsppnsvk7vj0fshi3ry4s1wix435s2c8wwak47765fv1mks";
+        sha256 = "00d7bq8cfxk52qd4y226fz8m9m3mjq45fbgr3q7k08jyy9qmswmn";
       }
     else if stdenv.system == "x86_64-linux" then
       fetchurl {
         url = "http://us.download.nvidia.com/XFree86/Linux-x86_64/${versionNumber}/NVIDIA-Linux-x86_64-${versionNumber}-no-compat32.run";
-        sha256 = "02503dis3ngraqv7174a4pay2x08hp697n9q74rpjjclf5k74ax1";
+        sha256 = "0q3lvl1lypi33i847nqz4k3161ackh2n9kgyjn6v2c480f405hfk";
       }
     else throw "nvidia-x11 does not support platform ${stdenv.system}";
 
@@ -49,11 +51,11 @@ stdenv.mkDerivation {
 
   buildInputs = [ perl ];
 
-  meta = {
+  meta = with stdenv.lib.meta; {
     homepage = http://www.nvidia.com/object/unix.html;
     description = "X.org driver and kernel module for NVIDIA graphics cards";
-    license = stdenv.lib.licenses.unfreeRedistributable;
-    platforms = stdenv.lib.platforms.linux;
-    hydraPlatforms = [];
+    license = licenses.unfreeRedistributable;
+    platforms = platforms.linux;
+    maintainers = [ maintainers.vcunat ];
   };
 }

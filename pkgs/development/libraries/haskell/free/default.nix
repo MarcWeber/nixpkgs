@@ -4,8 +4,8 @@
 
 cabal.mkDerivation (self: {
   pname = "free";
-  version = "4.4";
-  sha256 = "19c6zy7gxsd121g1kny9y8rv33gsxv3kfsi37iyn6q0p8r38wbcy";
+  version = "4.6.1";
+  sha256 = "0xmnxp6x7b6pp2ap7jrjhz00cm30v334i9dcxc14d3r070h7l73w";
   buildDepends = [
     bifunctors comonad distributive mtl profunctors semigroupoids
     semigroups transformers

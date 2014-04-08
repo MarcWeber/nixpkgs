@@ -1,9 +1,10 @@
-{ cabal }:
+{ cabal, text }:
 
 cabal.mkDerivation (self: {
   pname = "mime";
-  version = "0.3.4";
-  sha256 = "1klvy32idy6v029p5a6g93r79ac5cycnrx5c8z9bgvplbplpfjwy";
+  version = "0.4.0.1";
+  sha256 = "1m987sqnns54qbsg68332mnrjkh71z6s83cma2kwavf0y305mrp0";
+  buildDepends = [ text ];
   meta = {
     homepage = "https://github.com/GaloisInc/mime";
     description = "Working with MIME types";

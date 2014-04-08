@@ -1,22 +1,22 @@
-{ cabal, base64Bytestring, blazeBuilder, caseInsensitive, cookie
-, dataDefault, deepseq, failure, hspec, httpTypes, monadControl
-, network, publicsuffixlist, text, time, transformers, zlib
-, zlibBindings
+{ cabal, async, base64Bytestring, blazeBuilder, caseInsensitive
+, cookie, dataDefaultClass, deepseq, exceptions, filepath, hspec
+, httpTypes, mimeTypes, monadControl, network, publicsuffixlist
+, random, streamingCommons, text, time, transformers, zlib
 }:
 
 cabal.mkDerivation (self: {
   pname = "http-client";
-  version = "0.2.1.1";
-  sha256 = "03hcwz53sjvw3nv6xbdf24a4ny229ljq3rx89plmsxpjb44qwlq2";
+  version = "0.3.0.2";
+  sha256 = "1r858ml809c21q9q2kv0105y89cizncxym9mf1f0f165aa2hx71m";
   buildDepends = [
-    base64Bytestring blazeBuilder caseInsensitive cookie dataDefault
-    deepseq failure httpTypes network publicsuffixlist text time
-    transformers zlibBindings
+    base64Bytestring blazeBuilder caseInsensitive cookie
+    dataDefaultClass deepseq exceptions filepath httpTypes mimeTypes
+    network publicsuffixlist random streamingCommons text time
+    transformers
   ];
   testDepends = [
-    base64Bytestring blazeBuilder caseInsensitive dataDefault deepseq
-    failure hspec httpTypes monadControl network text time transformers
-    zlib zlibBindings
+    async base64Bytestring blazeBuilder caseInsensitive deepseq hspec
+    httpTypes monadControl network text time transformers zlib
   ];
   doCheck = false;
   meta = {

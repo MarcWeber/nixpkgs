@@ -261,7 +261,7 @@ in {
               # see daemonIdFun etc.
 
               # php version, must support fpm, thus must have a system_fpm_config attr
-              php = pkgs.php5_2fpm.override {};
+              php = pkgs.php5_3fpm.override {};
 
               # optional: append addditional php.ini lines.
 

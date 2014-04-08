@@ -41,6 +41,12 @@ in rec {
       '';
     };
 
+    baseUnit = mkOption {
+      type = types.nullOr types.path;
+      default = null;
+      description = "Path to an upstream unit file on which the NixOS unit configuration will be based.";
+    };
+
     description = mkOption {
       default = "";
       type = types.str;
@@ -135,6 +141,7 @@ in rec {
 
     restartTriggers = mkOption {
       default = [];
+      type = types.listOf types.unspecified;
       description = ''
         An arbitrary list of items such as derivations.  If any item
         in the list changes between reconfigurations, the service will
@@ -307,6 +314,23 @@ in rec {
         <citerefentry><refentrytitle>systemd.timer</refentrytitle>
         <manvolnum>5</manvolnum></citerefentry> and
         <citerefentry><refentrytitle>systemd.time</refentrytitle>
+        <manvolnum>5</manvolnum></citerefentry> for details.
+      '';
+    };
+
+  };
+
+
+  pathOptions = unitOptions // {
+
+    pathConfig = mkOption {
+      default = {};
+      example = { PathChanged = "/some/path"; Unit = "changedpath.service"; };
+      type = types.attrsOf unitOption;
+      description = ''
+        Each attribute in this set specifies an option in the
+        <literal>[Path]</literal> section of the unit.  See
+        <citerefentry><refentrytitle>systemd.path</refentrytitle>
         <manvolnum>5</manvolnum></citerefentry> for details.
       '';
     };

@@ -10,7 +10,7 @@ stdenv.mkDerivation rec {
     sha256 = "1xgqifddwaavmjc8c30i0mdffyirsld7c6qhfyjw7f9khwv8jjw5";
   };
 
-  patches = [ ./purity.patch ./no-pci-db.patch ];
+  patches = [ ./purity.patch ./no-pci-db.patch ./cve-2014-0004.patch ];
 
   postPatch =
     ''
@@ -19,6 +19,11 @@ stdenv.mkDerivation rec {
       substituteInPlace src/main.c --replace \
         "/sbin:/bin:/usr/sbin:/usr/bin" \
         "${utillinux}/bin:${mdadm}/sbin:/var/run/current-system/sw/bin:/var/run/current-system/sw/sbin"
+
+      # For some reason @libexec@ is set to 'lib/' when building.
+      # Passing --libexecdir in configureFlags didn't help.
+      substituteInPlace data/systemd/udisks.service.in \
+        --replace "@libexecdir@" "$out/libexec"
     '';
 
   buildInputs =

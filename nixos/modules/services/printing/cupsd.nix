@@ -166,7 +166,9 @@ in
       };
 
     services.printing.drivers =
-      [ cupsPackages.cups cupsPackages.cups_pdf_filter cupsPackages.ghostscript additionalBackends pkgs.perl pkgs.coreutils pkgs.gnused ];
+      [ pkgs.cups pkgs.cups_pdf_filter pkgs.ghostscript 
+      additionalBackends pkgs.perl pkgs.coreutils pkgs.gnused
+      ];
 
     # Set LogLevel to debug2 to get most useful information
     services.printing.cupsdConf =

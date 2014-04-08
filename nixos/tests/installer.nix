@@ -39,7 +39,7 @@ let
 
       { imports =
           [ ./hardware-configuration.nix
-            "''${modulesPath}/testing/test-instrumentation.nix"
+            <nixpkgs/nixos/modules/testing/test-instrumentation.nix>
           ];
 
         boot.loader.grub.version = ${toString grubVersion};
@@ -48,7 +48,6 @@ let
         ''}
         boot.loader.grub.device = "${grubDevice}";
         boot.loader.grub.extraConfig = "serial; terminal_output.serial";
-        boot.initrd.kernelModules = [ "virtio_console" ];
 
         environment.systemPackages = [ ${optionalString testChannel "pkgs.rlwrap"} ];
       }
@@ -177,7 +176,7 @@ let
       # Test nixos-option.
       $machine->succeed("nixos-option boot.initrd.kernelModules | grep virtio_console");
       $machine->succeed("nixos-option -d boot.initrd.kernelModules | grep 'List of modules'");
-      $machine->succeed("nixos-option -l boot.initrd.kernelModules | grep /etc/nixos/configuration.nix");
+      $machine->succeed("nixos-option -l boot.initrd.kernelModules | grep qemu-guest.nix");
 
       $machine->shutdown;
 
@@ -252,9 +251,9 @@ in {
         ''
           $machine->succeed(
               "parted /dev/vda mklabel msdos",
-              "parted /dev/vda -- mkpart primary 1M 2048M", # first PV
+              "parted /dev/vda -- mkpart primary 1M 2048M", # PV1
               "parted /dev/vda -- set 1 lvm on",
-              "parted /dev/vda -- mkpart primary 2048M -1s", # second PV
+              "parted /dev/vda -- mkpart primary 2048M -1s", # PV2
               "parted /dev/vda -- set 2 lvm on",
               "udevadm settle",
               "pvcreate /dev/vda1 /dev/vda2",

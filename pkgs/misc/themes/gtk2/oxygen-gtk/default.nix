@@ -2,12 +2,12 @@
   cmake, dbus_glib, glib, gtk, gdk_pixbuf, pkgconfig, xorg }:
 
 stdenv.mkDerivation rec {
-  version = "1.4.1";
+  version = "1.4.4";
   name = "oxygen-gtk2-${version}";
 
   src = fetchurl {
     url = "mirror://kde/stable/oxygen-gtk2/${version}/src/${name}.tar.bz2";
-    sha256 = "13vrdlzg8h5gxn04f488f65yfy9m0amqpqdbs9l304yxgm7mkawd";
+    sha256 = "1w3300v7kclpaccvd0wsajgay4mgg2fbbi1nd0zak0p5nn40sqf8";
   };
 
   buildInputs = [ cmake dbus_glib glib gtk gdk_pixbuf
@@ -19,5 +19,6 @@ stdenv.mkDerivation rec {
     homepage = https://projects.kde.org/projects/playground/artwork/oxygen-gtk;
     license = licenses.lgpl2;
     maintainers = [ maintainers.goibhniu ];
+    platforms = platforms.linux;
   };
 }

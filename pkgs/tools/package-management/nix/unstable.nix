@@ -5,11 +5,11 @@
 }:
 
 stdenv.mkDerivation rec {
-  name = "nix-1.7pre3327_0e2ca26";
+  name = "nix-1.7pre3538_4900957";
 
   src = fetchurl {
-    url = "http://hydra.nixos.org/build/8316406/download/5/${name}.tar.xz";
-    sha256 = "52cc082f4ce8ec3c316f032c0201cc76980df2845b15714e71acb2ef7715f1de";
+    url = "http://hydra.nixos.org/build/9862372/download/5/${name}.tar.xz";
+    sha256 = "05l9j892cscf0ig6s0kxkfigzqwrsza4g38a40s87yvd2cr14pxq";
   };
 
   # patches = [

@@ -1,19 +1,22 @@
-{ cabal, basicPrelude, chunkedData, conduit, hspec, monoTraversable
-, primitive, silently, systemFileio, systemFilepath, text
-, transformers, transformersBase, vector
+{ cabal, base16Bytestring, base64Bytestring, chunkedData, conduit
+, conduitExtra, hspec, monadControl, monoTraversable, mwcRandom
+, primitive, resourcet, silently, systemFileio, systemFilepath
+, text, transformers, transformersBase, unixCompat, vector, void
 }:
 
 cabal.mkDerivation (self: {
   pname = "conduit-combinators";
-  version = "0.1.0.0";
-  sha256 = "0m4qfcm66likasvsvfriw8xiz5ibqhq5sk1wiwx0gk2d1qcnb3wx";
+  version = "0.2.4";
+  sha256 = "0pxzvxd1j48l7j2anv61bxv1accl0jc6vdf9vv0l3s2358smzwwv";
   buildDepends = [
-    chunkedData conduit monoTraversable primitive systemFileio
-    systemFilepath text transformers transformersBase vector
+    base16Bytestring base64Bytestring chunkedData conduit conduitExtra
+    monadControl monoTraversable mwcRandom primitive resourcet
+    systemFileio systemFilepath text transformers transformersBase
+    unixCompat vector void
   ];
   testDepends = [
-    basicPrelude chunkedData hspec monoTraversable silently text
-    transformers vector
+    base16Bytestring base64Bytestring chunkedData hspec monoTraversable
+    mwcRandom silently systemFilepath text transformers vector
   ];
   meta = {
     homepage = "https://github.com/fpco/conduit-combinators";

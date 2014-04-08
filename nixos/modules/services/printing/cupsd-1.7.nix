@@ -213,14 +213,14 @@ in
           in "@${cupsPackages.cups}/sbin/cupsd cupsd -f -c ${cupsdConf} -s ${cupsFilesConf}";
       };
 
-    services.printing.drivers =
+    services.cupsd_1_7.drivers =
       [ cupsPackages.cups
         cupsPackages.cupsFilters
         # cupsPackages.cups_pdf_filter # does not compile ..
         cupsPackages.ghostscript additionalBackends pkgs.perl pkgs.coreutils pkgs.gnused
       ] ++ gutenprintPackageList;
 
-    services.printing.cupsFilesConf =
+    services.cupsd_1_7.cupsFilesConf =
       ''
         SystemGroup root
 
@@ -247,7 +247,7 @@ in
       '';
 
     # Set LogLevel to debug2 to get most useful information
-    services.printing.cupsdConf =
+    services.cupsd_1_7.cupsdConf =
       ''
         # See AccessLog in cups-files.conf
         LogLevel debug3

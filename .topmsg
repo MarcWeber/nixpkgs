@@ -1,11 +1,10 @@
 From: Marc Weber <marco-oweber@gmx.de>
 Subject: [PATCH] experimental/cups-1.6-and-1.7
 
-opt-out cups update:
+The new cupsd-1.7.nix adds services.cupsd_1_7.
 
-The new cupsd-1.6.nix file is default, you can still uncomment the old one.
-Both module have a new option "cupsPackages" which is the way to specifiy which
-cups/ghostscript versions to use.
+Both modules cupsd-1.7.nix and cupsd.nix have a new option "cupsPackages" which
+is the way to specifiy which cups/ghostscript versions to use.
 
 1.6.4+ comes with some changes:
 - default filter chain is PDF, gs is only used for gs printers
@@ -19,8 +18,8 @@ Issues:
 - printing test pages does not work yet
 
 fixes:
-- printing on canon-bjc like printers using gutentprint drivers.
-  1.5.4 only prints 30% of page for whatever reason.
+- printing on older canon bjc 4000 or MP980 printer using gutentprint drivers
+  works. 1.5.4 only prints 30% of page for whatever reason.
 
 new packages: ijs, qpdf
 ghostscript: get back the update which got reverted while keeping the old version

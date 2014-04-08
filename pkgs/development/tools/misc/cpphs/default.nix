@@ -1,11 +1,12 @@
-{ cabal }:
+{ cabal, polyparse }:
 
 cabal.mkDerivation (self: {
   pname = "cpphs";
-  version = "1.18.2";
-  sha256 = "0b8hkb2sfacmpi3rwr62myn4kfpwbfdlv9k0vnhk3wvl1v4wf29l";
+  version = "1.18.4";
+  sha256 = "0rmcq66wn7lsc5g1wk6bbsr7jiw8h6bz5cbvdywnv7vmwsx8gh51";
   isLibrary = true;
   isExecutable = true;
+  buildDepends = [ polyparse ];
   meta = {
     homepage = "http://projects.haskell.org/cpphs/";
     description = "A liberalised re-implementation of cpp, the C pre-processor";

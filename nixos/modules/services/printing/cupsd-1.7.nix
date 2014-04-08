@@ -122,7 +122,7 @@ in
       gutenprintPackage = mkOption {
         default = null;
         description = ''
-          Enable gutenprint by setting this options to config.services.printing.cupsPackages.gutenprint(CVS).
+          Enable gutenprint by setting this options to config.services.cupsd_1_7.cupsPackages.gutenprint(CVS).
           Unless this setting is null (default) gutenprint.ppds will be symlinked to /run/current-system/sw/ppds/.
           When installing a new printer in cupsd web interface select the matching ppd file.
         '';
@@ -151,7 +151,7 @@ in
       };
 
       drivers = mkOption {
-        example = [ config.services.printing.cupsPackages.splix ];
+        example = [ cfg.cupsPackages.splix ];
         description = ''
           CUPS drivers (CUPS, gs and samba are added unconditionally).
           gutenprint see <option>gutenprintPackage</option>
@@ -172,7 +172,7 @@ in
 
   ###### implementation
 
-  config = mkIf config.services.printing.enable {
+  config = mkIf cfg.enable {
 
     users.extraUsers = singleton
       { name = "cups";

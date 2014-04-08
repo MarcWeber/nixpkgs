@@ -115,6 +115,20 @@
       nix-ssh = 104;
       dictd = 105;
       couchdb = 106;
+      searx = 107;
+      kippo = 108;
+      jenkins = 109;
+      systemd-journal-gateway = 110;
+      notbit = 111;
+      ngircd = 112;
+      btsync = 113;
+      minecraft = 114;
+      monetdb = 115;
+      rippled = 116;
+      murmur = 117;
+      foundationdb = 118;
+      newrelic = 119;
+      starbound = 120;
 
       # When adding a uid, make sure it doesn't match an existing gid.
 
@@ -208,6 +222,15 @@
       keys = 96;
       dictd = 105;
       couchdb = 106;
+      searx = 107;
+      kippo = 108;
+      jenkins = 109;
+      systemd-journal-gateway = 110;
+      notbit = 111;
+      monetdb = 115;
+      foundationdb = 118;
+      newrelic = 119;
+      starbound = 120;
 
       # When adding a gid, make sure it doesn't match an existing uid.
 

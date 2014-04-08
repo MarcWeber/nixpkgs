@@ -10,7 +10,7 @@
 
 let
 
-  version = "1.9.0";
+  version = "1.9.1";
 
   svn = subversionClient.override { perlBindings = true; };
 
@@ -20,8 +20,8 @@ stdenv.mkDerivation {
   name = "git-${version}";
 
   src = fetchurl {
-    url = "http://git-core.googlecode.com/files/git-${version}.tar.gz";
-    sha256 = "10lq71vrg1zbqm923wb0p36ily6y5x057f2bryk4wqkdqgyrfc6y";
+    url = "https://www.kernel.org/pub/software/scm/git/git-${version}.tar.xz";
+    sha256 = "0yx7qf9hqgfvrliqvk775pw3zh982nx5r16iw7n997q4ik7gnqpr";
   };
 
   patches = [ ./docbook2texi.patch ./symlinks-in-bin.patch ];
@@ -47,8 +47,7 @@ stdenv.mkDerivation {
   postInstall =
     ''
       notSupported() {
-        echo -e "#\!/bin/sh\necho '`basename $1` not supported, $2'\nexit 1" > "$1"
-        chmod +x $1
+        unlink $1 || true
       }
 
       # Install git-subtree.
@@ -94,7 +93,7 @@ stdenv.mkDerivation {
                      --set GITPERLLIB "$gitperllib"   \
                      --prefix PATH : "${svn}/bin" ''
        else '' # replace git-svn by notification script
-        notSupported $out/libexec/git-core/git-svn "reinstall with config git = { svnSupport = true } set"
+        notSupported $out/libexec/git-core/git-svn
        '')
 
    + (if sendEmailSupport then
@@ -106,7 +105,7 @@ stdenv.mkDerivation {
         wrapProgram $out/libexec/git-core/git-send-email \
                      --set GITPERLLIB "$gitperllib" ''
        else '' # replace git-send-email by notification script
-        notSupported $out/libexec/git-core/git-send-email "reinstall with config git = { sendEmailSupport = true } set"
+        notSupported $out/libexec/git-core/git-send-email
        '')
 
    + stdenv.lib.optionalString withManual ''# Install man pages and Info manual
@@ -123,8 +122,7 @@ stdenv.mkDerivation {
      '' else ''
        # Don't wrap Tcl/Tk, replace them by notification scripts
        for prog in bin/gitk libexec/git-core/git-gui; do
-         notSupported "$out/$prog" \
-                      "reinstall with config git = { guiSupport = true; } set"
+         notSupported "$out/$prog"
        done
      '');
 

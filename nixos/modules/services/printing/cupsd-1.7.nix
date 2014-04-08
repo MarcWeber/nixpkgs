@@ -77,7 +77,7 @@ in
   ###### interface
 
   options = {
-    services.printing = {
+    services.cupsd_1_7 = {
 
       enable = mkOption {
         default = false;

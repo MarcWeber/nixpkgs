@@ -3338,8 +3338,6 @@ let
   perl = if system != "i686-cygwin" then perl516 else sysPerl;
 
   php = callPackage ../development/interpreters/php { };
-  php5_2 = php.override { version = "5.2.17"; };
-  php5_2fpm = php5_3.override { version ="5.2.17"; sapi = "fpm"; }; # experimental patch
 
   php5_3 = php.override { version = "5.3.x"; };
   php5_3fpm = php5_3.override { sapi = "fpm"; };
@@ -3355,6 +3353,7 @@ let
   # php_xcache = callPackage ../development/libraries/php-xcache { };
   # phpXdebug = callPackage ../development/interpreters/php-xdebug { };
 
+  # you can also use php5_3.phpPackages.memcached for instance
   phpPackages = import ./php-packages.nix {
     inherit php pkgs;
   };

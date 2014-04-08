@@ -4,15 +4,14 @@ Subject: [PATCH] experimental/multiple-versions-in-one-file
 php nixpkgs:
   PHP: fpm support (including patches for systemd socket activation)
   nixos systemd unit implementation
-  keep old PHP-5.2 working even though its horrible outdated.
 
   make PHP know about /var/setuid-wrappers/sendmail (path is configurable)
 
   keep everything in one file, because most code is the same, eg the code to
   build extensions (apc, xdebug, ..)
 
-  Well - yes - there have been quite a lot of changes in nixpkgs master.
-  I tried to keep my branch up to date.
+  There have been quite a lot of changes in nixpkgs master. I think I merged
+  all changes.
 
 nixos:
   provide php-fpm module which figures out how many php-fpm daemoens to use
@@ -21,7 +20,12 @@ nixos:
   your configuration.
   nixos/modules/services/misc/phpfpm.nix contains a usage example.
 
-  Enabling xdebug is very easy now.
+  Enabling xdebug is very easy now, see example at
+  nixos/modules/services/misc/phpfpm.nix
+
+  replace nixos/modules/services/web-servers/phpfpm.nix
+  by nixos/modules/services/misc/phpfpm.nix
+  because its more powerful
 
 Till this gets merged you can follow the topic branch experimental/php at
 github.com/MarcWeber/nixpkgs.

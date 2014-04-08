@@ -11,20 +11,18 @@ let
   systemd = cfg.package;
 
   makeUnit = name: unit:
-    pkgs.runCommand "unit" { preferLocalBuild = true; inherit (unit) text; }
-      ((if !unit.enable then  ''
-        mkdir -p $out
-        ln -s /dev/null $out/${name}
-      '' else if unit.linkTarget != null then ''
-        mkdir -p $out
-        ln -s ${unit.linkTarget} $out/${name}
-      '' else if unit.text != null then ''
-        mkdir -p $out
-        echo -n "$text" > $out/${name}
-      '' else "") + optionalString (unit.extraConfig != {}) ''
-        mkdir -p $out/${name}.d
-        ${concatStringsSep "\n" (mapAttrsToList (n: v: "echo -n \"${v}\" > $out/${name}.d/${n}") unit.extraConfig)}
-      '');
+    if unit.enable then
+      pkgs.runCommand "unit" { preferLocalBuild = true; inherit (unit) text; }
+        ''
+          mkdir -p $out
+          echo -n "$text" > $out/${name}
+        ''
+    else
+      pkgs.runCommand "unit" { preferLocalBuild = true; }
+        ''
+          mkdir -p $out
+          ln -s /dev/null $out/${name}
+        '';
 
   upstreamUnits =
     [ # Targets.
@@ -132,6 +130,11 @@ let
     ++ optionals cfg.enableEmergencyMode [
       "emergency.target"
       "emergency.service"
+    ]
+
+    ++ optionals config.services.journald.enableHttpGateway [
+      "systemd-journal-gatewayd.socket"
+      "systemd-journal-gatewayd.service"
     ];
 
   upstreamWants =
@@ -151,15 +154,23 @@ let
   unitConfig = { name, config, ... }: {
     config = {
       unitConfig =
-        { Requires = concatStringsSep " " config.requires;
-          Wants = concatStringsSep " " config.wants;
-          After = concatStringsSep " " config.after;
-          Before = concatStringsSep " " config.before;
-          BindsTo = concatStringsSep " " config.bindsTo;
-          PartOf = concatStringsSep " " config.partOf;
-          Conflicts = concatStringsSep " " config.conflicts;
-          "X-Restart-Triggers" = toString config.restartTriggers;
-        } // optionalAttrs (config.description != "") {
+        optionalAttrs (config.requires != [])
+          { Requires = toString config.requires; }
+        // optionalAttrs (config.wants != [])
+          { Wants = toString config.wants; }
+        // optionalAttrs (config.after != [])
+          { After = toString config.after; }
+        // optionalAttrs (config.before != [])
+          { Before = toString config.before; }
+        // optionalAttrs (config.bindsTo != [])
+          { BindsTo = toString config.bindsTo; }
+        // optionalAttrs (config.partOf != [])
+          { PartOf = toString config.partOf; }
+        // optionalAttrs (config.conflicts != [])
+          { Conflicts = toString config.conflicts; }
+        // optionalAttrs (config.restartTriggers != [])
+          { X-Restart-Triggers = toString config.restartTriggers; }
+        // optionalAttrs (config.description != "") {
           Description = config.description;
         };
     };
@@ -167,7 +178,7 @@ let
 
   serviceConfig = { name, config, ... }: {
     config = mkMerge
-      [ { # Default path for systemd services.  Should be quite minimal.
+      [ (mkIf (config.baseUnit == null) { # Default path for systemd services.  Should be quite minimal.
           path =
             [ pkgs.coreutils
               pkgs.findutils
@@ -176,7 +187,7 @@ let
               systemd
             ];
           environment.PATH = config.path;
-        }
+        })
         (mkIf (config.preStart != "")
           { serviceConfig.ExecStartPre = makeJobScript "${name}-pre-start" ''
               #! ${pkgs.stdenv.shell} -e
@@ -244,6 +255,14 @@ let
         (if isList value then value else [value]))
         as));
 
+  commonUnitText = def:
+    optionalString (def.baseUnit != null) ''
+      .include ${def.baseUnit}
+    '' + ''
+      [Unit]
+      ${attrsToSection def.unitConfig}
+    '';
+
   targetToUnit = name: def:
     { inherit (def) wantedBy requiredBy enable;
       text =
@@ -255,11 +274,8 @@ let
 
   serviceToUnit = name: def:
     { inherit (def) wantedBy requiredBy enable;
-      text =
+      text = commonUnitText def +
         ''
-          [Unit]
-          ${attrsToSection def.unitConfig}
-
           [Service]
           ${let env = cfg.globalEnvironment // def.environment;
             in concatMapStrings (n: "Environment=\"${n}=${getAttr n env}\"\n") (attrNames env)}
@@ -271,11 +287,8 @@ let
 
   socketToUnit = name: def:
     { inherit (def) wantedBy requiredBy enable;
-      text =
+      text = commonUnitText def +
         ''
-          [Unit]
-          ${attrsToSection def.unitConfig}
-
           [Socket]
           ${attrsToSection def.socketConfig}
           ${concatStringsSep "\n" (map (s: "ListenStream=${s}") def.listenStreams)}
@@ -284,23 +297,26 @@ let
 
   timerToUnit = name: def:
     { inherit (def) wantedBy requiredBy enable;
-      text =
+      text = commonUnitText def +
         ''
-          [Unit]
-          ${attrsToSection def.unitConfig}
-
           [Timer]
           ${attrsToSection def.timerConfig}
         '';
     };
 
+  pathToUnit = name: def:
+    { inherit (def) wantedBy requiredBy enable;
+      text = commonUnitText def +
+        ''
+          [Path]
+          ${attrsToSection def.pathConfig}
+        '';
+    };
+
   mountToUnit = name: def:
     { inherit (def) wantedBy requiredBy enable;
-      text =
+      text = commonUnitText def +
         ''
-          [Unit]
-          ${attrsToSection def.unitConfig}
-
           [Mount]
           ${attrsToSection def.mountConfig}
         '';
@@ -308,11 +324,8 @@ let
 
   automountToUnit = name: def:
     { inherit (def) wantedBy requiredBy enable;
-      text =
+      text = commonUnitText def +
         ''
-          [Unit]
-          ${attrsToSection def.unitConfig}
-
           [Automount]
           ${attrsToSection def.automountConfig}
         '';
@@ -372,6 +385,10 @@ let
 
       ln -s ../local-fs.target ../remote-fs.target ../network.target ../nss-lookup.target \
             ../nss-user-lookup.target ../swap.target $out/multi-user.target.wants/
+
+      ${ optionalString config.services.journald.enableHttpGateway ''
+      ln -s ../systemd-journal-gatewayd.service $out/multi-user-target.wants/
+      ''}
     ''; # */
 
 in
@@ -423,25 +440,9 @@ in
               internal = true;
               description = "The generated unit.";
             };
-            linkTarget = mkOption {
-              default = null;
-              description = "The file to symlink this target to.";
-              type = types.nullOr types.path;
-            };
-            extraConfig = mkOption {
-              default = {};
-              example = { "foo@1.conf" = "X-RestartIfChanged=false"; };
-              type = types.attrsOf types.lines;
-              description = ''
-                Extra files to be appended to the configuration for the unit.
-                This can be used to override configuration for a unit provided
-                by systemd or another package, or to override only a single instance
-                of a template unit.
-              '';
-            };
           };
           config = {
-            unit = makeUnit name config;
+            unit = mkDefault (makeUnit name config);
           };
         };
     };
@@ -478,6 +479,13 @@ in
       type = types.attrsOf types.optionSet;
       options = [ timerOptions unitConfig ];
       description = "Definition of systemd timer units.";
+    };
+
+    systemd.paths = mkOption {
+      default = {};
+      type = types.attrsOf types.optionSet;
+      options = [ pathOptions unitConfig ];
+      description = "Definition of systemd path units.";
     };
 
     systemd.mounts = mkOption {
@@ -567,6 +575,14 @@ in
       '';
     };
 
+    services.journald.enableHttpGateway = mkOption {
+      default = false;
+      type = types.bool;
+      description = ''
+        Enable journal http gateway
+      '';
+    };
+
     services.logind.extraConfig = mkOption {
       default = "";
       type = types.lines;
@@ -645,8 +661,11 @@ in
       '';
 
     # Target for ‘charon send-keys’ to hook into.
+    users.extraGroups.keys.gid = config.ids.gids.keys;
+
     systemd.targets.keys =
       { description = "Security Keys";
+        unitConfig.X-StopOnReconfiguration = true;
       };
 
     systemd.units =
@@ -654,6 +673,7 @@ in
       // mapAttrs' (n: v: nameValuePair "${n}.service" (serviceToUnit n v)) cfg.services
       // mapAttrs' (n: v: nameValuePair "${n}.socket" (socketToUnit n v)) cfg.sockets
       // mapAttrs' (n: v: nameValuePair "${n}.timer" (timerToUnit n v)) cfg.timers
+      // mapAttrs' (n: v: nameValuePair "${n}.path" (pathToUnit n v)) cfg.paths
       // listToAttrs (map
                    (v: let n = escapeSystemdPath v.where;
                        in nameValuePair "${n}.mount" (mountToUnit n v)) cfg.mounts)
@@ -673,6 +693,8 @@ in
       };
 
     users.extraGroups.systemd-journal.gid = config.ids.gids.systemd-journal;
+    users.extraUsers.systemd-journal-gateway.uid = config.ids.uids.systemd-journal-gateway;
+    users.extraGroups.systemd-journal-gateway.gid = config.ids.gids.systemd-journal-gateway;
 
     # Generate timer units for all services that have a ‘startAt’ value.
     systemd.timers =

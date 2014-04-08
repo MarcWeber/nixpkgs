@@ -25,12 +25,11 @@ assert faacSupport -> faac != null;
 versionedDerivation "ffpmeg" version {
 
   "0.10.10" = rec {
-    name = "ffmpeg-0.10.10";
-  src = fetchurl {
-    url = "http://www.ffmpeg.org/releases/${name}.tar.bz2";
-    sha256 = "14fbjhiwv5zg9yh0zk3k9h6id815xrikyz6l2cdl7z4vazbmhq4k";
-  };
-
+    name = "ffmpeg-0.10.12";
+    src = fetchurl {
+      url = "http://www.ffmpeg.org/releases/${name}.tar.bz2";
+      sha256 = "00nvm3iysn8zincpvv1abqrxqj1ky0322dh2j9csjw983358538i";
+    };
   };
 
   "git" = {

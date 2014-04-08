@@ -1,27 +1,27 @@
 { cabal, attoparsec, base64Bytestring, blazeBuilder, Cabal, conduit
-, dataDefault, fileEmbed, filepath, fsnotify, ghcPaths, httpConduit
-, httpReverseProxy, httpTypes, liftedBase, network, networkConduit
-, optparseApplicative, parsec, projectTemplate, resourcet
-, shakespeare, shakespeareCss, shakespeareJs, shakespeareText
-, split, systemFileio, systemFilepath, tar, text, time
-, transformers, unixCompat, unorderedContainers, wai, warp, yaml
-, zlib
+, conduitExtra, dataDefaultClass, fileEmbed, filepath, fsnotify
+, ghcPaths, httpConduit, httpReverseProxy, httpTypes, liftedBase
+, network, networkConduit, optparseApplicative, parsec
+, projectTemplate, resourcet, shakespeare, shakespeareCss
+, shakespeareJs, shakespeareText, split, streamingCommons
+, systemFileio, systemFilepath, tar, text, time, transformers
+, unixCompat, unorderedContainers, wai, warp, yaml, zlib
 }:
 
 cabal.mkDerivation (self: {
   pname = "yesod-bin";
-  version = "1.2.5.8";
-  sha256 = "1k9afj8f463rs0w9bzxda587jhm1g3fq3l42mabydmg8mx4hbm2c";
+  version = "1.2.7.4";
+  sha256 = "1nhpn8855jhvjmh5fdvjic20lyx6k054kfp8j0lwvdcd79c7bl77";
   isLibrary = false;
   isExecutable = true;
   buildDepends = [
-    attoparsec base64Bytestring blazeBuilder Cabal conduit dataDefault
-    fileEmbed filepath fsnotify ghcPaths httpConduit httpReverseProxy
-    httpTypes liftedBase network networkConduit optparseApplicative
-    parsec projectTemplate resourcet shakespeare shakespeareCss
-    shakespeareJs shakespeareText split systemFileio systemFilepath tar
-    text time transformers unixCompat unorderedContainers wai warp yaml
-    zlib
+    attoparsec base64Bytestring blazeBuilder Cabal conduit conduitExtra
+    dataDefaultClass fileEmbed filepath fsnotify ghcPaths httpConduit
+    httpReverseProxy httpTypes liftedBase network networkConduit
+    optparseApplicative parsec projectTemplate resourcet shakespeare
+    shakespeareCss shakespeareJs shakespeareText split streamingCommons
+    systemFileio systemFilepath tar text time transformers unixCompat
+    unorderedContainers wai warp yaml zlib
   ];
   meta = {
     homepage = "http://www.yesodweb.com/";

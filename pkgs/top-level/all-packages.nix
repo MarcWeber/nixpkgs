@@ -10478,7 +10478,7 @@ let
 
   gutenprint = callPackage ../misc/drivers/gutenprint { };
   gutenprintCVS = callPackage ../misc/drivers/gutenprint { 
-    gimp = gimp_2_6;
+    gimp = gimp_2_8;
     version = "cvs";
   };
 

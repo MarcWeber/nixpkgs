@@ -47,7 +47,6 @@
 
 , idByConfig ? true # if true the php.id value will only depend on php configuration, not on the store path, eg dependencies
 
-, lessThan53 ? builtins.lessThan (builtins.compareVersions version "5.3") 0 # you're not supposed to pass this
 , lessThan54 ? builtins.lessThan (builtins.compareVersions version "5.4") 0
 , lessThan55 ? builtins.lessThan (builtins.compareVersions version "5.5") 0
 
@@ -55,14 +54,6 @@
 }:
 
 /* version specific notes:
-   5.2: no longer maintained - use at your own risk. php-fpm patch requires an
-        /etc/php-fpm-5.2.conf file. fpm support is experimental - also options
-        may no longer build
-
-        Yes - we should discussing removing this version- however you never know when
-        you need it - it still works - and there are customer still running old
-        code ..
-
    5.3, 5.4: maintained officially. Everything which does not work is a bug
 
   Having all versions in one file can be considered "complicated" - but I feel
@@ -86,11 +77,9 @@
 let
 
   true_version = if version == "5.3.x" then "5.3.28"
-  else if version == "5.4.x" then "5.4.23"
-  else if version == "5.5.x" then "5.5.7"
+  else if version == "5.4.x" then "5.4.27"
+  else if version == "5.5.x" then "5.5.11"
   else version;
-
-  libxml2 = if lessThan53 then pkgs.libxml2.override { version = "2.7.8"; } else pkgs.libxml2;
 
   # used to calculate php id based on features
   options = [ /* sapi */ 
@@ -148,7 +137,7 @@ let
 
   buildInputs = [/*flex bison*/ pkgconfig];
 
-  enableParallelBuilding = ! lessThan53; # php 5.2 fails with job server token error (make)
+  enableParallelBuilding = true;
 
   flags = {
 
@@ -165,7 +154,7 @@ let
       };
 
 
-      fpmSystemdSocketActivationPatch = lib.optionalAttrs (fixed.fixed.cfg.fpmSupport && !lessThan53) {
+      fpmSystemdSocketActivationPatch = lib.optionalAttrs (fixed.fixed.cfg.fpmSupport) {
 	preConfigure = ''
 	export NIX_LDFLAGS="$NIX_LDFLAGS `pkg-config --libs libsystemd-daemon`"
 	'';
@@ -231,10 +220,10 @@ let
 
       libxml2 = {
         configureFlags = [
-          "--with-libxml-dir=${libxml2}"
+          "--with-libxml-dir=${pkgs.libxml2}"
           "--with-iconv-dir=${libiconv}"
           ];
-        buildInputs = [ libxml2 ];
+        buildInputs = [ pkgs.libxml2 ];
       };
 
       pcntl = {
@@ -316,11 +305,6 @@ let
           sed -i 's@for i in \$PHP_GETTEXT /usr/local /usr; do@for i in '"$nativeBuildInputs"'; do@' configure
         '';
         buildInputs = [gettext stdenv.glibc /* libintl.h */];
-      };
-
-      fastcgi = {
-        configureFlags = ["--enable-fastcgi"];
-        assertion = lessThan53;
       };
 
       imap = {
@@ -432,46 +416,18 @@ let
   '';
 
   installPhase = ''
-    unset installPhase; installPhase;
-    cp php.ini-${ if lessThan53
-        then "recommended" /* < PHP 5.3 */
-        else "production" /* >= PHP 5.3 */
-    } $iniFile
+    unset installPhase; installPhase
+    cp php.ini-production $iniFile
   '';
 
    src = fetchurl {
      url = "http://de2.php.net/distributions/php-${true_version}.tar.bz2";
      md5 = lib.maybeAttr true_version (throw "unkown php version ${true_version}") {
-      # "5.5.0RC1" = "0b8eaea490888bc7881f60f54798f1cb";
-      # "5.5.5" = "186c330c272d6322d254db9b2d18482a";
-      "5.5.7" = "19d1ca0a58e192bcc133f700c7e78037";
+      "5.5.11" = "c8c9ad960bae0265054b5879423f7a75";
 
-      # does not built, due to patch?
-      # "5.4.5" = "ffcc7f4dcf2b79d667fe0c110e6cb724";
-      # "5.4.7" = "9cd421f1cc8fa8e7f215e44a1b06199f";
-      # "5.4.14" = "cfdc044be2c582991a1fe0967898fa38";
-      # "5.4.15" = "145ea5e845e910443ff1eddb3dbcf56a";
-      # "5.4.19" = "f06f99b9872b503758adab5ba7a7e755";
-      # "5.4.21" = "3dcf021e89b039409d0b1c346b936b5f";
-      # "5.4.22" = "0a7400d1d7f1f55b2b36285bf1a00762";
-      "5.4.23" = "023857598b92ea5c78137543817f4bc5";
+      "5.4.27" = "1c6e99187d25023411b663ea09f145ee";
 
-      # those older versions are likely to be buggy - there should be no reason to compile them
-      # "5.3.3" = "21ceeeb232813c10283a5ca1b4c87b48";
-      # "5.3.6" = "2286f5a82a6e8397955a0025c1c2ad98";
-      # "5.3.14" = "7caac4f71e2f21426c11ac153e538392";
-      # "5.3.15" = "5cfcfd0fa4c4da7576f397073e7993cc";
-      # "5.3.17" = "29ee79c941ee85d6c1555c176f12f7ef";
-      # "5.3.18" = "52539c19d0f261560af3c030143dfa8f";
-      # "5.3.24" = "9820604df98c648297dcd31ffb8214e8";
-      # "5.3.25" = "347625ed7fbf2fe1f1c70b0f879fee2a";
-      # "5.3.27" = "25ae23a5b9615fe8d33de5b63e1bb788";
       "5.3.28" = "56ff88934e068d142d6c0deefd1f396b";
-
-      # 5.2 is no longer supported. However PHP 5.2 -> 5.3 has had many
-      # incompatibilities which is why it may be useful to continue supporting it
-      # You should use 5.3.x if possible
-      "5.2.17" = "b27947f3045220faf16e4d9158cbfe13";
      };
      name = "php-${true_version}.tar.bz2";
    };
@@ -506,10 +462,12 @@ let
     xdebug = callPackage ../../interpreters/php-xdebug { php = php_with_id; };
     xcache = callPackage ../../libraries/php-xcache { php = php_with_id; };
     apc = callPackage ../../libraries/php-apc { php = php_with_id; };
+
+    phpPackages = callPackage ../../../top-level/php-packages.nix { php = php_with_id; };
+
+    # TODO move this into the fpm module?
     system_fpm_config =
           if (sapi == "fpm") then
-              if lessThan53
-              then config: pool: (import ./php-5.2-fpm-system-config.nix) { php = php_with_id; inherit pkgs lib writeText config pool;}
-              else config: pool: (import ./php-5.3-fpm-system-config.nix) { php = php_with_id; inherit pkgs lib writeText config pool;}
+              config: pool: (import ./php-5.3-fpm-system-config.nix) { php = php_with_id; inherit pkgs lib writeText config pool;}
           else throw "php built without fpm support. use php.override { sapi = \"fpm\"; }";
   }

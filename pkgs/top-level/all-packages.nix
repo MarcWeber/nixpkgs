@@ -146,6 +146,7 @@ let
   # Allow callPackage to fill in the pkgs argument
   inherit pkgs;
 
+  inherit applyGlobalOverrides;
 
   # We use `callPackage' to be able to omit function arguments that
   # can be obtained from `pkgs' or `pkgs.xorg' (i.e. `defaultScope').

@@ -587,6 +587,8 @@ let
 
   ccnet = callPackage ../tools/networking/ccnet { };
 
+  capstone = callPackage ../development/libraries/capstone { };
+
   ditaa = callPackage ../tools/graphics/ditaa { };
 
   direnv = callPackage ../tools/misc/direnv { };
@@ -4904,6 +4906,8 @@ let
   libgnome_keyring = callPackage ../development/libraries/libgnome-keyring { };
   libgnome_keyring3 = gnome3.libgnome_keyring;
 
+  libseccomp = callPackage ../development/libraries/libseccomp { };
+
   libsecret = callPackage ../development/libraries/libsecret { };
 
   libgtop = callPackage ../development/libraries/libgtop {};
@@ -6959,7 +6963,7 @@ let
   linux_3_13_grsecurity = lowPrio (lib.addMetaAttrs {
     maintainers = with lib.maintainers; [ wizeman thoughtpolice ];
   } (lib.overrideDerivation (linux_3_13.override (args: {
-    kernelPatches = args.kernelPatches ++ [ kernelPatches.grsecurity_3_0_3_13_8 kernelPatches.grsec_path ];
+    kernelPatches = args.kernelPatches ++ [ kernelPatches.grsecurity_3_0_3_13_9 kernelPatches.grsec_path ];
     argsOverride = {
       modDirVersion = "${linux_3_13.modDirVersion}-grsec";
     };
@@ -7107,8 +7111,6 @@ let
 
     perf = callPackage ../os-specific/linux/kernel/perf.nix { };
 
-    lockdep = callPackage ../os-specific/linux/kernel/lockdep.nix { };
-
     psmouse_alps = callPackage ../os-specific/linux/psmouse-alps { };
 
     spl = callPackage ../os-specific/linux/spl/default.nix { };
@@ -7147,7 +7149,7 @@ let
 
   # The current default kernel / kernel modules.
   linux = linuxPackages.kernel;
-  linuxPackages = linuxPackages_3_10;
+  linuxPackages = linuxPackages_3_12;
 
   # A function to build a manually-configured kernel
   linuxManualConfig = pkgs.buildLinux;
@@ -7172,6 +7174,8 @@ let
   libsmbios = callPackage ../os-specific/linux/libsmbios { };
 
   lm_sensors = callPackage ../os-specific/linux/lm-sensors { };
+
+  lockdep = callPackage ../os-specific/linux/lockdep { };
 
   lsiutil = callPackage ../os-specific/linux/lsiutil { };
 
@@ -7213,6 +7217,8 @@ let
     };
 
   multipath_tools = callPackage ../os-specific/linux/multipath-tools { };
+
+  musl = callPackage ../os-specific/linux/musl { };
 
   nettools = callPackage ../os-specific/linux/net-tools { };
 
@@ -7888,7 +7894,7 @@ let
     inherit (gnome) GConf libglade;
   };
 
-  "dd-agent" = callPackage ../tools/networking/dd-agent { };
+  "dd-agent" = callPackage ../tools/networking/dd-agent { inherit (pythonPackages) tornado; };
 
   dia = callPackage ../applications/graphics/dia {
     inherit (pkgs.gnome) libart_lgpl libgnomeui;
@@ -10345,6 +10351,12 @@ let
   tptp = callPackage ../applications/science/logic/tptp {};
 
   z3 = callPackage ../applications/science/logic/z3 {};
+
+  boolector   = boolector15;
+  boolector15 = callPackage ../applications/science/logic/boolector {};
+  boolector16 = lowPrio (callPackage ../applications/science/logic/boolector {
+    useV16 = true;
+  });
 
   ### SCIENCE / ELECTRONICS
 

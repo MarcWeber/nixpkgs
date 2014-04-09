@@ -9,7 +9,7 @@
   filters have been split into extra package => cupsFilters.
   They build but cause collisions
 
-  TODO: 
+  TODO:
     I've moved all settings to cups-files.conf but didn't check which new
     options exist and should be set.
 
@@ -128,21 +128,15 @@ in
         '';
       };
 
-      cupsPackages = mkOption {
+      cupsPackages =
+        mkOption {
         # cups is a dependency of quite a lot of packages, same applies to ghostscript
         # So it might be a good idea to allow overriding anything easily
         default =
-          let cups = pkgs.cups.override { version = "1.7.x"; }; in
-
-          # include this cups
-          { inherit cups; }
-
-          # and important packages and force version of cups, ghostscript in
-          # the dependency chain
-          // (mapAttrs (name: value: value.deepOverride {
-               inherit cups;
-               ghostscript = pkgs.ghostscriptMainline_9_10;
-             }) { inherit (pkgs) cupsFilters cups_pdf_filter samba splix ghostscript gutenprint gutenprintCVS; });
+          pkgs.applyGlobalOverrides (pkgs: {
+            cups = pkgs.cups.override { version = "1.7.x"; };
+            ghostscript = pkgs.ghostscriptMainline_9_10;
+          });
 
         description = ''
           A attrset containing all cups related derivations to be used to build
@@ -207,7 +201,7 @@ in
           '';
 
         # serviceConfig.Type = "forking";
-        serviceConfig.ExecStart = 
+        serviceConfig.ExecStart =
           let cupsdConf = pkgs.writeText "cupsd.conf" cfg.cupsdConf;
               cupsFilesConf = pkgs.writeText "cups-files.conf" cfg.cupsFilesConf;
           in "@${cupsPackages.cups}/sbin/cupsd cupsd -f -c ${cupsdConf} -s ${cupsFilesConf}";

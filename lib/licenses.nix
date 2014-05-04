@@ -64,6 +64,12 @@
     url = https://fedoraproject.org/wiki/Licensing/BSD;
   };
 
+  cc-by-30 = {
+    shortName = "CC BY 3.0";
+    fullName = "Creative Commons Attribution 3.0";
+    url = http://creativecommons.org/licenses/by/3.0;
+  };
+
   cddl = {
     shortName = "CDDL";
     fullName = "Common Development Distribution License ";
@@ -253,5 +259,23 @@
     shortName = "Sleepycat";
     fullName  = "Sleepycat Public License";
     url       = "https://en.wikipedia.org/wiki/Sleepycat_License";
+  };
+
+  cecill-c = {
+    shortName = "CeCILL-C";
+    fullName  = "CEA CNRS INRIA Logiciel Libre";
+    url       = "http://www.cecill.info/licences.en.html";
+  };
+
+  msrla = {
+    shortName = "MSR-LA";
+    fullName  = "Microsoft Research License Agreement";
+    url       = "http://research.microsoft.com/en-us/projects/pex/msr-la.txt";
+  };
+
+  inria = {
+    shortName = "INRIA-NCLA";
+    fullName  = "INRIA Non-Commercial License Agreement";
+    url       = "http://compcert.inria.fr/doc/LICENSE";
   };
 }

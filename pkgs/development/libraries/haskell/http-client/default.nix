@@ -6,8 +6,8 @@
 
 cabal.mkDerivation (self: {
   pname = "http-client";
-  version = "0.3.0.2";
-  sha256 = "1r858ml809c21q9q2kv0105y89cizncxym9mf1f0f165aa2hx71m";
+  version = "0.3.2.1";
+  sha256 = "1ww88nwgpmjmqmni4lfzlv7z9y2772kd2d3m635mh412ygigsszs";
   buildDepends = [
     base64Bytestring blazeBuilder caseInsensitive cookie
     dataDefaultClass deepseq exceptions filepath httpTypes mimeTypes
@@ -16,7 +16,8 @@ cabal.mkDerivation (self: {
   ];
   testDepends = [
     async base64Bytestring blazeBuilder caseInsensitive deepseq hspec
-    httpTypes monadControl network text time transformers zlib
+    httpTypes monadControl network streamingCommons text time
+    transformers zlib
   ];
   doCheck = false;
   meta = {

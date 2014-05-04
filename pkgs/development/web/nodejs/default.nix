@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, openssl, python, zlib, v8, utillinux, http-parser, c-ares, pkgconfig, runCommand }:
+{ stdenv, fetchurl, openssl, python, zlib, v8, utillinux, http-parser, c-ares, pkgconfig, runCommand, which }:
 
 let
   dtrace = runCommand "dtrace-native" {} ''
@@ -10,8 +10,12 @@ let
 
   # !!! Should we also do shared libuv?
   deps = {
-    inherit v8 openssl zlib http-parser;
+    inherit openssl zlib http-parser;
     cares = c-ares;
+
+    # disabled system v8 because v8 3.14 no longer receives security fixes
+    # we fall back to nodejs' internal v8 copy which receives backports for now
+    # inherit v8
   };
 
   sharedConfigureFlags = name: [
@@ -41,7 +45,7 @@ in stdenv.mkDerivation {
     (cd tools/gyp; patch -Np1 -i ${../../python-modules/gyp/no-darwin-cflags.patch})
   '' else null;
 
-  buildInputs = [ python ]
+  buildInputs = [ python which ]
     ++ (optional stdenv.isLinux utillinux)
     ++ optionals stdenv.isDarwin [ pkgconfig openssl dtrace ];
   setupHook = ./setup-hook.sh;

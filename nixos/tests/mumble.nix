@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+import ./make-test.nix (
 
 let
   client = { config, pkgs, ... }: {
@@ -11,6 +11,7 @@ in
     server = { config, pkgs, ... }: {
       services.murmur.enable       = true;
       services.murmur.registerName = "NixOS tests";
+      networking.firewall.allowedTCPPorts = [ config.services.murmur.port ];
     };
 
     client1 = client;
@@ -51,4 +52,4 @@ in
     $client1->screenshot("screen1");
     $client2->screenshot("screen2");
   '';
-}
+})

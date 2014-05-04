@@ -206,6 +206,10 @@ let self = _self // overrides; _self = with self; {
       url = mirror://cpan/authors/id/P/PI/PIXEL/Archive-Cpio-0.09.tar.gz;
       sha256 = "1cf8k5zjykdbc1mn8lixlkij6jklwn6divzyq2grycj3rpd36g5c";
     };
+    meta = {
+      description = "Module for manipulations of cpio archives";
+      platforms = stdenv.lib.platforms.linux;
+    };
   };
 
   ArchiveZip = buildPerlPackage {
@@ -2305,6 +2309,7 @@ let self = _self // overrides; _self = with self; {
       url = mirror://cpan/authors/id/R/RI/RIBASUSHI/DBIx-Class-0.08250.tar.gz;
       sha256 = "0nsqvj34klc9pf4l5kj3nqkq7agbsn11ys4115100awf7gxjbad6";
     };
+    patches = [ ../development/perl-modules/dbix-class-fix-tests.patch ];
     buildInputs = [ DBDSQLite PackageStash TestException TestWarn TestDeep ];
     propagatedBuildInputs = [ ClassAccessorGrouped ClassC3Componentised ClassInspector ClassMethodModifiers ConfigAny ContextPreserve DataCompare DataDumperConcise DataPage DBI DevelGlobalDestruction HashMerge ModuleFind Moo MROCompat namespaceclean PathClass ScopeGuard SQLAbstract strictures SubName TryTiny ];
     meta = {
@@ -3667,11 +3672,11 @@ let self = _self // overrides; _self = with self; {
     propagatedBuildInputs = [ TestScript ];
   };
 
-  FinanceQuote = buildPerlPackage {
-    name = "Finance-Quote-1.19";
+  FinanceQuote = buildPerlPackage rec {
+    name = "Finance-Quote-1.29";
     src = fetchurl {
-      url = mirror://sourceforge/finance-quote/1.19/Finance-Quote-1.19.tar.gz;
-      sha256 = "0z1dqxw4by7rkwm113qp2mlhl5r0znr22kzinvr1p82svn0zvm2d";
+      url = "mirror://cpan/authors/id/E/EC/ECOCODE/${name}.tar.gz";
+      sha256 = "0rx8whixbhwq2imd3ffx3vcqdgfbjj6y1s01m38b52x3bjn9hw0f";
     };
     propagatedBuildInputs = [ CryptSSLeay HTMLTableExtract HTMLTree HTTPMessage LWP DateCalc JSON ];
     meta = {
@@ -4390,17 +4395,19 @@ let self = _self // overrides; _self = with self; {
     doCheck = false;
   };
 
-  IOSocketSSL = buildPerlPackage rec {
-    name = "IO-Socket-SSL-1.81";
+  IOSocketSSL = buildPerlPackage {
+    name = "IO-Socket-SSL-1.981";
     src = fetchurl {
-      url = "mirror://cpan/modules/by-module/IO/${name}.tar.gz";
-      sha256 = "1vg7jpn7vz3a2j3fxjjkaxiiqg7azqmy7afrpghiqkjcr8b6zs9y";
+      url = mirror://cpan/authors/id/S/SU/SULLR/IO-Socket-SSL-1.981.tar.gz;
+      sha256 = "d78f3aac72888a350962c2da87b2b459513a175d7ac641cb1482bacbb81e76eb";
     };
     propagatedBuildInputs = [ URI NetSSLeay ];
     meta = {
+      homepage = https://github.com/noxxi/p5-io-socket-ssl;
       description = "Nearly transparent SSL encapsulation for IO::Socket::INET";
       license = "perl";
     };
+    doCheck = false; # tries to connect to facebook.com etc.
   };
 
   IOString = buildPerlPackage rec {
@@ -6488,10 +6495,10 @@ let self = _self // overrides; _self = with self; {
   };
 
   PackageStash = buildPerlPackage {
-    name = "Package-Stash-0.36";
+    name = "Package-Stash-0.34";
     src = fetchurl {
-      url = mirror://cpan/authors/id/D/DO/DOY/Package-Stash-0.36.tar.gz;
-      sha256 = "1wbkdkm5gp5cpp84kr9cbbsrg0v908kxrcg4k86mx8ypgj6g8750";
+      url = mirror://cpan/authors/id/D/DO/DOY/Package-Stash-0.34.tar.gz;
+      sha256 = "1674zs96ndq3czs6v8xkdqqz4fnka0i2835nnns9zbw2q01yirj6";
     };
     buildInputs = [ DistCheckConflicts TestFatal TestRequires ];
     propagatedBuildInputs = [ DistCheckConflicts ModuleImplementation PackageDeprecationManager ];

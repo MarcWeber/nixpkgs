@@ -1,26 +1,26 @@
 { cabal, aeson, async, attoparsecConduit, blazeBuilder, blazeHtml
 , blazeMarkup, caseInsensitive, cereal, clientsession, conduit
-, conduitExtra, cookie, dataDefault, fastLogger, hamlet, hspec
-, httpTypes, HUnit, liftedBase, monadControl, monadLogger, mtl
-, network, networkConduit, parsec, pathPieces, QuickCheck, random
-, resourcet, safe, shakespeare, shakespeareCss, shakespeareI18n
-, shakespeareJs, streamingCommons, text, time, transformers
-, transformersBase, unixCompat, vector, wai, waiExtra, waiLogger
-, waiTest, warp, yesodRoutes
+, conduitExtra, cookie, dataDefault, deepseq, exceptions
+, fastLogger, hamlet, hspec, httpTypes, HUnit, liftedBase
+, monadControl, monadLogger, mtl, network, networkConduit, parsec
+, pathPieces, QuickCheck, random, resourcet, safe, shakespeare
+, shakespeareCss, shakespeareI18n, shakespeareJs, streamingCommons
+, text, time, transformers, transformersBase, unixCompat, vector
+, wai, waiExtra, waiLogger, waiTest, warp, yesodRoutes
 }:
 
 cabal.mkDerivation (self: {
   pname = "yesod-core";
-  version = "1.2.11";
-  sha256 = "0vg07g5735qsr01wpgxpjzjc7w9nrqvkhfnd90jzdvg3kg33dgih";
+  version = "1.2.15";
+  sha256 = "06y95hbahrd23wwmprnhwglvg5arj0xw3r6cv3n2h93zrlfsb5b5";
   buildDepends = [
     aeson attoparsecConduit blazeBuilder blazeHtml blazeMarkup
     caseInsensitive cereal clientsession conduit conduitExtra cookie
-    dataDefault fastLogger hamlet httpTypes liftedBase monadControl
-    monadLogger mtl parsec pathPieces random resourcet safe shakespeare
-    shakespeareCss shakespeareI18n shakespeareJs text time transformers
-    transformersBase unixCompat vector wai waiExtra waiLogger warp
-    yesodRoutes
+    dataDefault deepseq exceptions fastLogger hamlet httpTypes
+    liftedBase monadControl monadLogger mtl parsec pathPieces random
+    resourcet safe shakespeare shakespeareCss shakespeareI18n
+    shakespeareJs text time transformers transformersBase unixCompat
+    vector wai waiExtra waiLogger warp yesodRoutes
   ];
   testDepends = [
     async blazeBuilder conduit conduitExtra hamlet hspec httpTypes

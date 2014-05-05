@@ -2,54 +2,54 @@
 {
   icedtea7 = rec {
     branch = "2.4";
-    version = "${branch}.5";
+    version = "${branch}.7";
 
     url = "http://icedtea.wildebeest.org/download/source/icedtea-${version}.tar.xz";
-    sha256 = "0nrhbn2q7cm21hpq1f5ds0v0rnsznmdyiifi8w4l1ykyqw9n9yfk";
+    sha256 = "17a58wcxvg0dd7ka99k819ci6bga2b9l8kp67fq8z3w0yyz76sdn";
 
     hg_url = "http://icedtea.classpath.org/hg/release/icedtea7-forest-${branch}";
 
     bundles = {
       openjdk = rec {
-        changeset = "410eb7fef869";
+        changeset = "13970e76b784";
         url = "${hg_url}/archive/${changeset}.tar.gz";
-        sha256 = "2de151c7275d91ef082e63fcc0957c5f9290404ec6e20ecfa1e752e16bfab707";
+        sha256 = "bcd45546509defc439f42f230c0ca64e8aa6ec00542c3634aab3a4c10be3fe6b";
       };
 
       corba = rec {
-        changeset = "3594dbde270d";
+        changeset = "e6ad5b912691";
         url = "${hg_url}/corba/archive/${changeset}.tar.gz";
-        sha256 = "d1f97e143fe94ae3a56b45bb5a90f8ab10ec2be4ff770a788f0a1ac677e27a7d";
+        sha256 = "cc37272df260d08207c84763d4c39d7807728ba2d5908276b9bc63e925e70674";
       };
 
       jaxp = rec {
-        changeset = "8fe156ad49e2";
+        changeset = "94b7e8e0d96f";
         url = "${hg_url}/jaxp/archive/${changeset}.tar.gz";
-        sha256 = "0a2a40186cedfbeb8f87b0bc86bea2830943943081d4289fc74f7a783b2e1af3";
+        sha256 = "3515cd105c29563bf78432576e658005386f45d7c3b2b7eac7af86cf196aaaea";
       };
 
       jaxws = rec {
-        changeset = "32ea8b1ed91a";
+        changeset = "bd9a50a78d04";
         url = "${hg_url}/jaxws/archive/${changeset}.tar.gz";
-        sha256 = "08a169b6b02883759ec7a412aa91aa3e37480761cb50b95d092dbcdb2fc9a3d0";
+        sha256 = "3e107628080d84a80a78ef0ef9dc3664989291dd17c8bacf031d59fba7bd7f4d";
       };
 
       jdk = rec {
-        changeset = "9db88c18e114";
+        changeset = "9448fff93286";
         url = "${hg_url}/jdk/archive/${changeset}.tar.gz";
-        sha256 = "285e5b8ccbb29f3f9f9ea9ea7856d1ed97465c57d091fbcd9b2e55a1ffbb543e";
+        sha256 = "9222e5317264f20d4a0b8170b4c4d02459cda98333c18e3a75064e7856ff58be";
       };
 
       langtools = rec {
-        changeset = "dabd37b7e295";
+        changeset = "8c26a3c39128";
         url = "${hg_url}/langtools/archive/${changeset}.tar.gz";
-        sha256 = "86cb370ce2084c4b699d8c002ebe6c026e86206ffa82a2f3d7906aadb94ed79f";
+        sha256 = "5af29e32344e2f2fc0beb31f91b8312f2a0d6d02c53b4cb700ee2e27bcf1043b";
       };
 
       hotspot = rec {
-        changeset = "2cb58882dac3";
+        changeset = "69b542696e5b";
         url = "${hg_url}/hotspot/archive/${changeset}.tar.gz";
-        sha256 = "d8c1681ae76e660c1888065933cedbbc1309869c7a2fb98f07c424716d5ebaf9";
+        sha256 = "e3bbed298ed7c77169fdfddc47cdb85c62ef2e5e7ea04ca28aa8779861efca65";
       };
     };
   };

@@ -31,9 +31,9 @@
 # This file contains both: bash specific and and any sh like specific setup
 # (such as shellAliases)
 
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
-with pkgs.lib;
+with lib;
 
 let
   cfg = config.environment.bash;

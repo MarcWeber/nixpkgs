@@ -4,6 +4,7 @@
 , enableLame ? false, lame ? null
 , enableLibmad ? true, libmad ? null
 , enableLibogg ? true, libogg ? null, libvorbis ? null
+, enableLibflac ? true, flac ? null
 }:
 let
   inherit (stdenv.lib) optional optionals;
@@ -20,7 +21,8 @@ in stdenv.mkDerivation rec {
     (optional enableLibao libao) ++
     (optional enableLame lame) ++
     (optional enableLibmad libmad) ++
-    (optionals enableLibogg [ libogg libvorbis ]);
+    (optionals enableLibogg [ libogg libvorbis ]) ++
+    (optionals enableLibflac [ flac ]);
 
   meta = {
     description = "Sample Rate Converter for audio";

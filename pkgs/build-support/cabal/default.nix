@@ -195,7 +195,7 @@ assert !enableStaticLibraries -> versionOlder "7.7" ghc.version;
                 done
               done
 
-              ${optionalString self.enableSharedExecutables ''
+              ${optionalString (self.enableSharedExecutables && self.stdenv.isLinux) ''
                 configureFlags+=" --ghc-option=-optl=-Wl,-rpath=$out/lib/${ghc.ghc.name}/${self.pname}-${self.version}";
               ''}
 

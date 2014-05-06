@@ -5,9 +5,9 @@
 
 # Please read comments at bash.nix, a lot of code is shared
 
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
-with pkgs.lib;
+with lib;
 
 let
 
@@ -251,3 +251,4 @@ in
 
   };
 }
+

@@ -5,9 +5,9 @@
 
 # TODO: implement for ZSH?
 
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
-with pkgs.lib;
+with lib;
 
 let
 

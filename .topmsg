@@ -1,17 +1,8 @@
 From: Marc Weber <marco-oweber@gmx.de>
-Subject: [PATCH] experimental/updates
+Subject: [PATCH] experimental/marc
 
-new packages & stuff which would take too much time to create a new topic
-branch for each
+top git driven merge of topic branches I use
 
-- adding fish shell
-- adding umtsmon
-- adding dhex
-- adding anyterm
-- adding smlnj
-- adding opencascade community fork
-- adding tinyproxy
-- adding ziproxy
-- ffmpeg git
+disable zprofilehack because I have nixos patch multiple shell support
 
 Signed-off-by: Marc Weber <marco-oweber@gmx.de>

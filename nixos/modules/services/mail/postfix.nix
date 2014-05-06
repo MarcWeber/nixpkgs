@@ -1,9 +1,9 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 # TODO: merge with upstream changes
 # TODO: proper types instead of addCheck null ..
 
-with pkgs.lib;
+with lib;
 
 let
 

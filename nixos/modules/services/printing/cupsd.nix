@@ -1,6 +1,6 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
-with pkgs.lib;
+with lib;
 
 let
 
@@ -53,6 +53,15 @@ in
         default = false;
         description = ''
           Whether to enable printing support through the CUPS daemon.
+        '';
+      };
+
+      listenAddresses = mkOption {
+        type = types.listOf types.str;
+        default = [ "127.0.0.1:631" ];
+        example = [ "*:631" ];
+        description = ''
+          A list of addresses and ports on which to listen.
         '';
       };
 
@@ -149,7 +158,8 @@ in
       { description = "CUPS Printing Daemon";
 
         wantedBy = [ "multi-user.target" ];
-        after = [ "network-interfaces.target" ];
+        wants = [ "network.target" ];
+        after = [ "network.target" ];
 
         path = [ cupsPackages.cups ];
 
@@ -166,8 +176,8 @@ in
       };
 
     services.printing.drivers =
-      [ pkgs.cups pkgs.cups_pdf_filter pkgs.ghostscript 
-      additionalBackends pkgs.perl pkgs.coreutils pkgs.gnused
+      [ pkgs.cups pkgs.cups_pdf_filter pkgs.ghostscript additionalBackends
+        pkgs.perl pkgs.coreutils pkgs.gnused pkgs.bc pkgs.gawk pkgs.gnugrep
       ];
 
     # Set LogLevel to debug2 to get most useful information
@@ -177,7 +187,9 @@ in
 
         SystemGroup root wheel
 
-        Listen localhost:631
+        ${concatMapStrings (addr: ''
+          Listen ${addr}
+        '') cfg.listenAddresses}
         Listen /var/run/cups/cups.sock
 
         # Note: we can't use ${cupsPackages.cups}/etc/cups as the ServerRoot, since

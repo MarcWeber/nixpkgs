@@ -86,6 +86,15 @@ in
         '';
       };
 
+      listenAddresses = mkOption {
+        type = types.listOf types.str;
+        default = [ "127.0.0.1:631" ];
+        example = [ "*:631" ];
+        description = ''
+          A list of addresses and ports on which to listen.
+        '';
+      };
+
       bindirCmds = mkOption {
         default = "";
         description = ''
@@ -216,7 +225,12 @@ in
 
     services.cupsd_1_7.cupsFilesConf =
       ''
-        SystemGroup root
+        SystemGroup root wheel
+
+        ${concatMapStrings (addr: ''
+          Listen ${addr}
+        '') cfg.listenAddresses}
+        Listen /var/run/cups/cups.sock
 
         # Note: we can't use ${cupsPackages.cups}/etc/cups as the ServerRoot, since
         # CUPS will write in the ServerRoot when e.g. adding new printers

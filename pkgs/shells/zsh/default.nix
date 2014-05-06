@@ -8,6 +8,7 @@ let
     url = "mirror://sourceforge/zsh/zsh-${version}-doc.tar.bz2";
     sha256 = "1wljqii2lkz5kc4y3xs65isnahvnlj678b9zv31bn444mapjpwp4";
   };
+
   zprofileHackStr = ''
     cat > $out/etc/zprofile <<EOF
     if test -e /etc/NIXOS; then

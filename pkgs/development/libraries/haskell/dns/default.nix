@@ -1,19 +1,18 @@
-{ cabal, attoparsec, attoparsecConduit, binary, blazeBuilder
-, conduit, conduitExtra, doctest, hspec, iproute, mtl, network
-, random, resourcet
+{ cabal, attoparsec, binary, blazeBuilder, conduit, conduitExtra
+, doctest, hspec, iproute, mtl, network, random, resourcet
 }:
 
 cabal.mkDerivation (self: {
   pname = "dns";
-  version = "1.2.2";
-  sha256 = "0xba8bwxn5n3bh1qfbrmnrfsnf20iwa10acx1z4017jbnx0s025v";
+  version = "1.3.0";
+  sha256 = "1zd639d69ha3g1yz7ssvwarwiwyi975ps4i5y8vrarcq2jnnsb6n";
   buildDepends = [
-    attoparsec attoparsecConduit binary blazeBuilder conduit
-    conduitExtra iproute mtl network random resourcet
+    attoparsec binary blazeBuilder conduit conduitExtra iproute mtl
+    network random resourcet
   ];
   testDepends = [
-    attoparsec attoparsecConduit binary blazeBuilder conduit
-    conduitExtra doctest hspec iproute mtl network random resourcet
+    attoparsec binary blazeBuilder conduit conduitExtra doctest hspec
+    iproute mtl network random resourcet
   ];
   testTarget = "spec";
   meta = {

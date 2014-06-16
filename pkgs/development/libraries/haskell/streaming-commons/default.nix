@@ -1,12 +1,14 @@
 { cabal, async, blazeBuilder, deepseq, hspec, network, QuickCheck
-, text, transformers, zlib
+, random, text, transformers, zlib
 }:
 
 cabal.mkDerivation (self: {
   pname = "streaming-commons";
-  version = "0.1.2.1";
-  sha256 = "1skixb3cc47sfnq9w6r1qdw6d78wirrv4llrwikih0w7h0i8aqmx";
-  buildDepends = [ blazeBuilder network text transformers zlib ];
+  version = "0.1.3";
+  sha256 = "0zv309lqmv5bgbmxx5k0zk4iyxwj77lwqcaaycizi7559nzvsrh3";
+  buildDepends = [
+    blazeBuilder network random text transformers zlib
+  ];
   testDepends = [
     async blazeBuilder deepseq hspec network QuickCheck text zlib
   ];

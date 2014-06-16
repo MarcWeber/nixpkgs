@@ -21,8 +21,7 @@ stdenv.mkDerivation rec {
   name = "mutt-${version}";
   
   src = fetchurl {
-    # url = "ftp://ftp.mutt.org/mutt/devel/${name}.tar.gz";
-    url = http://garr.dl.sourceforge.net/project/mutt/mutt/mutt-1.5.23.tar.gz;
+    url = "mirror://sourceforge/mutt/${name}.tar.gz";
     sha256 = "0dzx4qk50pjfsb6cs5jahng96a52k12f7pm0sc78iqdrawg71w1s";
   };
 

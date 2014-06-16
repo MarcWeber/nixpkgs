@@ -1,5 +1,7 @@
 { stdenv, fetchurl, noSysDirs
 , langC ? true, langCC ? true, langFortran ? false
+, langObjC ? stdenv.isDarwin
+, langObjCpp ? stdenv.isDarwin
 , langJava ? false
 , langAda ? false
 , langVhdl ? false
@@ -160,6 +162,7 @@ let version = "4.8.2";
           " --disable-libgomp " +
           " --disable-libquadmath" +
           " --disable-shared" +
+          " --disable-libatomic " +  # libatomic requires libc
           " --disable-decimal-float" # libdecnumber requires libc
           else
           (if crossDarwin then " --with-sysroot=${libcCross}/share/sysroot"
@@ -351,6 +354,8 @@ stdenv.mkDerivation ({
         ++ optional langAda      "ada"
         ++ optional langVhdl     "vhdl"
         ++ optional langGo       "go"
+        ++ optional langObjC     "objc"
+        ++ optional langObjCpp   "obj-c++"
         ++ optionals crossDarwin [ "objc" "obj-c++" ]
         )
       )
@@ -489,7 +494,7 @@ stdenv.mkDerivation ({
     else null;
 
   passthru =
-    { inherit langC langCC langAda langFortran langVhdl langGo enableMultilib version; };
+    { inherit langC langCC langObjC langObjCpp langAda langFortran langVhdl langGo enableMultilib version; };
 
   inherit enableParallelBuilding;
 

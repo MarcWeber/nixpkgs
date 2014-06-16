@@ -2,12 +2,13 @@
 , xz, pam, acl, cryptsetup, libuuid, m4, utillinux
 , glib, kbd, libxslt, coreutils, libgcrypt, sysvtools, docbook_xsl
 , kexectools, libmicrohttpd, linuxHeaders
-, python ? null, pythonSupport ? false
+, pythonPackages ? null, pythonSupport ? false
+, autoreconfHook
 }:
 
 assert stdenv.isLinux;
 
-assert pythonSupport -> python != null;
+assert pythonSupport -> pythonPackages != null;
 
 stdenv.mkDerivation rec {
   version = "212";
@@ -28,7 +29,8 @@ stdenv.mkDerivation rec {
     [ pkgconfig intltool gperf libcap kmod xz pam acl
       /* cryptsetup */ libuuid m4 glib libxslt libgcrypt docbook_xsl
       libmicrohttpd linuxHeaders
-    ] ++ stdenv.lib.optional pythonSupport python;
+      autoreconfHook
+    ] ++ stdenv.lib.optionals pythonSupport [pythonPackages.python pythonPackages.lxml];
 
   configureFlags =
     [ "--localstatedir=/var"

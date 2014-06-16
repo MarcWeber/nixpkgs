@@ -2,12 +2,12 @@
   m4, glib_networking, gsettings_desktop_schemas }:
 
 stdenv.mkDerivation {
-  name = "dwb-2014-04-20";
+  name = "dwb-2014-06-03";
 
   src = fetchgit {
     url = "https://bitbucket.org/portix/dwb.git";
-    rev = "117a6a8cdb84b30b0c084dee531b650664d09ba2";
-    sha256 = "1k1nax3ij64b2hbn9paqj128yyzy41b61xd2m1ayq9y17k9als0b";
+    rev = "d00af56c1e60978060f1b2077f3d49995b98c54f";
+    sha256 = "02bs9nbgk8ghaxywhqd8mii4lik748dssn551m00i1305p6q1cjj";
   };
 
   buildInputs = [ pkgconfig makeWrapper gsettings_desktop_schemas libsoup webkit gtk3 gnutls json_c m4 ];

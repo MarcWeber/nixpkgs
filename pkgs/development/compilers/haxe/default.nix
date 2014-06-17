@@ -74,4 +74,3 @@ versionedDerivation "haxe" version
     platforms = stdenv.lib.platforms.linux;
   };
 }
-

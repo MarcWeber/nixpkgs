@@ -5,13 +5,14 @@
 stdenv.mkDerivation ( stdenv.lib.mergeAttrsByVersion "urweb" version {
     "20130421" = rec {
       pname = "urweb";
-      version = "20130421";
+      version = "20140531";
       name = "${pname}-${version}";
 
       src = fetchurl {
         url = "http://www.impredicative.com/ur/${name}.tgz";
-        sha256 = "1dglcial9bzximw778wbfqx99khy34qpf9gw4bbncn9f742ji872";
+        sha256 = "0gbk16hzs8267cfhb7w1cqgjxdv2icxg5clxdbda6qsn84jaf3n4";
       };
+
     };
     "hg" = {
       # REGION AUTO UPDATE: { name="urweb"; type="hg"; url="http://hg.impredicative.com/urweb"; }

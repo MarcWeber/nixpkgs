@@ -26,8 +26,8 @@ let
 
   syslog-ext = fetchgit {
     url = https://github.com/yaoweibin/nginx_syslog_patch.git;
-    rev = "690a054a0e440323bba58ed3be12d705d3fb9cf2";
-    sha256 = "0678bc2960dfa31adfc2997c079947c32dde28d6785ee423fa7f5badbb925fbe";
+    rev = "3ca5ba65541637f74467038aa032e2586321d0cb";
+    sha256 = "15z9r17lx42fdcw8lalddc86wpabgmc1rqi7f90v4mcirjzrpgyi";
   };
 
   moreheaders-ext = fetchgit {
@@ -45,7 +45,7 @@ stdenv.mkDerivation rec {
     [ openssl zlib pcre libxml2 libxslt gd geoip
     ] ++ stdenv.lib.optional fullWebDAV expat;
 
-  patches = if syslog then [ "${syslog-ext}/syslog_1.5.6.patch" ] else [];
+  patches = if syslog then [ "${syslog-ext}/syslog-1.5.6.patch" ] else [];
 
   configureFlags = [
     "--with-http_ssl_module"
@@ -74,8 +74,10 @@ stdenv.mkDerivation rec {
     ++ stdenv.lib.optional syslog "--add-module=${syslog-ext}"
     ++ stdenv.lib.optional moreheaders "--add-module=${moreheaders-ext}";
 
+  additionalFlags = stdenv.lib.optionalString stdenv.isDarwin "-Wno-error=deprecated-declarations";
+
   preConfigure = ''
-    export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -I${libxml2}/include/libxml2"
+    export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -I${libxml2}/include/libxml2 $additionalFlags"
   '';
 
   postInstall = ''

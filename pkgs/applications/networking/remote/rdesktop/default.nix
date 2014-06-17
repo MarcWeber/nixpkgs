@@ -1,24 +1,67 @@
-{stdenv, fetchurl, openssl, libX11} :
+{stdenv, fetchurl, openssl, libX11, versionedDerivation
 
-stdenv.mkDerivation (rec {
-  pname = "rdesktop";
-  version = "1.8.1";
-  name = "${pname}-${version}";
+, automake, autoconf, libtool
+, version ? "1.7.1"
+}:
 
-  src = fetchurl {
-    url = "mirror://sourceforge/${pname}/${name}.tar.gz";
-    sha256 = "0il248cdsxvwjsl4bswf27ld9r1a7d48jf6bycr86kf3i55q7k3n";
+
+versionedDerivation "rdesktop" version {
+  "1.7.1" = rec {
+    # connects to virtualbox
+    configureFlags = [ "--with-openssl=${openssl}" ];
+    pname = "rdesktop";
+    version = "1.7.1";
+    name = "${pname}-${version}";
+    src = fetchurl {
+      url = "mirror://sourceforge/${pname}/${name}.tar.gz";
+      sha256 = "0yc4xz95w40m8ailpjgqp9h7bkc758vp0dlq4nj1pvr3xfnl7sni";
+    };
+  };
+  "1.8.1" = rec {
+    # + fixed some copy paste for viric
+    # - does not connect to virtualbox
+    #   (http://www.pclinuxos.com/forum/index.php?topic=124711.0 talks about
+    #   virtualbox containing a rdesktop-vrdp
+    #  http://sourceforge.net/p/rdesktop/bugs/369/ could be related
+    pname = "rdesktop";
+    version = "1.8.1";
+    name = "${pname}-${version}";
+
+    src = fetchurl {
+      url = "mirror://sourceforge/${pname}/${name}.tar.gz";
+      sha256 = "0il248cdsxvwjsl4bswf27ld9r1a7d48jf6bycr86kf3i55q7k3n";
+    };
+
+    configureFlags = [
+      "--with-openssl=${openssl}"
+      "--disable-credssp"
+      "--disable-smartcard"
+    ];
   };
 
-  buildInputs = [openssl libX11];
+  # "svn" = {
+  # does not fix it
+  #   # REGION AUTO UPDATE: { name="rdesktop"; type="svn"; url="svn://svn.code.sf.net/p/rdesktop/code/rdesktop/trunk"; }
+  #   src = (fetchurl { url = "http://mawercer.de/~nix/repos/rdesktop-svn-1789.tar.bz2"; sha256 = "2db48c0ea5a6122e29f5d32af9045c9f1cc76eb7033ef4035a2296f2254c8b9a"; });
+  #   name = "rdesktop-svn-1789";
+  #   # END
 
-  configureFlags = [
-    "--with-openssl=${openssl}"
-    "--disable-credssp"
-    "--disable-smartcard"
-  ];
+  #   buildInputs = [ automake autoconf libtool ];
+
+  #   preConfigure = "sh bootstrap";
+
+  #   configureFlags = [
+  #     "--with-openssl=${openssl}"
+  #     "--disable-credssp"
+  #     "--disable-smartcard"
+  #   ];
+  # };
+
+} {
+
+  buildInputs = [openssl libX11];
 
   meta = {
     description = "rdesktop is an open source client for Windows Terminal Services";
   };
-})
+}

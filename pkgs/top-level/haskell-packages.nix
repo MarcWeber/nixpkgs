@@ -288,6 +288,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   BoundedChan = callPackage ../development/libraries/haskell/BoundedChan {};
 
+  boxes = callPackage ../development/libraries/haskell/boxes {};
+
   brainfuck = callPackage ../development/libraries/haskell/brainfuck {};
 
   bson = callPackage ../development/libraries/haskell/bson {};
@@ -634,6 +636,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   directoryTree = callPackage ../development/libraries/haskell/directory-tree {};
 
   distributedStatic = callPackage ../development/libraries/haskell/distributed-static {};
+  
+  distributedProcess = callPackage ../development/libraries/haskell/distributed-process {};
 
   distributive = callPackage ../development/libraries/haskell/distributive {};
 
@@ -699,6 +703,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   enumset = callPackage ../development/libraries/haskell/enumset {};
 
   entropy = callPackage ../development/libraries/haskell/entropy {};
+
+  equivalence = callPackage ../development/libraries/haskell/equivalence {};
 
   erf = callPackage ../development/libraries/haskell/erf {};
 
@@ -1098,7 +1104,7 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   hmatrix = callPackage ../development/libraries/haskell/hmatrix {};
 
-  hmatrix-special = callPackage ../development/libraries/haskell/hmatrix-special {};
+  hmatrixSpecial = callPackage ../development/libraries/haskell/hmatrix-special {};
 
   hoauth = callPackage ../development/libraries/haskell/hoauth {};
 
@@ -1202,6 +1208,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   HUnit_1_2_5_2 = callPackage ../development/libraries/haskell/HUnit/1.2.5.2.nix {};
   HUnit = self.HUnit_1_2_5_2;
 
+  hweblib = callPackage ../development/libraries/haskell/hweblib/default.nix {};
+
   hxt = callPackage ../development/libraries/haskell/hxt {};
 
   hxtCharproperties = callPackage ../development/libraries/haskell/hxt-charproperties {};
@@ -1209,6 +1217,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   hxtHttp = callPackage ../development/libraries/haskell/hxt-http {};
 
   hxtRegexXmlschema = callPackage ../development/libraries/haskell/hxt-regex-xmlschema {};
+
+  hxtTagsoup = callPackage ../development/libraries/haskell/hxt-tagsoup {};
 
   hxtUnicode = callPackage ../development/libraries/haskell/hxt-unicode {};
 
@@ -1958,6 +1968,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   simpleSendfile = callPackage ../development/libraries/haskell/simple-sendfile {};
 
+  simpleSqlParser = callPackage ../development/libraries/haskell/simple-sql-parser {};
+
   silently = callPackage ../development/libraries/haskell/silently {};
 
   sizedTypes = callPackage ../development/libraries/haskell/sized-types {};
@@ -2114,6 +2126,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   stmConduit = callPackage ../development/libraries/haskell/stm-conduit {};
 
+  STMonadTrans = callPackage ../development/libraries/haskell/STMonadTrans {};
+
   stmStats = callPackage ../development/libraries/haskell/stm-stats {};
 
   storableComplex = callPackage ../development/libraries/haskell/storable-complex {};
@@ -2175,6 +2189,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   tastyTh = callPackage ../development/libraries/haskell/tasty-th {};
 
   TCache = callPackage ../development/libraries/haskell/TCache {};
+
+  tcacheAWS = callPackage ../development/libraries/haskell/tcache-AWS {};
 
   templateDefault = callPackage ../development/libraries/haskell/template-default {};
 
@@ -2452,6 +2468,7 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   websockets = callPackage ../development/libraries/haskell/websockets {
     testFrameworkQuickcheck2 = self.testFrameworkQuickcheck2.override { QuickCheck = self.QuickCheck_2_6; };
+    QuickCheck = self.QuickCheck_2_6;
   };
 
   websocketsSnap = callPackage ../development/libraries/haskell/websockets-snap {};
@@ -2590,8 +2607,19 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   # Compilers.
 
-  Agda = callPackage ../development/compilers/agda/agda.nix { QuickCheck = self.QuickCheck_2_6; };
-  AgdaStdlib = callPackage ../development/compilers/agda/stdlib.nix {};
+  Agda_2_3_2_2 = callPackage ../development/compilers/agda/2.3.2.2.nix {};
+  Agda_2_4_0_1 = callPackage ../development/compilers/agda/2.4.0.1.nix {
+    binary = self.binary_0_7_2_1;
+  };
+  Agda = self.Agda_2_4_0_1;
+
+  AgdaStdlib_0_7 = callPackage ../development/compilers/agda/stdlib-0.7.nix {
+    Agda = self.Agda_2_3_2_2;
+  };
+  AgdaStdlib_0_8 = callPackage ../development/compilers/agda/stdlib-0.8.nix {
+    Agda = self.Agda_2_4_0_1;
+  };
+  AgdaStdlib = self.AgdaStdlib_0_8;
 
   uhc = callPackage ../development/compilers/uhc {};
 
@@ -2664,7 +2692,11 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   hscolour = callPackage ../development/tools/haskell/hscolour {};
   hscolourBootstrap = self.hscolour.override {
     cabal = self.cabal.override {
-      extension = self : super : { hyperlinkSource = false; };
+      extension = self : super : {
+        hyperlinkSource = false;
+        configureFlags = super.configureFlags or "" +
+          pkgs.lib.optionalString (pkgs.stdenv.lib.versionOlder "6.12" ghc.version) " --ghc-option=-rtsopts";
+      };
     };
   };
 
@@ -2693,6 +2725,10 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   darcs = callPackage ../applications/version-management/darcs {};
 
   idris_plain = callPackage ../development/compilers/idris {
+    parsers = self.parsers_0_10_3;
+    trifecta = self.trifecta.override {
+      parsers = self.parsers_0_10_3;
+    };
     llvmGeneral = self.llvmGeneral_3_3_8_2;
     llvmGeneralPure = self.llvmGeneralPure_3_3_8_2;
   };

@@ -1,2 +1,2 @@
-nginx module: add httpServer option
-nginx: allow building echo module
+Adding services.nginx.httpServers option
+which can be used to define servers in the http section

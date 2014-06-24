@@ -873,6 +873,7 @@ rec {
   # A patched version of buildout, useful for buildout based development on Nix
   zc_buildout_nix = callPackage ../development/python-modules/buildout-nix { };
 
+  zc_recipe_egg = zc_recipe_egg_buildout171;
   zc_buildout = zc_buildout171;
   zc_buildout2 = zc_buildout221;
   zc_buildout221 = buildPythonPackage rec {
@@ -925,6 +926,29 @@ rec {
       license = licenses.zpt21;
       maintainers = [ stdenv.lib.maintainers.garbas ];
     };
+  };
+
+  zc_recipe_egg_fun = { buildout, version, md5 }: buildPythonPackage rec {
+    inherit version;
+    name = "zc.recipe.egg-${version}";
+
+    buildInputs = [ buildout ];
+    doCheck = false;
+
+    src = fetchurl {
+      inherit md5;
+      url = "https://pypi.python.org/packages/source/z/zc.recipe.egg/zc.recipe.egg-${version}.tar.gz";
+    };
+  };
+  zc_recipe_egg_buildout171 = zc_recipe_egg_fun {
+    buildout = zc_buildout171;
+    version = "1.3.2";
+    md5 = "1cb6af73f527490dde461d3614a36475";
+  };
+  zc_recipe_egg_buildout2 = zc_recipe_egg_fun {
+    buildout = zc_buildout2;
+    version = "2.0.1";
+    md5 = "5e81e9d4cc6200f5b1abcf7c653dd9e3";
   };
 
   bunch = buildPythonPackage (rec {
@@ -3385,17 +3409,16 @@ rec {
 
 
   gyp = buildPythonPackage rec {
-    rev = "1738";
+    rev = "1944";
     name = "gyp-r${rev}";
 
     src = fetchsvn {
       url = "http://gyp.googlecode.com/svn/trunk";
       inherit rev;
-      sha256 = "155k7v6453j2kg02xqfqbkzkbaqc8aynxs2k462jmrp638vxia9s";
+      sha256 = "15k3ivk3jyhx4rwdf1mn6qpyrwixvy01jpkir8d14c4g9hax1dx1";
     };
 
     patches = optionals pkgs.stdenv.isDarwin [
-      ../development/python-modules/gyp/no-xcode.patch
       ../development/python-modules/gyp/no-darwin-cflags.patch
     ];
 
@@ -4465,12 +4488,12 @@ rec {
   });
 
   nose = buildPythonPackage rec {
-    version = "1.3.1";
+    version = "1.3.3";
     name = "nose-${version}";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/n/nose/${name}.tar.gz";
-      sha256 = "1fmn5b7v183ym793ghrbh76b27aww9qv0lhl7dz31f9xmf3kn9w5";
+      sha256 = "09h3a74hzw1cfx4ic19ibxq8kg6sl1n64px2mmb57f5yd3r2y35l";
     };
 
     buildInputs = [ coverage ];
@@ -5927,11 +5950,11 @@ rec {
   };
 
   pyrax = buildPythonPackage rec {
-    name = "pyrax-1.7.3";
+    name = "pyrax-1.8.2";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/p/pyrax/${name}.tar.gz";
-      sha256 = "1br2kspw0sn7xgkk7z93h72s2v3qm88jvi4213zgz90jhzjj42bv";
+      sha256 = "0hvim60bhgfj91m7pp8jfmb49f087xqlgkqa505zw28r7yl0hcfp";
     };
 
     meta = {

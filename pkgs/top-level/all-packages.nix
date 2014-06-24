@@ -661,7 +661,7 @@ let
     enableStandardFeatures = false;
   };
 
-  asciidocFull = appendToName "full" (asciidoc.override {
+  asciidoc-full = appendToName "full" (asciidoc.override {
     inherit (pythonPackages) pygments;
     enableStandardFeatures = true;
   });
@@ -821,9 +821,15 @@ let
 
   cron = callPackage ../tools/system/cron { };
 
-  cudatoolkit = callPackage ../development/compilers/cudatoolkit {
+  cudatoolkit5 = callPackage ../development/compilers/cudatoolkit/5.5.nix {
     python = python26;
   };
+
+  cudatoolkit6 = callPackage ../development/compilers/cudatoolkit/6.0.nix {
+    python = python26;
+  };
+
+  cudatoolkit = cudatoolkit5;
 
   curl = callPackage ../tools/networking/curl rec {
     fetchurl = fetchurlBoot;
@@ -1311,6 +1317,8 @@ let
   isl_0_12 = callPackage ../development/libraries/isl/0.12.2.nix { };
 
   isync = callPackage ../tools/networking/isync { };
+
+  jd-gui = callPackage_i686 ../tools/security/jd-gui { };
 
   jdiskreport = callPackage ../tools/misc/jdiskreport { };
 
@@ -1963,6 +1971,8 @@ let
   s3backer = callPackage ../tools/filesystems/s3backer { };
 
   s3cmd = callPackage ../tools/networking/s3cmd { };
+
+  s3cmd_15_pre_81e3842f7a = lowPrio (callPackage ../tools/networking/s3cmd/git.nix { });
 
   s3sync = callPackage ../tools/networking/s3sync {
     ruby = ruby18;
@@ -2962,7 +2972,9 @@ let
 
   go_1_2 = callPackage ../development/compilers/go/1.2.nix { };
 
-  go = go_1_2;
+  go_1_3 = callPackage ../development/compilers/go/1.3.nix { };
+
+  go = go_1_3;
 
   gprolog = callPackage ../development/compilers/gprolog { };
 
@@ -3519,7 +3531,7 @@ let
   python = python27;
   python3 = python3Packages.python;
 
-  pypy = callPackage ../development/interpreters/pypy/2.2 { };
+  pypy = callPackage ../development/interpreters/pypy/2.3 { };
 
   pythonFull = python27Full;
   python26Full = callPackage ../development/interpreters/python/wrapper.nix {
@@ -3777,6 +3789,8 @@ let
   cgdb = callPackage ../development/tools/misc/cgdb { };
 
   chromedriver = callPackage ../development/tools/selenium/chromedriver { gconf = gnome.GConf; };
+
+  chrpath = callPackage ../development/tools/misc/chrpath { };
 
   "cl-launch" = callPackage ../development/tools/misc/cl-launch {};
 
@@ -4149,7 +4163,7 @@ let
 
   aalib = callPackage ../development/libraries/aalib { };
 
-  accountservice = callPackage ../development/libraries/accountservice { };
+  accountsservice = callPackage ../development/libraries/accountsservice { };
 
   acl = callPackage ../development/libraries/acl { };
 
@@ -4750,7 +4764,12 @@ let
 
   pangox_compat = callPackage ../development/libraries/pangox-compat { };
 
-  gdk_pixbuf = callPackage ../development/libraries/gdk-pixbuf { };
+  gdk_pixbuf = callPackage ../development/libraries/gdk-pixbuf {
+    # workaround signal 10 in gdk_pixbuf tests
+    stdenv = if stdenv.isDarwin
+      then clangStdenv
+      else stdenv;
+  };
 
   gtk2 = callPackage ../development/libraries/gtk+/2.x.nix {
     cupsSupport = config.gtk2.cups or stdenv.isLinux;
@@ -5557,11 +5576,18 @@ let
 
   mesaSupported = lib.elem system lib.platforms.mesaPlatforms;
 
-  mesa_original = callPackage ../development/libraries/mesa { };
+  mesa_original = callPackage ../development/libraries/mesa {
+    # makes it slower, but during runtime we link against just mesa_drivers
+    # through /run/opengl-driver*, which is overriden according to config.grsecurity
+    grsecEnabled = true;
+  };
+
   mesa_noglu = if stdenv.isDarwin
     then darwinX11AndOpenGL // { driverLink = mesa_noglu; }
     else mesa_original;
-  mesa_drivers = mesa_original.drivers;
+  mesa_drivers = let
+      mo = mesa_original.override { grsecEnabled = config.grsecurity or false; };
+    in mo.drivers;
   mesa_glu = callPackage ../development/libraries/mesa-glu { };
   mesa = if stdenv.isDarwin then darwinX11AndOpenGL
     else buildEnv {
@@ -6737,13 +6763,11 @@ let
 
   mysql_jdbc = callPackage ../servers/sql/mysql/jdbc { };
 
-  nagios = callPackage ../servers/monitoring/nagios {
-    gdSupport = true;
-  };
+  nagios = callPackage ../servers/monitoring/nagios { };
 
   munin = callPackage ../servers/monitoring/munin { };
 
-  nagiosPluginsOfficial = callPackage ../servers/monitoring/nagios/plugins/official { };
+  nagiosPluginsOfficial = callPackage ../servers/monitoring/nagios/plugins/official-2.x.nix { };
 
   net_snmp = callPackage ../servers/monitoring/net-snmp { };
 
@@ -7261,10 +7285,6 @@ let
   linux_grsec_stable_server     = grKernel grFlavors.linux_grsec_stable_server;
   linux_grsec_stable_server_xen = grKernel grFlavors.linux_grsec_stable_server_xen;
 
-  # Stable+vserver kernels - server versions only
-  #linux_grsec_vserver_server     = grKernel grFlavors.linux_grsec_vserver_server;
-  #linux_grsec_vserver_server_xen = grKernel grFlavors.linux_grsec_vserver_server_xen;
-
   # Testing kernels
   linux_grsec_testing_desktop = grKernel grFlavors.linux_grsec_testing_desktop;
   linux_grsec_testing_server  = grKernel grFlavors.linux_grsec_testing_server;
@@ -7383,10 +7403,6 @@ let
   linuxPackages_grsec_stable_desktop    = grPackage grFlavors.linux_grsec_stable_desktop;
   linuxPackages_grsec_stable_server     = grPackage grFlavors.linux_grsec_stable_server;
   linuxPackages_grsec_stable_server_xen = grPackage grFlavors.linux_grsec_stable_server_xen;
-
-  # Stable+vserver kernels - server versions only
-  #linuxPackages_grsec_vserver_server     = grPackage grFlavors.linux_grsec_vserver_server;
-  #linuxPackages_grsec_vserver_server_xen = grPackage grFlavors.linux_grsec_vserver_server_xen;
 
   # Testing kernels
   linuxPackages_grsec_testing_desktop = grPackage grFlavors.linux_grsec_testing_desktop;
@@ -7766,6 +7782,8 @@ let
   anonymousPro = callPackage ../data/fonts/anonymous-pro {};
 
   arkpandora_ttf = builderDefsPackage (import ../data/fonts/arkpandora) { };
+
+  aurulent-sans = callPackage ../data/fonts/aurulent-sans { };
 
   bakoma_ttf = callPackage ../data/fonts/bakoma-ttf { };
 
@@ -8344,6 +8362,8 @@ let
 
     maudeMode = callPackage ../applications/editors/emacs-modes/maude { };
 
+    metaweblog = callPackage ../applications/editors/emacs-modes/metaweblog { };
+
     notmuch = lowPrio (callPackage ../applications/networking/mailreaders/notmuch { });
 
     offlineimap = callPackage ../applications/editors/emacs-modes/offlineimap {};
@@ -8360,12 +8380,19 @@ let
 
     prologMode = callPackage ../applications/editors/emacs-modes/prolog { };
 
-    proofgeneral = callPackage ../applications/editors/emacs-modes/proofgeneral {
+    proofgeneral_4_2 = callPackage ../applications/editors/emacs-modes/proofgeneral/4.2.nix {
       texinfo = texinfo4 ;
       texLive = pkgs.texLiveAggregationFun {
         paths = [ pkgs.texLive pkgs.texLiveCMSuper ];
       };
     };
+    proofgeneral_4_3_pre = callPackage ../applications/editors/emacs-modes/proofgeneral/4.3pre.nix {
+      texinfo = texinfo4 ;
+      texLive = pkgs.texLiveAggregationFun {
+        paths = [ pkgs.texLive pkgs.texLiveCMSuper ];
+      };
+    };
+    proofgeneral = self.proofgeneral_4_2;
 
     quack = callPackage ../applications/editors/emacs-modes/quack { };
 
@@ -10119,6 +10146,8 @@ let
 
   opentyrian = callPackage ../games/opentyrian { };
 
+  openxcom = callPackage ../games/openxcom { };
+
   pingus = callPackage ../games/pingus {};
 
   pioneers = callPackage ../games/pioneers { };
@@ -10397,6 +10426,8 @@ let
       kde_gtk_config = callPackage ../tools/misc/kde-gtk-config { };
 
       kde_wacomtablet = callPackage ../applications/misc/kde-wacomtablet { };
+
+      kdeconnect = callPackage ../applications/misc/kdeconnect { };
 
       kdenlive = callPackage ../applications/video/kdenlive { };
 
@@ -10908,13 +10939,10 @@ let
     stateDir = config.nix.stateDir or "/nix/var";
   };
 
-  nixUnstable = nixStable;
-  /*
   nixUnstable = callPackage ../tools/package-management/nix/unstable.nix {
     storeDir = config.nix.storeDir or "/nix/store";
     stateDir = config.nix.stateDir or "/nix/var";
   };
-  */
 
   nixops = callPackage ../tools/package-management/nixops { };
 
@@ -11026,6 +11054,8 @@ let
   splix = callPackage ../misc/cups/drivers/splix { };
 
   streamripper = callPackage ../applications/audio/streamripper { };
+
+  sqsh = callPackage ../development/tools/sqsh { };
 
   tetex = callPackage ../tools/typesetting/tex/tetex { libpng = libpng12; };
 
@@ -11213,6 +11243,7 @@ let
 
   # Attributes for backward compatibility.
   adobeReader = adobe-reader;
+  asciidocFull = asciidoc-full;  # added 2014-06-22
 
 
 }; in self; in pkgs

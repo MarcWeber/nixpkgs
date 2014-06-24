@@ -77,8 +77,8 @@
 let
 
   true_version = if version == "5.3.x" then "5.3.28"
-  else if version == "5.4.x" then "5.4.28"
-  else if version == "5.5.x" then "5.5.12"
+  else if version == "5.4.x" then "5.4.29"
+  else if version == "5.5.x" then "5.5.13"
   else version;
 
   # used to calculate php id based on features
@@ -423,9 +423,9 @@ let
    src = fetchurl {
      url = "http://de2.php.net/distributions/php-${true_version}.tar.bz2";
      md5 = lib.maybeAttr true_version (throw "unkown php version ${true_version}") {
-      "5.5.12" = "943af92c2e67bba29429bdd9acf9cbd4";
+      "5.5.13" = "e26e90af25ee6505dc18855e0180ffe9";
 
-      "5.4.28" = "1676c807683041445f0df63913738571";
+      "5.4.29" = "64326cef257e5af17c366fefab136e53";
 
       "5.3.28" = "56ff88934e068d142d6c0deefd1f396b";
      };

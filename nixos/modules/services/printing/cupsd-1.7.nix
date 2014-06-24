@@ -227,11 +227,6 @@ in
       ''
         SystemGroup root wheel
 
-        ${concatMapStrings (addr: ''
-          Listen ${addr}
-        '') cfg.listenAddresses}
-        Listen /var/run/cups/cups.sock
-
         # Note: we can't use ${cupsPackages.cups}/etc/cups as the ServerRoot, since
         # CUPS will write in the ServerRoot when e.g. adding new printers
         # through the web interface.
@@ -260,7 +255,9 @@ in
         # See AccessLog in cups-files.conf
         LogLevel debug3
 
-        Listen localhost:631
+        ${concatMapStrings (addr: ''
+          Listen ${addr}
+        '') cfg.listenAddresses}
         Listen /var/run/cups/cups.sock
 
         SetEnv PATH ${bindir}/lib/cups/filter:${bindir}/bin:${bindir}/sbin

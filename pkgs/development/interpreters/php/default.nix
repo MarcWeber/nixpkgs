@@ -76,8 +76,8 @@
 let
 
   true_version = if version == "5.3.x" then "5.3.28"
-  else if version == "5.4.x" then "5.4.28"
-  else if version == "5.5.x" then "5.5.12"
+  else if version == "5.4.x" then "5.4.30"
+  else if version == "5.5.x" then "5.5.14"
   else version;
 
   # used to calculate php id based on features
@@ -409,9 +409,9 @@ let
    src = fetchurl {
      url = "http://de2.php.net/distributions/php-${true_version}.tar.bz2";
      md5 = lib.maybeAttr true_version (throw "unkown php version ${true_version}") {
-      "5.5.12" = "943af92c2e67bba29429bdd9acf9cbd4";
+      "5.5.14" = "b53e5f47c59ffbe26d20957636695baa";
 
-      "5.4.28" = "1676c807683041445f0df63913738571";
+      "5.4.30" = "a8a27fdc1d9e1020c9f8922b608326de";
 
       "5.3.28" = "56ff88934e068d142d6c0deefd1f396b";
      };
@@ -446,7 +446,7 @@ let
   in php_with_id // {
     xdebug = callPackage ../../interpreters/php-xdebug { php = php_with_id; };
     xcache = callPackage ../../libraries/php-xcache { php = php_with_id; };
-    apc = callPackage ../../libraries/php-apc { php = php_with_id; };
+    # apc = gone
 
     phpPackages = callPackage ../../../top-level/php-packages.nix { php = php_with_id; };
 

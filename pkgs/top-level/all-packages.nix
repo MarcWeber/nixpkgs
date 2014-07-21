@@ -3553,7 +3553,7 @@ let
 
   perl = if system != "i686-cygwin" then perl516 else sysPerl;
 
-  php = php54;
+  php = callPackage ../development/interpreters/php { };
 
   php5_3 = php.override { version = "5.3.x"; };
   php5_3fpm = php5_3.override { sapi = "fpm"; };

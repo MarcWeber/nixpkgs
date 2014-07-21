@@ -1,33 +1,20 @@
-{ stdenv, fetchurl, zlib, xz, python ? null, pythonSupport ? true
-, version ? "2.9.x"
-}:
+{ stdenv, fetchurl, zlib, xz, python ? null, pythonSupport ? true }:
 
 assert pythonSupport -> python != null;
 
-stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "libxml2" version {
-  "2.9.x" = rec {
-    name = "libxml2-2.9.1";
-
-    src = fetchurl {
-      url = "ftp://xmlsoft.org/libxml2/${name}.tar.gz";
-      sha256 = "1nqgd1qqmg0cg09mch78m2ac9klj9n87blilx4kymi7jcv5n8g7x";
-    };
-  };
-
-  # required to build PHP 5.2 (testing only)
-  "2.7.8" = rec {
-    name = "libxml2-2.7.8";
-
-    src = fetchurl {
-      url = ftp://xmlsoft.org/libxml2/libxml2-sources-2.7.8.tar.gz;
-      sha256 = "6a33c3a2d18b902cd049e0faa25dd39f9b554a5b09a3bb56ee07dd7938b11c54";
-    };
-  };
-}
-{
-
 #TODO: share most stuff between python and non-python builds, perhaps via multiple-output
 
+let
+  version = "2.9.1";
+in
+
+stdenv.mkDerivation (rec {
+  name = "libxml2-${version}";
+
+  src = fetchurl {
+    url = "ftp://xmlsoft.org/libxml2/${name}.tar.gz";
+    sha256 = "1nqgd1qqmg0cg09mch78m2ac9klj9n87blilx4kymi7jcv5n8g7x";
+  };
 
   buildInputs = stdenv.lib.optional pythonSupport python
     # Libxml2 has an optional dependency on liblzma.  However, on impure
@@ -39,7 +26,7 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "libxml2" version {
 
   setupHook = ./setup-hook.sh;
 
-  passthru = { inherit pythonSupport; };
+  passthru = { inherit pythonSupport version; };
 
   enableParallelBuilding = true;
 

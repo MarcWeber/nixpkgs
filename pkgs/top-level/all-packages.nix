@@ -8218,8 +8218,6 @@ let
     python = python34;
   };
 
-  blender_2_63 = blender;
-
   bristol = callPackage ../applications/audio/bristol { };
 
   bvi = callPackage ../applications/editors/bvi { };

@@ -20,7 +20,7 @@ versionedDerivation "inkscape" version {
   "dev" = {
     src = fetchbzr {
       url = "https://code.launchpad.net/~inkscape.dev/inkscape/trunk";
-      revision = 12339;
+      rev = 12339;
       sha256 = "1k6fnq6xh4h4wd5bnfnyc9v0kvqrjvv58r75qj1b132mpzl9vlqi";
     };
     buildInputs = [ automake autoconf libtool which];

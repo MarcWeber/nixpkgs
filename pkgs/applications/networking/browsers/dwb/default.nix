@@ -1,25 +1,23 @@
-{ stdenv, fetchgit, pkgconfig, makeWrapper, libsoup, webkit, gtk3, gnutls, json_c,
-  m4, glib_networking, gsettings_desktop_schemas }:
+{ stdenv, fetchgit, pkgconfig, makeWrapper, libsoup, webkitgtk2, gtk2, gnutls, json_c,
+  m4, glib_networking, gsettings_desktop_schemas, dconf }:
 
 stdenv.mkDerivation {
-  name = "dwb-2014-06-03";
+  name = "dwb-2014-07-03";
 
   src = fetchgit {
     url = "https://bitbucket.org/portix/dwb.git";
-    rev = "d00af56c1e60978060f1b2077f3d49995b98c54f";
-    sha256 = "02bs9nbgk8ghaxywhqd8mii4lik748dssn551m00i1305p6q1cjj";
+    rev = "6224470489eb5ba92987e01396269f8b7cd78ada";
+    sha256 = "04p9frsnh1qz067cw36anvr41an789fba839svdjrdva0f2751g8";
   };
 
-  buildInputs = [ pkgconfig makeWrapper gsettings_desktop_schemas libsoup webkit gtk3 gnutls json_c m4 ];
+  buildInputs = [ pkgconfig makeWrapper gsettings_desktop_schemas libsoup webkitgtk2 gtk2 gnutls json_c m4 ];
 
   # There are Xlib and gtk warnings therefore I have set Wno-error
-  preBuild=''
-    makeFlagsArray=(CPPFLAGS="-Wno-error" GTK=3 PREFIX=$out);
-  '';
+  makeFlags = ''PREFIX=$(out) GTK=2 CPPFLAGS="-Wno-error"'';
 
   preFixup=''
     wrapProgram "$out/bin/dwb" \
-     --prefix GIO_EXTRA_MODULES : "${glib_networking}/lib/gio/modules" \
+     --prefix GIO_EXTRA_MODULES : "${glib_networking}/lib/gio/modules:${dconf}/lib/gio/modules" \
      --prefix XDG_DATA_DIRS : "$GSETTINGS_SCHEMAS_PATH:$out/share"
     wrapProgram "$out/bin/dwbem" \
      --prefix GIO_EXTRA_MODULES : "${glib_networking}/lib/gio/modules"

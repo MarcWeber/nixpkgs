@@ -8,10 +8,8 @@
 , shoutSupport ? true, libshout
 , sqliteSupport ? true, sqlite
 , curlSupport ? true, curl
-, soupSupport ? true, libsoup
 , audiofileSupport ? true, audiofile
 , bzip2Support ? true, bzip2
-, ffadoSupport ? true, ffado
 , ffmpegSupport ? true, ffmpeg
 , fluidsynthSupport ? true, fluidsynth
 , zipSupport ? true, zziplib
@@ -48,10 +46,8 @@ in stdenv.mkDerivation rec {
     ++ opt shoutSupport libshout
     ++ opt sqliteSupport sqlite
     ++ opt curlSupport curl
-    ++ opt soupSupport libsoup
     ++ opt bzip2Support bzip2
     ++ opt audiofileSupport audiofile
-    ++ opt (!stdenv.isDarwin && ffadoSupport) ffado
     ++ opt ffmpegSupport ffmpeg
     ++ opt fluidsynthSupport fluidsynth
     ++ opt samplerateSupport libsamplerate
@@ -59,7 +55,7 @@ in stdenv.mkDerivation rec {
     ++ opt mpg123Support mpg123
     ++ opt aacSupport faad2
     ++ opt zipSupport zziplib
-    ++ opt zipSupport pulseaudio;
+    ++ opt pulseaudioSupport pulseaudio;
 
   configureFlags =
     [ (mkFlag (!stdenv.isDarwin && alsaSupport) "alsa")
@@ -72,10 +68,8 @@ in stdenv.mkDerivation rec {
       (mkFlag shoutSupport "shout")
       (mkFlag sqliteSupport "sqlite")
       (mkFlag curlSupport "curl")
-      (mkFlag soupSupport "soup")
       (mkFlag audiofileSupport "audiofile")
       (mkFlag bzip2Support "bzip2")
-      (mkFlag (!stdenv.isDarwin && ffadoSupport) "ffado")
       (mkFlag ffmpegSupport "ffmpeg")
       (mkFlag fluidsynthSupport "fluidsynth")
       (mkFlag zipSupport "zzip")
@@ -85,7 +79,8 @@ in stdenv.mkDerivation rec {
       (mkFlag aacSupport "aac")
       (mkFlag pulseaudioSupport "pulse")
       (mkFlag stdenv.isDarwin "osx")
-      "--enable-debugging" ]
+      "--enable-debug"
+    ]
     ++ opt stdenv.isLinux
       "--with-systemdsystemunitdir=$(out)/etc/systemd/system";
 

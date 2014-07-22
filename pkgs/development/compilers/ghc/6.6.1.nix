@@ -12,6 +12,8 @@ stdenv.mkDerivation (rec {
     }
   ];
 
+  enableParallelBuilding = true; # let's try it
+
   buildInputs = [ghc readline perl58 m4 gmp];
 
   meta = {

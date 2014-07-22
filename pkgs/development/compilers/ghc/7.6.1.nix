@@ -41,4 +41,34 @@ stdenv.mkDerivation rec {
     inherit (ghc.meta) license platforms;
   };
 
+  passthru = {
+    corePackages = [
+     ["Cabal" "1.16.0"]
+     ["array" "0.4.0.1"]
+     ["base" "4.6.0.0"]
+     ["bin-package-db" "0.0.0.0"]
+     ["binary" "0.5.1.1"]
+     ["bytestring" "0.10.0.0"]
+     ["containers" "0.5.0.0"]
+     ["deepseq" "1.3.0.1"]
+     ["directory" "1.2.0.0"]
+     ["filepath" "1.3.0.1"]
+     ["ghc" "7.6.1"]
+     ["ghc-prim" "0.3.0.0"]
+     ["haskell2010" "1.1.1.0"]
+     ["haskell98" "2.0.0.2"]
+     ["hoopl" "3.9.0.0"]
+     ["hpc" "0.6.0.0"]
+     ["integer-gmp" "0.5.0.0"]
+     ["old-locale" "1.0.0.5"]
+     ["old-time" "1.1.0.1"]
+     ["pretty" "1.1.1.0"]
+     ["process" "1.1.0.2"]
+     ["rts" "1.0"]
+     ["template-haskell" "2.8.0.0"]
+     ["time" "1.4.0.1"]
+     ["unix" "2.6.0.0"]
+    ];
+  };
+
 }

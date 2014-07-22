@@ -75,6 +75,6 @@ stdenv.mkDerivation {
     license = "MIT-like";
     homePage = "http://www.zsh.org/";
     maintainers = with stdenv.lib.maintainers; [ chaoflow ];
-    platforms = stdenv.lib.platforms.gnu;  # arbitrary choice
+    platforms = stdenv.lib.platforms.unix;
   };
 }

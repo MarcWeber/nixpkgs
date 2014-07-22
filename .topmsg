@@ -1,6 +1,17 @@
 From: Marc Weber <marco-oweber@gmx.de>
-Subject: [PATCH] experimental/hack-nix
+Subject: [PATCH] experimental/updates
 
-haskell related changes to make hack-nix work & some masking
+new packages & stuff which would take too much time to create a new topic
+branch for each
+
+- adding fish shell
+- adding umtsmon
+- adding dhex
+- adding anyterm
+- adding smlnj
+- adding opencascade community fork
+- adding tinyproxy
+- adding ziproxy
+- ffmpeg git
 
 Signed-off-by: Marc Weber <marco-oweber@gmx.de>

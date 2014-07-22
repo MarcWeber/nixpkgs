@@ -3527,24 +3527,26 @@ let
 
   perl = if system != "i686-cygwin" then perl516 else sysPerl;
 
-  php = php54;
+  php = callPackage ../development/interpreters/php { };
 
-  phpPackages = recurseIntoAttrs (import ./php-packages.nix {
+  php5_3 = php.override { version = "5.3.x"; };
+  php5_3fpm = php5_3.override { sapi = "fpm"; };
+
+  php5_4 = php.override { version = "5.4.x"; };
+  php5_4fpm = php5_4.override { sapi = "fpm"; };
+
+  php5_5 = php.override { version = "5.5.x"; };
+  php5_5fpm = php5_4.override { sapi = "fpm"; };
+
+  # use php.apc/xcache/Xdebug instead
+  # php_apc = callPackage ../development/libraries/php-apc { };
+  # php_xcache = callPackage ../development/libraries/php-xcache { };
+  # phpXdebug = callPackage ../development/interpreters/php-xdebug { };
+
+  # you can also use php5_3.phpPackages.memcached for instance
+  phpPackages = import ./php-packages.nix {
     inherit php pkgs;
-  });
-
-  php53 = callPackage ../development/interpreters/php/5.3.nix { };
-
-  php_fpm53 = callPackage ../development/interpreters/php/5.3.nix {
-    config = config // {
-      php = (config.php or {}) // {
-        fpm = true;
-        apxs2 = false;
-      };
-    };
   };
-
-  php54 = callPackage ../development/interpreters/php/5.4.nix { };
 
   picolisp = callPackage ../development/interpreters/picolisp {};
 

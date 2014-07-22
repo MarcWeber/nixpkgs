@@ -48,4 +48,3 @@ stdenv.mkDerivation (rec {
 } // stdenv.lib.optionalAttrs (!pythonSupport) {
   configureFlags = "--with-python=no"; # otherwise build impurity bites us
 })
-

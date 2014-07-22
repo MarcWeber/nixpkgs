@@ -71,6 +71,7 @@ stdenv.mkDerivation rec {
       stdenv.lib.maintainers.andres
     ];
     inherit (ghc.meta) license platforms;
+    broken = true;
   };
 
 }

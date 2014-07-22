@@ -2963,6 +2963,7 @@ let
   haskellPlatformPackages = recurseIntoAttrs (import ../development/libraries/haskell/haskell-platform { inherit pkgs; });
 
   haxe = callPackage ../development/compilers/haxe { };
+  haxeLatest = haxe.override { version = "latest"; };
 
   hhvm = callPackage ../development/compilers/hhvm { };
   hiphopvm = hhvm; /* Compatibility alias */
@@ -3130,7 +3131,7 @@ let
 
   mozart = callPackage ../development/compilers/mozart { };
 
-  neko = callPackage ../development/compilers/neko { };
+  neko = callPackage ../development/compilers/neko { apache = apacheHttpd; };
 
   nasm = callPackage ../development/compilers/nasm { };
 

@@ -950,6 +950,8 @@ let
 
   efivar = callPackage ../tools/system/efivar { };
 
+  evemu = callPackage ../tools/system/evemu { };
+
   elasticsearch = callPackage ../servers/search/elasticsearch { };
 
   enblendenfuse = callPackage ../tools/graphics/enblend-enfuse {
@@ -1088,6 +1090,10 @@ let
   gawkInteractive = appendToName "interactive"
     (gawk.override { readlineSupport = true; });
 
+  gbdfed = callPackage ../tools/misc/gbdfed {
+    gtk = gtk2;
+  };
+
   gdmap = callPackage ../tools/system/gdmap { };
 
   genext2fs = callPackage ../tools/filesystems/genext2fs { };
@@ -1164,6 +1170,8 @@ let
   googleAuthenticator = callPackage ../os-specific/linux/google-authenticator { };
 
   gource = callPackage ../applications/version-management/gource {};
+
+  gpodder = callPackage ../applications/audio/gpodder { };
 
   gptfdisk = callPackage ../tools/system/gptfdisk { };
 
@@ -1345,6 +1353,8 @@ let
 
   kazam = callPackage ../applications/video/kazam { };
 
+  kalibrate-rtl = callPackage ../tools/misc/kalibrate-rtl { };
+
   kexectools = callPackage ../os-specific/linux/kexectools { };
 
   keychain = callPackage ../tools/misc/keychain { };
@@ -1396,6 +1406,8 @@ let
   libee = callPackage ../development/libraries/libee { };
 
   libestr = callPackage ../development/libraries/libestr { };
+
+  libevdev = callPackage ../development/libraries/libevdev { };
 
   liboauth = callPackage ../development/libraries/liboauth { };
 
@@ -1691,6 +1703,12 @@ let
   };
 
   openobex = callPackage ../tools/bluetooth/openobex { };
+
+  openopc = callPackage ../tools/misc/openopc {
+    pythonFull = python27Full.override {
+      extraLibs = [ python27Packages.pyro3 ];
+    };
+  };
 
   openresolv = callPackage ../tools/networking/openresolv { };
 
@@ -2533,8 +2551,6 @@ let
 
   clang_34 = wrapClang llvmPackages_34.clang;
   clang_33 = wrapClang (clangUnwrapped llvm_33 ../development/compilers/llvm/3.3/clang.nix);
-  clang_32 = wrapClang (clangUnwrapped llvm_32 ../development/compilers/llvm/3.2/clang.nix);
-  clang_31 = wrapClang (clangUnwrapped llvm_31 ../development/compilers/llvm/3.1/clang.nix);
 
   clangAnalyzer = callPackage ../development/tools/analysis/clang-analyzer {
     clang = clang_34;
@@ -2603,22 +2619,6 @@ let
   gcc34 = wrapGCC (import ../development/compilers/gcc/3.4 {
     inherit fetchurl stdenv noSysDirs;
   });
-
-  # XXX: GCC 4.2 (and possibly others) misdetects `makeinfo' when
-  # using Texinfo >= 4.10, just because it uses a stupid regexp that
-  # expects a single digit after the dot.  As a workaround, we feed
-  # GCC with Texinfo 4.9.  Stupid bug, hackish workaround.
-
-  gcc42 = wrapGCC (makeOverridable (import ../development/compilers/gcc/4.2) {
-    inherit fetchurl stdenv noSysDirs;
-    profiledCompiler = false;
-  });
-
-  gcc43 = lowPrio (wrapGCC (makeOverridable (import ../development/compilers/gcc/4.3) {
-    inherit stdenv fetchurl gmp mpfr noSysDirs;
-    texinfo = texinfo4;
-    profiledCompiler = true;
-  }));
 
   gcc48_realCross = lib.addMetaAttrs { hydraPlatforms = []; }
     (callPackage ../development/compilers/gcc/4.8 {
@@ -2780,24 +2780,6 @@ let
       if crossSystem != null && crossSystem.config == "i586-pc-gnu"
       then gnu.libpthreadCross
       else null;
-  }));
-
-  gcc49_multi =
-    if system == "x86_64-linux" then lowPrio (
-      wrapGCCWith (import ../build-support/gcc-wrapper) glibc_multi (gcc49.gcc.override {
-        stdenv = overrideGCC stdenv (wrapGCCWith (import ../build-support/gcc-wrapper) glibc_multi gcc.gcc);
-        profiledCompiler = false;
-        enableMultilib = true;
-      }))
-    else throw "Multilib gcc not supported on ‘${system}’";
-
-  gcc49_debug = lowPrio (wrapGCC (callPackage ../development/compilers/gcc/4.9 {
-    stripped = false;
-
-    inherit noSysDirs;
-    cross = null;
-    libcCross = null;
-    binutilsCross = null;
   }));
 
   gccApple =
@@ -3091,8 +3073,6 @@ let
 
   llvm_34 = llvmPackages_34.llvm;
   llvm_33 = llvm_v ../development/compilers/llvm/3.3/llvm.nix;
-  llvm_32 = llvm_v ../development/compilers/llvm/3.2;
-  llvm_31 = llvm_v ../development/compilers/llvm/3.1;
 
   llvm_v = path: callPackage path {
     stdenv = if stdenv.isDarwin
@@ -3299,10 +3279,6 @@ let
   opa = let callPackage = newScope pkgs.ocamlPackages_3_12_1; in callPackage ../development/compilers/opa { };
 
   ocamlnat = let callPackage = newScope pkgs.ocamlPackages_3_12_1; in callPackage ../development/ocaml-modules/ocamlnat { };
-
-  opencxx = callPackage ../development/compilers/opencxx {
-    gcc = gcc33;
-  };
 
   qcmm = callPackage ../development/compilers/qcmm {
     lua   = lua4;
@@ -3659,12 +3635,10 @@ let
 
   tcl = callPackage ../development/interpreters/tcl { };
 
-  xulrunnerWrapper = {application, launcher}:
-    import ../development/interpreters/xulrunner/wrapper {
-      inherit stdenv application launcher xulrunner;
-    };
-
-  xulrunner = pkgs.firefoxPkgs.xulrunner;
+  xulrunner = callPackage ../development/interpreters/xulrunner {
+    inherit (gnome) libIDL;
+    inherit (pythonPackages) pysqlite;
+  };
 
 
   ### DEVELOPMENT / MISC
@@ -5737,6 +5711,8 @@ let
 
   muparser = callPackage ../development/libraries/muparser { };
 
+  mygpoclient = callPackage ../development/python-modules/mygpoclient { };
+
   mygui = callPackage ../development/libraries/mygui {};
 
   myguiSvn = callPackage ../development/libraries/mygui/svn.nix {};
@@ -7035,7 +7011,7 @@ let
   alsaLib = callPackage ../os-specific/linux/alsa-lib { };
 
   alsaPlugins = callPackage ../os-specific/linux/alsa-plugins {
-    jackaudio = null;
+    jack2 = null;
   };
 
   alsaPluginWrapper = callPackage ../os-specific/linux/alsa-plugins/wrapper.nix { };
@@ -7979,6 +7955,8 @@ let
 
   oldstandard = callPackage ../data/fonts/oldstandard { };
 
+  opensans-ttf = callPackage ../data/fonts/opensans-ttf { };
+
   poly = callPackage ../data/fonts/poly { };
 
   posix_man_pages = callPackage ../data/documentation/man-pages-posix { };
@@ -8355,24 +8333,6 @@ let
 
   emacs = emacs24;
 
-  emacs23 = callPackage ../applications/editors/emacs-23 {
-    stdenv =
-      if stdenv.isDarwin
-      /* On Darwin, use Apple-GCC, otherwise:
-           configure: error: C preprocessor "cc -E -no-cpp-precomp" fails sanity check */
-      then overrideGCC stdenv gccApple
-      else stdenv;
-
-    # use override to select the appropriate gui toolkit
-    libXaw = if stdenv.isDarwin then xlibs.libXaw else null;
-    Xaw3d = null;
-    gtk = if stdenv.isDarwin then null else gtk;
-    # TODO: these packages don't build on Darwin.
-    gconf = null /* if stdenv.isDarwin then null else gnome.GConf */;
-    librsvg = null /* if stdenv.isDarwin then null else librsvg */;
-    texinfo = texinfo4;
-  };
-
   emacs24 = callPackage ../applications/editors/emacs-24 {
     # use override to enable additional features
     libXaw = xlibs.libXaw;
@@ -8392,12 +8352,12 @@ let
     withX = false;
   }));
 
-  emacs24Macport = callPackage ../applications/editors/emacs-24/macport.nix {
+  emacs24Macport = lowPrio (callPackage ../applications/editors/emacs-24/macport.nix {
     # resolve unrecognised flag '-fconstant-cfstrings' errors
     stdenv = if stdenv.isDarwin
       then clangStdenv
       else stdenv;
-  };
+  });
 
   emacsPackages = emacs: self: let callPackage = newScope self; in rec {
     inherit emacs;
@@ -8528,7 +8488,6 @@ let
     xmlRpc = callPackage ../applications/editors/emacs-modes/xml-rpc { };
   };
 
-  emacs23Packages = emacsPackages emacs23 pkgs.emacs23Packages;
   emacs24Packages = recurseIntoAttrs (emacsPackages emacs24 pkgs.emacs24Packages);
 
   inherit (gnome3) empathy;
@@ -8639,27 +8598,18 @@ let
 
   filezilla = callPackage ../applications/networking/ftp/filezilla { };
 
-  firefox = pkgs.firefoxPkgs.firefox;
-
-  firefox36Pkgs = callPackage ../applications/networking/browsers/firefox/3.6.nix {
-    inherit (gnome) libIDL;
-  };
-
-  firefox36Wrapper = wrapFirefox { browser = firefox36Pkgs.firefox; };
-
   firefox13Pkgs = callPackage ../applications/networking/browsers/firefox/13.0.nix {
     inherit (gnome) libIDL;
   };
 
   firefox13Wrapper = wrapFirefox { browser = firefox13Pkgs.firefox; };
 
-  firefoxPkgs = callPackage ../applications/networking/browsers/firefox {
+  firefox = callPackage ../applications/networking/browsers/firefox {
     inherit (gnome) libIDL;
     inherit (pythonPackages) pysqlite;
-    libpng = libpng.override { apngSupport = true; };
   };
 
-  firefoxWrapper = wrapFirefox { browser = firefoxPkgs.firefox; };
+  firefoxWrapper = wrapFirefox { browser = pkgs.firefox; };
 
   firefox-bin = callPackage ../applications/networking/browsers/firefox-bin {
     gconf = pkgs.gnome.GConf;
@@ -8672,7 +8622,6 @@ let
 
   flashplayer = callPackage ../applications/networking/browsers/mozilla-plugins/flashplayer-11 {
     debug = config.flashplayer.debug or false;
-    # !!! Fix the dependency on two different builds of nss.
   };
 
   freecad = callPackage ../applications/graphics/freecad {
@@ -8776,7 +8725,6 @@ let
   gmu = callPackage ../applications/audio/gmu { };
 
   gnash = callPackage ../applications/video/gnash {
-    xulrunner = firefoxPkgs.xulrunner;
     inherit (gnome) gtkglext;
   };
 
@@ -9096,6 +9044,8 @@ let
   llpp = callPackage ../applications/misc/llpp { inherit (ocamlPackages) lablgl; };
 
   lmms = callPackage ../applications/audio/lmms { };
+
+  lrzsz = callPackage ../tools/misc/lrzsz { };
 
   lxdvdrip = callPackage ../applications/video/lxdvdrip { };
 
@@ -10195,10 +10145,7 @@ let
 
   egoboo = callPackage ../games/egoboo { };
 
-  exult = callPackage ../games/exult {
-    stdenv = overrideGCC stdenv gcc42;
-    libpng = libpng12;
-  };
+  exult = callPackage ../games/exult { };
 
   flightgear = callPackage ../games/flightgear { };
 
@@ -10704,7 +10651,6 @@ let
 
   arb = callPackage ../applications/science/biology/arb {
     lesstif = lesstif93;
-    stdenv = overrideGCC stdenv gcc42;
   };
 
   archimedes = callPackage ../applications/science/electronics/archimedes { };
@@ -11062,9 +11008,9 @@ let
   hplipWithPlugin = hplip.override { withPlugin = true; };
 
   # using the new configuration style proposal which is unstable
-  jack1d = callPackage ../misc/jackaudio/jack1.nix { };
+  jack1 = callPackage ../misc/jackaudio/jack1.nix { };
 
-  jackaudio = callPackage ../misc/jackaudio { };
+  jack2 = callPackage ../misc/jackaudio { };
 
   keynav = callPackage ../tools/X11/keynav { };
 

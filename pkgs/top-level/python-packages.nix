@@ -2654,7 +2654,7 @@ rec {
       sed -i "/use_setuptools/d" setup.py
     '';
 
-    buildInputs = [ pkgs.alsaLib pkgs.jackaudio ];
+    buildInputs = [ pkgs.alsaLib pkgs.jack2 ];
 
     meta = with stdenv.lib; {
       description = "A Python wrapper for the RtMidi C++ library written with Cython";
@@ -4305,6 +4305,24 @@ rec {
     };
   };
 
+  minimock = buildPythonPackage rec {
+    version = "1.2.8";
+    name = "minimock-${version}";
+
+    src = fetchurl {
+      url = "https://bitbucket.org/jab/minimock/get/${version}.zip";
+      sha256 = "c88fa8a7120623f23990a7f086a9657f6ced09025a55e3be8649a30b4945441a";
+    };
+
+    buildInputs = [ nose ];
+
+    checkPhase = "./test";
+
+    meta = {
+      description = "A minimalistic mocking library for python";
+      homepage = https://pypi.python.org/pypi/MiniMock;
+    };
+  };
 
   mitmproxy = buildPythonPackage rec {
     baseName = "mitmproxy";
@@ -4586,6 +4604,23 @@ rec {
       '';
     };
   });
+
+
+  nbxmpp = buildPythonPackage rec {
+    name = "nbxmpp-0.5";
+
+    src = fetchurl {
+      name = "${name}.tar.gz";
+      url = "https://python-nbxmpp.gajim.org/downloads/5";
+      sha256 = "0y270c9v4i9n58p4ghlm18h50qcfichmfkgcpqd3bypx4fkmdx90";
+    };
+
+    meta = {
+      homepage = "https://python-nbxmpp.gajim.org/";
+      description = "Non-blocking Jabber/XMPP module";
+      license = stdenv.lib.licenses.gpl3;
+    };
+  };
 
 
   netaddr = buildPythonPackage rec {
@@ -5196,6 +5231,28 @@ rec {
       homepage = https://developer.paypal.com/;
       description = "Python APIs to create, process and manage payment";
       license = "PayPal SDK License";
+    };
+  };
+
+  pbr = buildPythonPackage rec {
+    name = "pbr-0.9.0";
+
+    src = fetchurl {
+      url = "https://pypi.python.org/packages/source/p/pbr/${name}.tar.gz";
+      sha256 = "e5a57c434b1faa509a00bf458d2c7af965199d9cced3d05a547bff9880f7e8cb";
+    };
+
+    # pip depend on $HOME setting
+    preConfigure = "export HOME=$TMPDIR";
+
+    doCheck = false;
+
+    buildInputs = [ pip ];
+
+    meta = {
+      description = "Python Build Reasonableness";
+      homepage = "http://docs.openstack.org/developer/pbr/";
+      license = licenses.asl20;
     };
   };
 
@@ -5968,6 +6025,23 @@ rec {
     meta = {
       description = "A python implementation of the Pluggable Transports for Circumvention specification for Tor";
       license = stdenv.lib.licenses.bsd2;
+    };
+  });
+
+  pyro3 = buildPythonPackage (rec {
+    name = "Pyro-3.16";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/P/Pyro/${name}.tar.gz";
+      md5 = "59d4d3f4a8786776c9d7f9051b8f1a69";
+    };
+
+    meta = with stdenv.lib; {
+      description = "Distributed object middleware for Python (IPC/RPC)";
+      homepage = http://pythonhosted.org/Pyro/;
+      license = licenses.mit;
+      platforms = platforms.unix;
+      maintainers = [ maintainers.bjornfor ];
     };
   });
 
@@ -7100,6 +7174,23 @@ rec {
     };
   };
 
+  stevedore = buildPythonPackage rec {
+    name = "stevedore-0.15";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/s/stevedore/${name}.tar.gz";
+      sha256 = "bec9269cbfa58de4f0849ec79bb7d54eeeed9df8b5fbfa1637fbc68062822847";
+    };
+
+    buildInputs = [ pbr pip ];
+
+    meta = {
+      description = "Manage dynamic plugins for Python applications";
+      homepage = "https://pypi.python.org/pypi/stevedore";
+      license = licenses.asl20;
+    };
+  };
+
   pydns = buildPythonPackage rec {
     name = "pydns-2.3.6";
 
@@ -8057,6 +8148,31 @@ rec {
       platforms = platforms.all;
     };
   };
+
+  virtualenvwrapper = buildPythonPackage (rec {
+    name = "virtualenvwrapper-4.3";
+
+    src = fetchurl {
+      url = "https://pypi.python.org/packages/source/v/virtualenvwrapper/${name}.tar.gz";
+      sha256 = "514cbc22218347bf7b54bdbe49e1a5f550d2d53b1ad2491c10e91ddf48fb528f";
+    };
+
+    # pip depend on $HOME setting
+    preConfigure = "export HOME=$TMPDIR";
+
+    buildInputs = [ pbr pip stevedore virtualenv virtualenv-clone pkgs.which ];
+
+    patchPhase = ''
+      substituteInPlace "virtualenvwrapper.sh" --replace "which" "${pkgs.which}/bin/which"
+      substituteInPlace "virtualenvwrapper_lazy.sh" --replace "which" "${pkgs.which}/bin/which"
+    '';
+
+    meta = {
+      description = "Enhancements to virtualenv";
+      homepage = "https://pypi.python.org/pypi/virtualenvwrapper";
+      license = licenses.mit;
+    };
+  });
 
   waitress = buildPythonPackage rec {
     name = "waitress-0.8.7";

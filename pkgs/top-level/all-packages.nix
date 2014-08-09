@@ -5101,6 +5101,8 @@ let
 
   libelf = callPackage ../development/libraries/libelf { };
 
+  libetpan = callPackage ../development/libgadu/libetpan { };
+
   libfm = callPackage ../development/libraries/libfm { };
 
   libgadu = callPackage ../development/libraries/libgadu { };
@@ -8981,6 +8983,8 @@ let
   };
 
   caps = callPackage ../applications/audio/caps { };
+
+  claws-mail = callPackage ../applications/networking/mailreaders/claws-mail { };
 
   lastwatch = callPackage ../applications/audio/lastwatch { };
 

@@ -1,0 +1,7 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] experimental/vim-plugins
+
+I recommend installing most vim plugins using vim-addon-manager.
+However some require compilation, such as YouCompleteMe
+
+Signed-off-by: Marc Weber <marco-oweber@gmx.de>

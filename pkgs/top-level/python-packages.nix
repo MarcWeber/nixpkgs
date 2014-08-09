@@ -9519,6 +9519,83 @@ rec {
     };
   };
 
+
+  pythonocc =
+  let occ = pkgs.opencascadeCommunityFork;
+  # let occ = pkgs.opencascade_6_5;
+  # let occ = pkgs.opencascade_oce;
+      src_name = {
+        # name = "pythonocc-0.5";
+        # src = fetchurl {
+        #   url = http://pythonocc.googlecode.com/files/pythonocc-0.5.tar.gz;
+        #   sha256 = "1z3grc7m3js5h27z7g4l56xdn71vj7w27ci4vwby6jsg9rlh93ka";
+        # };
+
+        name = "python-occ-0.6.-rc1";
+        src = fetchurl {
+          url = "https://github.com/tpaviot/pythonocc/archive/0.6-rc1.tar.gz";
+          sha256 = "1043vnki9gvx2g3lnh5i5fdgzvjpjx4msd4h0ivfn08xxzfsqlgk";
+        };
+
+        # # REGION AUTO UPDATE: { name="pythonocc"; type="git"; url="git@github.com:tpaviot/pythonocc.git"; }
+        # src = (fetchurl { url = "http://mawercer.de/~nix/repos/pythonocc-git-aa1c3.tar.bz2"; sha256 = "1ad36ecbd8a5e33370ca4c80cc42b308647e9de05f65833f29883b5ac2cdb0eb"; });
+        # name = "pythonocc-git-aa1c3";
+        # # END
+      };
+
+      geom = stdenv.mkDerivation {
+        /* geom git need opencascade_6_5 otherwise
+          BooleanOperations_IndexedDataMapOfShapeAncestorsSuccessors.hxx
+        */
+
+        name = "${src_name.name}-contrib-geom";
+        inherit (src_name) src;
+        NIX_CFLAGS_COMPILE="-I${occ}/include/oce";
+        cmakeFlags = "-DOCC_INCLUDE_PATH=${occ}/include/oce";
+        preConfigure = '' sed -i "s@/usr/local@$out@" CMakeLists.txt '';
+        buildInputs = [pkgs.cmake occ];
+        postUnpack = "sourceRoot=$(echo */src/contrib/geom-*)";
+      };
+      smesh = stdenv.mkDerivation {
+        name = "${src_name.name}-contrib-smesh";
+        inherit (src_name) src;
+        NIX_CFLAGS_COMPILE="-I${occ}/include/oce";
+        preConfigure = '' sed -i "s@/usr/local@$out@" CMakeLists.txt '';
+        buildInputs = [pkgs.cmake occ pkgs.gfortran];
+        postUnpack = "sourceRoot=$(echo */src/contrib/smesh-*)";
+      };
+  in
+  stdenv.mkDerivation {
+
+    buildInputs = [python pkgs.cmake occ smesh geom sympy pkgs.swig2];
+
+    inherit (src_name) src name;
+    inherit occ smesh geom;
+    NIX_CFLAGS_COMPILE="-I${occ}/include/oce";
+    cmakeFlags = "-DpythonOCC_WRAP_GEOM=ON -DpythonOCC_WRAP_SMESH=ON";
+    /*
+      cd src;
+      echo ====================================================================================================
+      python setup.py \
+        --with-occ-libs=${occ}/lib \
+        --with-occ-include=${occ}/include \
+        --with-geom-lib=${geom}
+        --with-smesh-lib=${smesh}
+        install --prefix="$out" .
+      fail
+      */
+
+    # postUnpack = "sourceRoot=$(echo */src/contrib/smesh-*)";
+
+    meta = {
+      description = "3D CAD/CAE/PLM development framework for the Python programming language";
+      homepage = http://www.pythonocc.org/news/pythonocc-as-pre-processor/;
+      license = stdenv.lib.licenses.lgpl3;
+      maintainers = [stdenv.lib.maintainers.marcweber];
+      platforms = stdenv.lib.platforms.linux;
+    };
+  };
+
   searx = buildPythonPackage rec {
     name = "searx-${rev}";
     rev = "44d3af9fb2482cd0df1a8ababbe2fdf27ab33172";

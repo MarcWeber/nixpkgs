@@ -246,8 +246,6 @@
       influxdb = 125;
       nsd = 126;
       firebird = 127;
-      znc = 128;
-      polipo = 129;
 
       # When adding a gid, make sure it doesn't match an existing uid. And don't use gids above 399!
 

@@ -60,4 +60,3 @@ stdenv.mkDerivation rec {
     maintainers = with maintainers; [ the-kenny ];
   };
 }
-

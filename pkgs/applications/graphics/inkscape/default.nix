@@ -1,17 +1,34 @@
 { stdenv, fetchurl, pkgconfig, perl, perlXMLParser, gtk, libXft
 , libpng, zlib, popt, boehmgc, libxml2, libxslt, glib, gtkmm
 , glibmm, libsigcxx, lcms, boost, gettext, makeWrapper, intltool
-, gsl, python, pyxml, lxml, poppler, imagemagick, libwpg }:
+, gsl, python, pyxml, lxml, poppler, imagemagick, libwpg
+, fetchbzr, automake, autoconf, libtool, which
+, versionedDerivation, version ? "0.48.x"
+}:
 
-stdenv.mkDerivation rec {
-  name = "inkscape-0.48.4";
+versionedDerivation "inkscape" version {
+  "0.48.x" = rec {
+    name = "inkscape-0.48.4";
 
-  src = fetchurl {
-    url = "mirror://sourceforge/inkscape/${name}.tar.bz2";
-    sha256 = "17aiibgdwjqpjc38f0yr2sdlgwngg5ac9srlybjcx9aspf6ashc7";
+    src = fetchurl {
+      url = "mirror://sourceforge/inkscape/${name}.tar.bz2";
+      sha256 = "17aiibgdwjqpjc38f0yr2sdlgwngg5ac9srlybjcx9aspf6ashc7";
+    };
+
+    patches = [ ./configure-python-libs.patch ];
   };
-
-  patches = [ ./configure-python-libs.patch ];
+  "dev" = {
+    src = fetchbzr {
+      url = "https://code.launchpad.net/~inkscape.dev/inkscape/trunk";
+      revision = 12339;
+      sha256 = "1k6fnq6xh4h4wd5bnfnyc9v0kvqrjvv58r75qj1b132mpzl9vlqi";
+    };
+    buildInputs = [ automake autoconf libtool which];
+    preConfigure = ''
+      sh autogen.sh
+    '';
+  };
+} {
 
   postPatch = ''
     patch -p0 < ${./spuriouscomma.patch}

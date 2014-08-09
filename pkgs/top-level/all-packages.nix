@@ -8906,6 +8906,7 @@ let
     inherit (pythonPackages) lxml;
     lcms = lcms2;
   };
+  inkscapeDev = inkscape.override { version = "dev"; };
 
   ion3 = callPackage ../applications/window-managers/ion-3 {
     lua = lua5;

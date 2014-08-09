@@ -1,5 +1,8 @@
 { config, lib, pkgs, ... }:
 
+# TODO: merge with upstream changes
+# TODO: proper types instead of addCheck null ..
+
 with lib;
 
 let
@@ -9,11 +12,92 @@ let
   group = cfg.group;
   setgidGroup = cfg.setgidGroup;
 
+  inherit (pkgs) postfix;
+
+  postfixEtcDir = pkgs.runCommand "postfix-etc-dir" {} ''
+    ensureDir $out
+    ln -s ${postfix}/share/postfix/conf/master.cf $out/master.cf
+    ln -s ${postfix}/share/postfix/conf/bounce.cf.default $out/bounce.cf
+    ln -s ${mainCfFile} $out/main.cf
+  '';
+  # helper functions
+
+  aliasFile = name: list: # list= [ [key value]  .. ]
+    let inherit (builtins) head tail; inherit (pkgs) writeText;
+        text = concatMapStrings (key_v: "${head key_v}:${head (tail key_v)}\n") list;
+    in writeText "postfix-${name}" text;
+  mapFile = name: list: # list= [ [key value]  .. ]
+    let inherit (builtins) head tail; inherit(pkgs) writeText;
+        text = concatMapStrings (key_v: "${head key_v} ${head (tail key_v)}\n") list;
+    in writeText "postfix-${name}" text;
+
+  generatedFiles = "/var/postfix/generated-files";
+
+  # run postmap or postalias
+  aliasOrMapDB = inputFile: name: command: commandArgs: type: rec {
+    fname = "${generatedFiles}/${name}";
+    cmd = 
+      if type == "regexp" then ''
+        cp ${inputFile} ${fname}
+        # sanity check
+        ${postfix}/sbin/${command} ${commandArgs} -q 'dummy' regexp:${fname} |& grep ', line' && { echo "${fname} bad format!"; exit 1; } || true
+      '' else ''
+        cp ${inputFile} "${fname}"
+        ${postfix}/sbin/${command} ${commandArgs} "${type}:${fname}"
+        rm $n
+        # sanity check
+        ${postfix}/sbin/${command} ${commandArgs} -s "${type}:${fname}" > /dev/null || { echo "${fname} bad format!"; exit 1; }
+        [ -f "${fname}.db" ]
+      '';
+  };
+
+  tableToAttrs = x:
+        if x ? static then {
+          cmd = "";
+          cfg = "${x.name} = static:${x.static}\n";
+        }
+        else if x ? map then
+	let type = maybeAttr "type" "hash" x;
+            d = aliasOrMapDB (mapFile x.name x.map) x.name "postmap" "-c ${postfixEtcDir}" type;
+	in {
+          inherit (d) cmd;
+          cfg = "${x.name} = ${type}:${d.fname}\n";
+        }
+        else if x ? aliases then
+	let type = maybeAttr "type" "hash" x;
+            d = aliasOrMapDB (aliasFile x.name x.aliases) x.name "postalias" "-c ${postfixEtcDir}" type;
+	in {
+          inherit (d) cmd;
+          cfg = "${x.name} = ${type}:${d.fname}\n";
+        }
+        else throw "bad";
+  configForTables = map tableToAttrs cfg.tables;
+
+  # only set option if not empty
+  option = apply: mainCfName: nixName:
+    let v = getAttr nixName cfg;
+    in optionalString (v != null) (''
+      ${mainCfName} = ${apply v}
+    '');
+
+  listOption = option (concatStringsSep ", ");
+  strOption = option id;
+
+  commandDir = pkgs.runCommand "postfix-command-dir" {} ''
+  mkdir -p $out
+  ln -s /var/setuid-wrappers/postdrop $out/postdrop
+  ln -s /var/setuid-wrappers/postqueue $out/postqueue
+  for p in post{conf,log,super}; do
+    ln -s ${postfix}/sbin/$p $out/$p
+  done
+  '';
+
+
   mainCf =
     ''
       queue_directory = /var/postfix/queue
-      command_directory = ${pkgs.postfix}/sbin
-      daemon_directory = ${pkgs.postfix}/libexec/postfix
+      command_directory = ${commandDir}
+      daemon_directory = ${postfix}/libexec/postfix
 
       mail_owner = ${user}
       default_privs = nobody
@@ -26,7 +110,7 @@ let
         ''
           mynetworks = ${concatStringsSep ", " cfg.networks}
         ''
-      else if cfg.networksStyle != "" then
+      else if cfg.networksStyle != null then
         ''
           mynetworks_style = ${cfg.networksStyle}
         ''
@@ -35,21 +119,13 @@ let
         ''
           mynetworks_style = host
         '')
-    + optionalString (cfg.hostname != "") ''
-      myhostname = ${cfg.hostname}
-    ''
-    + optionalString (cfg.domain != "") ''
-      mydomain = ${cfg.domain}
-    ''
-    + optionalString (cfg.origin != "") ''
-      myorigin = ${cfg.origin}
-    ''
-    + optionalString (cfg.destination != null) ''
-      mydestination = ${concatStringsSep ", " cfg.destination}
-    ''
-    + optionalString (cfg.relayDomains != null) ''
-      relay_domains = ${concatStringsSep ", " cfg.relayDomains}
-    ''
+    + (strOption  "myhostname" "hostname")
+    + (strOption  "mydomain"   "domain")
+    + (strOption  "myorigin"   "origin")
+    + (listOption "mydestination" "destination")
+    + (listOption "relay_domains" "relayDomains")
+    + (strOption  "virtual_mailbox_base" "virtualMailboxBase")
+    + (listOption "virtual_mailbox_domains" "virtualMailboxDomains")
     + ''
       local_recipient_maps =
 
@@ -57,14 +133,11 @@ let
           cfg.relayHost
         else
           "[" + cfg.relayHost + "]"}
-
-      alias_maps = hash:/var/postfix/conf/aliases
-
       mail_spool_directory = /var/spool/mail/
 
       setgid_group = ${setgidGroup}
     ''
-    + optionalString (cfg.sslCert != "") ''
+    + optionalString (cfg.sslCert != null) ''
 
       smtp_tls_CAfile = ${cfg.sslCACert}
       smtp_tls_cert_file = ${cfg.sslCert}
@@ -79,65 +152,12 @@ let
       smtpd_use_tls = yes
 
       recipientDelimiter = ${cfg.recipientDelimiter}
+
     ''
-    + optionalString (cfg.virtual != "") ''
-      virtual_alias_maps = hash:/etc/postfix/virtual
-    ''
+    + (concatStrings (catAttrs "cfg" configForTables))
     + cfg.extraConfig;
 
-  masterCf = ''
-    # ==========================================================================
-    # service type  private unpriv  chroot  wakeup  maxproc command + args
-    #               (yes)   (yes)   (yes)   (never) (100)
-    # ==========================================================================
-    smtp      inet  n       -       n       -       -       smtpd
-    #submission inet n       -       n       -       -       smtpd
-    #  -o smtpd_tls_security_level=encrypt
-    #  -o smtpd_sasl_auth_enable=yes
-    #  -o smtpd_client_restrictions=permit_sasl_authenticated,reject
-    #  -o milter_macro_daemon_name=ORIGINATING
-    pickup    fifo  n       -       n       60      1       pickup
-    cleanup   unix  n       -       n       -       0       cleanup
-    qmgr      fifo  n       -       n       300     1       qmgr
-    tlsmgr    unix  -       -       n       1000?   1       tlsmgr
-    rewrite   unix  -       -       n       -       -       trivial-rewrite
-    bounce    unix  -       -       n       -       0       bounce
-    defer     unix  -       -       n       -       0       bounce
-    trace     unix  -       -       n       -       0       bounce
-    verify    unix  -       -       n       -       1       verify
-    flush     unix  n       -       n       1000?   0       flush
-    proxymap  unix  -       -       n       -       -       proxymap
-    proxywrite unix -       -       n       -       1       proxymap
-    smtp      unix  -       -       n       -       -       smtp
-    relay     unix  -       -       n       -       -       smtp
-    	      -o smtp_fallback_relay=
-    #       -o smtp_helo_timeout=5 -o smtp_connect_timeout=5
-    showq     unix  n       -       n       -       -       showq
-    error     unix  -       -       n       -       -       error
-    retry     unix  -       -       n       -       -       error
-    discard   unix  -       -       n       -       -       discard
-    local     unix  -       n       n       -       -       local
-    virtual   unix  -       n       n       -       -       virtual
-    lmtp      unix  -       -       n       -       -       lmtp
-    anvil     unix  -       -       n       -       1       anvil
-    scache    unix  -       -       n       -       1       scache
-    ${cfg.extraMasterConf}
-  '';
-
-  aliases =
-    optionalString (cfg.postmasterAlias != "") ''
-      postmaster: ${cfg.postmasterAlias}
-    ''
-    + optionalString (cfg.rootAlias != "") ''
-      root: ${cfg.rootAlias}
-    ''
-    + cfg.extraAliases
-  ;
-
-  aliasesFile = pkgs.writeText "postfix-aliases" aliases;
-  virtualFile = pkgs.writeText "postfix-virtual" cfg.virtual;
   mainCfFile = pkgs.writeText "postfix-main.cf" mainCf;
-  masterCfFile = pkgs.writeText "postfix-master.cf" masterCf;
 
 in
 
@@ -182,13 +202,13 @@ in
         example = ["192.168.0.1/24"];
         description = "
           Net masks for trusted - allowed to relay mail to third parties -
-          hosts. Leave empty to use mynetworks_style configuration or use
+          hosts. Leave null to use mynetworks_style configuration or use
           default (localhost-only).
         ";
       };
 
       networksStyle = mkOption {
-        default = "";
+        default = null;
         description = "
           Name of standard way of trusted network specification to use,
           leave blank if you specify it explicitly or if you want to use
@@ -197,7 +217,7 @@ in
       };
 
       hostname = mkOption {
-        default = "";
+        default = null;
         description ="
           Hostname to use. Leave blank to use just the hostname of machine.
           It should be FQDN.
@@ -205,17 +225,19 @@ in
       };
 
       domain = mkOption {
-        default = "";
+        default = null;
         description ="
           Domain to use. Leave blank to use hostname minus first component.
         ";
+        type = types.nullOr types.str;
       };
 
       origin = mkOption {
-        default = "";
+        default = null;
         description ="
-          Origin to use in outgoing e-mail. Leave blank to use hostname.
+          Origin to use in outgoing e-mail. Leave null to use hostname.
         ";
+        type = types.nullOr types.str;
       };
 
       destination = mkOption {
@@ -256,60 +278,117 @@ in
       };
 
       rootAlias = mkOption {
-        default = "";
+        default = null;
         description = "
           Who should receive root e-mail. Blank for no redirection.
         ";
       };
 
-      extraAliases = mkOption {
-        default = "";
-        description = "
-          Additional entries to put verbatim into aliases file.
-        ";
-      };
-
-      extraConfig = mkOption {
-        default = "";
-        description = "
-          Extra lines to be added verbatim to the main.cf configuration file.
-        ";
-      };
-
       sslCert = mkOption {
-        default = "";
+        default = null;
         description = "SSL certificate to use.";
       };
 
       sslCACert = mkOption {
-        default = "";
+        default = null;
         description = "SSL certificate of CA.";
       };
 
       sslKey = mkOption {
-        default = "";
+        default = null;
         description = "SSL key to use.";
       };
 
       recipientDelimiter = mkOption {
-        default = "";
+        default = null;
         example = "+";
         description = "
           Delimiter for address extension: so mail to user+test can be handled by ~user/.forward+test
         ";
       };
 
-      virtual = mkOption {
+      extraConfig = mkOption {
         default = "";
-        description = "
-          Entries for the virtual alias map.
-        ";
+        description = ''
+          Additional configuration lines to be added to main.cf
+        '';
       };
 
-      extraMasterConf = mkOption {
+      preStartCommands = mkOption {
         default = "";
-        example = "submission inet n - n - - smtpd";
-        description = "Extra lines to append to the generated master.cf file.";
+        description = ''
+          code run before postifx is started. Use this to generate additional
+          hash files or such eg when using virtual domains
+        '';
+      };
+
+      virtualMailboxBase = mkOption {
+        default = "/var/mail/vhosts"; # is this a nice default?
+        example = "/var/mail/vhosts";
+        description = "virtual example see tables option. You have to create
+          this directory manually and set its permissions";
+      };
+
+      virtualMailboxDomains = mkOption {
+        default = [];
+        example = ["domain1.com" "domain2.com"];
+        description = "virtual example see tables option";
+      };
+
+      tables = mkOption {
+        default = [];
+        example = [
+          {
+            name = "alias_maps";
+            aliases = [
+              ["postmaster" "alias for postmaster"]
+              ["root" "alias for root"]
+            ];
+          }
+          {
+            name = "virtual_alias_maps";
+            map = [["postmaster@example.com" "postmaster"]];
+          }
+          {
+            name = "virtual_mailbox_maps";
+            map = [
+              # map address to mailbox in virtualMailboxDomains
+              ["testX@localhost" "testX"]
+              ["testY@localhost" "testY"]
+            ];
+          }
+          # uid and gids of mailboxes
+          { name = "virtual_gid_maps"; static = "ADUJUST PLEASE"; }
+          { name = "virtual_uid_maps"; static = "ADUJUST PLEASE"; }
+        ];
+        description = ''
+          setup lookups. If you drop tables be aware that
+          /etc/postfix/names[.db] are not cleaned up yet.
+
+          Use it for setting up virtual domains.
+
+          While postfix supports many different kinds of lookup tables
+          (http://www.postfix.org/DATABASE_README.html#types) only postmap,
+          postalias and static has been implemented yet.
+
+          You can setup virtual mailboxes (multiple domains and many addresses
+          without linux system account) easily by reviewing virtualMailboxBase
+          and virtualMailboxDomains options and adjusting the example tables
+          configuration.
+
+          Pay attention to not list the same domain in destination and
+          virtualMailboxDomains else destination (local delivery) will win.
+        '';
+        type = mkOptionType {
+          name = "postfyi-tables-type";
+          check = x:
+            let valid = table:
+                isAttrs table
+              && table ? name
+              && any (n: hasAttr n table) ["static" "aliases" "map"];
+            in isList x && all valid x;
+
+        };
       };
 
     };
@@ -321,24 +400,43 @@ in
 
   config = mkIf config.services.postfix.enable {
 
-    environment = {
-      etc = singleton
-        { source = "/var/postfix/conf";
-          target = "postfix";
-        };
+    assertions = singleton
+      { assertion = any (x: x.name == "alias_maps") cfg.tables;
+        message = "You want to set alias_maps and configure where root@ and postmaster@ will be send to. "
+                + "See services.postfix.tables options. Ignore this by defining an empty map";
+      };
 
-      # This makes comfortable for root to run 'postqueue' for example.
-      systemPackages = [ pkgs.postfix ];
-    };
+    environment.etc.postfix.source = postfixEtcDir;
+    # This makes comfortable for root to run 'postqueue' for example.
+    environment.systemPackages = [ postfix ];
 
     services.mail.sendmailSetuidWrapper = mkIf config.services.postfix.setSendmail {
       program = "sendmail";
-      source = "${pkgs.postfix}/bin/sendmail";
+      source = "${postfix}/bin/sendmail";
       owner = "nobody";
       group = "postdrop";
       setuid = false;
       setgid = true;
     };
+
+    security.setuidOwners = [
+      # must be setgid so that it can deliver to maildrop
+      { program = "postdrop";
+          owner = "root";
+          group = cfg.setgidGroup;
+          setuid = false;
+	  setgid = true;
+          source = "${postfix}/sbin/postdrop";
+      }
+      # postfix check  sais it should be setguid as well ?
+      { program = "postqueue";
+          owner = "root";
+          group = cfg.setgidGroup;
+          setuid = false;
+	  setgid = true;
+          source = "${postfix}/sbin/postqueue";
+      }
+    ];
 
     users.extraUsers = singleton
       { name = user;
@@ -356,50 +454,45 @@ in
         }
       ];
 
-    jobs.postfix =
-      # I copy _lots_ of shipped configuration filed
-      # that can be left as is. I am afraid the exact
-      # will list slightly change in next Postfix
-      # release, so listing them all one-by-one in an
-      # accurate way is unlikely to be better.
-      { description = "Postfix mail server";
+    systemd.services.postfix =
+      let
+        pidFile = "/var/postfix/queue/pid/master.pid";
 
-        wantedBy = [ "multi-user.target" ];
-        after = [ "network.target" ];
+        # maybe some more chown / chomd commands must be run (TODO)
+        preStartScript = pkgs.writeScript "postfix-pre-start" ''
+        #!/bin/sh
+        if ! [ -d /var/spool/postfix ]; then
+          ${pkgs.coreutils}/bin/mkdir -p /var/spool/mail /etc/postfix /var/postfix/queue
+        fi
 
-        daemonType = "fork";
+        ${pkgs.coreutils}/bin/chown -R ${user}:${group} /var/postfix
+        ${pkgs.coreutils}/bin/chown -R ${user}:${setgidGroup} /var/postfix/queue
+        ${pkgs.coreutils}/bin/chmod -R ug+rwX /var/postfix/queue
+        ${pkgs.coreutils}/bin/chown root:root /var/spool/mail
+        ${pkgs.coreutils}/bin/chmod a+rwxt /var/spool/mail
 
-        preStart =
-          ''
-            if ! [ -d /var/spool/postfix ]; then
-              ${pkgs.coreutils}/bin/mkdir -p /var/spool/mail /var/postfix/conf /var/postfix/queue
-            fi
+        ${cfg.preStartCommands}
 
-            ${pkgs.coreutils}/bin/chown -R ${user}:${group} /var/postfix
-            ${pkgs.coreutils}/bin/chown -R ${user}:${setgidGroup} /var/postfix/queue
-            ${pkgs.coreutils}/bin/chmod -R ug+rwX /var/postfix/queue
-            ${pkgs.coreutils}/bin/chown root:root /var/spool/mail
-            ${pkgs.coreutils}/bin/chmod a+rwxt /var/spool/mail
-
-            ln -sf "${pkgs.postfix}/share/postfix/conf/"* /var/postfix/conf
-
-            ln -sf ${aliasesFile} /var/postfix/conf/aliases
-            ln -sf ${virtualFile} /var/postfix/conf/virtual
-            ln -sf ${mainCfFile} /var/postfix/conf/main.cf
-            ln -sf ${masterCfFile} /var/postfix/conf/master.cf
-
-            ${pkgs.postfix}/sbin/postalias -c /var/postfix/conf /var/postfix/conf/aliases
-            ${pkgs.postfix}/sbin/postmap -c /var/postfix/conf /var/postfix/conf/virtual
-
-            ${pkgs.postfix}/sbin/postfix -c /var/postfix/conf start
-          '';
-
-        preStop = ''
-            ${pkgs.postfix}/sbin/postfix -c /var/postfix/conf stop
+        rm -fr ${generatedFiles}
+        mkdir -p ${generatedFiles}
+        ${concatStrings (catAttrs "cmd" configForTables)}
         '';
+      in {
+        description = "Postfix mail server";
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig = {
+          Type = "forking";
 
+          ExecStartPre=preStartScript;
+          ExecStart="${postfix}/sbin/postfix -c /etc/postfix start";
+          ExecStop="${postfix}/sbin/postfix -c /etc/postfix stop";
+          ExecReload="${postfix}/sbin/postfix -c /etc/postfix reload";
+        };
+
+        environment = {
+          PATH="${pkgs.coreutils}/bin:${pkgs.findutils}/bin:${pkgs.gnugrep}/bin:${pkgs.gnused}/bin:${pkgs.gawk}/bin";
+        };
       };
-
   };
 
 }

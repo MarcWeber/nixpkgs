@@ -1,0 +1,19 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] marc-nixos/postfix
+
+marc-nixos/postfix
+    
+- use null instead of "" for some options which means don't set option at all
+  to make it clearer that the option is unset rather than set to "" which means
+  postfix defaults apply
+- use default configuration /etc/postfix/main.cf So that sendmail and postfix
+  flush just works and postconf prints correct configuration location and that
+  its no longer necessary to pass configuration location
+- remove all the impure ln stuff creating untracked files in the conf directory.
+  Instead create .db files in store
+  (TOOD: !take care about passwords!)
+- replace options extraAliases, postmaster etc by assertions forcing you to
+  think about creating alias table
+- assemble command dir adding links to sgid wrapped applications correctly
+
+TODO: merge with upstream changes

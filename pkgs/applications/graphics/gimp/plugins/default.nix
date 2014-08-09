@@ -35,7 +35,7 @@ let
 
  libLQR = pluginDerivation {
     name = "liblqr-1-0.4.1";
-    # required by lqrPlugin, you don't havet to install this lib explicitely
+    # required by lqrPlugin, you don't have to install this lib explicitely
     buildInputs = [ gimp ] ++ gimp.nativeBuildInputs;
     src = fetchurl {
       url = http://registry.gimp.org/files/liblqr-1-0.4.1.tar.bz2;
@@ -43,8 +43,108 @@ let
     };
   };
 
+  qmakeQt4 = pkgs.writeScriptBin "qmake-qt4" ''
+  #!/bin/sh
+  ${pkgs.qt4}/bin/qmake
+  '';
+
+  gmicDerivation = {zart ? false, src, name, runQmake ? false}: # zart builds but segfaults for some reason.
+  let imagemagick = pkgs.imagemagickBig; # maybe the non big version is enough?
+      zart = false;
+      # pkgs.fftwSinglePrec
+      fftw = pkgs.fftw;
+  in pluginDerivation {
+      enableParallelBuilding = true;
+      propagatedBuildInputs = [ imagemagick ];
+      buildInputs = [
+            pkgconfig pkgconfig gimp fftw pkgs.ffmpeg pkgs.fftw pkgs.openexr
+            pkgs.opencv pkgs.perl
+          ] 
+          ++ gimp.nativeBuildInputs
+          ++ (pkgs.lib.optionals zart [
+            pkgs.qt4
+            fftw
+          ]);
+
+      inherit src name;
+      postUnpack = "sourceRoot=$sourceRoot/src";
+      preConfigure = ''
+        NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags opencv ImageMagick OpenEXR)"
+        NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l opencv ImageMagick OpenEXR)"
+      ''
+      + (if zart then 
+        stdenv.lib.optionalString runQmake "( cd ../zart; qmake; )"
+        + ''
+         sed -i -e 's/qmake-qt4/qmake/' ../zart/Makefile Makefile
+       '' else ''
+         sed -i '/$(MAKE) zart/d' Makefile
+       '');
+      installPhase = "
+        installPlugins gmic_gimp
+      " + (pkgs.lib.optionalString zart ''
+        ensureDir $out/bin
+        cp ../zart/zart $out/bin
+      '')
+      ;
+      meta = {
+        description = "script language for image processing which comes with its open-source interpreter";
+        homepage = http://gmic.sourceforge.net/repository.shtml;
+        license = "CeCILL FREE SOFTWARE LICENSE AGREEMENT";
+        /*
+        The purpose of this Free Software license agreement is to grant users
+        the right to modify and redistribute the software governed by this
+        license within the framework of an open source distribution model.
+        [ ... ] */
+      };
+  };
+
 in
 rec {
+
+  # http://members.ozemail.com.au/~hodsond/degrain.html
+  degrain = pluginDerivation {
+    name = "degrain";
+    buildInputs = [ pkgconfig gimp ] ++ gimp.nativeBuildInputs;
+    src = fetchurl {
+      url = http://members.ozemail.com.au/~hodsond/degrain.c;
+      sha256 = "132r8kc6jm8giqsc9ahic7m35ca2k0k74bgmcr04r8dv5a1afkan";
+    };
+    unpackPhase = "cp $src degrain.c";
+    buildPhase = "gimptool-2.0 --build degrain.c";
+    installPhase = "installPlugins degrain";
+  };
+
+  egisonoisereduction = pluginDerivation {
+    name = "degrain";
+    buildInputs = [ pkgconfig gimp ] ++ gimp.nativeBuildInputs;
+    src = fetchurl {
+      url = http://registry.gimp.org/files/Eg-ISONoiseReduction.scm;
+      sha256 = "0fv9wnd5mgbqb09m4rk2nfw65rc7rly1bmjb5bx7z0lnxx8iwdhr";
+    };
+    unpackPhase = "cp $src Eg-ISONoiseReduction.scm";
+    buildPhase = ":";
+    installPhase = "installScripts Eg-ISONoiseReduction.scm";
+  };
+
+  fourier = pluginDerivation rec {
+    /* menu:
+       Filters/Generic/FFT Forward
+       Filters/Generic/FFT Inverse
+    */
+    name = "fourier-0.4.1";
+    buildInputs = [ gimp pkgs.fftw  pkgconfig gimp.gtkLibs.glib] ++ gimp.nativeBuildInputs;
+    postInstall = "fail";
+    # preConfigure = ''
+    #   NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags glib-2.0 fftw3 gimp-2.0)"
+    #   NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l glib-2.0 gimp-2.0 fftw3)"
+    # '';
+    installPhase = "installPlugins fourier";
+    src = fetchurl {
+      url = "http://registry.gimp.org/files/${name}.tar.gz";
+      sha256 = "1pr3y3zl9w8xs1circdrxpr98myz9m8wfzy022al79z4pdanwvs1";
+    };
+  };
+
   gap = pluginDerivation {
     /* menu:
        Video
@@ -59,7 +159,7 @@ rec {
       sed -e 's,^\(GIMP_PLUGIN_DIR=\).*,\1'"$out/${gimp.name}-plugins", \
        -e 's,^\(GIMP_DATA_DIR=\).*,\1'"$out/share/${gimp.name}", -i configure
     '';
-    meta = { 
+    meta = {
       description = "The GIMP Animation Package";
       homepage = http://www.gimp.org;
       # The main code is given in GPLv3, but it has ffmpeg in it, and I think ffmpeg license
@@ -68,19 +168,31 @@ rec {
     };
   };
 
-  fourier = pluginDerivation rec {
-    /* menu:
-       Filters/Generic/FFT Forward
-       Filters/Generic/FFT Inverse
-    */
-    name = "fourier-0.4.1";
-    buildInputs = [ gimp pkgs.fftw  pkgconfig glib] ++ gimp.nativeBuildInputs;
-    postInstall = "fail";
-    installPhase = "installPlugins fourier";
+  # http://registry.gimp.org/node/25342
+  h_localdenoise3 = pluginDerivation {
+    name = "harrys-denoise3";
     src = fetchurl {
-      url = "http://registry.gimp.org/files/${name}.tar.gz";
-      sha256 = "1pr3y3zl9w8xs1circdrxpr98myz9m8wfzy022al79z4pdanwvs1";
+      url = http://registry.gimp.org/files/h_localdenoise3.scm;
+      sha256 = "0c2r20ljz9a2n3fjs24yax5183g07661vvdn2lkag0k0bmbf155j";
     };
+    unpackPhase = "cp $src h_localdenoise3.scm";
+    installPhase = "installScripts h_localdenoise3.scm";
+  };
+
+  refocus-it = pluginDerivation {
+    name = "refocus-it-2.0.0";
+    buildInputs = [ gimp
+
+      pkgs.perl
+      pkgs.perlPackages.XMLParser
+      pkgconfig
+    ] ++ gimp.nativeBuildInputs;
+    src = fetchurl {
+      url = mirror://sourceforge/refocus-it/refocus-it/2.0.0/refocus-it-2.0.0.tar.gz;
+      sha256 = "15y0im93i3qjjbf162rp0m974zvlxmjfyf2y1san0b5bbpxf8i53";
+    };
+    # translations are not installed yet
+    installPhase = "installPlugins gimp-plugin/gimp_plugin-refocus-it";
   };
 
   focusblur = pluginDerivation rec {
@@ -118,6 +230,7 @@ rec {
     ";
   };
 
+  # broken with current gimp:
   texturize = pluginDerivation {
     name = "texturize-2.1";
     buildInputs = [ gimp ] ++ gimp.nativeBuildInputs;
@@ -129,6 +242,22 @@ rec {
       sed -i '/.*gimpimage_pdb.h.*/ d' src/*.c*
     '';
     installPhase = "installPlugins src/texturize";
+  };
+
+  waveletDenoise = pluginDerivation {
+    name = "wavelet-denoise-0.3.1";
+    src = fetchurl {
+      url = http://registry.gimp.org/files/wavelet-denoise-0.3.1.tar.gz;
+      sha256 = "0frqh8sc78qxlhj00xw4wyq3d645z0sidzhi3ljnqra1lvq6q3a3";
+    };
+
+    preConfigure = ''
+      export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -I ${gimp}/include/gimp-2.0 $(pkg-config --cflags gegl-0.2)"
+    '';
+    buildInputs = [gimp] ++ gimp.nativeBuildInputs ++ [ pkgconfig pkgs.gettext ];
+    installPhase = "
+      installPlugins src/wavelet-denoise
+    ";
   };
 
   waveletSharpen = pluginDerivation {
@@ -159,31 +288,20 @@ rec {
   };
 
   gmic =
-  let
-    imagemagick = pkgs.imagemagickBig; # maybe the non big version is enough?
-  in pluginDerivation rec {
+    gmicDerivation {
       name = "gmic-1.5.7.2";
-      buildInputs = [imagemagick pkgconfig pkgs.fftw gimp] ++ gimp.nativeBuildInputs;
       src = fetchurl {
         url = mirror://sourceforge/gmic/gmic_1.5.7.2.tar.gz;
         sha256 = "1cpbxb3p2c8bcv2cbr150whapzjc7w09i3jza0z9x3xj8c0vdyv1";
       };
-      preConfigure = ''
-        export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -I${imagemagick}/include/ImageMagick"
-      '';
-      sourceRoot = "${name}/src";
-      buildPhase = "make gimp";
-      installPhase = "installPlugins gmic_gimp";
-      meta = { 
-        description = "script language for image processing which comes with its open-source interpreter";
-        homepage = http://gmic.sourceforge.net/repository.shtml;
-        license = "CeCILL FREE SOFTWARE LICENSE AGREEMENT";
-        /*
-        The purpose of this Free Software license agreement is to grant users
-        the right to modify and redistribute the software governed by this
-        license within the framework of an open source distribution model.
-        [ ... ] */
-      };
+    };
+
+  gmicCVS = gmicDerivation {
+      runQmake = true;
+      # REGION AUTO UPDATE: { name="gmic"; type = "cvs"; cvsRoot = ":pserver:anonymous@gmic.cvs.sourceforge.net:/cvsroot/gmic"; module="gmic"; }
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gmic-cvs-F_13-43-56.tar.bz2"; sha256 = "a69f3fa828d8892645db8534310243c472fc98cd2b9c0acbf61d3fbeba626407"; });
+      name = "gmic-cvs-F_13-43-56";
+      # END
   };
 
   # this is more than a gimp plugin !
@@ -197,7 +315,7 @@ rec {
       # --enable-dst-correction - enable DST correction for file timestamps.
       # --enable-contrast - enable the contrast setting option.
       # --enable-interp-none: enable 'None' interpolation (mostly for debugging).
-      # --with-lensfun: use the lensfun library - experimental feature, read this before using it. 
+      # --with-lensfun: use the lensfun library - experimental feature, read this before using it.
       # --with-prefix=PREFIX - use also PREFIX as an input prefix for the build
       # --with-dosprefix=PREFIX - PREFIX in the the prefix in dos format (needed only for ms-window
     configureFlags = "--enable-extras --enable-dst-correction --enable-contrast";
@@ -212,6 +330,7 @@ rec {
       cp ufraw $out/bin
     ";
   };
+
 
   gimplensfun = pluginDerivation rec {
     name = "gimplensfun-0.1.1";

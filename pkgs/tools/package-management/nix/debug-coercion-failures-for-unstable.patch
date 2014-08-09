@@ -1,0 +1,268 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] experimental/debug-coercions-as-xml
+
+We're all pretty helpless seeing messages like:
+
+  value is an attribute set while a list was expected
+
+This patch add the flag --xml-debug-coercion-failure
+making nix output the xml representation of the attribute set.
+
+Please not that this may fail if the thing to be coerced
+cannot be turned into xml, eg because its evaluation does not end, eg due to
+infinite recursion.
+
+TODO: document this flag
+
+Signed-off-by: Marc Weber <marco-oweber@gmx.de>
+
+---
+ src/libexpr/eval-inline.hh             |  4 ++--
+ src/libexpr/eval.cc                    | 33 +++++++++++++++++++++++----------
+ src/libexpr/eval.hh                    |  2 ++
+ src/libmain/shared.cc                  |  3 +++
+ src/libstore/globals.cc                |  1 +
+ src/libstore/globals.hh                |  6 ++++++
+ src/nix-instantiate/nix-instantiate.cc |  3 +++
+ 7 files changed, 40 insertions(+), 12 deletions(-)
+
+diff --git a/src/libexpr/eval-inline.hh b/src/libexpr/eval-inline.hh
+index 722273d..a768685 100644
+--- a/src/libexpr/eval-inline.hh
++++ b/src/libexpr/eval-inline.hh
+@@ -45,7 +45,7 @@ inline void EvalState::forceAttrs(Value & v)
+ {
+     forceValue(v);
+     if (v.type != tAttrs)
+-        throwTypeError("value is %1% while an attribute set was expected", showType(v));
++        throwTypeError("value is %1% while an attribute set was expected", showTypeOrXml(v));
+ }
+ 
+ 
+@@ -53,7 +53,7 @@ inline void EvalState::forceList(Value & v)
+ {
+     forceValue(v);
+     if (v.type != tList)
+-        throwTypeError("value is %1% while a list was expected", showType(v));
++        throwTypeError("value is %1% while a list was expected", showTypeOrXml(v));
+ }
+ 
+ }
+diff --git a/src/libexpr/eval.cc b/src/libexpr/eval.cc
+index 29b3e3c..024fa9e 100644
+--- a/src/libexpr/eval.cc
++++ b/src/libexpr/eval.cc
+@@ -4,6 +4,7 @@
+ #include "store-api.hh"
+ #include "derivations.hh"
+ #include "globals.hh"
++#include "value-to-xml.hh"
+ #include "eval-inline.hh"
+ 
+ #include <cstring>
+@@ -208,6 +209,18 @@ void EvalState::addConstant(const string & name, Value & v)
+ }
+ 
+ 
++string EvalState::showTypeOrXml(Value &v){
++    if (settings.xmldebugCorecionFailure){
++        // make running this code intsead optional
++        std::ostringstream out;
++        PathSet context;
++        printValueAsXML(*this, true, false, v, out, context);
++        return out.str(); // don't know whether this is safe !
++    } else {
++        return showType(v);
++    }
++}
++
+ void EvalState::addPrimOp(const string & name,
+     unsigned int arity, PrimOpFun primOp)
+ {
+@@ -479,7 +492,7 @@ inline bool EvalState::evalBool(Env & env, Expr * e)
+     Value v;
+     e->eval(*this, env, v);
+     if (v.type != tBool)
+-        throwTypeError("value is %1% while a Boolean was expected", showType(v));
++        throwTypeError("value is %1% while a Boolean was expected", showTypeOrXml(v));
+     return v.boolean;
+ }
+ 
+@@ -488,7 +501,7 @@ inline void EvalState::evalAttrs(Env & env, Expr * e, Value & v)
+ {
+     e->eval(*this, env, v);
+     if (v.type != tAttrs)
+-        throwTypeError("value is %1% while an attribute set was expected", showType(v));
++        throwTypeError("value is %1% while an attribute set was expected", showTypeOrXml(v));
+ }
+ 
+ 
+@@ -734,7 +747,7 @@ void EvalState::callFunction(Value & fun, Value & arg, Value & v)
+ 
+     if (fun.type != tLambda)
+         throwTypeError("attempt to call something which is not a function but %1%",
+-            showType(fun));
++            showTypeOrXml(fun));
+ 
+     unsigned int size =
+         (fun.lambda.fun->arg.empty() ? 0 : 1) +
+@@ -1019,7 +1032,7 @@ NixInt EvalState::forceInt(Value & v)
+ {
+     forceValue(v);
+     if (v.type != tInt)
+-        throwTypeError("value is %1% while an integer was expected", showType(v));
++        throwTypeError("value is %1% while an integer was expected", showTypeOrXml(v));
+     return v.integer;
+ }
+ 
+@@ -1028,7 +1041,7 @@ bool EvalState::forceBool(Value & v)
+ {
+     forceValue(v);
+     if (v.type != tBool)
+-        throwTypeError("value is %1% while a Boolean was expected", showType(v));
++        throwTypeError("value is %1% while a Boolean was expected", showTypeOrXml(v));
+     return v.boolean;
+ }
+ 
+@@ -1037,7 +1050,7 @@ void EvalState::forceFunction(Value & v)
+ {
+     forceValue(v);
+     if (v.type != tLambda && v.type != tPrimOp && v.type != tPrimOpApp)
+-        throwTypeError("value is %1% while a function was expected", showType(v));
++        throwTypeError("value is %1% while a function was expected", showTypeOrXml(v));
+ }
+ 
+ 
+@@ -1045,7 +1058,7 @@ string EvalState::forceString(Value & v)
+ {
+     forceValue(v);
+     if (v.type != tString)
+-        throwTypeError("value is %1% while a string was expected", showType(v));
++        throwTypeError("value is %1% while a string was expected", showTypeOrXml(v));
+     return string(v.string.s);
+ }
+ 
+@@ -1126,7 +1139,7 @@ string EvalState::coerceToString(Value & v, PathSet & context,
+     if (v.type == tAttrs) {
+         Bindings::iterator i = v.attrs->find(sOutPath);
+         if (i == v.attrs->end())
+-            throwTypeError("cannot coerce an attribute set (except a derivation) to a string");
++            throwTypeError("cannot coerce an attribute set: %1% (except a derivation) to a string", showTypeOrXml(v));
+         return coerceToString(*i->value, context, coerceMore, copyToStore);
+     }
+ 
+@@ -1153,7 +1166,7 @@ string EvalState::coerceToString(Value & v, PathSet & context,
+         }
+     }
+ 
+-    throwTypeError("cannot coerce %1% to a string", showType(v));
++    throwTypeError("cannot coerce %1% to a string", showTypeOrXml(v));
+ }
+ 
+ 
+@@ -1239,7 +1252,7 @@ bool EvalState::eqValues(Value & v1, Value & v2)
+             return false;
+ 
+         default:
+-            throwEvalError("cannot compare %1% with %2%", showType(v1), showType(v2));
++            throwEvalError("cannot compare %1% with %2%", showTypeOrXml(v1), showTypeOrXml(v2));
+     }
+ }
+ 
+diff --git a/src/libexpr/eval.hh b/src/libexpr/eval.hh
+index 8707182..65ee4d0 100644
+--- a/src/libexpr/eval.hh
++++ b/src/libexpr/eval.hh
+@@ -204,6 +204,8 @@ private:
+     void addPrimOp(const string & name,
+         unsigned int arity, PrimOpFun primOp);
+ 
++    string showTypeOrXml(Value &v);
++
+ public:
+ 
+     void getBuiltin(const string & name, Value & v);
+diff --git a/src/libmain/shared.cc b/src/libmain/shared.cc
+index b71bca6..7a70577 100644
+--- a/src/libmain/shared.cc
++++ b/src/libmain/shared.cc
+@@ -215,6 +215,9 @@ static void initAndRun(int argc, char * * argv)
+             settings.useBuildHook = false;
+         else if (arg == "--show-trace")
+             showTrace = true;
++        else if (arg == "--xml-debug-coercion-failure") {
++            settings.set("xmldebugCorecionFailure", "true");
++        }
+         else if (arg == "--option") {
+             ++i; if (i == args.end()) throw UsageError("`--option' requires two arguments");
+             string name = *i;
+diff --git a/src/libstore/globals.cc b/src/libstore/globals.cc
+index 7e0157c..1ff6eb4 100644
+--- a/src/libstore/globals.cc
++++ b/src/libstore/globals.cc
+@@ -30,6 +30,7 @@ Settings::Settings()
+     maxBuildJobs = 1;
+     buildCores = 1;
+     readOnlyMode = false;
++    xmldebugCorecionFailure = false;
+     thisSystem = SYSTEM;
+     maxSilentTime = 0;
+     buildTimeout = 0;
+diff --git a/src/libstore/globals.hh b/src/libstore/globals.hh
+index cbc6d4e..948dd05 100644
+--- a/src/libstore/globals.hh
++++ b/src/libstore/globals.hh
+@@ -81,6 +81,12 @@ struct Settings {
+        the database. */
+     bool readOnlyMode;
+ 
++
++    /* if set to true nix will print the value it tried to coerce to a
++     particular type as xml. This printing may trigger infitie recursions
++     in soem cases - thus use for debugging only */
++    bool xmldebugCorecionFailure;
++
+     /* The canonical system name, as returned by config.guess. */
+     string thisSystem;
+ 
+diff --git a/src/nix-instantiate/nix-instantiate.cc b/src/nix-instantiate/nix-instantiate.cc
+index fd2c04e..46d304a 100644
+--- a/src/nix-instantiate/nix-instantiate.cc
++++ b/src/nix-instantiate/nix-instantiate.cc
+@@ -107,6 +107,9 @@ void run(Strings args)
+             settings.readOnlyMode = true;
+             evalOnly = true;
+         }
++        else if (arg == "--xml-debug-coercion-failure") {
++            settings.xmldebugCorecionFailure = true;
++        }
+         else if (arg == "--parse-only") {
+             settings.readOnlyMode = true;
+             parseOnly = evalOnly = true;
+-- 
+tg: (9e4bb20..) experimental/debug-coercions-as-xml (depends on: master)
+diff --git a/src/libmain/shared.cc b/src/libmain/shared.cc
+index 7a70577..3d093da 100644
+--- a/src/libmain/shared.cc
++++ b/src/libmain/shared.cc
+@@ -216,7 +216,7 @@ static void initAndRun(int argc, char * * argv)
+         else if (arg == "--show-trace")
+             showTrace = true;
+         else if (arg == "--xml-debug-coercion-failure") {
+-            settings.set("xmldebugCorecionFailure", "true");
++            settings.set("xml-debug-corecion-failure", "true");
+         }
+         else if (arg == "--option") {
+             ++i; if (i == args.end()) throw UsageError("`--option' requires two arguments");
+diff --git a/src/libstore/globals.cc b/src/libstore/globals.cc
+index 1ff6eb4..158f9b6 100644
+--- a/src/libstore/globals.cc
++++ b/src/libstore/globals.cc
+@@ -129,6 +129,7 @@ void Settings::update()
+     get(tryFallback, "build-fallback");
+     get(maxBuildJobs, "build-max-jobs");
+     get(buildCores, "build-cores");
++    get(xmldebugCorecionFailure, "xml-debug-corecion-failure");
+     get(thisSystem, "system");
+     get(maxSilentTime, "build-max-silent-time");
+     get(buildTimeout, "build-timeout");

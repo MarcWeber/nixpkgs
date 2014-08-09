@@ -12,6 +12,11 @@ stdenv.mkDerivation rec {
     sha256 = "d185c00db8c1ab977d37695da0130628290af8dc315b3e24aa24d3ee25cdf875";
   };
 
+  # patches = [
+  #   ./debug-coercion-failures-for-unstable.patch
+  #   ./write-file-hashed.patch
+  # ];
+
   nativeBuildInputs = [ perl pkgconfig ];
 
   buildInputs = [ curl openssl sqlite ];

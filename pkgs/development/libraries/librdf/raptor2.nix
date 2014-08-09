@@ -3,6 +3,8 @@
 stdenv.mkDerivation rec {
   name = "raptor2-2.0.12"; # 2.0.9 misses a header and so fails liblrdf
 
+  enableParallelBuilding = true;
+
   src = fetchurl {
     url = "http://download.librdf.org/source/${name}.tar.gz";
     sha256 = "1644a1nnw5k6168v9gjfx1rcbij6ybjximd35a3zhcvyyijmb5di";

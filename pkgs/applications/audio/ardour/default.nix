@@ -12,6 +12,8 @@ in
 stdenv.mkDerivation rec {
   name = "ardour-${tag}";
 
+  enableParallelBuilding = true;
+
   src = fetchgit {
     url = git://git.ardour.org/ardour/ardour.git;
     rev = "refs/tags/${tag}";

@@ -8,6 +8,8 @@ stdenv.mkDerivation {
     sha256 = "1vkh19gb76agvh4h87ysbrgy82hrw88lnsvhynjf4vng629dmpgv";
   };
 
+  enableParallelBuilding = true;
+
   # The fuloong2f is not supported by aalib still
   preConfigure = ''
     cp ${automake}/share/automake*/config.{sub,guess} .

@@ -32,6 +32,11 @@ in
 stdenv.mkDerivation rec {
   name = "openjdk-7u${update}b${build}";
 
+  # enableParallelBuilding = true fails, one makefile suggests:
+  preConfigure = ''
+    export HOTSPOT_BUILD_JOBS=$NIX_BUILD_CORES
+  '';
+
   src = fetchurl {
     url = "http://tarballs.nixos.org/openjdk-7u${update}-b${build}.tar.xz";
     sha256 = "0lyp75sl5w4b9azphb2nq5cwzli85inpksq4943q4j349rkmdprx";

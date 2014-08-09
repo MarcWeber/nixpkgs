@@ -59,12 +59,14 @@ stdenv.mkDerivation rec {
   crossAttrs = {
     # We should refer to the cross built openssl
     # For the 'urandom', maybe it should be a cross-system option
-    configureFlags = [
-        ( if sslSupport then "--with-ssl=${openssl.crossDrv}" else "--without-ssl" )
-        "--with-random /dev/urandom"
-      ]
-      ++ stdenv.lib.optionals linkStatic [ "--enable-static" "--disable-shared" ]
-    ;
+    configureFlags = ''
+      ${if sslSupport then "--with-ssl=${openssl.crossDrv}" else "--without-ssl"}
+      ${if linkStatic then "--enable-static --disable-shared" else ""}
+      --with-random /dev/urandom
+    '';
+
+  } // stdenv.lib.optionalAttrs (stdenv.cross.libc == "msvcrt") {
+    dontStrip = true;
   };
 
   passthru = {

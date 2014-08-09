@@ -443,12 +443,12 @@ let
             builtins.baseNameOf (builtins.unsafeDiscardStringContext php);
   };
 
-  in php_with_id // {
-    xdebug = callPackage ../../interpreters/php-xdebug { php = php_with_id; };
+  in php_with_id // rec {
     xcache = callPackage ../../libraries/php-xcache { php = php_with_id; };
     # apc = gone
 
     phpPackages = callPackage ../../../top-level/php-packages.nix { php = php_with_id; };
+    xdebug = phpPackages.xdebug;
 
     # TODO move this into the fpm module?
     system_fpm_config =

@@ -1,13 +1,27 @@
 From: Marc Weber <marco-oweber@gmx.de>
-Subject: [PATCH] experimental/gutenprint
+Subject: [PATCH] experimental/cups-1.6-and-1.7
 
-gutenprint updates
+The new cupsd-1.7.nix adds services.cupsd_1_7.
 
-- add option to build cvs version
+Both modules cupsd-1.7.nix and cupsd.nix have a new option "cupsPackages" which
+is the way to specifiy which cups/ghostscript versions to use.
 
-- drop composable derivation which is overkill in this simple case
+1.6.4+ comes with some changes:
+- default filter chain is PDF, gs is only used for gs printers
+- some stuff has been moved into cupsFilters and is maintained by
+  openprinting now
+- cups has 2 configuration files now
+- some more less important changes such as compressing print files sent over
+  the network and whatnot (I didn't test them)
 
-TODO: Check wether this patch can be simplified, eg are openjade patches still
-neccessary or whether there is a more current upstream and such
+Issues:
+- printing test pages does not work yet
 
-Signed-off-by: Marc Weber <marco-oweber@gmx.de>
+fixes:
+- printing on older canon bjc 4000 or MP980 printer using gutentprint drivers
+  works. 1.5.4 only prints 30% of page for whatever reason.
+
+new packages: ijs, qpdf
+ghostscript: get back the update which got reverted while keeping the old version
+
+This includes b96fc98306a pull/1115

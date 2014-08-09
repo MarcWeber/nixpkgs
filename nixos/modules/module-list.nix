@@ -240,6 +240,7 @@
   ./services/networking/xinetd.nix
   ./services/networking/znc.nix
   ./services/printing/cupsd.nix
+  ./services/printing/cupsd-1.7.nix
   ./services/scheduling/atd.nix
   ./services/scheduling/cron.nix
   ./services/scheduling/fcron.nix

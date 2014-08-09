@@ -337,5 +337,6 @@
   ./virtualisation/libvirtd.nix
   #./virtualisation/nova.nix
   ./virtualisation/virtualbox-guest.nix
+  ./virtualisation/virtualbox-server.nix
   #./virtualisation/xen-dom0.nix
 ]

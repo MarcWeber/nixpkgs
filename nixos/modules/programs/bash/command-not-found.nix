@@ -3,6 +3,8 @@
 # SQLite database that maps program names to Nix package names (e.g.,
 # "pdflatex" is mapped to "tetex").
 
+# TODO: implement for ZSH?
+
 { config, lib, pkgs, ... }:
 
 with lib;
@@ -23,8 +25,7 @@ in
 
 {
 
-  programs.bash.interactiveShellInit =
-    ''
+  environment.bash.availableFeatures.command_not_found.interactive_code = ''
       # This function is called whenever a command is not found.
       command_not_found_handle() {
         local p=/run/current-system/sw/bin/command-not-found

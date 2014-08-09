@@ -1,0 +1,39 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] marc-nixos/systemd/multi-shell-support
+
+Note: Some pieces of this patch might be considered obsolete since nixos has
+better zsh support in master now. Still there are things to be improved.
+
+This patch still has more ways to configure system bash/zsh setup in users
+.bashrc/zshrc and can add additional profiles to environment easily.
+
+marc-nixos/multi-shell-support
+
+bash setup changes:
+
+- new option environment.bashFeatures modularizing bash setup
+  implementations based on previous code: prompt, completion, aliases, other
+
+- provide /etc/bash/setup-all shell scripts setting those features up
+  You can opt out by defining keys in DID_NIX_BASH_FEATURES, use declare -A
+  first (see comment)
+
+- provide /etc/skel/.bashrc which by default sources source-all
+  This way users can opt-out. Mind that I wrote a shadow patch so that user-add
+  creates ~/.bashrc as file, not as symlink
+
+- support XML_CATALOG_FILES, so that you can use xmllint like tools without
+  having them download dts easily
+
+- introduce nix-bash-lib which provides some helper functions.
+  It is sourced as needed.
+
+- export __ETC_PROFILE_DONE, so that profile isn't setup twice
+
+zsh:
+  implement the very same.
+  Please note that the zshrc hack found in nixpkgs is obsolete now.
+
+TODO: provide other implementations (fish etc)
+
+Signed-off-by: Marc Weber <marco-oweber@gmx.de>

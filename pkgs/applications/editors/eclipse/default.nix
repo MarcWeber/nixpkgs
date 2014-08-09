@@ -1,6 +1,7 @@
 { stdenv, fetchurl, makeDesktopItem, makeWrapper
 , freetype, fontconfig, libX11, libXext, libXrender, zlib
 , glib, gtk, libXtst, jre
+, config
 }:
 
 assert stdenv ? glibc;
@@ -8,10 +9,14 @@ assert stdenv ? glibc;
 let
 
   buildEclipse =
-    { name, src ? builtins.getAttr stdenv.system sources, sources ? null, description }:
+    { name, description
+     , src ? builtins.getAttr stdenv.system sources
+     , sources ? null
+     , dropins ? (config.eclipse.dropins or [])
+     , flags ? (config.eclipse.flags or []) }:
 
     stdenv.mkDerivation rec {
-      inherit name src;
+      inherit name src dropins;
 
       desktopItem = makeDesktopItem {
         name = "Eclipse";
@@ -41,15 +46,24 @@ let
         # than ~/.eclipse/org.eclipse.platform_<version>_<number>.
         productId=$(sed 's/id=//; t; d' $out/eclipse/.eclipseproduct)
         productVersion=$(sed 's/version=//; t; d' $out/eclipse/.eclipseproduct)
-        
+
         makeWrapper $out/eclipse/eclipse $out/bin/eclipse \
           --prefix PATH : ${jre}/bin \
           --prefix LD_LIBRARY_PATH : ${glib}/lib:${gtk}/lib:${libXtst}/lib \
-          --add-flags "-configuration \$HOME/.eclipse/''${productId}_$productVersion/configuration"
+          --add-flags "-configuration \$HOME/.eclipse/''${productId}_$productVersion/configuration" \
+          ${stdenv.lib.concatMapStrings (flag: " --add-flags ${stdenv.lib.escapeShellArg flag}") flags}
 
         # Create desktop item.
         mkdir -p $out/share/applications
         cp ${desktopItem}/share/applications/* $out/share/applications
+
+        # provide alias by name - you may want to install multiple versions
+        ln -s $out/bin/eclipse $out/bin/${name}
+
+        for dropin in $dropins; do
+          ln -s $dropin $out/eclipse/dropins/
+        done
+
         mkdir -p $out/share/pixmaps
         ln -s $out/eclipse/icon.xpm $out/share/pixmaps/eclipse.xpm
       ''; # */
@@ -130,7 +144,7 @@ in {
   };
 
   eclipse_sdk_37 = buildEclipse {
-    name = "eclipse-sdk-3.7";
+    name = "eclipse-sdk-3.7.2";
     description = "Eclipse Classic";
     sources = {
       "x86_64-linux" = fetchurl {

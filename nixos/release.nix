@@ -54,6 +54,26 @@ let
         ''; # */
 
 
+  # copy paste from makeIso
+  makeMinimalinstallArchive =
+    { module, type, description ? type, maintainers ? ["eelco"], system }:
+
+    with import <nixpkgs> { inherit system; };
+
+    let
+
+      versionModule =
+        { system.nixosVersionSuffix = lib.optionalString (!officialRelease) versionSuffix;
+          isoImage.isoBaseName = "nixos-${type}";
+        };
+
+      config = (import lib/eval-config.nix {
+        inherit system;
+        modules = [ module versionModule ];
+      }).config;
+
+    in config.system.build.minimalInstallArchive;
+
   makeSystemTarball =
     { module, maintainers ? ["viric"], system }:
 
@@ -202,6 +222,12 @@ in rec {
   */
 
 
+  # Hacky: doesn't depend on configuration. Yet configuration is evaluated (TODO)
+  minimal_install_archive = pkgs.lib.genAttrs supportedSystems (system: makeMinimalinstallArchive {
+    module = ./modules/installer/cd-dvd/installation-cd-minimal.nix;
+    type = "minimal";
+    inherit system;
+  });
   # Run the tests for each platform.  You can run a test by doing
   # e.g. ‘nix-build -A tests.login.x86_64-linux’, or equivalently,
   # ‘nix-build tests/login.nix -A result’.

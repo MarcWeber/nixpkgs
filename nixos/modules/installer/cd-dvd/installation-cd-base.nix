@@ -33,6 +33,11 @@ with lib;
   # initrd builder.
   isoImage.storeContents = [ pkgs.stdenv pkgs.busybox pkgs.perlPackages.ArchiveCpio ];
 
+  environment.shellInit = "export mountPoint=/mnt";
+
+  # Because github.com/nixos/* are official repositories make it easy to check them out using git
+  environment.systemPackages = [ pkgs.git ];
+
   # EFI booting
   isoImage.makeEfiBootable = true;
 

@@ -8,11 +8,11 @@
 
 versionedDerivation "inkscape" version {
   "0.48.x" = rec {
-    name = "inkscape-0.48.4";
+    name = "inkscape-0.48.5";
 
     src = fetchurl {
-      url = "mirror://sourceforge/inkscape/${name}.tar.bz2";
-      sha256 = "17aiibgdwjqpjc38f0yr2sdlgwngg5ac9srlybjcx9aspf6ashc7";
+    url = "mirror://sourceforge/inkscape/${name}.tar.bz2";
+    sha256 = "0sfr7a1vr1066rrkkqbqvcqs3gawalj68ralnhd6k87jz62fcv1b";
     };
 
     patches = [ ./configure-python-libs.patch ];
@@ -28,11 +28,10 @@ versionedDerivation "inkscape" version {
       sh autogen.sh
     '';
   };
-} {
+} rec {
 
-  postPatch = ''
-    patch -p0 < ${./spuriouscomma.patch}
-  '';
+  postPatch = stdenv.lib.optionalString doCheck
+    ''sed -i 's:#include "../../src:#include "src:' src/cxxtests.cpp'';
 
   propagatedBuildInputs = [
     # Python is used at run-time to execute scripts, e.g., those from
@@ -48,12 +47,17 @@ versionedDerivation "inkscape" version {
 
   configureFlags = "--with-python";
 
+  enableParallelBuilding = true;
+  doCheck = true;
+  checkFlags = "-j1";
+
   postInstall = ''
     # Make sure PyXML modules can be found at run-time.
     for i in "$out/bin/"*
     do
       wrapProgram "$i" --prefix PYTHONPATH :      \
-       "$(toPythonPath ${pyxml}):$(toPythonPath ${lxml})" ||  \
+       "$(toPythonPath ${pyxml}):$(toPythonPath ${lxml})"  \
+       --prefix PATH : ${python}/bin ||  \
         exit 2
     done
     rm $out/share/icons/hicolor/icon-theme.cache
@@ -61,9 +65,11 @@ versionedDerivation "inkscape" version {
 
   NIX_LDFLAGS = "-lX11";
 
-  meta = {
+  meta = with stdenv.lib; {
     license = "GPL";
     homepage = http://www.inkscape.org;
+    description = "Vector graphics editor";
+    platforms = platforms.all;
     longDescription = ''
       Inkscape is a feature-rich vector graphics editor that edits
       files in the W3C SVG (Scalable Vector Graphics) file format.

@@ -11,7 +11,7 @@ stdenv.mkDerivation rec {
   buildInputs = [ makeWrapper ];
 
   installPhase = ''
-    ensureDir $out/bin $out/share/man/man8
+    mkdir -p $out/bin $out/share/man/man8
     cp picocom $out/bin
     cp picocom.8 $out/share/man/man8
 
@@ -22,7 +22,7 @@ stdenv.mkDerivation rec {
   meta = {
     description = "Minimal dumb-terminal emulation program";
     homepage = http://code.google.com/p/picocom/;
-    license = "GPLv2+";
+    license = stdenv.lib.licenses.gpl2Plus;
     platforms = stdenv.lib.platforms.gnu;  # arbitrary choice
   };
 }

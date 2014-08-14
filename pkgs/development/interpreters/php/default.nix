@@ -76,7 +76,7 @@
 let
 
   true_version = if version == "5.3.x" then "5.3.28"
-  else if version == "5.4.x" then "5.4.30"
+  else if version == "5.4.x" then "5.4.31"
   else if version == "5.5.x" then "5.5.14"
   else version;
 
@@ -411,7 +411,7 @@ let
      md5 = lib.maybeAttr true_version (throw "unkown php version ${true_version}") {
       "5.5.14" = "b53e5f47c59ffbe26d20957636695baa";
 
-      "5.4.30" = "a8a27fdc1d9e1020c9f8922b608326de";
+      "5.4.31" = "5611c2f4e03f39a586ca368167409699";
 
       "5.3.28" = "56ff88934e068d142d6c0deefd1f396b";
      };

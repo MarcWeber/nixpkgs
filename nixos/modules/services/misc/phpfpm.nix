@@ -141,9 +141,9 @@ let
            in {
              idAppend = "-xdebug";
              phpIniLines = ''
-              zend_extension="${item.daemonCfg.php.xdebug}/lib/xdebug.so"
-              zend_extension_ts="${item.daemonCfg.php.xdebug}/lib/xdebug.so"
-              zend_extension_debug="${item.daemonCfg.php.xdebug}/lib/xdebug.so"
+              zend_extension="${item.daemonCfg.php.xdebug}/lib/php/extensions/xdebug.so"
+              zend_extension_ts="${item.daemonCfg.php.xdebug}/lib/php/extensions/xdebug.so"
+              zend_extension_debug="${item.daemonCfg.php.xdebug}/lib/php/extensions/xdebug.so"
               xdebug.remote_enable=true
               xdebug.remote_host=${remote_host}
               xdebug.remote_port=${remote_port}

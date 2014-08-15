@@ -1,17 +1,33 @@
 From: Marc Weber <marco-oweber@gmx.de>
 Subject: [PATCH] experimental/multiple-versions-in-one-file
 
-This patch introduces mergeAttrsByVersion to lib.
+php nixpkgs:
+  PHP: fpm support (including patches for systemd socket activation)
+  nixos systemd unit implementation
 
-In some cases it does make sense to keep "experimental" and "older" versions of
-the same package in one file because it follows the "do it once only" principle.
-Very often many versions share their build instructions - so even though I
-understand Eelcos opinion that different versions should be put into their own
-.nix files - its my feeling telling me that this is fastest for most cases.
+  make PHP know about /var/setuid-wrappers/sendmail (path is configurable)
 
-I agree with Eelco that if tweaks for individual versions become too much they
-should be split into individual files.
+  keep everything in one file, because most code is the same, eg the code to
+  build extensions (apc, xdebug, ..)
 
-See comments above mergeAttrsByVersion learn about its usage.
+  There have been quite a lot of changes in nixpkgs master. I think I merged
+  all changes.
+
+nixos:
+  provide php-fpm module which figures out how many php-fpm daemoens to use
+  automatically. Its still your task to to configure apache/ nginx.
+  You do so by using a function returning the socket path based on
+  your configuration.
+  nixos/modules/services/misc/phpfpm.nix contains a usage example.
+
+  Enabling xdebug is very easy now, see example at
+  nixos/modules/services/misc/phpfpm.nix
+
+  replace nixos/modules/services/web-servers/phpfpm.nix
+  by nixos/modules/services/misc/phpfpm.nix
+  because its more powerful
+
+Till this gets merged you can follow the topic branch experimental/php at
+github.com/MarcWeber/nixpkgs.
 
 Signed-off-by: Marc Weber <marco-oweber@gmx.de>

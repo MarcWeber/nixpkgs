@@ -436,6 +436,8 @@ let
 
   actdiag = pythonPackages.actdiag;
 
+  adom = callPackage ../games/adom { };
+
   aefs = callPackage ../tools/filesystems/aefs { };
 
   aegisub = callPackage ../applications/video/aegisub {

@@ -1070,6 +1070,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   haskintex = callPackage ../development/libraries/haskell/haskintex {};
 
+  haskoin = callPackage ../development/libraries/haskell/haskoin {};
+
   haskore = callPackage ../development/libraries/haskell/haskore {};
 
   hastache = callPackage ../development/libraries/haskell/hastache {};
@@ -1393,6 +1395,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   jsonAssertions = callPackage ../development/libraries/haskell/json-assertions {};
 
+  jsonRpc = callPackage ../development/libraries/haskell/json-rpc {};
+
   jsonSchema = callPackage ../development/libraries/haskell/json-schema {};
 
   jsonTypes = callPackage ../development/libraries/haskell/jsonTypes {};
@@ -1705,6 +1709,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   networkTransportTcp = callPackage ../development/libraries/haskell/network-transport-tcp {};
 
   networkTransportTests = callPackage ../development/libraries/haskell/network-transport-tests {};
+
+  networkUri = callPackage ../development/libraries/haskell/network-uri {};
 
   newtype = callPackage ../development/libraries/haskell/newtype {};
 
@@ -2951,6 +2957,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   };
 
   yiContrib = callPackage ../applications/editors/yi/yi-contrib.nix {};
+
+  xlsx = callPackage ../development/libraries/haskell/xlsx {};
 
   xmobar = callPackage ../applications/misc/xmobar {};
 

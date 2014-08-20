@@ -6,8 +6,8 @@
 
 cabal.mkDerivation (self: {
   pname = "streaming-commons";
-  version = "0.1.4";
-  sha256 = "0p18sha2xa583rn9jyhylcykgrvydrwnl47c2wxf1c1yswn45iz6";
+  version = "0.1.4.2";
+  sha256 = "0ghm3a64q84bfyp1qp452jw4ns52nd5jz8fk308vljfpakv30qyf";
   buildDepends = [
     blazeBuilder network random stm text transformers zlib
   ];

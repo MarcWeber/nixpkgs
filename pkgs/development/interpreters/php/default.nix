@@ -162,8 +162,7 @@ let
 	patches = [
 	  # wiki.php.net/rfc/socketactivation (merged both files)
 	  ./systemd-socket-activation.patch
-	];
-
+	] ++ lib.optionals lessThan54 ./5.3-freetype-dirs.patch;
       };
 
       fpm = {

@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, ncurses, coreutils }:
+{ stdenv, fetchurl, ncurses, coreutils, zprofileHack ? false }:
 
 let
 
@@ -8,6 +8,34 @@ let
     url = "mirror://sourceforge/zsh/zsh-${version}-doc.tar.bz2";
     sha256 = "1wljqii2lkz5kc4y3xs65isnahvnlj678b9zv31bn444mapjpwp4";
   };
+
+  zprofileHackStr = ''
+    cat > $out/etc/zprofile <<EOF
+    if test -e /etc/NIXOS; then
+      if test -r /etc/zprofile; then
+        . /etc/zprofile
+      else
+        emulate bash
+        alias shopt=false
+        . /etc/profile
+        unalias shopt
+        emulate zsh
+      fi
+      if test -r /etc/zprofile.local; then
+        . /etc/zprofile.local
+      fi
+    else
+      # on non-nixos we just source the global /etc/zprofile as if we did
+      # not use the configure flag
+      if test -r /etc/zprofile; then
+        . /etc/zprofile
+      fi
+    fi
+    EOF
+
+    $out/bin/zsh -c "zcompile $out/etc/zprofile"
+    mv $out/etc/zprofile $out/etc/zprofile_zwc_is_used
+    '';
 
 in
 
@@ -30,30 +58,7 @@ stdenv.mkDerivation {
     mkdir -p $out/share/
     tar xf ${documentation} -C $out/share
     mkdir -p $out/etc/
-    cat > $out/etc/zprofile <<EOF
-if test -e /etc/NIXOS; then
-  if test -r /etc/zprofile; then
-    . /etc/zprofile
-  else
-    emulate bash
-    alias shopt=false
-    . /etc/profile
-    unalias shopt
-    emulate zsh
-  fi
-  if test -r /etc/zprofile.local; then
-    . /etc/zprofile.local
-  fi
-else
-  # on non-nixos we just source the global /etc/zprofile as if we did
-  # not use the configure flag
-  if test -r /etc/zprofile; then
-    . /etc/zprofile
-  fi
-fi
-EOF
-    $out/bin/zsh -c "zcompile $out/etc/zprofile"
-    mv $out/etc/zprofile $out/etc/zprofile_zwc_is_used
+    ${stdenv.lib.optionalString zprofileHack zprofileHackStr}
   '';
   # XXX: patch zsh to take zwc if newer _or equal_
 

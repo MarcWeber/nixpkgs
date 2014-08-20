@@ -1,4 +1,4 @@
-{ stdenv, fetchurl
+{ lib, stdenv, fetchurl
 , enableAlsa ? true, alsaLib ? null
 , enableLibao ? true, libao ? null
 , enableLame ? false, lame ? null
@@ -6,9 +6,10 @@
 , enableLibogg ? true, libogg ? null, libvorbis ? null
 , enableLibflac ? true, flac ? null
 }:
-let
-  inherit (stdenv.lib) optional optionals;
-in stdenv.mkDerivation rec {
+
+with stdenv.lib;
+
+stdenv.mkDerivation rec {
   name = "sox-14.4.1";
 
   src = fetchurl {
@@ -17,22 +18,18 @@ in stdenv.mkDerivation rec {
   };
 
   buildInputs =
-    (optional enableAlsa alsaLib) ++
-    (optional enableLibao libao) ++
-    (optional enableLame lame) ++
-    (optional enableLibmad libmad) ++
-    (optionals enableLibogg [ libogg libvorbis ]) ++
-    (optionals enableLibflac [ flac ]);
+    optional (enableAlsa && stdenv.isLinux) alsaLib ++
+    optional enableLibao libao ++
+    optional enableLame lame ++
+    optional enableLibmad libmad ++
+    optionals enableLibogg [ libogg libvorbis ] ++
+    optional enableLibflac flac;
 
   meta = {
     description = "Sample Rate Converter for audio";
     homepage = http://www.mega-nerd.com/SRC/index.html;
-    maintainers = [stdenv.lib.maintainers.marcweber stdenv.lib.maintainers.shlevy];
-    # you can choose one of the following licenses:
-    license = [
-      "GPL"
-      # http://www.mega-nerd.com/SRC/libsamplerate-cul.pdf
-      "libsamplerate Commercial Use License"
-    ];
+    maintainers = [ lib.maintainers.marcweber lib.maintainers.shlevy ];
+    license = lib.licenses.gpl2Plus;
+    platforms = lib.platforms.linux ++ lib.platforms.darwin;
   };
 }

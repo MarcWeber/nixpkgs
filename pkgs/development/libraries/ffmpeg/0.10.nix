@@ -10,7 +10,7 @@
 , faacSupport ? true, faac ? null
 , dc1394Support ? false, libdc1394 ? null
 , x11grabSupport ? true, libX11, libXext, libXfixes
-, versionedDerivation, version ? "0.10.10"
+, versionedDerivation, version ? "0.10.14"
 }:
 
 assert speexSupport -> speex != null;
@@ -24,11 +24,12 @@ assert faacSupport -> faac != null;
 
 versionedDerivation "ffpmeg" version {
 
-  "0.10.10" = rec {
-    name = "ffmpeg-0.10.12";
+  "0.10.14" = rec {
+    name = "ffmpeg-0.10.14";
+
     src = fetchurl {
       url = "http://www.ffmpeg.org/releases/${name}.tar.bz2";
-      sha256 = "00nvm3iysn8zincpvv1abqrxqj1ky0322dh2j9csjw983358538i";
+      sha256 = "1frkz3971zc2a60ras5ia26b2h8wbh017x1x80q8cfw0ycrpbxqy";
     };
   };
 

@@ -17,10 +17,11 @@ umask 0022;
 sub showHelp {
     print <<EOF;
 Usage: nixos-container list
-       nixos-container create <container-name> [--config <string>] [--ensure-unique-name]
+       nixos-container create <container-name> [--config <string>] [--ensure-unique-name] [--auto-start]
        nixos-container destroy <container-name>
        nixos-container start <container-name>
        nixos-container stop <container-name>
+       nixos-container status <container-name>
        nixos-container login <container-name>
        nixos-container root-login <container-name>
        nixos-container run <container-name> -- args...
@@ -31,11 +32,13 @@ EOF
 }
 
 my $ensureUniqueName = 0;
+my $autoStart = 0;
 my $extraConfig;
 
 GetOptions(
     "help" => sub { showHelp() },
     "ensure-unique-name" => \$ensureUniqueName,
+    "auto-start" => \$autoStart,
     "config=s" => \$extraConfig
     ) or exit 1;
 
@@ -122,6 +125,7 @@ if ($action eq "create") {
     push @conf, "PRIVATE_NETWORK=1\n";
     push @conf, "HOST_ADDRESS=$hostAddress\n";
     push @conf, "LOCAL_ADDRESS=$localAddress\n";
+    push @conf, "AUTO_START=$autoStart\n";
     write_file($confFile, \@conf);
 
     close($lock);
@@ -152,8 +156,16 @@ if ($action eq "create") {
 
 my $root = "/var/lib/containers/$containerName";
 my $profileDir = "/nix/var/nix/profiles/per-container/$containerName";
+my $gcRootsDir = "/nix/var/nix/gcroots/per-container/$containerName";
 my $confFile = "/etc/containers/$containerName.conf";
-die "$0: container ‘$containerName’ does not exist\n" if !-e $confFile;
+if (!-e $confFile) {
+    if ($action eq "destroy") {
+        exit 0;
+    } else {
+        print "gone\n";
+    }
+    die "$0: container ‘$containerName’ does not exist\n" ;
+}
 
 sub isContainerRunning {
     my $status = `systemctl show 'container\@$containerName'`;
@@ -172,6 +184,7 @@ if ($action eq "destroy") {
     stopContainer if isContainerRunning;
 
     rmtree($profileDir) if -e $profileDir;
+    rmtree($gcRootsDir) if -e $gcRootsDir;
     rmtree($root) if -e $root;
     unlink($confFile) or die;
 }
@@ -183,6 +196,10 @@ elsif ($action eq "start") {
 
 elsif ($action eq "stop") {
     stopContainer;
+}
+
+elsif ($action eq "status") {
+    print isContainerRunning() ? "up" : "down", "\n";
 }
 
 elsif ($action eq "update") {

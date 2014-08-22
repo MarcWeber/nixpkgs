@@ -17,7 +17,7 @@ umask 0022;
 sub showHelp {
     print <<EOF;
 Usage: nixos-container list
-       nixos-container create <container-name> [--config <string>] [--ensure-unique-name] [--auto-start]
+       nixos-container create <container-name> [--system-path <path>] [--config <string>] [--ensure-unique-name] [--auto-start]
        nixos-container destroy <container-name>
        nixos-container start <container-name>
        nixos-container stop <container-name>
@@ -27,10 +27,12 @@ Usage: nixos-container list
        nixos-container run <container-name> -- args...
        nixos-container set-root-password <container-name> <password>
        nixos-container show-ip <container-name>
+       nixos-container show-host-key <container-name>
 EOF
     exit 0;
 }
 
+my $systemPath;
 my $ensureUniqueName = 0;
 my $autoStart = 0;
 my $extraConfig;
@@ -39,6 +41,7 @@ GetOptions(
     "help" => sub { showHelp() },
     "ensure-unique-name" => \$ensureUniqueName,
     "auto-start" => \$autoStart,
+    "system-path=s" => \$systemPath,
     "config=s" => \$extraConfig
     ) or exit 1;
 
@@ -132,11 +135,6 @@ if ($action eq "create") {
 
     print STDERR "host IP is $hostAddress, container IP is $localAddress\n";
 
-    mkpath("$root/etc/nixos", 0, 0755);
-
-    my $nixosConfigFile = "$root/etc/nixos/configuration.nix";
-    writeNixOSConfig $nixosConfigFile;
-
     # The per-container directory is restricted to prevent users on
     # the host from messing with guest users who happen to have the
     # same uid.
@@ -145,10 +143,21 @@ if ($action eq "create") {
     $profileDir = "$profileDir/$containerName";
     mkpath($profileDir, 0, 0755);
 
-    system("nix-env", "-p", "$profileDir/system",
-           "-I", "nixos-config=$nixosConfigFile", "-f", "<nixpkgs/nixos>",
-           "--set", "-A", "system") == 0
-        or die "$0: failed to build initial container configuration\n";
+    # Build/set the initial configuration.
+    if (defined $systemPath) {
+        system("nix-env", "-p", "$profileDir/system", "--set", $systemPath) == 0
+            or die "$0: failed to set initial container configuration\n";
+    } else {
+        mkpath("$root/etc/nixos", 0, 0755);
+
+        my $nixosConfigFile = "$root/etc/nixos/configuration.nix";
+        writeNixOSConfig $nixosConfigFile;
+
+        system("nix-env", "-p", "$profileDir/system",
+               "-I", "nixos-config=$nixosConfigFile", "-f", "<nixpkgs/nixos>",
+               "--set", "-A", "system") == 0
+            or die "$0: failed to build initial container configuration\n";
+    }
 
     print "$containerName\n" if $ensureUniqueName;
     exit 0;
@@ -161,7 +170,7 @@ my $confFile = "/etc/containers/$containerName.conf";
 if (!-e $confFile) {
     if ($action eq "destroy") {
         exit 0;
-    } else {
+    } elsif ($action eq "status") {
         print "gone\n";
     }
     die "$0: container ‘$containerName’ does not exist\n" ;
@@ -254,6 +263,12 @@ elsif ($action eq "show-ip") {
     my $s = read_file($confFile) or die;
     $s =~ /^LOCAL_ADDRESS=([0-9\.]+)$/m or die "$0: cannot get IP address\n";
     print "$1\n";
+}
+
+elsif ($action eq "show-host-key") {
+    my $fn = "$root/etc/ssh/ssh_host_ecdsa_key.pub";
+    exit 1 if ! -f $fn;
+    print read_file($fn);
 }
 
 else {

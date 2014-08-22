@@ -678,6 +678,10 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   djinn = callPackage ../development/libraries/haskell/djinn {};
 
+  djinnGhc = callPackage ../development/libraries/haskell/djinn-ghc {};
+
+  djinnLib = callPackage ../development/libraries/haskell/djinn-lib {};
+
   dlist = callPackage ../development/libraries/haskell/dlist {};
 
   dlistInstances = callPackage ../development/libraries/haskell/dlist-instances {};
@@ -779,7 +783,7 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   Extra = callPackage ../development/libraries/haskell/Extra {};
 
-  fay = callPackage ../development/libraries/haskell/fay { aeson = self.aeson_0_7_0_4; };
+  fay = callPackage ../development/libraries/haskell/fay {};
 
   fayBase = callPackage ../development/libraries/haskell/fay-base {};
 
@@ -893,9 +897,15 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   ghcjsCodemirror = callPackage ../development/libraries/haskell/ghcjs-codemirror {};
 
-  ghcMod = callPackage ../development/libraries/haskell/ghc-mod {
+  ghcMod_4_1_6 = callPackage ../development/libraries/haskell/ghc-mod/4.1.6.nix {
     inherit (pkgs) emacs;
   };
+
+  ghcMod_5_0_1 = callPackage ../development/libraries/haskell/ghc-mod/5.0.1.nix {
+    inherit (pkgs) emacs;
+  };
+
+  ghcMod = self.ghcMod_4_1_6;
 
   ghcMtl = callPackage ../development/libraries/haskell/ghc-mtl {};
 
@@ -988,6 +998,10 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   gtk = callPackage ../development/libraries/haskell/gtk {
     inherit (pkgs) gtk;
     libc = pkgs.stdenv.gcc.libc;
+  };
+
+  gtk3 = callPackage ../development/libraries/haskell/gtk3 {
+    inherit (pkgs) gtk3;
   };
 
   gtkglext = callPackage ../development/libraries/haskell/gtkglext { gtkglext = pkgs.gnome2.gtkglext; };
@@ -1581,6 +1595,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   monadExtras = callPackage ../development/libraries/haskell/monad-extras {};
 
+  monadJournal = callPackage ../development/libraries/haskell/monad-journal {};
+
   monadLib = callPackage ../development/libraries/haskell/monadlib {};
 
   monadloc = callPackage ../development/libraries/haskell/monadloc {};
@@ -1606,6 +1622,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   MonadRandom = callPackage ../development/libraries/haskell/MonadRandom {};
 
   monadStm = callPackage ../development/libraries/haskell/monad-stm {};
+
+  monadSupply = callPackage ../development/libraries/haskell/monad-supply {};
 
   monadsTf = callPackage ../development/libraries/haskell/monads-tf {};
 
@@ -1988,6 +2006,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   ranges = callPackage ../development/libraries/haskell/ranges {};
 
+  reserve = callPackage ../development/libraries/haskell/reserve {};
+
   rvar = callPackage ../development/libraries/haskell/rvar {};
 
   reactiveBanana = callPackage ../development/libraries/haskell/reactive-banana {};
@@ -2325,7 +2345,7 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   Stream = callPackage ../development/libraries/haskell/Stream {};
 
-  strictConcurrency = callPackage ../development/libraries/haskell/strictConcurrency {};
+  strictConcurrency = callPackage ../development/libraries/haskell/strict-concurrency {};
 
   stringbuilder = callPackage ../development/libraries/haskell/stringbuilder {};
 
@@ -2475,9 +2495,7 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   timerep = callPackage ../development/libraries/haskell/timerep {};
 
-  timeparsers = callPackage ../development/libraries/haskell/timeparsers {
-    convertible = self.convertible_1_0_11_1;
-  };
+  timeparsers = callPackage ../development/libraries/haskell/timeparsers {};
 
   timeRecurrence = callPackage ../development/libraries/haskell/time-recurrence {};
 
@@ -2930,14 +2948,6 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   # Applications.
 
   arbtt = callPackage ../applications/misc/arbtt {};
-
-  cryptol = callPackage ../development/compilers/cryptol/2.0.x.nix {
-    Cabal = self.Cabal_1_18_1_3;
-    cabalInstall = self.cabalInstall_1_18_0_3;
-    process = self.process_1_2_0_0;
-  };
-
-  darcs = callPackage ../applications/version-management/darcs {};
 
   idris_plain = callPackage ../development/compilers/idris {
     llvmGeneral = self.llvmGeneral_3_3_8_2;

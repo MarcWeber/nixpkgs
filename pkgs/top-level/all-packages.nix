@@ -811,6 +811,8 @@ let
 
   convmv = callPackage ../tools/misc/convmv { };
 
+  cool-old-term = callPackage ../applications/misc/cool-old-term { };
+
   coreutils = callPackage ../tools/misc/coreutils
     {
       # TODO: Add ACL support for cross-Linux.
@@ -1379,7 +1381,7 @@ let
   kippo = callPackage ../servers/kippo { };
 
   klavaro = callPackage ../games/klavaro {};
-  
+
   kzipmix = callPackage_i686 ../tools/compression/kzipmix { };
 
   minidlna = callPackage ../tools/networking/minidlna {
@@ -1712,9 +1714,7 @@ let
 
   opendylan_bin = callPackage ../development/compilers/opendylan/bin.nix { };
 
-  openjade = callPackage ../tools/text/sgml/openjade {
-    perl = perl510;
-  };
+  openjade = callPackage ../tools/text/sgml/openjade { };
 
   openobex = callPackage ../tools/bluetooth/openobex { };
 
@@ -1783,7 +1783,7 @@ let
   };
 
   p0f = callPackage ../tools/security/p0f { };
-  
+
   pngout = callPackage ../tools/graphics/pngout { };
 
   hurdPartedCross =
@@ -1972,6 +1972,8 @@ let
   rdiff_backup = callPackage ../tools/backup/rdiff-backup { };
 
   rdmd = callPackage ../development/compilers/rdmd { };
+
+  rhash = callPackage ../tools/security/rhash { };
 
   riemann_c_client = callPackage ../tools/misc/riemann-c-client { };
 
@@ -2166,6 +2168,8 @@ let
    };
 
   sitecopy = callPackage ../tools/networking/sitecopy { };
+
+  stricat = callPackage ../tools/security/stricat { };
 
   privoxy = callPackage ../tools/networking/privoxy { };
 
@@ -2623,7 +2627,11 @@ let
   compcert = callPackage ../development/compilers/compcert {};
 
   cryptol1 = lowPrio (callPackage ../development/compilers/cryptol/1.8.x.nix {});
-  cryptol2 = haskellPackages_ghc763.cryptol; # doesn't compile with the lastest 7.8.3 release
+  cryptol2 = with haskellPackages_ghc763; callPackage ../development/compilers/cryptol/2.0.x.nix {
+    Cabal = Cabal_1_18_1_3;
+    cabalInstall = cabalInstall_1_18_0_3;
+    process = process_1_2_0_0;
+  };
 
   cython = pythonPackages.cython;
   cython3 = python3Packages.cython;
@@ -3092,6 +3100,15 @@ let
     liblapack = liblapack.override {shared = true;};
     llvm = llvm_33;
   };
+  julia030 = let
+    liblapack = liblapack_3_5_0.override {shared = true;};
+  in callPackage ../development/compilers/julia/0.3.0.nix {
+    inherit liblapack;
+    suitesparse = suitesparse.override {
+      inherit liblapack;
+    };
+    llvm = llvm_34;
+  };
   julia = julia021;
 
   lazarus = builderDefsPackage (import ../development/compilers/fpc/lazarus.nix) {
@@ -3122,6 +3139,8 @@ let
     isl = isl_0_12;
   });
   llvmPackagesSelf = import ../development/compilers/llvm/3.4 { inherit newScope fetchurl; isl = isl_0_12; stdenv = libcxxStdenv; };
+
+  manticore = callPackage ../development/compilers/manticore { };
 
   mentorToolchains = recurseIntoAttrs (
     callPackage_i686 ../development/compilers/mentor {}
@@ -3530,12 +3549,6 @@ let
   octaveHG = callPackage ../development/interpreters/octave/hg.nix { };
 
   ocropus = callPackage ../applications/misc/ocropus { };
-
-  perl58 = callPackage ../development/interpreters/perl/5.8 {
-    impureLibcPath = if stdenv.isLinux then null else "/usr";
-  };
-
-  perl510 = callPackage ../development/interpreters/perl/5.10 { };
 
   perl514 = callPackage ../development/interpreters/perl/5.14 { };
 
@@ -5503,6 +5516,8 @@ let
 
   libspatialite = callPackage ../development/libraries/libspatialite { };
 
+  libtar = callPackage ../development/libraries/libtar { };
+
   libtasn1 = callPackage ../development/libraries/libtasn1 { };
 
   libtheora = callPackage ../development/libraries/libtheora { };
@@ -5870,6 +5885,10 @@ let
   };
 
   openspades = callPackage ../games/openspades {};
+
+  libressl = callPackage ../development/libraries/libressl { };
+
+  boringssl = callPackage ../development/libraries/boringssl { };
 
   openssl = callPackage ../development/libraries/openssl {
     fetchurl = fetchurlBoot;
@@ -6404,7 +6423,7 @@ let
   xbase = callPackage ../development/libraries/xbase { };
 
   xcb-util-cursor = callPackage ../development/libraries/xcb-util-cursor { };
- 
+
   xdo = callPackage ../tools/misc/xdo { };
 
   xineLib = callPackage ../development/libraries/xine-lib {
@@ -6548,14 +6567,6 @@ let
     inherit pkgs;
     overrides = (config.perlPackageOverrides or (p: {})) pkgs;
   });
-
-  perl510Packages = import ./perl-packages.nix {
-    pkgs = pkgs // {
-      perl = perl510;
-      buildPerlPackage = import ../development/perl-modules/generic perl510;
-    };
-    overrides = (config.perl510PackageOverrides or (p: {})) pkgs;
-  };
 
   perl514Packages = import ./perl-packages.nix {
     pkgs = pkgs // {
@@ -6857,6 +6868,8 @@ let
   nsd = callPackage ../servers/dns/nsd { };
 
   nsq = callPackage ../servers/nsq { };
+
+  openresty = callPackage ../servers/http/openresty { };
 
   opensmtpd = callPackage ../servers/mail/opensmtpd { };
 
@@ -8292,6 +8305,8 @@ let
 
   cinelerra = callPackage ../applications/video/cinelerra { };
 
+  clipit = callPackage ../applications/misc/clipit { };
+
   cmus = callPackage ../applications/audio/cmus { };
 
   compiz = callPackage ../applications/window-managers/compiz {
@@ -8341,11 +8356,8 @@ let
 
   d4x = callPackage ../applications/misc/d4x { };
 
-  darcs = haskellPackages_ghc763.darcs.override {
-    # A variant of the Darcs derivation that containts only the executable and
-    # thus has no dependencies on other Haskell packages. We have to use the older
-    # GHC 7.6.3 package set because darcs won't compile with 7.8.x.
-    cabal = haskellPackages_ghc763.cabal.override {
+  darcs = with haskellPackages_ghc763; callPackage ../applications/version-management/darcs {
+    cabal = cabal.override {
       extension = self : super : {
         isLibrary = false;
         configureFlags = "-f-library " + super.configureFlags or "";
@@ -9344,7 +9356,7 @@ let
   };
 
   synfigstudio = callPackage ../applications/graphics/synfigstudio { };
- 
+
   sxhkd = callPackage ../applications/window-managers/sxhkd { };
 
   msmtp = callPackage ../applications/networking/msmtp { };
@@ -9628,6 +9640,8 @@ let
     conf = config.st.conf or null;
   };
 
+  linuxstopmotion = callPackage ../applications/video/linuxstopmotion { };
+
   sweethome3d = recurseIntoAttrs (  (callPackage ../applications/misc/sweethome3d { })
                                  // (callPackage ../applications/misc/sweethome3d/editors.nix {
                                       sweethome3dApp = sweethome3d.application;
@@ -9648,9 +9662,7 @@ let
 
   # slic3r 0.9.10b says: "Running Slic3r under Perl >= 5.16 is not supported nor recommended"
   slic3r = callPackage ../applications/misc/slic3r {
-    inherit (perl514Packages) EncodeLocale MathClipper ExtUtilsXSpp
-            BoostGeometryUtils MathConvexHullMonotoneChain MathGeometryVoronoi
-            MathPlanePath Moo IOStringy ClassXSAccessor Wx GrowlGNTP NetDBus;
+    perlPackages = perl514Packages;
     perl = perl514;
   };
 
@@ -9833,10 +9845,7 @@ let
 
   twmn = callPackage ../applications/misc/twmn { };
 
-  twinkle = callPackage ../applications/networking/instant-messengers/twinkle {
-    ccrtp = ccrtp_1_8;
-    libzrtpcpp = libzrtpcpp_1_6;
-  };
+  twinkle = callPackage ../applications/networking/instant-messengers/twinkle { };
 
   umurmur = callPackage ../applications/networking/umurmur { };
 
@@ -9847,12 +9856,14 @@ let
 
   uucp = callPackage ../tools/misc/uucp { };
 
+  uvccapture = callPackage ../applications/video/uvccapture { };
+
   uwimap = callPackage ../tools/networking/uwimap { };
 
   uzbl = callPackage ../applications/networking/browsers/uzbl {
     webkit = webkitgtk2;
   };
-  
+
   uTox = callPackage ../applications/networking/instant-messengers/utox { };
 
   vanitygen = callPackage ../applications/misc/vanitygen { };
@@ -10620,6 +10631,8 @@ let
 
       calligra = callPackage ../applications/office/calligra { };
 
+      colord-kde = callPackage ../tools/misc/colord-kde { };
+
       digikam = if builtins.compareVersions "4.9" kde4.release == 1 then
           callPackage ../applications/graphics/digikam/2.nix { }
         else
@@ -10697,6 +10710,11 @@ let
 
       quassel = callPackage ../applications/networking/irc/quassel { dconf = gnome3.dconf; };
 
+      quasselWithoutKDE = (self.quassel.override {
+        withKDE = false;
+        tag = "-without-kde";
+      });
+
       quasselDaemon = (self.quassel.override {
         monolithic = false;
         daemon = true;
@@ -10707,6 +10725,11 @@ let
         monolithic = false;
         client = true;
         tag = "-client";
+      });
+
+      quasselClientWithoutKDE = (self.quasselClient.override {
+        withKDE = false;
+        tag = "-client-without-kde";
       });
 
       rekonq = callPackage ../applications/networking/browsers/rekonq { };
@@ -10821,6 +10844,7 @@ let
   jags = callPackage ../applications/science/math/jags { };
 
   liblapack = callPackage ../development/libraries/science/math/liblapack { };
+  liblapack_3_5_0 = callPackage ../development/libraries/science/math/liblapack/3.5.0.nix { };
 
   liblbfgs = callPackage ../development/libraries/science/math/liblbfgs { };
 

@@ -7,6 +7,9 @@
 #   * nix-env -p /nix/var/nix/profiles/system -i <nix-expr for the configuration>
 #   * install the boot loader
 
+# Ensure a consistent umask.
+umask 0022
+
 # Re-exec ourselves in a private mount namespace so that our bind
 # mounts get cleaned up automatically.
 if [ "$(id -u)" = 0 ]; then
@@ -29,6 +32,9 @@ while [ "$#" -gt 0 ]; do
             given_path="$1"; shift 1
             absolute_path=$(readlink -m $given_path)
             extraBuildFlags+=("$i" "/mnt$absolute_path")
+            ;;
+        --root)
+            mountPoint="$1"; shift 1
             ;;
         --show-trace)
             extraBuildFlags+=("$i")
@@ -240,7 +246,7 @@ chroot $mountPoint /nix/var/nix/profiles/system/activate
 # Ask the user to set a root password.
 if [ -t 0 ] ; then
     echo "setting root password..."
-    chroot $mountPoint passwd
+    chroot $mountPoint /var/setuid-wrappers/passwd
 fi
 
 

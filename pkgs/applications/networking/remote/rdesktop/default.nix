@@ -1,5 +1,4 @@
 {stdenv, fetchurl, openssl, libX11, versionedDerivation
-
 , automake, autoconf, libtool
 , version ? "1.7.1"
 }:
@@ -17,7 +16,7 @@ versionedDerivation "rdesktop" version {
       sha256 = "0yc4xz95w40m8ailpjgqp9h7bkc758vp0dlq4nj1pvr3xfnl7sni";
     };
   };
-  "1.8.1" = rec {
+  "1.8.2" = rec {
     # + fixed some copy paste for viric
     # - does not connect to virtualbox
     #   (http://www.pclinuxos.com/forum/index.php?topic=124711.0 talks about
@@ -29,7 +28,7 @@ versionedDerivation "rdesktop" version {
 
     src = fetchurl {
       url = "mirror://sourceforge/${pname}/${name}.tar.gz";
-      sha256 = "0il248cdsxvwjsl4bswf27ld9r1a7d48jf6bycr86kf3i55q7k3n";
+      sha256 = "0y0s0qjfsflp4drcn75ykx6as7mn13092bcvlp2ibhilkpa27gzv";
     };
 
     configureFlags = [
@@ -62,6 +61,9 @@ versionedDerivation "rdesktop" version {
   buildInputs = [openssl libX11];
 
   meta = {
-    description = "rdesktop is an open source client for Windows Terminal Services";
+    description = "Open source client for Windows Terminal Services";
+    homepage = http://www.rdesktop.org/;
+    platforms = stdenv.lib.platforms.linux;
+    license     = stdenv.lib.licenses.gpl2;
   };
 }

@@ -4,7 +4,8 @@
 , enableLame ? false, lame ? null
 , enableLibmad ? true, libmad ? null
 , enableLibogg ? true, libogg ? null, libvorbis ? null
-, enableLibflac ? true, flac ? null
+, enableFLAC ? true, flac ? null
+, enablePNG ? true, libpng ? null
 }:
 
 with stdenv.lib;
@@ -23,7 +24,8 @@ stdenv.mkDerivation rec {
     optional enableLame lame ++
     optional enableLibmad libmad ++
     optionals enableLibogg [ libogg libvorbis ] ++
-    optional enableLibflac flac;
+    optional enableFLAC flac ++
+    optional enablePNG libpng;
 
   meta = {
     description = "Sample Rate Converter for audio";

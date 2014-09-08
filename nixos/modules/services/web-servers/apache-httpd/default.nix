@@ -141,7 +141,7 @@ let
   '';
 
 
-  loggingConf = ''
+  loggingConf = (if mainCfg.logFormat != "none" then ''
     ErrorLog ${mainCfg.logDir}/error_log
 
     LogLevel notice
@@ -152,7 +152,9 @@ let
     LogFormat "%{User-agent}i" agent
 
     CustomLog ${mainCfg.logDir}/access_log ${mainCfg.logFormat}
-  '';
+  '' else ''
+    ErrorLog /dev/null
+  '');
 
 
   browserHacks = ''
@@ -432,7 +434,7 @@ in
       package = mkOption {
         type = types.package;
         default = pkgs.apacheHttpd.override { mpm = mainCfg.multiProcessingModule; };
-        example = "pkgs.apacheHttpd_2_4";
+        example = literalExample "pkgs.apacheHttpd_2_4";
         description = ''
           Overridable attribute of the Apache HTTP Server package to use.
         '';

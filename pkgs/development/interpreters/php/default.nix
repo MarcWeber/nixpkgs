@@ -31,6 +31,7 @@
 , opensslSupport ? true
 , pcntlSupport ? true
 , pdo_mysqlSupport ? true
+, pdo_pgsqlSupport ? true
 , postgresqlSupport ? true
 , readlineSupport ? true
 , soapSupport ? true
@@ -99,6 +100,7 @@ let
     "mysqliSupport"
     "opensslSupport"
     "pdo_mysqlSupport"
+    "pdo_pgsqlSupport"
     "postgresqlSupport"
     "pcntlSupport"
     "readlineSupport"
@@ -264,6 +266,11 @@ let
       pdo_mysql = {
         configureFlags = ["--with-pdo-mysql=${mysql}"];
         buildInputs = [ mysql ];
+      };
+
+      pdo_pgsql = {
+        configureFlags = ["--with-pdo-pgsql=${postgresql}"];
+        buildInputs = [ postgresql ];
       };
 
       bcmath = {

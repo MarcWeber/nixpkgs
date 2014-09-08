@@ -10,7 +10,7 @@ let
     isExecutable = true;
     src = ./nixos-container.pl;
     perl = "${pkgs.perl}/bin/perl -I${pkgs.perlPackages.FileSlurp}/lib/perl5/site_perl";
-    inherit (pkgs) socat;
+    inherit (pkgs) utillinux;
   };
 
   # The container's init script, a small wrapper around the regular
@@ -177,6 +177,11 @@ in
             if [ "$PRIVATE_NETWORK" = 1 ]; then
               ip link del dev "ve-$INSTANCE" 2> /dev/null || true
             fi
+
+
+            if [ "$PRIVATE_NETWORK" = 1 ]; then
+              ip link del dev "ve-$INSTANCE" 2> /dev/null || true
+            fi
          '';
 
         script =
@@ -240,6 +245,12 @@ in
                 ip route add $LOCAL_ADDRESS dev $ifaceHost
               fi
             fi
+
+            # This blocks until the container-startup-done service
+            # writes something to this pipe.  FIXME: it also hangs
+            # until the start timeout expires if systemd-nspawn exits.
+            read x < $root/var/lib/startup-done
+            rm -f $root/var/lib/startup-done
           '';
 
         preStop =
@@ -254,9 +265,8 @@ in
           ExecReload = pkgs.writeScript "reload-container"
             ''
               #! ${pkgs.stdenv.shell} -e
-              SYSTEM_PATH=/nix/var/nix/profiles/system
-              echo $SYSTEM_PATH/bin/switch-to-configuration test | \
-                ${pkgs.socat}/bin/socat unix:$root/var/lib/run-command.socket -
+              ${nixos-container}/bin/nixos-container run "$INSTANCE" -- \
+                bash --login -c "/nix/var/nix/profiles/system/bin/switch-to-configuration test"
             '';
 
           SyslogIdentifier = "container %i";

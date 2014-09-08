@@ -14,7 +14,7 @@ assert cupsSupport -> cups != null;
 let
   meta_common = {
     homepage = "http://www.gnu.org/software/ghostscript/";
-    description = "GNU Ghostscript, a PostScript interpreter";
+    description = "PostScript interpreter (GNU version)";
 
     longDescription = ''
       Ghostscript is the name of a set of tools that provides (i) an
@@ -72,7 +72,7 @@ versionedDerivation "ghostscript" version {
 
     meta = meta_common // {
       homepage = "http://www.ghostscript.com/";
-      description = "GPL Ghostscript, a PostScript interpreter";
+      description = "PostScript interpreter (mainline version)";
     };
 
   };

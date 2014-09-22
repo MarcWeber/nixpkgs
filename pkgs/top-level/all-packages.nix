@@ -6886,6 +6886,11 @@ let
 
   ### SERVERS
 
+  arangodb = callPackage ../servers/nosql/arangodb {
+    inherit (pythonPackages) gyp;
+  };
+  arangodbGit = arangodb.override { version = "git"; };
+
   rdf4store = callPackage ../servers/http/4store { };
 
   apacheHttpd = pkgs.apacheHttpd_2_2;

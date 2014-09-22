@@ -28,3 +28,4 @@ experimental/php-koellner-phonetic
 experimental/clawsmail
 experimental/nginx
 experimental/apache-httpd
+experimental/arangodb

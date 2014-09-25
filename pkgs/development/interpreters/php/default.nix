@@ -417,7 +417,7 @@ let
 
       "5.4.33" = "c6878bb1cdb46bfc1e1a5cd67a024737";
 
-      "5.3.29" = "ebfa96ea636b2a7ece71e78ad116a338";
+      "5.3.29" = "9469e240cbe6ac865aeaec89b253dd30";
      };
      name = "php-${true_version}.tar.bz2";
    };

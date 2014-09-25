@@ -4918,10 +4918,10 @@ let
   gdbm = callPackage ../development/libraries/gdbm { };
 
   gecode = callPackage ../development/libraries/gecode { };
+
   gegl = callPackage ../development/libraries/gegl { };
   gegl_0_1_6 = gegl.override { version = "0.1.6"; };
   geglGit = gegl.override { version = "git"; };
-
 
   gegl_0_0_22 = callPackage ../development/libraries/gegl/0_0_22.nix {
     #  avocodec avformat librsvg

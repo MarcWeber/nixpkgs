@@ -3,7 +3,7 @@
 
 assert stdenv.system == "x86_64-linux" || stdenv.system == "i686-linux";
 
-let version = "1.6.4";
+let version = "1.6.5";
 in
 stdenv.mkDerivation rec {
   name = "vagrant-${version}";
@@ -12,12 +12,12 @@ stdenv.mkDerivation rec {
     if stdenv.system == "x86_64-linux" then
       fetchurl {
         url    = "https://dl.bintray.com/mitchellh/vagrant/vagrant_${version}_x86_64.deb";
-        sha256 = "1f171d2yjs4p2kzlwcknx1k29qnjvaxizjrxp84ya3sfxvfckm92";
+        sha256 = "12m2mnpnfzqv2s4j58cnzg4h4i5nkk5nb4irsvmm3i9a0dnsziz2";
       }
     else
       fetchurl {
         url    = "https://dl.bintray.com/mitchellh/vagrant/vagrant_${version}_i686.deb";
-        sha256 = "047zij0lvrlpyg6icnp4knl0q87icsavbd2g98bkcp79yh2y91d0";
+        sha256 = "1d4w0ni6mkb378v6rd7b188fw38vi8qql7pkwzsykr6389krbkbq";
       };
 
   meta = with stdenv.lib; {

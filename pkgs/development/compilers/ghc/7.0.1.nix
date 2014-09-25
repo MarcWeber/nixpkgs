@@ -5,6 +5,8 @@ stdenv.mkDerivation rec {
 
   name = "ghc-${version}";
 
+  enableParallelBuilding = true; # let's try it
+
   src = fetchurl {
     url = "http://www.haskell.org/ghc/dist/${version}/${name}-src.tar.bz2";
     sha256 = "1iciljngxmqy465cw3pkl6jp0ydiils4bfz6ixfaxk7aqv7r7xsi";

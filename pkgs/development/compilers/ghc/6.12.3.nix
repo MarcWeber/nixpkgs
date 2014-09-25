@@ -3,6 +3,8 @@
 stdenv.mkDerivation rec {
   version = "6.12.3";
 
+  enableParallelBuilding = true; # let's try it
+
   name = "ghc-${version}";
 
   src = fetchurl {

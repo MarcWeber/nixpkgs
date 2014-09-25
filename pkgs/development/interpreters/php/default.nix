@@ -50,6 +50,7 @@
 
 , lessThan54 ? builtins.lessThan (builtins.compareVersions version "5.4") 0
 , lessThan55 ? builtins.lessThan (builtins.compareVersions version "5.5") 0
+, lessThan56 ? builtins.lessThan (builtins.compareVersions version "5.6") 0
 
 , sendmail ? "/var/setuid-wrappers/sendmail"
 }:
@@ -77,9 +78,10 @@
 
 let
 
-  true_version = if version == "5.3.x" then "5.3.28"
-  else if version == "5.4.x" then "5.4.31"
-  else if version == "5.5.x" then "5.5.14"
+  true_version = if version == "5.3.x" then "5.3.29"
+  else if version == "5.4.x" then "5.4.33"
+  else if version == "5.5.x" then "5.5.17"
+  else if version == "5.6.x" then "5.6.0"
   else version;
 
   # used to calculate php id based on features
@@ -430,11 +432,13 @@ let
    src = fetchurl {
      url = "http://de2.php.net/distributions/php-${true_version}.tar.bz2";
      md5 = lib.maybeAttr true_version (throw "unkown php version ${true_version}") {
-      "5.5.14" = "b53e5f47c59ffbe26d20957636695baa";
+       "5.6.0" = "1f889357528809a6675e2f23995832d7";
 
-      "5.4.31" = "5611c2f4e03f39a586ca368167409699";
+      "5.5.17" = "09b4de1d684bad93a9ea4eca6fa476a9";
 
-      "5.3.28" = "56ff88934e068d142d6c0deefd1f396b";
+      "5.4.33" = "c6878bb1cdb46bfc1e1a5cd67a024737";
+
+      "5.3.29" = "ebfa96ea636b2a7ece71e78ad116a338";
      };
      name = "php-${true_version}.tar.bz2";
    };

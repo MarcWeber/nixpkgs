@@ -67,6 +67,8 @@ in
           http servers
         '';
 
+        default = {};
+
         type = types.attrsOf (types.submodule (
           {
             options = {

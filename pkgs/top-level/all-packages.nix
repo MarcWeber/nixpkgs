@@ -555,6 +555,11 @@ let
 
   inherit (androidenv) androidsdk_4_4 androidndk;
 
+  anyterm = callPackage ../tools/networking/anyterm {
+    boost = boost149;
+  };
+
+
   aria2 = callPackage ../tools/networking/aria2 { };
   aria = aria2;
 
@@ -685,6 +690,8 @@ let
   mcrl2 = callPackage ../tools/misc/mcrl2 { };
 
   mpdcron = callPackage ../tools/audio/mpdcron { };
+
+  slowhttptest = callPackage ../tools/misc/slowhttptest { };
 
   syslogng = callPackage ../tools/system/syslog-ng { };
 
@@ -2324,6 +2331,8 @@ let
 
   tarsnap = callPackage ../tools/backup/tarsnap { };
 
+  task = callPackage ../tools/misc/task { };
+
   tcpcrypt = callPackage ../tools/security/tcpcrypt { };
 
   tboot = callPackage ../tools/security/tboot { };
@@ -2717,6 +2726,8 @@ let
   fish = callPackage ../shells/fish {
     python = python27Full;
   };
+
+  ipython = callPackage ../shells/ipython { };
 
   tcsh = callPackage ../shells/tcsh { };
 
@@ -3704,6 +3715,7 @@ let
 
   yasm = callPackage ../development/compilers/yasm { };
 
+  zimbu = callPackage ../development/compilers/zimbu { };
 
   ### DEVELOPMENT / INTERPRETERS
 
@@ -3757,6 +3769,10 @@ let
   jimtcl = callPackage ../development/interpreters/jimtcl {};
 
   jmeter = callPackage ../applications/networking/jmeter {};
+
+  kaffe = callPackage ../development/interpreters/kaffe { };
+
+  kakoune = callPackage ../applications/editors/kakoune { };
 
   davmail = callPackage ../applications/networking/davmail {};
 
@@ -4843,6 +4859,11 @@ let
   };
 
   fcgi = callPackage ../development/libraries/fcgi { };
+
+  ffmpegGit = ffmpeg_0_10.override {
+    version = "git"; 
+    stdenv = overrideGCC stdenv gcc47;
+  };
 
   ffmpeg_0_6 = callPackage ../development/libraries/ffmpeg/0.6.nix {
     vpxSupport = !stdenv.isMips;
@@ -5952,6 +5973,8 @@ let
 
   libxslt = callPackage ../development/libraries/libxslt { };
 
+  libxml_xml_dtd_xhtml = callPackage ../data/sgml+xml/schemas/xml-dtd/xhtml { };
+
   libixp_for_wmii = lowPrio (import ../development/libraries/libixp_for_wmii {
     inherit fetchurl stdenv;
   });
@@ -6162,6 +6185,7 @@ let
     automake = automake111x;
     ftgl = ftgl212;
   };
+  opencascadeCommunityFork = callPackage ../development/libraries/opencascade/opencascade-git-community-fork.nix { };
 
   opencascade_oce = callPackage ../development/libraries/opencascade/oce.nix { };
 
@@ -7377,6 +7401,8 @@ let
 
   thttpd = callPackage ../servers/http/thttpd { };
 
+  tinyproxy = callPackage ../servers/tinyproxy { };
+
   storm = callPackage ../servers/computing/storm { };
 
   tomcat5 = callPackage ../servers/http/tomcat/5.0.nix { };
@@ -7436,6 +7462,8 @@ let
 
   zabbix20 = callPackage ../servers/monitoring/zabbix/2.0.nix { };
   zabbix22 = callPackage ../servers/monitoring/zabbix/2.2.nix { };
+
+  ziproxy = callPackage ../servers/ziproxy { };
 
 
   ### OS-SPECIFIC
@@ -8471,6 +8499,8 @@ let
   tipa = callPackage ../data/fonts/tipa { };
 
   ttf_bitstream_vera = callPackage ../data/fonts/ttf-bitstream-vera { };
+
+  ttf2eot = callPackage ../data/fonts/ttf-to-eot { };
 
   tzdata = callPackage ../data/misc/tzdata { };
 
@@ -9756,6 +9786,8 @@ let
 
   ruby_ncursesw_sup = callPackage ../development/libraries/ruby_ncursesw_sup { };
 
+  sc = callPackage ../applications/office/sc { };
+
   shotcut = callPackage ../applications/video/shotcut { mlt = mlt-qt5; };
 
   smplayer = callPackage ../applications/video/smplayer { };
@@ -9870,6 +9902,11 @@ let
   opera = callPackage ../applications/networking/browsers/opera {
     inherit (pkgs.kde4) kdelibs;
   };
+  opera_my = callPackage ../applications/networking/browsers/opera/my.nix { };
+  # TODO merge with upstream opera to support HTML 5 viedos?
+  # testpages:
+  # http://www.planetoftunes.com/web_site/videoforweb/html5_example/index.html
+  # http://www.youtube.com/html5
 
   opusfile = callPackage ../applications/audio/opusfile { };
 
@@ -9926,6 +9963,8 @@ let
   pidginotr = callPackage ../applications/networking/instant-messengers/pidgin-plugins/otr { };
 
   pidginsipe = callPackage ../applications/networking/instant-messengers/pidgin-plugins/sipe { };
+
+  pidginPlugins = callPackage ../applications/networking/instant-messengers/pidgin-plugins { };
 
   toxprpl = callPackage ../applications/networking/instant-messengers/pidgin-plugins/tox-prpl { };
 
@@ -10321,6 +10360,8 @@ let
     enableX11 = config.unison.enableX11 or true;
   };
 
+  umtsmon = callPackage ../applications/misc/umtsmon { };
+
   uucp = callPackage ../tools/misc/uucp { };
 
   uvccapture = callPackage ../applications/video/uvccapture { };
@@ -10359,6 +10400,7 @@ let
   vimHugeX = vim_configurable;
 
   vim_configurable = callPackage ../applications/editors/vim/configurable.nix {
+    vimNox = false;
     inherit (pkgs) fetchurl fetchhg stdenv ncurses pkgconfig gettext
       composableDerivation lib config glib gtk python perl tcl ruby;
     inherit (pkgs.xlibs) libX11 libXext libSM libXpm libXt libXaw libXau libXmu
@@ -11714,6 +11756,8 @@ let
   lazylist = callPackage ../tools/typesetting/tex/lazylist { };
 
   lilypond = callPackage ../misc/lilypond { guile = guile_1_8; };
+
+  logkeys = callPackage ../misc/logkeys { };
 
   martyr = callPackage ../development/libraries/martyr { };
 

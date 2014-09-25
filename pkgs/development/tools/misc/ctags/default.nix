@@ -1,14 +1,10 @@
-{ stdenv, fetchsvn, automake, autoconf}:
+{ stdenv, fetchurl, fetchsvn, automake, autoconf}:
 
 stdenv.mkDerivation rec {
-  name = "ctags-${revision}";
-  revision = "804";
-
-  src = fetchsvn {
-    url = "http://ctags.svn.sourceforge.net/svnroot/ctags/trunk";
-    rev = revision;
-    sha256 = "16gln1mah2jqp32ki1z0187dwkbjx1xcnmyiardcq6c9w3p4qwcr";
-  };
+  name = "ctags-svn";
+  # REGION AUTO UPDATE:      { name="ctags"; type = "svn"; url = "https://ctags.svn.sourceforge.net/svnroot/ctags/trunk"; }
+  src = (fetchurl { url = "http://mawercer.de/~nix/repos/ctags-svn-804.tar.bz2"; sha256 = "9ab3b13f60ec285df4c33cae3b79b32aa1523ede734d0b5e0af47eeaaf58f2b4"; });
+  # END
 
   buildInputs = [ automake autoconf ];
 

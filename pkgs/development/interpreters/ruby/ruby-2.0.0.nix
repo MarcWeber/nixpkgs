@@ -2,7 +2,7 @@
 , zlib, zlibSupport ? true
 , openssl, opensslSupport ? true
 , gdbm, gdbmSupport ? true
-, ncurses, readline, cursesSupport ? false
+, ncurses, readline, cursesSupport ? true
 , groff, docSupport ? false
 , libyaml, yamlSupport ? true
 , ruby_2_0_0, autoreconfHook, bison, useRailsExpress ? true
@@ -75,6 +75,10 @@ stdenv.mkDerivation rec {
 
     envHooks+=(addGemPath)
     EOF
+
+    # required for ruby-line ruby-debug like libraries
+    cp *.h *.inc $out/include
+    cp -a include/* $out/include
   '';
 
   meta = {

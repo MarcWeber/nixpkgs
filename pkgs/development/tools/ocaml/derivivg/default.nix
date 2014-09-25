@@ -19,7 +19,7 @@ print_string (Show.show<t> (A));;
 ==
 
 ocamlopt -pp $out/bin/deriving -I $d/lib -I $d/syntax nums.cmxa show.cmx main.ml
-ocamlopt -pp 'camlp4 -I $d/lib deriving.cmo' 
+ocamlopt -pp 'camlp4 -I $d/lib deriving.cmo' -I $d/lib -I $d/syntax nums.cmxa show.cmx main.ml
 */
 
 versionedDerivation "ocaml-deriving" version {

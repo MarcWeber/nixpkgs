@@ -4,8 +4,8 @@ stdenv.mkDerivation {
   name = "dvb-apps-7f68f9c8d311";
 
   src = fetchurl {
-    url = "http://linuxtv.org/hg/dvb-apps/archive/7f68f9c8d311.tar.gz";
-    sha256 = "0a6c5jjq6ad98bj0r954l3n7zjb2syw9m19jksg06z4zg1z8yg82";
+    url = "http://linuxtv.org/hg/dvb-apps/archive/f3a70b206f0f.tar.gz";
+    sha256 = "0jq6wkfyjdwiag8mz3a76akm88jncxjdn9a5mr8vmzwm37kdbxk7";
   };
 
   buildInputs = [ perl ];

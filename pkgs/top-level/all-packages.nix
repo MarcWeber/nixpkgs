@@ -3432,7 +3432,7 @@ let
 
     csv = callPackage ../development/ocaml-modules/csv { };
 
-    deriving = callPackage ../development/tools/ocaml/deriving { };
+    deriving = callPackage ../development/tools/ocaml/derivivg { };
 
     easy-format = callPackage ../development/ocaml-modules/easy-format { };
 
@@ -11806,8 +11806,6 @@ let
   lazylist = callPackage ../tools/typesetting/tex/lazylist { };
 
   lilypond = callPackage ../misc/lilypond { guile = guile_1_8; };
-
-  logkeys = callPackage ../misc/logkeys { };
 
   martyr = callPackage ../development/libraries/martyr { };
 

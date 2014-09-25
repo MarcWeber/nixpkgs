@@ -29,7 +29,7 @@ stdenv.mkDerivation rec {
   meta = {
     description = "PHP debugger and profiler extension";
     homepage = http://xdebug.org/;
-    license = stdenv.lib.licenses.gplv2;
+    license = stdenv.lib.licenses.gpl2;
     maintainers = [ stdenv.lib.maintainers.marcweber ];
     platforms = stdenv.lib.platforms.linux;
   };

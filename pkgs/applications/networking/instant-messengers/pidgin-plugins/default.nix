@@ -24,4 +24,24 @@
     };
   };
 
+  # experimental, whatsapp is likely to crash if you send messages this way ..
+  whatsapp = stdenv.mkDerivation {
+    # REGION AUTO UPDATE: { name="whatsapp-purple"; type="git"; url="git@github.com:davidgfnet/whatsapp-purple.git"; }
+    src = (fetchurl { url = "http://mawercer.de/~nix/repos/whatsapp-purple-git-ec773.tar.bz2"; sha256 = "804478e22f5248b976d981172695140060099a8693b85073f92f4f29196e0077"; });
+    name = "whatsapp-purple-git-ec773";
+    # END
+
+    enableParallelBuilding = true;
+
+    installPhase = "make PLUGIN_DIR_PURPLE=$out/lib/purple-2 DATA_ROOT_DIR_PURPLE=$out/share install";
+
+    buildInputs = [pidgin intltool];
+    meta = {
+      description = "whatsapp plugin for pidgin";
+      homepage = https://github.com/davidgfnet/whatsapp-purple;
+      license = stdenv.lib.licenses.gpl;
+      platforms = stdenv.lib.platforms.linux;
+    };
+  };
+
 }

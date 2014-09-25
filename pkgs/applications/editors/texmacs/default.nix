@@ -1,4 +1,4 @@
-{stdenv, fetchurl, guile, libX11, libXext, xmodmap, which, makeWrapper, freetype,
+{stdenv, fetchurl, guile, libX11, libXext, xmodmap, which, makeWrapper, freetype, coreutils,
  tex ? null,
  aspell ? null,
  ghostscriptX ? null,
@@ -38,6 +38,8 @@ in
 stdenv.mkDerivation rec {
   name = "${pname}-${version}";
 
+  enableParallelBuilding = true;
+
   src = fetchurl {
     url = "ftp://ftp.texmacs.org/pub/${pname}/targz/${name}-src.tar.gz";
     sha256 = "0x1r9417dzbrxf785faq1vjszqdj94ig2lzwm8sd92bxcxr6knfa";
@@ -59,6 +61,12 @@ stdenv.mkDerivation rec {
    (if koreanFonts then ''
     gunzip < ${koreanFontsSrc} | (cd TeXmacs && tar xvf -)
    '' else "");
+
+
+  postUnpack = ''
+    sed -i -s 's@\</bin/echo\>@${coreutils}/bin/echo@g' */plugins/gnuplot/bin/tm_gnuplot
+  '';
+
 
   postInstall = "wrapProgram $out/bin/texmacs --suffix PATH : " +
         (if ghostscriptX == null then "" else "${ghostscriptX}/bin:") +

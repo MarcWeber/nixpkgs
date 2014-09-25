@@ -8,6 +8,15 @@
 { # The system (e.g., `i686-linux') for which to build the packages.
   system ? builtins.currentSystem
 
+  # Usually, the system type uniquely determines the stdenv and thus
+  # how to build the packages.  But on some platforms we have
+  # different stdenvs, leading to different ways to build the
+  # packages.  For instance, on Windows we support both Cygwin and
+  # Mingw builds.  In both cases, `system' is `i686-cygwin'.  The
+  # attribute `stdenvType' is used to select the specific kind of
+  # stdenv to use, e.g., `i686-mingw'.
+, stdenvType ? system
+
 , # The standard environment to use.  Only used for bootstrapping.  If
   # null, the default standard environment is used.
   bootStdenv ? null
@@ -33,7 +42,11 @@
 }:
 
 
-let config_ = config; platform_ = platform; in # rename the function arguments
+let 
+
+  mainArgs = { inherit system stdenvType bootStdenv noSysDirs gccWithCC
+    gccWithProfiling config crossSystem platform; };
+  config_ = config; platform_ = platform; in # rename the function arguments
 
 let
 
@@ -146,9 +159,8 @@ let
   # Override system. This is useful to build i686 packages on x86_64-linux.
   forceSystem = system: kernel: (import ./all-packages.nix) {
     inherit system;
-    platform = platform // { kernelArch = kernel; };
     inherit bootStdenv noSysDirs gccWithCC gccWithProfiling config
-      crossSystem;
+      crossSystem platform;
   };
 
 
@@ -179,6 +191,9 @@ let
 
   inherit (lib) lowPrio hiPrio appendToName makeOverridable;
   inherit (misc) versionedDerivation;
+
+  # tip: merge overlays into pkgs using packageOverrides in your config
+  overlay = name: import (../../.. + "/nixpkgs-${name}-overlay") mainArgs;
 
   # Applying this to an attribute set will cause nix-env to look
   # inside the set for derivations.

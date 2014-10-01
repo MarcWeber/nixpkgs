@@ -18,7 +18,7 @@
 # for ppds
 , runCommand
 
-, version ? "5.2.9"
+, version ? "5.2.10"
 }:
 let
 
@@ -59,14 +59,14 @@ let gutenprint = (stdenv.mkDerivation (lib.mergeAttrsByVersion "gutenprint" vers
     #   };
     # };
 
-    "5.2.9" = {
+    "5.2.10" = {
       name = "gutenprint-${version}";
 
       NIX_CFLAGS_COMPILE="-include stdio.h";
 
       src = fetchurl {
         url = "mirror://sourceforge/gimp-print/gutenprint-${version}.tar.bz2";
-        sha256 = "185wai9hk0z0144hpxn5mqncy6xikc4bdv49vxqh5lrjdzqf89sb";
+        sha256 = "0n8f6vpadnagrp6yib3mca1c3lgwl4vmma16s44riyrd84mka7s3";
       };
     };
 

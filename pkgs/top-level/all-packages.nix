@@ -7301,6 +7301,8 @@ let
 
   mysql55 = callPackage ../servers/sql/mysql/5.5.x.nix { };
 
+  mysql56 = callPackage ../servers/sql/mysql/5.6.x.nix { };
+
   mysql = mysql51;
 
   mysql_jdbc = callPackage ../servers/sql/mysql/jdbc { };

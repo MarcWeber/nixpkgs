@@ -293,9 +293,7 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   bloomfilter = callPackage ../development/libraries/haskell/bloomfilter {};
 
-  bmp = callPackage ../development/libraries/haskell/bmp {
-    binary = self.binary_0_7_2_1;
-  };
+  bmp = callPackage ../development/libraries/haskell/bmp {};
 
   Boolean = callPackage ../development/libraries/haskell/Boolean {};
 
@@ -2351,6 +2349,10 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   SDL = callPackage ../development/libraries/haskell/SDL {
     inherit (pkgs) SDL;
+  };
+
+  sdl2 = callPackage ../development/libraries/haskell/sdl2 {
+    inherit (pkgs) SDL2;
   };
 
   SHA = callPackage ../development/libraries/haskell/SHA {};

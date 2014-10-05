@@ -215,6 +215,7 @@
   ./services/networking/cjdns.nix
   ./services/networking/cntlm.nix
   ./services/networking/connman.nix
+  ./services/networking/consul.nix
   ./services/networking/ddclient.nix
   ./services/networking/dhcpcd.nix
   ./services/networking/dhcpd.nix
@@ -233,6 +234,7 @@
   ./services/networking/iodined.nix
   ./services/networking/ircd-hybrid/default.nix
   ./services/networking/kippo.nix
+  ./services/networking/mailpile.nix
   ./services/networking/minidlna.nix
   ./services/networking/murmur.nix
   ./services/networking/nat.nix

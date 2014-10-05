@@ -5,7 +5,7 @@
 , cupsSupport ? false, cups ? null
 
 , versionedDerivation
-, version ? "9.06"
+, version ? "9.14"
 }:
 
 assert x11Support -> x11 != null;
@@ -51,13 +51,13 @@ versionedDerivation "ghostscript" version {
     meta = meta_common;
   };
 
-  "9.06" = rec {
+  "9.14" = rec {
     # This still contains raster for cups  (eg gstopxl, gstoraster)
     name = "ghostscript-9.06";
 
     src = fetchurl {
       url = "http://downloads.ghostscript.com/public/${name}.tar.bz2";
-      sha256 = "014f10rxn4ihvcr1frby4szd1jvkrwvmdhnbivpp55c9fssx3b05";
+      sha256 = "0x6cg494slwkx4lx699dr41jv9iji45j052kkldq8b84qjmcax0w";
     };
     configureFlags =
       [ (if cupsSupport then "--enable-cups --with-install-cups" else "--disable-cups")

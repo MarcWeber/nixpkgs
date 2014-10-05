@@ -283,6 +283,11 @@ let
     vs = vs90wrapper;
   };
 
+  fetchadc = import ../build-support/fetchadc {
+    inherit curl stdenv;
+    inherit (config) adc_user adc_pass;
+  };
+
   fetchbower = import ../build-support/fetchbower {
     inherit stdenv git;
     inherit (nodePackages) fetch-bower;
@@ -768,7 +773,9 @@ let
 
   cdrkit = callPackage ../tools/cd-dvd/cdrkit { };
 
-  ceph = callPackage ../tools/filesystems/ceph { };
+  ceph = callPackage ../tools/filesystems/ceph {
+    zfs = linuxPackages.zfs;
+  };
 
   cfdg = builderDefsPackage ../tools/graphics/cfdg {
     inherit libpng bison flex ffmpeg;
@@ -2362,11 +2369,15 @@ let
 
   tpm-tools = callPackage ../tools/security/tpm-tools { };
 
+  traceroute = callPackage ../tools/networking/traceroute { };
+
   trickle = callPackage ../tools/networking/trickle {};
 
   trousers = callPackage ../tools/security/trousers { };
 
   ttf2pt1 = callPackage ../tools/misc/ttf2pt1 { };
+
+  tty-clock = callPackage ../tools/misc/tty-clock { };
 
   ttysnoop = callPackage ../os-specific/linux/ttysnoop {};
 
@@ -3771,17 +3782,14 @@ let
 
   luaPackages = lua52Packages;
 
-  lua5_1_sockets = lua51Packages.sockets;
+  lua5_1_sockets = lua51Packages.luasocket;
 
   lua5_expat = callPackage ../development/interpreters/lua-5/expat.nix {};
-  lua51_zip = callPackage ../development/interpreters/lua-5/zip.nix { };
   lua5_sec = callPackage ../development/interpreters/lua-5/sec.nix { };
 
-  luarocks = callPackage ../development/tools/misc/luarocks {
-     lua = lua5;
-  };
-
   luajit = callPackage ../development/interpreters/luajit {};
+
+  luarocks = luaPackages.luarocks;
 
   ### END OF LUA
 
@@ -3797,6 +3805,10 @@ let
     automake = automake114x;
     inherit (pythonPackages) python boto setuptools distutils-cfg wrapPython;
     pythonProtobuf = pythonPackages.protobuf;
+  };
+
+  nix-exec = callPackage ../development/interpreters/nix-exec {
+    nix = nixUnstable;
   };
 
   octave = callPackage ../development/interpreters/octave {
@@ -3877,7 +3889,7 @@ let
   python33 = callPackage ../development/interpreters/python/3.3 { };
   python34 = hiPrio (callPackage ../development/interpreters/python/3.4 { });
 
-  pypy = callPackage ../development/interpreters/pypy/2.3 { };
+  pypy = callPackage ../development/interpreters/pypy/2.4 { };
 
   python26Full = callPackage ../development/interpreters/python/wrapper.nix {
     extraLibs = [];
@@ -4034,6 +4046,7 @@ let
   guile-xcb = callPackage ../development/guile-modules/guile-xcb { };
 
   pharo-vm = callPackage_i686 ../development/pharo/vm { };
+  pharo-launcher = callPackage ../development/pharo/launcher { };
 
   srecord = callPackage ../development/tools/misc/srecord { };
 
@@ -4849,6 +4862,8 @@ let
     vpxSupport = !stdenv.isMips;
   };
 
+  ffmpeg_2_3 = callPackage ../development/libraries/ffmpeg/2.3.x.nix { };
+
   ffmpeg_2 = callPackage ../development/libraries/ffmpeg/2.x.nix { };
 
   ffmpeg = ffmpeg_2;
@@ -5083,6 +5098,8 @@ let
 
   qt_gstreamer = callPackage ../development/libraries/gstreamer/legacy/qt-gstreamer {};
 
+  qt_gstreamer1 = callPackage ../development/libraries/gstreamer/qt-gstreamer {};
+
   gnet = callPackage ../development/libraries/gnet { };
 
   gnu-efi = callPackage ../development/libraries/gnu-efi { };
@@ -5250,6 +5267,8 @@ let
 
   indilib = callPackage ../development/libraries/indilib { };
 
+  indilib_0_9_9 = callPackage ../development/libraries/indilib/0_9_9.nix { };
+
   iniparser = callPackage ../development/libraries/iniparser { };
 
   intltool = callPackage ../development/tools/misc/intltool { };
@@ -5379,8 +5398,6 @@ let
     inherit (gnome) libsoup;
   };
 
-  libchamplain_0_6 = callPackage ../development/libraries/libchamplain/0.6.nix {};
-
   libchardet = callPackage ../development/libraries/libchardet { };
 
   libchop = callPackage ../development/libraries/libchop { };
@@ -5476,6 +5493,8 @@ let
   libserialport = callPackage ../development/libraries/libserialport { };
 
   libgtop = callPackage ../development/libraries/libgtop {};
+
+  libLAS = callPackage ../development/libraries/libLAS { };
 
   liblo = callPackage ../development/libraries/liblo { };
 
@@ -6783,12 +6802,16 @@ let
 
   ### DEVELOPMENT / LIBRARIES / AGDA
 
+  agdaIowaStdlib = callPackage ../development/libraries/agda/agda-iowa-stdlib {};
+
   agda = callPackage ../build-support/agda {
     glibcLocales = if pkgs.stdenv.isLinux then pkgs.glibcLocales else null;
     extension = self : super : {};
     Agda = haskellPackages.Agda;
     inherit writeScriptBin;
   };
+
+  agdaPrelude = callPackage ../development/libraries/agda/agda-prelude {};
 
   AgdaStdlib = callPackage ../development/compilers/agda/stdlib.nix {
     inherit (haskellPackages) ghc filemanip;
@@ -6799,6 +6822,10 @@ let
   bitvector = callPackage ../development/libraries/agda/bitvector {};
 
   categories = callPackage ../development/libraries/agda/categories {};
+
+  pretty = callPackage ../development/libraries/agda/pretty {};
+
+  TotalParserCombinators = callPackage ../development/libraries/agda/TotalParserCombinators {};
 
   ### DEVELOPMENT / LIBRARIES / JAVA
 
@@ -7068,6 +7095,10 @@ let
   apacheHttpd_2_4 = lowPrio (callPackage ../servers/http/apache-httpd/2.4.nix {
     sslSupport = true;
   });
+
+  apache-jena = callPackage ../servers/nosql/apache-jena/binary.nix {
+    java = icedtea7_jdk;
+  };
 
   apcupsd = callPackage ../servers/apcupsd { };
 
@@ -7530,6 +7561,11 @@ let
     opencflite = callPackage ../os-specific/darwin/opencflite {};
 
     xcode = callPackage ../os-specific/darwin/xcode {};
+
+    osx_sdk = callPackage ../os-specific/darwin/osx-sdk {};
+    osx_private_sdk = callPackage ../os-specific/darwin/osx-private-sdk { inherit osx_sdk; };
+
+    security_tool = callPackage ../os-specific/darwin/security-tool { inherit osx_private_sdk; };
   };
 
   devicemapper = lvm2;
@@ -7862,6 +7898,8 @@ let
     perf = callPackage ../os-specific/linux/kernel/perf.nix { };
 
     psmouse_alps = callPackage ../os-specific/linux/psmouse-alps { };
+
+    seturgent = callPackage ../os-specific/linux/seturgent { };
 
     spl = callPackage ../os-specific/linux/spl { };
     spl_git = callPackage ../os-specific/linux/spl/git.nix { };
@@ -9034,6 +9072,8 @@ let
 
   fossil = callPackage ../applications/version-management/fossil { };
 
+  freewheeling = callPackage ../applications/audio/freewheeling { };
+
   fribid = callPackage ../applications/networking/browsers/mozilla-plugins/fribid { };
 
   fvwm = callPackage ../applications/window-managers/fvwm { };
@@ -9464,6 +9504,10 @@ let
 
   keymon = callPackage ../applications/video/key-mon { };
 
+  kid3 = callPackage ../applications/audio/kid3 {
+    qt = qt4;
+  };
+
   kino = callPackage ../applications/video/kino {
     inherit (gnome) libglade;
   };
@@ -9707,7 +9751,7 @@ let
   mrxvt = callPackage ../applications/misc/mrxvt { };
 
   mudlet = callPackage ../games/mudlet {
-    inherit (lua51Packages) filesystem;
+    inherit (lua51Packages) luafilesystem lrexlib luazip luasqlite3;
   };
 
   multisync = callPackage ../applications/misc/multisync {
@@ -9872,6 +9916,10 @@ let
 
   panotools = callPackage ../applications/graphics/panotools { };
 
+  paprefs = callPackage ../applications/audio/paprefs {
+    inherit (gnome) libglademm gconfmm;
+  };
+
   pavucontrol = callPackage ../applications/audio/pavucontrol { };
 
   paraview = callPackage ../applications/graphics/paraview { };
@@ -9961,6 +10009,8 @@ let
   qsampler = callPackage ../applications/audio/qsampler { };
 
   qsynth = callPackage ../applications/audio/qsynth { };
+
+  qtox = callPackage ../applications/networking/instant-messengers/qtox { };
 
   qtpfsgui = callPackage ../applications/graphics/qtpfsgui { };
 
@@ -10320,7 +10370,7 @@ let
     webkit = webkitgtk2;
   };
 
-  uTox = callPackage ../applications/networking/instant-messengers/utox { };
+  utox = callPackage ../applications/networking/instant-messengers/utox { };
 
   vanitygen = callPackage ../applications/misc/vanitygen { };
 
@@ -10403,7 +10453,9 @@ let
     inherit (xlibs) libX11;
   };
 
-  vlc = callPackage ../applications/video/vlc { };
+  vlc = callPackage ../applications/video/vlc {
+    ffmpeg = ffmpeg_2_3;
+  };
 
   vmpk = callPackage ../applications/audio/vmpk { };
 
@@ -11103,13 +11155,18 @@ let
 
   kde4 = recurseIntoAttrs pkgs.kde412;
 
-  kde4_next = recurseIntoAttrs( lib.lowPrioSet pkgs.kde412 );
+  kde4_next = recurseIntoAttrs( lib.lowPrioSet pkgs.kde414 );
 
   kde412 = kdePackagesFor (pkgs.kde412 // {
       eigen = eigen2;
       libusb = libusb1;
       libcanberra = libcanberra_kde;
     }) ../desktops/kde-4.12;
+
+  kde414 = kdePackagesFor (pkgs.kde414 // {
+      libusb = libusb1;
+      libcanberra = libcanberra_kde;
+    }) ../desktops/kde-4.14;
 
   kdePackagesFor = self: dir:
     let callPackageOrig = callPackage; in
@@ -11415,6 +11472,18 @@ let
     lablgtk = ocamlPackages_3_12_1.lablgtk_2_14;
   };
 
+  mkCoqPackages_8_4 = self: let callPackage = newScope self; in {
+
+    containers = callPackage ../development/coq-modules/containers {};
+
+    mathcomp = callPackage ../development/coq-modules/mathcomp {};
+
+    ssreflect = callPackage ../development/coq-modules/ssreflect {};
+
+  };
+
+  coqPackages = recurseIntoAttrs (mkCoqPackages_8_4 coqPackages);
+
   cvc3 = callPackage ../applications/science/logic/cvc3 {};
 
   ekrhyper = callPackage ../applications/science/logic/ekrhyper {};
@@ -11439,6 +11508,7 @@ let
   isabelle = import ../applications/science/logic/isabelle {
     inherit (pkgs) stdenv fetchurl nettools perl polyml;
     inherit (pkgs.emacs24Packages) proofgeneral;
+    java = if stdenv.isLinux then jre else jdk;
   };
 
   iprover = callPackage ../applications/science/logic/iprover {};
@@ -11483,10 +11553,6 @@ let
   satallax = callPackage ../applications/science/logic/satallax {};
 
   spass = callPackage ../applications/science/logic/spass {};
-
-  ssreflect = callPackage ../applications/science/logic/ssreflect {
-    camlp5 = ocamlPackages.camlp5_transitional;
-  };
 
   tptp = callPackage ../applications/science/logic/tptp {};
 
@@ -11842,6 +11908,8 @@ let
 
   slock = callPackage ../misc/screensavers/slock { };
 
+  soundOfSorting = callPackage ../misc/sound-of-sorting { };
+
   sourceAndTags = import ../misc/source-and-tags {
     inherit pkgs stdenv unzip lib ctags;
     hasktags = haskellPackages.hasktags;
@@ -12035,8 +12103,8 @@ let
   snes9x-gtk = callPackage ../misc/emulators/snes9x-gtk { };
 
   higan = callPackage ../misc/emulators/higan {
-    profile = "accuracy";
-    gui = "gtk";
+    profile = config.higan.profile or "performance";
+    guiToolkit = config.higan.guiToolkit or "gtk";
   };
 
   misc = import ../misc/misc.nix { inherit pkgs stdenv; };

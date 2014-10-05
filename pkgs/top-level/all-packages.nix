@@ -11823,8 +11823,6 @@ let
 
   lilypond = callPackage ../misc/lilypond { guile = guile_1_8; };
 
-  logkeys = callPackage ../misc/logkeys { };
-
   martyr = callPackage ../development/libraries/martyr { };
 
   mess = callPackage ../misc/emulators/mess {

@@ -25,7 +25,6 @@ marc-nixos/virtualbox-server
 marc-nixos/minimal-install-archive
 marc-nixos/postfix
 experimental/php-koellner-phonetic
-experimental/clawsmail
 experimental/nginx
 experimental/apache-httpd
 experimental/arangodb

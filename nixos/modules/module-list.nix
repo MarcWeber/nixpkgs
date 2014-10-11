@@ -175,6 +175,7 @@
   ./services/misc/nix-ssh-serve.nix
   ./services/misc/phd.nix
   ./services/misc/phpfpm.nix
+  ./services/misc/redmine.nix
   ./services/misc/rippled.nix
   ./services/misc/rogue.nix
   ./services/misc/siproxd.nix

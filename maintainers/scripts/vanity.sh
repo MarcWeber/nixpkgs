@@ -13,7 +13,7 @@ maintainers="$(cat "$(dirname "$0")/../../lib/maintainers.nix" |
   grep '=' | sed -re 's/\\"/''/g;
   s/ *([^ =]*) *= *" *(.*[^ ]) *[<](.*)[>] *".*/\1\t\2\t\3/')"
 git_lines="$( ( echo "$git_data"; 
-  cat vanity-manual-equalities.txt) | sort |uniq)"
+    cat "$(dirname "$0")/vanity-manual-equalities.txt") | sort |uniq)"
 
 # For RDF
 normalize_name () {
@@ -40,7 +40,7 @@ echo "$maintainers" | cut -f 2 | sed -e 's@.*@<my://name/&>	<my://is-name>	<my:/
 ) | normalize_name | grep -E '<my://[-a-z]+>' | sort | uniq > "$n3"
 
 # Get transitive closure
-sparql="$(nix-build '<nixpkgs>' -A apache-jena --no-out-link)/bin/sparql"
+sparql="$(nix-build '<nixpkgs>' -Q -A apache-jena --no-out-link)/bin/sparql"
 name_list="$(
 	"$sparql" --results=TSV --data="$n3" "
 	select ?x ?y ?g where {

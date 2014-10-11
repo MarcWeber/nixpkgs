@@ -1,6 +1,5 @@
-{ stdenv, fetchgit, pkgconfig, makeWrapper, python27
-, retroarch, fluidsynth, mesa, SDL, libav, libpng, libjpeg, libvorbis
-, zlib }:
+{ stdenv, fetchgit, pkgconfig, makeWrapper, python27, retroarch
+, fluidsynth, mesa, SDL, ffmpeg, libpng, libjpeg, libvorbis, zlib }:
 
 let
 
@@ -25,7 +24,10 @@ let
         --add-flags "-L $COREDIR/${d2u core}_libretro.so $@"
     '';
 
-    passthru.libretroCore = "/lib/retroarch/cores";
+    passthru = {
+      core = core;
+      libretroCore = "/lib/retroarch/cores";
+    };
 
     meta = with stdenv.lib; {
       inherit description;
@@ -179,7 +181,7 @@ in
     };
     description = "ppsspp libretro port";
 
-    extraBuildInputs = [ mesa libav ];
+    extraBuildInputs = [ mesa ffmpeg ];
   }).override{
     buildPhase = "cd libretro && make";
   };

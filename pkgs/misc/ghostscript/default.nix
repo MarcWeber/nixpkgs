@@ -5,7 +5,7 @@
 , cupsSupport ? false, cups ? null
 
 , versionedDerivation
-, version ? "9.06"
+, version ? "9.14"
 }:
 
 assert x11Support -> x11 != null;
@@ -51,10 +51,36 @@ versionedDerivation "ghostscript" version {
     meta = meta_common;
   };
 
+
   "9.06" = rec {
+    # still in use by older cupsd?
     # This still contains raster for cups  (eg gstopxl, gstoraster)
     name = "ghostscript-9.06";
 
+    src = fetchurl {
+      url = "http://downloads.ghostscript.com/public/${name}.tar.bz2";
+      sha256 = "014f10rxn4ihvcr1frby4szd1jvkrwvmdhnbivpp55c9fssx3b05";
+    };
+    configureFlags =
+      [ (if cupsSupport then "--enable-cups --with-install-cups" else "--disable-cups")
+      ];
+
+    preConfigure = ''
+      rm -R libpng jpeg lcms{,2} tiff freetype jbig2dec expat openjpeg
+
+      substituteInPlace base/unix-aux.mak --replace "INCLUDE=/usr/include" "INCLUDE=/no-such-path"
+      sed "s@if ( test -f \$(INCLUDE)[^ ]* )@if ( true )@" -i base/unix-aux.mak
+    '';
+
+    meta = meta_common // {
+      homepage = "http://www.ghostscript.com/";
+      description = "PostScript interpreter (mainline version)";
+    };
+
+  };
+
+  "9.14" = rec {
+    name = "ghostscript-9.14";
     src = fetchurl {
       url = "http://downloads.ghostscript.com/public/${name}.tar.bz2";
       sha256 = "014f10rxn4ihvcr1frby4szd1jvkrwvmdhnbivpp55c9fssx3b05";

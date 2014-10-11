@@ -40,6 +40,9 @@ let
 
   # helpers
 
+  # glibcLocales doesn't build on Darwin
+  localePath = optionalString (! stdenv.isDarwin) "${pkgs.glibcLocales}/lib/locale/locale-archive";
+
   callPackage = pkgs.newScope pythonPackages;
 
   # global distutils config used by buildPythonPackage
@@ -433,12 +436,11 @@ let
 
 
   area53 = buildPythonPackage (rec {
-    name = "area53-b2c9cdcabd";
+    name = "Area53-0.94";
 
-    src = fetchgit {
-      url = git://github.com/bigmlcom/Area53.git;
-      rev = "b2c9cdcabd";
-      sha256 = "b0c12b8c48ed9180c7475fab18de50d63e1b517cfb46da4d2c66fc406fe902bc";
+    src = fetchurl {
+      url = "https://pypi.python.org/packages/source/A/Area53/${name}.tar.gz";
+      sha256 = "0v9b7f8b6v21y410anx5sr52k2ac8jrzdf19q6m6p0zsdsf9vr42";
     };
 
     # error: invalid command 'test'
@@ -510,11 +512,11 @@ let
   });
 
   astroid = buildPythonPackage (rec {
-    name = "astroid-1.1.1";
+    name = "astroid-1.2.1";
     propagatedBuildInputs = [ logilab_common ];
     src = fetchurl {
-      url = "https://pypi.python.org/packages/source/a/astroid/${name}.tar.gz";
-      sha256 = "1x7103mlzndgg66yas6xrfwkwpihcq4bi9m8py1fjnhz8p5ka1vq";
+      url = "https://pypi.python.org/packages/source/a/astroid/${name}.zip";
+      md5 = "337017c82a28c97741797493fb2c980f";
     };
   });
 
@@ -758,6 +760,33 @@ let
       description = "Music tagger and library organizer";
       license = licenses.mit;
       maintainers = [ stdenv.lib.maintainers.iElectric ];
+    };
+  };
+  
+  circus = buildPythonPackage rec {
+    name = "circus-0.11.1";
+
+    src = fetchurl {
+      url = "https://pypi.python.org/packages/source/c/circus/${name}.tar.gz";
+      md5 = "5c07cdbe9bb4a9b82e52737ad590617b";
+    };
+
+    doCheck = false; # weird error 
+
+    propagatedBuildInputs = with pythonPackages; [ iowait psutil pyzmq tornado mock ];
+  };
+
+  iowait = buildPythonPackage rec {
+    name = "iowait-0.2";
+
+    src = fetchurl {
+      url = "https://pypi.python.org/packages/source/i/iowait/${name}.tar.gz";
+      md5 = "f49ca7766fe4a67e03a731e575614f87";
+    };
+
+    meta = with stdenv.lib; {
+      description = "Platform-independent module for I/O completion events";
+      homepage = https://launchpad.net/python-iowait;
     };
   };
 
@@ -1165,6 +1194,22 @@ let
     };
   };
 
+  certifi = buildPythonPackage rec {
+    name = "certifi-${version}";
+    version = "14.05.14";
+
+    src = fetchurl {
+      url = "https://pypi.python.org/packages/source/c/certifi/${name}.tar.gz";
+      sha256 = "0s8vxzfz6s4m6fvxc7z25k9j35w0rh6jkw3wwcd1az1mssncn6qy";
+    };
+
+    meta = with stdenv.lib; {
+      homepage = http://certifi.io/;
+      description = "Python package for providing Mozilla's CA Bundle.";
+      license = licenses.isc;
+      maintainers = [ maintainers.koral ];
+    };
+  };
 
   characteristic = buildPythonPackage rec {
     name = "characteristic-14.1.0";
@@ -1392,6 +1437,8 @@ let
 
     # error: invalid command 'test'
     doCheck = false;
+
+    propagatedBuildInputs = [ six ];
 
     meta = {
       description = "Config file reading, writing and validation.";
@@ -2318,7 +2365,7 @@ let
     };
 
     preBuild = ''
-      export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
+      export LOCALE_ARCHIVE=${localePath}
       export LC_ALL="en_US.UTF-8"
     '';
 
@@ -3267,40 +3314,41 @@ let
 
 
   dulwich = buildPythonPackage rec {
-    name = "dulwich-0.8.7";
-    disabled = isPy3k || isPyPy;
+    name = "dulwich-${version}";
+    version = "0.9.7";
 
     src = fetchurl {
-      url = "http://samba.org/~jelmer/dulwich/${name}.tar.gz";
-      sha256 = "041qp5v2x8fbwkmws6hwwiny74lavkz723dj8gwbm40b2383d8vv";
+      url = "https://pypi.python.org/packages/source/d/dulwich/${name}.tar.gz";
+      sha256 = "1wq083g9b1xsk89kb0wwpi4mxy63x6760vn9x5sk1fx36h27prqj";
     };
 
-    buildPhase = "make build";
+    # Only test dependencies
+    buildInputs = [ pkgs.git gevent geventhttpclient mock fastimport ];
 
-    # For some reason "python setup.py test" doesn't work with Python 2.6.
-    # pretty sure that is about import behaviour.
-    doCheck = python.majorVersion != "2.6";
-
-    meta = {
+    meta = with stdenv.lib; {
       description = "Simple Python implementation of the Git file formats and protocols.";
       homepage = http://samba.org/~jelmer/dulwich/;
+      license = licenses.gpl2Plus;
+      maintainers = [ maintainers.koral ];
     };
   };
 
 
-  hggit = buildPythonPackage rec {
-    name = "hg-git-0.3.1";
+  hg-git = buildPythonPackage rec {
+    name = "hg-git-${version}";
+    version = "0.6.1";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/h/hg-git/${name}.tar.gz";
-      md5 = "4b15867a07abb0be985177581ce64cee";
+      sha256 = "136kz4w377ldcjdg865azi8aym0xnxzxl3rycnflgay26ar1309s";
     };
 
-    propagatedBuildInputs = [ dulwich ];
+    propagatedBuildInputs = [ pkgs.mercurial dulwich ];
 
-    meta = {
+    meta = with stdenv.lib; {
       description = "Push and pull from a Git server using Mercurial.";
       homepage = http://hg-git.github.com/;
+      maintainers = [ maintainers.koral ];
     };
   };
 
@@ -3463,6 +3511,23 @@ let
     };
   };
 
+  fastimport = buildPythonPackage rec {
+    name = "fastimport-${version}";
+    version = "0.9.4";
+
+    src = fetchurl {
+      url = "https://pypi.python.org/packages/source/f/fastimport/${name}.tar.gz";
+      sha256 = "0k8x7552ypx9rc14vbsvg2lc6z0r8pv9laah28pdwyynbq10825d";
+    };
+
+    meta = with stdenv.lib; {
+      homepage = https://launchpad.net/python-fastimport;
+      description = "VCS fastimport/fastexport parser";
+      maintainers = [ maintainers.koral ];
+      license = licenses.gpl2Plus;
+    };
+  };
+
   feedgenerator = buildPythonPackage (rec {
     name = "feedgenerator-1.7";
 
@@ -3470,6 +3535,11 @@ let
       url = "https://pypi.python.org/packages/source/f/feedgenerator/${name}.tar.gz";
       md5 = "92978492871342ad64e8ae0ccfcf200c";
     };
+
+    preConfigure = ''
+      export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
+      export LC_ALL="en_US.UTF-8"
+    '';
 
     propagatedBuildInputs = [ six pytz ];
 
@@ -3827,6 +3897,24 @@ let
     };
   };
 
+  geventhttpclient = buildPythonPackage rec {
+    name = "geventhttpclient-${version}";
+    version = "1.1.0";
+
+    src = fetchurl {
+      url = "https://pypi.python.org/packages/source/g/geventhttpclient/${name}.tar.gz";
+      sha256 = "1k7s4dnkmcfqqkmbqi0vvb2ns53r9cl2652mq20bgg65zj26j2l6";
+    };
+
+    propagatedBuildInputs = [ gevent certifi backports_ssl_match_hostname_3_4_0_2 ];
+
+    meta = with stdenv.lib; {
+      homepage = http://github.com/gwik/geventhttpclient;
+      description = "HTTP client library for gevent";
+      license = licenses.mit;
+      maintainers = [ maintainers.koral ];
+    };
+  };
 
   gevent-socketio = buildPythonPackage rec {
     name = "gevent-socketio-0.3.6";
@@ -4058,7 +4146,7 @@ let
     };
 
     preBuild = ''
-      export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
+      export LOCALE_ARCHIVE=${localePath}
       export LC_ALL="en_US.UTF-8"
     '';
 
@@ -4488,6 +4576,26 @@ let
   });
 
 
+  linode = buildPythonPackage rec {
+    name = "linode-${version}";
+    version = "0.4";
+
+    src = fetchurl {
+      url = "https://pypi.python.org/packages/source/l/linode/linode-${version}.tar.gz";
+      md5 = "03a306575cf274719b3206ecee0bda9e";
+    };
+
+    propagatedBuildInputs = [ requests2 ];
+
+    meta = with stdenv.lib; {
+      homepage = "https://github.com/ghickman/linode";
+      description = "A thin python wrapper around Linode's API";
+      license = licenses.mit;
+      maintainers = [ maintainers.nslqqq ];
+    };
+  };
+
+
   lockfile = buildPythonPackage rec {
     name = "lockfile-0.9.1";
 
@@ -4809,23 +4917,30 @@ let
 
   rainbowstream = buildPythonPackage rec {
     name = "rainbowstream-${version}";
-    version = "0.9.5";
+    version = "1.1.6";
 
     src = fetchurl {
       url    = "https://pypi.python.org/packages/source/r/rainbowstream/${name}.tar.gz";
-      sha256 = "0v79xiihgsfjipxkzzi92l8y1f8vxxachpv71gyzyhxdsl2zfj57";
+      sha256 = "04i2a8a5k6n6lgfpa9bzzbkhvywgd4bn3qlspl97pn8ply9kgszm";
     };
 
     doCheck = false;
 
     preBuild = ''
-      export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
+      export LOCALE_ARCHIVE=${localePath}
       export LC_ALL="en_US.UTF-8"
+    '';
+
+    postInstall = ''
+      for prog in "$out/bin/"*; do
+        wrapProgram "$prog" \
+          --prefix PYTHONPATH : "$PYTHONPATH"
+      done
     '';
 
     buildInputs = [
       pkgs.libjpeg pkgs.freetype pkgs.zlib
-      pillow twitter pyfiglet requests arrow dateutil modules.readline
+      pillow twitter pyfiglet requests arrow dateutil modules.readline pysocks
     ];
 
     meta = {
@@ -4991,7 +5106,7 @@ let
 
     # some files in tests dir include unicode names
     preBuild = ''
-      export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
+      export LOCALE_ARCHIVE=${localePath}
       export LC_ALL="en_US.UTF-8"
     '';
 
@@ -5034,7 +5149,7 @@ let
     };
 
     preCheck = ''
-      export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
+      export LOCALE_ARCHIVE=${localePath}
       export LC_ALL="en_US.UTF-8"
     '';
 
@@ -5166,12 +5281,12 @@ let
 
 
   nbxmpp = buildPythonPackage rec {
-    name = "nbxmpp-0.5";
+    name = "nbxmpp-0.5.1";
 
     src = fetchurl {
       name = "${name}.tar.gz";
-      url = "https://python-nbxmpp.gajim.org/downloads/5";
-      sha256 = "0y270c9v4i9n58p4ghlm18h50qcfichmfkgcpqd3bypx4fkmdx90";
+      url = "https://python-nbxmpp.gajim.org/downloads/6";
+      sha256 = "0agr0ikfdmna5rjvm7lm0mx52cdwqp5b2xbx3inagp70whmdv219";
     };
 
     meta = {
@@ -5281,17 +5396,17 @@ let
   });
 
   nose = buildPythonPackage rec {
-    version = "1.3.3";
+    version = "1.3.4";
     name = "nose-${version}";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/n/nose/${name}.tar.gz";
-      sha256 = "09h3a74hzw1cfx4ic19ibxq8kg6sl1n64px2mmb57f5yd3r2y35l";
+      sha256 = "00qymfgwg4iam4xi0w9bnv7lcb3fypq1hzfafzgs1rfmwaj67g3n";
     };
 
     buildInputs = [ coverage ];
 
-    doCheck = ! stdenv.isDarwin;
+    doCheck = false;  # lot's of transient errors, too much hassle
     checkPhase = if python.is_py3k or false then ''
       ${python}/bin/${python.executable} setup.py build_tests
     '' else "" + ''
@@ -5839,6 +5954,11 @@ let
       md5 = "8e57bdd075503903125b14621b1e533d";
     };
 
+    preConfigure = ''
+      export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
+      export LC_ALL="en_US.UTF-8"
+    '';
+
     # Test data not provided
     #buildInputs = [nose mock];
     doCheck = false;
@@ -6111,7 +6231,7 @@ let
 
     preCheck = ''
       export LANG="en_US.UTF-8"
-      export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
+      export LOCALE_ARCHIVE=${localePath}
     '';
 
     meta = {
@@ -6460,11 +6580,11 @@ let
 
   pyfiglet = buildPythonPackage rec {
     name = "pyfiglet-${version}";
-    version = "0.7.1";
+    version = "0.7.2";
 
     src = fetchurl {
       url    = "https://pypi.python.org/packages/source/p/pyfiglet/${name}.tar.gz";
-      sha256 = "14lgwg47gnnad7sfkmmwhknwysbfmr74c9b2a6d9wgjmydycc6ka";
+      sha256 = "0v8a18wvaqnb1jksyv5dc5n6zj0vrkyhz0ivmm8gfwpa0ky6n68y";
     };
 
     doCheck = false;
@@ -6778,6 +6898,24 @@ let
       license = licenses.bsd2;
       platforms = platforms.all;
       maintainers = [ maintainers.koral ];
+    };
+  };
+
+  pysocks = buildPythonPackage rec {
+    name = "pysocks-${version}";
+    version = "1.5.0";
+
+    src = fetchurl {
+      url    = "https://pypi.python.org/packages/source/P/PySocks/PySocks-${version}.tar.gz";
+      sha256 = "10wq5311qrnk8rvzsh6gwzxi7h51pgvzw3d7s1mb39fsvf0vyjdk";
+    };
+
+    doCheck = false;
+
+    meta = {
+      description = "SOCKS module for Python";
+      license     = licenses.bsd3;
+      maintainers = [ maintainers.thoughtpolice ];
     };
   };
 
@@ -7423,6 +7561,27 @@ let
   };
 
 
+  restview = buildPythonPackage rec {
+    name = "restview-${version}";
+    version = "2.1.1";
+
+    src = fetchurl {
+      url = "https://pypi.python.org/packages/source/r/restview/${name}.tar.gz";
+      sha256 = "07scf80hhr9rijrbfrplyi3gwkx74knnzfhvlg6yf1cd0x2yiy8v";
+    };
+
+    propagatedBuildInputs = [ docutils mock pygments ];
+
+    meta = with stdenv.lib; {
+      description = "ReStructuredText viewer";
+      homepage = http://mg.pov.lt/restview/;
+      license = licenses.gpl2;
+      platforms = platforms.all;
+      maintainers = [ maintainers.koral ];
+    };
+  };
+
+
   reviewboard = buildPythonPackage rec {
     name = "ReviewBoard-1.6.16";
 
@@ -7765,11 +7924,11 @@ let
 
 
   scipy = buildPythonPackage rec {
-    name = "scipy-0.12.0";
+    name = "scipy-0.14.0";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/s/scipy/${name}.tar.gz";
-      md5 = "8fb4da324649f655e8557ea92b998786";
+      md5 = "d7c7f4ccf8b07b08d6fe49d5cd51f85d";
     };
 
     buildInputs = [pkgs.gfortran];
@@ -7969,8 +8128,7 @@ let
 
     preConfigure = ''
       export LANG="en_US.UTF-8";
-    '' + stdenv.lib.optionalString stdenv.isLinux ''
-      export LOCALE_ARCHIVE="${pkgs.glibcLocales}/lib/locale/locale-archive";
+      export LOCALE_ARCHIVE=${localePath}
     '';
 
     patchPhase = ''
@@ -8028,7 +8186,7 @@ let
 
     preCheck = ''
       export LANG="en_US.UTF-8"
-      export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
+      export LOCALE_ARCHIVE=${localePath}
     '';
 
     meta = with stdenv.lib; {
@@ -8091,7 +8249,7 @@ let
 
     preCheck = ''
       export LANG="en_US.UTF-8"
-      export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
+      export LOCALE_ARCHIVE=${localePath}
     '';
 
     buildInputs = [ pytest py mock ];
@@ -8552,7 +8710,7 @@ let
     version = "1.2.7";
 
     preBuild = ''
-      export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
+      export LOCALE_ARCHIVE=${localePath}
       export LC_ALL="en_US.UTF-8"
     '';
 
@@ -8922,11 +9080,11 @@ let
 
   twitter = buildPythonPackage rec {
     name = "twitter-${version}";
-    version = "1.14.3";
+    version = "1.15.0";
 
     src = fetchurl {
       url    = "https://pypi.python.org/packages/source/t/twitter/${name}.tar.gz";
-      sha256 = "1nhhjajbq0jik43q2makpnz094qcziq9p8rj35jxamybd0hwwzs9";
+      sha256 = "1m6b17irb9klc345k8174pni724jzy2973z2x2jg69h83hipjw2c";
     };
 
     doCheck = false;
@@ -9235,12 +9393,12 @@ let
 
 
   webob = buildPythonPackage rec {
-    version = "1.3.1";
+    version = "1.4";
     name = "webob-${version}";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/W/WebOb/WebOb-${version}.tar.gz";
-      md5 = "20918251c5726956ba8fef22d1556177";
+      md5 = "8437607c0cc00c35f658f972516ffb55";
     };
 
     propagatedBuildInputs = [ nose modules.ssl ];
@@ -9310,12 +9468,12 @@ let
   };
 
 
-  werkzeug = buildPythonPackage {
-    name = "werkzeug-0.9.4";
+  werkzeug = buildPythonPackage rec {
+    name = "Werkzeug-0.9.6";
 
     src = fetchurl {
-      url = "http://pypi.python.org/packages/source/W/Werkzeug/Werkzeug-0.9.4.tar.gz";
-      md5 = "670fad41f57c13b71a6816765765a3dd";
+      url = "http://pypi.python.org/packages/source/W/Werkzeug/${name}.tar.gz";
+      md5 = "f7afcadc03b0f2267bdc156c34586043";
     };
 
     propagatedBuildInputs = [ itsdangerous ];
@@ -9632,6 +9790,22 @@ let
     };
   };
 
+  xdot = buildPythonPackage rec {
+    name = "xdot-0.6";
+
+    src = fetchurl {
+      url = "https://pypi.python.org/packages/source/x/xdot/xdot-0.6.tar.gz";
+      md5 = "a8e5fc5208657b03ad1bd4c46de75724";
+    };
+
+    propagatedBuildInputs = with pythonPackages; [ pygtk pygobject pkgs.graphviz ];
+
+    meta = with stdenv.lib; {
+      description = "xdot.py is an interactive viewer for graphs written in Graphviz's dot";
+      homepage = https://github.com/jrfonseca/xdot.py;
+      license = licenses.lgpl3Plus;
+    };
+  };
 
   zope_broken = buildPythonPackage rec {
     name = "zope.broken-3.6.0";
@@ -10148,13 +10322,13 @@ let
 
 
   tornadokick = buildPythonPackage rec {
-    name = "tornadokick-2014.07.23";
+    name = "tornadokick-0.2.1";
 
     propagatedBuildInputs = [ tornado ];
 
     src = fetchurl {
       url = "https://pypi.python.org/packages/source/t/tornadokick/${name}.tar.gz";
-      md5 = "201d26de2993a554b16140af3b4ee1b6";
+      md5 = "95ee5a295ce3f361c6f843c4f39cbb8c";
     };
 
     meta = {
@@ -10422,6 +10596,24 @@ let
       homepage = http://graphite.wikidot.com/;
       description = "Backend data caching and persistence daemon for Graphite";
       maintainers = with maintainers; [ rickynils offline ];
+    };
+  };
+
+
+  ujson = buildPythonPackage rec {
+    name = "ujson-1.33";
+
+    disabled = isPyPy;
+
+    src = fetchurl {
+      url = "https://pypi.python.org/packages/source/u/ujson/${name}.zip";
+      md5 = "8148a2493fff78940feab1e11dc0a893";
+    };
+
+    meta = {
+      homepage = http://pypi.python.org/pypi/ujson;
+      description = "Ultra fast JSON encoder and decoder for Python";
+      license = licenses.bsd3;
     };
   };
 
@@ -10793,11 +10985,11 @@ let
 
   libvirt = pkgs.stdenv.mkDerivation rec {
     name = "libvirt-python-${version}";
-    version = "1.2.7";
+    version = "1.2.9";
 
     src = fetchurl {
       url = "http://libvirt.org/sources/python/${name}.tar.gz";
-      sha256 = "0wg0pnvrwfjdl8haxr2dyfhdasddq97zy6l27xwrvd1hnh1394f1";
+      sha256 = "1vbrkwvsvcfgibdw4drcypg2n6zcpi3zv23zw20nkk5fjfp26w4g";
     };
 
     buildInputs = [ python pkgs.pkgconfig pkgs.libvirt lxml ];
@@ -10979,22 +11171,24 @@ let
   };
 
   udiskie = buildPythonPackage rec {
-    name = "udiskie-0.8.0";
+    version = "1.1.2";
+    name = "udiskie-${version}";
 
     src = fetchurl {
-      url = "https://github.com/coldfix/udiskie/archive/0.8.0.tar.gz";
-      sha256 = "0yzrnl7bq0dkcd3wh55kbf41c4dbh7dky0mqx0drvnpxlrvzhvp2";
+      url = "https://github.com/coldfix/udiskie/archive/${version}.tar.gz";
+      sha256 = "07fyvwp4rga47ayfsmb79p2784sqrih0sglwnd9c4x6g63xgljvb";
     };
 
-    propagatedBuildInputs = with pythonPackages; [ pygtk pyyaml dbus notify pkgs.udisks2 ];
+    propagatedBuildInputs = with pythonPackages; [ pygtk pyyaml pygobject dbus notify pkgs.udisks2 pkgs.gettext ];
 
     # tests require dbusmock
     doCheck = false;
 
     meta = with stdenv.lib; {
-      description = "Removable disk automounter for udisks.";
+      description = "Removable disk automounter for udisks";
       license = licenses.mit;
       homepage = https://github.com/coldfix/udiskie;
+      maintainers = [ maintainers.AndersonTorres ];
     };
   };
 
@@ -11109,6 +11303,24 @@ let
     };
   };
 
+  svg2tikz = pythonPackages.buildPythonPackage {
+    name = "svg2tikz-1.0.0";
+
+    propagatedBuildInputs = [lxml];
+
+    src = pkgs.fetchgit {
+      url = "https://github.com/kjellmf/svg2tikz";
+      sha256 = "429428ec435e53672b85cdfbb89bb8af0ff9f8238f5d05970729e5177d252d5f";
+      rev = "ad36f2c3818da13c4136d70a0fd8153acf8daef4";
+    };
+
+    meta = {
+      homepage = https://github.com/kjellmf/svg2tikz;
+      description = "An SVG to TikZ converter";
+      license = stdenv.lib.licenses.gpl2Plus;
+      maintainers =  with pkgs.stdenv.lib.maintainers; [gal_bolle];
+    };
+  };
 
   thumbor = pythonPackages.buildPythonPackage rec {
     name = "thumbor-4.0.4";

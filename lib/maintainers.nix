@@ -10,7 +10,7 @@
   akc = "Anders Claesson <akc@akc.is>";
   algorith = "Dries Van Daele <dries_van_daele@telenet.be>";
   all = "Nix Committers <nix-commits@lists.science.uu.nl>";
-  abbradar = "Nikolay Amiantov <nikoamia@gmail.com>";
+  abbradar = "Nikolay Amiantov <ab@fmap.me>";
   amiddelk = "Arie Middelkoop <amiddelk@gmail.com>";
   amorsillo = "Andrew Morsillo <andrew.morsillo@gmail.com>";
   AndersonTorres = "Anderson Torres <torres.anderson.85@gmail.com>";
@@ -38,6 +38,7 @@
   cfouche = "Chaddaï Fouché <chaddai.fouche@gmail.com>";
   chaoflow = "Florian Friesdorf <flo@chaoflow.net>";
   coconnor = "Corey O'Connor <coreyoconnor@gmail.com>";
+  codyopel = "Cody Opel <codyopel@gmail.com>";
   copumpkin = "Dan Peebles <pumpkingod@gmail.com>";
   coroa = "Jonas Hörsch <jonas@chaoflow.net>";
   cstrahan = "Charles Strahan <charles.c.strahan@gmail.com>";
@@ -91,6 +92,7 @@
   msackman = "Matthew Sackman <matthew@wellquite.org>";
   nathan-gs = "Nathan Bijnens <nathan@nathan.gs>";
   notthemessiah = "Brian Cohen <brian.cohen.88@gmail.com>";
+  nslqqq = "Nikita Mikhailov <nslqqq@gmail.com>";
   ocharles = "Oliver Charles <ollie@ocharles.org.uk>";
   offline = "Jaka Hudoklin <jakahudoklin@gmail.com>";
   orbitz = "Malcolm Matalka <mmatalka@gmail.com>";
@@ -137,6 +139,7 @@
   viric = "Lluís Batlle i Rossell <viric@viric.name>";
   vizanto = "Danny Wilson <danny@prime.vc>";
   vlstill = "Vladimír Štill <xstill@fi.muni.cz>";
+  vozz = "Oliver Hunt <oliver.huntuk@gmail.com>";
   winden = "Antonio Vargas Gonzalez <windenntw@gmail.com>";
   wizeman = "Ricardo M. Correia <rcorreia@wizy.org>";
   wjlroe = "William Roe <willroe@gmail.com>";

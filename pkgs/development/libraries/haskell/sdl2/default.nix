@@ -4,8 +4,8 @@
 
 cabal.mkDerivation (self: {
   pname = "sdl2";
-  version = "1.1.1";
-  sha256 = "0kqs211ksp25pgkzy9rz8zcfi3pqrbl1zmbjh1vx8r2lkf79z1y5";
+  version = "1.1.3";
+  sha256 = "111kbairf50j8kkndcc54i0gsfaffnyla7zw49gbqlqs4kgxj6b5";
   extraLibraries = [ SDL2 ];
   pkgconfigDepends = [ SDL2 ];
   meta = {

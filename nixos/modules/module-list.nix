@@ -251,6 +251,7 @@
   ./services/networking/polipo.nix
   ./services/networking/prayer.nix
   ./services/networking/privoxy.nix
+  ./services/networking/prosody.nix
   ./services/networking/quassel.nix
   ./services/networking/radicale.nix
   ./services/networking/radvd.nix
@@ -258,6 +259,7 @@
   ./services/networking/rpcbind.nix
   ./services/networking/sabnzbd.nix
   ./services/networking/searx.nix
+  ./services/networking/seeks.nix
   ./services/networking/spiped.nix
   ./services/networking/ssh/lshd.nix
   ./services/networking/ssh/sshd.nix
@@ -362,6 +364,7 @@
   ./tasks/filesystems/cifs.nix
   ./tasks/filesystems/ext.nix
   ./tasks/filesystems/f2fs.nix
+  ./tasks/filesystems/jfs.nix
   ./tasks/filesystems/nfs.nix
   ./tasks/filesystems/reiserfs.nix
   ./tasks/filesystems/unionfs-fuse.nix

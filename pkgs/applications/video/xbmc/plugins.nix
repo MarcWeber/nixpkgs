@@ -16,7 +16,9 @@ let
     installPhase = ''
       d=$out${pluginDir}/${namespace}
       mkdir -p $d
-      cp -R $src/* $d
+      sauce="."
+      [ -d ${namespace} ] && sauce=${namespace}
+      cp -R $sauce/* $d
     '';
   };
 
@@ -53,17 +55,39 @@ in
 
   };
 
+  genesis = mkXBMCPlugin rec {
+
+    plugin = "genesis";
+    namespace = "plugin.video.genesis";
+    version = "2.1.3";
+
+    src = fetchFromGitHub {
+      owner = "lambda81";
+      repo = "lambda-xbmc-addons";
+      rev = "f8aa34064bf31fffbb3c264af32c66bbdaf0a59e";
+      sha256 = "0d197fd6n3m9knpg38frnmfhqyabvh00ridpmikyw4vzk3hx11km";
+    };
+
+    meta = with stdenv.lib; {
+      homepage = "http://forums.tvaddons.ag/forums/148-lambda-s-xbmc-addons";
+      description = "The origins of streaming";
+      platforms = platforms.all;
+      maintainers = with maintainers; [ edwtjo ];
+    };
+
+  };
+
   svtplay = mkXBMCPlugin rec {
 
     plugin = "svtplay";
     namespace = "plugin.video.svtplay";
-    version = "4.0.6";
+    version = "4.0.8";
 
     src = fetchFromGitHub {
       owner = "nilzen";
       repo = "xbmc-" + plugin;
-      rev = "4f27254edbd6dc48350152832833c5b164ca58de";
-      sha256 = "11r8vljpx9fxwdx20cvkb5szlaypfrn6c235jwcg61s4hmjy4kl8";
+      rev = "967dc429201200200dba0e755ede3a0e9cb1b137";
+      sha256 = "0kaxcci9zbblpkn1mrmdl49844r90agww41frz9vw6q2ajq1z16k";
     };
 
     meta = with stdenv.lib; {

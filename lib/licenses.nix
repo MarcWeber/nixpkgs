@@ -72,6 +72,11 @@ rec {
     fullName = "Creative Commons Attribution 3.0";
   };
 
+  cc-by-sa-30 = spdx {
+    shortName = "CC-BY-SA-3.0";
+    fullName = "Creative Commons Attribution Share Alike 3.0";
+  };
+
   cc-by-40 = spdx {
     shortName = "CC-BY-4.0";
     fullName = "Creative Commons Attribution 4.0";
@@ -279,6 +284,12 @@ rec {
   unfreeRedistributable = "unfree-redistributable";
 
   unfreeRedistributableFirmware = "unfree-redistributable-firmware";
+
+  unlicense = {
+    shortName = "Unlicense";
+    fullName = "Unlicense";
+    url = http://unlicense.org/;
+  };
 
   wadalab = {
     shortName = "wadalab";

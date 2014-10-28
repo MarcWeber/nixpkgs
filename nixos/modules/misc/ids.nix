@@ -155,6 +155,8 @@
       consul = 145;
       mailpile = 146;
       redmine = 147;
+      seeks = 148;
+      prosody = 149;
 
       # When adding a uid, make sure it doesn't match an existing gid. And don't use uids above 399!
 
@@ -277,6 +279,8 @@
       uhub = 142;
       mailpile = 146;
       redmine = 147;
+      seeks = 148;
+      prosody = 149;
 
       # When adding a gid, make sure it doesn't match an existing uid. And don't use gids above 399!
 

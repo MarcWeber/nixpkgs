@@ -1,7 +1,7 @@
 { stdenv, fetchurl, pkgconfig, zlib, libjpeg, libpng, libtiff, pam, openssl
 , dbus, libusb, acl, versionedDerivation
 , ghostscript
-, version ? "1.5.4"
+, version ? "1.7.x"
 }:
 
 versionedDerivation "cups" version {
@@ -71,16 +71,16 @@ versionedDerivation "cups" version {
 
     name = "cups-${version}";
 
-    src = fetchurl {
-      url = http://www.cups.org/software/1.7.0/cups-1.7.0-source.tar.bz2;
-      md5 = "5ab496a2ce27017fcdb3d7ec4818a75a";
+    src = let version = "1.7.5"; in fetchurl {
+      url = "https://www.cups.org/software/${version}/cups-${version}-source.tar.bz2";
+      sha256 = "00mx4rpiqw9cwx46bd3hd5lcgmcxy63zfnmkr02smanv8xl4rjqq";
     };
 
     configureFlags = "--localstatedir=/var --enable-dbus"; # --with-dbusdir
 
-    # preBuild = ''
-    # sed -i 's@/usr/bin/gs@gs@' config.h.in config.h */config.h
-    # '';
+    preBuild = ''
+    sed -i 's@/usr/bin/gs@gs@' config.h.in config.h */config.h
+    '';
 
     installFlags =
       [ # Don't try to write in /var at build time.

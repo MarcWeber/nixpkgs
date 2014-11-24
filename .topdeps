@@ -13,7 +13,6 @@ experimental/parallel-building
 experimental/eclipse
 experimental/ruby
 experimental/imap-sync-update
-experimental/vim-plugins
 experimental/ati
 experimental/mercurial
 experimental/inkscape

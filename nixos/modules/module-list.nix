@@ -58,6 +58,7 @@
   ./programs/dconf.nix
   ./programs/environment.nix
   ./programs/info.nix
+  ./programs/light.nix
   ./programs/nano.nix
   ./programs/screen.nix
   ./programs/shadow.nix
@@ -88,10 +89,12 @@
   ./services/audio/alsa.nix
   # Disabled as fuppes it does no longer builds.
   # ./services/audio/fuppes.nix
+  ./services/audio/liquidsoap.nix
   ./services/audio/mpd.nix
   ./services/audio/mopidy.nix
   ./services/backup/almir.nix
   ./services/backup/bacula.nix
+  ./services/backup/crashplan.nix
   ./services/backup/mysql-backup.nix
   ./services/backup/postgresql-backup.nix
   ./services/backup/rsnapshot.nix
@@ -105,13 +108,15 @@
   ./services/databases/4store.nix
   ./services/databases/couchdb.nix
   ./services/databases/firebird.nix
+  ./services/databases/hbase.nix
   ./services/databases/influxdb.nix
   ./services/databases/memcached.nix
   ./services/databases/monetdb.nix
   ./services/databases/mongodb.nix
   ./services/databases/mysql.nix
-  ./services/databases/neo4j.nix 
+  ./services/databases/neo4j.nix
   ./services/databases/openldap.nix
+  ./services/databases/opentsdb.nix
   ./services/databases/postgresql.nix
   ./services/databases/redis.nix
   ./services/databases/virtuoso.nix
@@ -163,6 +168,8 @@
   ./services/misc/cgminer.nix
   ./services/misc/dictd.nix
   ./services/misc/disnix.nix
+  ./services/misc/docker-registry.nix
+  ./services/misc/etcd.nix
   ./services/misc/felix.nix
   ./services/misc/folding-at-home.nix
   ./services/misc/gitolite.nix
@@ -183,6 +190,7 @@
   ./services/misc/uhub.nix
   ./services/misc/zookeeper.nix
   ./services/monitoring/apcupsd.nix
+  ./services/monitoring/bosun.nix
   ./services/monitoring/collectd.nix
   ./services/monitoring/dd-agent.nix
   ./services/monitoring/graphite.nix
@@ -191,6 +199,7 @@
   ./services/monitoring/nagios.nix
   ./services/monitoring/riemann.nix
   ./services/monitoring/riemann-dash.nix
+  ./services/monitoring/scollector.nix
   ./services/monitoring/smartd.nix
   ./services/monitoring/statsd.nix
   ./services/monitoring/systemhealth.nix
@@ -219,6 +228,7 @@
   ./services/networking/ddclient.nix
   ./services/networking/dhcpcd.nix
   ./services/networking/dhcpd.nix
+  ./services/networking/dnscrypt-proxy.nix
   ./services/networking/dnsmasq.nix
   ./services/networking/ejabberd.nix
   ./services/networking/firewall.nix
@@ -230,6 +240,7 @@
   ./services/networking/gvpe.nix
   ./services/networking/haproxy.nix
   ./services/networking/hostapd.nix
+  ./services/networking/i2pd.nix
   ./services/networking/ifplugd.nix
   ./services/networking/iodined.nix
   ./services/networking/ircd-hybrid/default.nix
@@ -358,6 +369,7 @@
   ./system/boot/tmp.nix
   ./system/etc/etc.nix
   ./system/upstart/upstart.nix
+  ./tasks/bcache.nix
   ./tasks/cpu-freq.nix
   ./tasks/encrypted-devices.nix
   ./tasks/filesystems.nix
@@ -383,8 +395,10 @@
   ./virtualisation/containers.nix
   ./virtualisation/docker.nix
   ./virtualisation/libvirtd.nix
+  ./virtualisation/lxc.nix
   #./virtualisation/nova.nix
   ./virtualisation/openvswitch.nix
+  ./virtualisation/parallels-guest.nix
   ./virtualisation/virtualbox-guest.nix
   #./virtualisation/xen-dom0.nix
 ]

@@ -34,22 +34,6 @@ let
 in
 
 versionedDerivation "ghostscript" version {
-  "gnu-fork-9.04.x" = rec {
-    # !? fails to build, did I make a mistake?
-
-    name = "ghostscript-9.04.1";
-    src = fetchurl {
-      url = "mirror://gnu/ghostscript/gnu-${name}.tar.bz2";
-      sha256 = "0zqa6ggbkdqiszsywgrra4ij0sddlmrfa50bx2mh568qid4ga0a2";
-    };
-
-    configureFlags =
-      [ (if cupsSupport then "--enable-cups --with-install-cups" else "--disable-cups")
-      ];
-
-    patches = [ ./purity.patch ];
-    meta = meta_common;
-  };
 
 
   "9.06" = rec {
@@ -79,11 +63,11 @@ versionedDerivation "ghostscript" version {
 
   };
 
-  "9.14" = rec {
+  "9.15" = rec {
     name = "ghostscript-9.14";
     src = fetchurl {
       url = "http://downloads.ghostscript.com/public/${name}.tar.bz2";
-      sha256 = "014f10rxn4ihvcr1frby4szd1jvkrwvmdhnbivpp55c9fssx3b05";
+      sha256 = "0p1isp6ssfay141klirn7n9s8b546vcz6paksfmksbwy0ljsypg6";
     };
     configureFlags =
       [ (if cupsSupport then "--enable-cups --with-install-cups" else "--disable-cups")
@@ -96,9 +80,23 @@ versionedDerivation "ghostscript" version {
       sed "s@if ( test -f \$(INCLUDE)[^ ]* )@if ( true )@" -i base/unix-aux.mak
     '';
 
-    meta = meta_common // {
+    meta = {
       homepage = "http://www.ghostscript.com/";
       description = "PostScript interpreter (mainline version)";
+
+      longDescription = ''
+        Ghostscript is the name of a set of tools that provides (i) an
+        interpreter for the PostScript language and the PDF file format,
+        (ii) a set of C procedures (the Ghostscript library) that
+        implement the graphics capabilities that appear as primitive
+        operations in the PostScript language, and (iii) a wide variety
+        of output drivers for various file formats and printers.
+      '';
+
+      license = stdenv.lib.licenses.gpl3Plus;
+
+      platforms = stdenv.lib.platforms.all;
+      maintainers = [ stdenv.lib.maintainers.viric ];
     };
 
   };
@@ -165,17 +163,18 @@ versionedDerivation "ghostscript" version {
   patches = [ ./urw-font-files.patch ];
 
   configureFlags =
-    [ "--with-system-libtiff"
+    [ "--with-system-libtiff" "--disable-sse2"
+      "--enable-dynamic"
       (if x11Support then "--with-x" else "--without-x")
+      (if cupsSupport then "--enable-cups" else "--disable-cups")
     ];
 
-  preConfigure = ''
-    # "ijs" is impure: it contains symlinks to /usr/share/automake etc.!
-    rm -rf ijs/ltmain.sh
+preConfigure = ''
+    rm -rf jpeg libpng zlib jasper expat tiff lcms{,2} jbig2dec openjpeg freetype cups/libs
 
-    # Don't install stuff in the Cups store path.
-    makeFlagsArray=(CUPSSERVERBIN=$out/lib/cups CUPSSERVERROOT=$out/etc/cups CUPSDATA=$out/share/cups)
+    sed "s@if ( test -f \$(INCLUDE)[^ ]* )@if ( true )@; s@INCLUDE=/usr/include@INCLUDE=/no-such-path@" -i base/unix-aux.mak
   '';
+  makeFlags = [ "cups_serverroot=$(out)" "cups_serverbin=$(out)/lib/cups" ];
 
   doCheck = true;
 
@@ -183,8 +182,11 @@ versionedDerivation "ghostscript" version {
 
   # ToDo: web says the fonts should be already included
   postInstall = ''
+    # ToDo: web says the fonts should be already included
     for i in $fonts; do
       (cd $out/share/ghostscript && tar xvfz $i)
     done
+
+    rm -rf $out/lib/cups/filter/{gstopxl,gstoraster}
   '';
 }

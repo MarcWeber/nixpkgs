@@ -1,36 +1,34 @@
-{stdenv, fetchurl
-  , zlib, libxslt, docbook_xml_dtd_45, docbook_xsl, libxml2, pcre
+{ stdenv, fetchurl, pcre, zlib, perl }:
 
-, autoconf, automake, libtool
-}:
-
-stdenv.mkDerivation {
-  name = "qpdf-5.0.1";
-
-  enableParallelBuilding = true;
+let version = "5.1.2";
+in
+stdenv.mkDerivation rec {
+  name = "qpdf-${version}";
 
   src = fetchurl {
-    url = http://sourceforge/qpdf/qpdf/5.0.1/qpdf-5.0.1.tar.gz;
-    sha256 = "1gggn5bqy61wvxw3b9dbjail7lvhzjjbiva1rh8viiba4w5qlrfh";
+    url = "mirror://sourceforge/qpdf/qpdf/${version}/${name}.tar.gz";
+    sha256 = "1zbvhrp0zjzbi6q2bnbxbg6399r47pq5gw3kspzph81j19fqvpg9";
   };
 
-  buildInputs = [zlib libxslt
-    docbook_xml_dtd_45 docbook_xsl
-    libxml2 pcre
+  nativeBuildInputs = [ perl ];
 
- autoconf automake libtool
-  ];
+  buildInputs = [ pcre zlib ];
 
-  # makeFlags: rules.mk imports libtool.mk which sets SHELL to "" for whatever reason
-  preConfigure = ''
-    sed -i "s@/bin/bash@$(type -p bash)@" make/libtool.mk
+  postPatch = ''
+    patchShebangs qpdf/fix-qdf
   '';
 
-  meta = {
-    description = "PDF is a C++ library and set of programs that inspect and manipulate the structure of PDF files. It can encrypt and linearize files, expose the internals of a PDF file, and do many other operations useful to end users and PDF developers.";
-    homepage = http://sourceforge.net/projects/qpdf/;
-    license = stdenv.lib.licenses.artistic2;
-    maintainers = [stdenv.lib.maintainers.marcweber];
-    platforms = stdenv.lib.platforms.linux;
+  preCheck = ''
+    patchShebangs qtest/bin/qtest-driver
+  '';
+
+  doCheck = true;
+
+  meta = with stdenv.lib; {
+    homepage = http://qpdf.sourceforge.net/; 
+    description = "A C++ library and set of programs that inspect and manipulate the structure of PDF files";
+    licenses = licenses.artistic2;
+    maintainers = maintainers.abbradar;
+    platforms = platforms.all;
   };
 }

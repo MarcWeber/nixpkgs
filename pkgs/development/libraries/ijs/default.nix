@@ -1,26 +1,30 @@
-{stdenv, fetchurl, ghostscript}:
+{ stdenv, fetchurl, autoreconfHook }:
 
+let version = "9.15";
+in
 stdenv.mkDerivation {
-  name = "ijs-0.36";
+  name = "ijs-${version}";
+
+  src = fetchurl {
+    url = "http://downloads.ghostscript.com/public/ghostscript-${version}.tar.bz2";
+    sha256 = "0p1isp6ssfay141klirn7n9s8b546vcz6paksfmksbwy0ljsypg6";
+  };
+
+  prePatch = "cd ijs";
 
   enableParallelBuilding = true;
 
-  src = fetchurl {
-    url = http://www.openprinting.org/download/ijs/download/ijs-0.35.tar.bz2;
-    sha256 = "1ffaa1dnr99h2fjhn2pn5ckn9fs7f56xc92szzrq1i488h4gb98i";
-  };
+  nativeBuildInputs = [ autoreconfHook ];
 
-  buildInputs = [
-    # only required for building pdf documentation ?
-    # also requires db2ps ?
-    # ghostscript
-    ];
+  configureFlags = [ "--disable-static" "--enable-shared" ];
 
-  meta = {
-    description = "Library which implements a protocol for transmission of raster page images";
-    homepage = http://www.openprinting.org;
-    license = stdenv.lib.licenses.mit;
-    maintainers = [stdenv.lib.maintainers.marcweber];
-    platforms = stdenv.lib.platforms.linux;
+  meta = with stdenv.lib; {
+    homepage = https://www.openprinting.org/download/ijs/;
+    description = "Raster printer driver architecture";
+
+    license = licenses.gpl3Plus;
+
+    platforms = platforms.all;
+    maintainers = [ maintainers.abbradar ];
   };
 }

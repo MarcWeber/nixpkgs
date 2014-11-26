@@ -12506,7 +12506,6 @@ let
     cupsSupport = config.ghostscript.cups or (!stdenv.isDarwin);
   };
 
-  ghostscriptMainline_9_06 = ghostscript.override { version = "9.06"; };
   ghostscriptMainline_9_10 = ghostscript.override { version = "9.10"; };
   ghostscriptMainline_9_15 = ghostscript.override { version = "9.15"; };
 

@@ -472,6 +472,8 @@ let
 
   aescrypt = callPackage ../tools/misc/aescrypt { };
 
+  afl = callPackage ../tools/security/afl { };
+
   ahcpd = callPackage ../tools/networking/ahcpd { };
 
   aide = callPackage ../tools/security/aide { };
@@ -854,7 +856,9 @@ let
 
   cksfv = callPackage ../tools/networking/cksfv { };
 
-  clementine = callPackage ../applications/audio/clementine { };
+  clementine = callPackage ../applications/audio/clementine {
+    boost = boost156;
+  };
 
   ciopfs = callPackage ../tools/filesystems/ciopfs { };
 
@@ -2246,6 +2250,8 @@ let
 
   reptyr = callPackage ../os-specific/linux/reptyr {};
 
+  rescuetime = callPackage ../applications/misc/rescuetime { };
+
   rdiff-backup = callPackage ../tools/backup/rdiff-backup { };
 
   rdmd = callPackage ../development/compilers/rdmd { };
@@ -2449,7 +2455,7 @@ let
 
   stunnel = callPackage ../tools/networking/stunnel { };
 
-  strongswan = callPackage ../tools/networking/strongswan { stdenv = clangStdenv; };
+  strongswan = callPackage ../tools/networking/strongswan { };
 
   su = shadow.su;
 
@@ -2526,6 +2532,8 @@ let
 
   tmux = callPackage ../tools/misc/tmux { };
 
+  tmin = callPackage ../tools/security/tmin { };
+
   tor = callPackage ../tools/security/tor { };
 
   torbutton = callPackage ../tools/security/torbutton { };
@@ -2566,6 +2574,8 @@ let
 
   # eventually merge with gimpPlugins.ufraw ?
   ufraw = callPackage ../applications/graphics/ufraw { };
+
+  umlet = callPackage ../tools/misc/umlet { };
 
   unetbootin = callPackage ../tools/cd-dvd/unetbootin { };
 
@@ -2946,7 +2956,7 @@ let
     chickenEggs = callPackage ../development/tools/egg2nix/chicken-eggs.nix { };
   };
 
-  ccl = builderDefsPackage ../development/compilers/ccl {};
+  ccl = callPackage ../development/compilers/ccl { };
 
   clang = wrapGCC llvmPackages.clang;
 
@@ -3461,17 +3471,16 @@ let
     openblas = openblas_0_2_2;
   };
 
-  julia032 = let
+  julia033 = let
     liblapack = liblapack_3_5_0.override {shared = true;};
-  in callPackage ../development/compilers/julia/0.3.2.nix {
+  in callPackage ../development/compilers/julia/0.3.3.nix {
     inherit liblapack;
     suitesparse = suitesparse.override {
       inherit liblapack;
     };
-    llvm = llvm_34;
-    openblas = openblas_0_2_10;
+    llvm = llvm_33;
   };
-  julia = julia032;
+  julia = julia033;
 
   lazarus = callPackage ../development/compilers/fpc/lazarus.nix {
     fpc = fpc;
@@ -3775,6 +3784,7 @@ let
     sawja = callPackage ../development/ocaml-modules/sawja { };
 
     uucd = callPackage ../development/ocaml-modules/uucd { };
+    uucp = callPackage ../development/ocaml-modules/uucp { };
     uunf = callPackage ../development/ocaml-modules/uunf { };
     uutf = callPackage ../development/ocaml-modules/uutf { };
 
@@ -4023,6 +4033,8 @@ let
     inherit (pythonPackages) python boto setuptools distutils-cfg wrapPython;
     pythonProtobuf = pythonPackages.protobuf;
   };
+
+  mujs = callPackage ../development/interpreters/mujs { };
 
   nix-exec = callPackage ../development/interpreters/nix-exec {
     nix = nixUnstable;
@@ -4743,6 +4755,8 @@ let
     flex = flex_2_5_35;
   };
 
+  sselp = callPackage ../tools/X11/sselp{ };
+
   stm32flash = callPackage ../development/tools/misc/stm32flash { };
 
   strace = callPackage ../development/tools/misc/strace { };
@@ -4903,7 +4917,7 @@ let
   boost155 = callPackage ../development/libraries/boost/1.55.nix { };
   boost156 = callPackage ../development/libraries/boost/1.56.nix { };
   boost157 = callPackage ../development/libraries/boost/1.57.nix { };
-  boost = boost156;
+  boost = boost157;
 
   boost_process = callPackage ../development/libraries/boost-process { };
 
@@ -6782,6 +6796,8 @@ let
 
   librdf = callPackage ../development/libraries/librdf { };
 
+  libsmf = callPackage ../development/libraries/audio/libsmf { };
+
   lilv = callPackage ../development/libraries/audio/lilv { };
 
   lv2 = callPackage ../development/libraries/audio/lv2 { };
@@ -6864,6 +6880,8 @@ let
   sfml_git = callPackage ../development/libraries/sfml { };
 
   skalibs = callPackage ../development/libraries/skalibs { };
+
+  skarnetConfCompile = callPackage ../development/tools/build-managers/skarnet { };
 
   slang = callPackage ../development/libraries/slang { };
 
@@ -7721,6 +7739,7 @@ let
   mariadb = callPackage ../servers/sql/mariadb {};
 
   mongodb = callPackage ../servers/nosql/mongodb {
+    boost = boost156;
     sasl = cyrus_sasl;
   };
 
@@ -8347,10 +8366,11 @@ let
 
     nvidiabl = callPackage ../os-specific/linux/nvidiabl { };
 
-    nvidia_x11 = callPackage ../os-specific/linux/nvidia-x11 { };
+    nvidia_x11 = self.nvidia_x11_legacy340;
 
     nvidia_x11_legacy173 = callPackage ../os-specific/linux/nvidia-x11/legacy173.nix { };
     nvidia_x11_legacy304 = callPackage ../os-specific/linux/nvidia-x11/legacy304.nix { };
+    nvidia_x11_legacy340 = callPackage ../os-specific/linux/nvidia-x11/legacy340.nix { };
 
     openafsClient = callPackage ../servers/openafs-client { };
 
@@ -9213,6 +9233,7 @@ let
     channel = "stable";
     pulseSupport = config.pulseaudio or true;
     enablePepperFlash = config.chromium.enablePepperFlash or false;
+    enableWideVine = config.chromium.enableWideVine or false;
     hiDPISupport = config.chromium.hiDPISupport or false;
   };
 
@@ -9331,6 +9352,8 @@ let
   docker = callPackage ../applications/virtualization/docker { };
 
   doodle = callPackage ../applications/search/doodle { };
+
+  drumgizmo = callPackage ../applications/audio/drumgizmo { inherit (xlibs) libX11; };
 
   dunst = callPackage ../applications/misc/dunst { };
 
@@ -9691,6 +9714,7 @@ let
   };
 
   freecad = callPackage ../applications/graphics/freecad {
+    boost = boost156;
     opencascade = opencascade_6_5;
     inherit (pythonPackages) matplotlib pycollada;
   };
@@ -10117,7 +10141,10 @@ let
     bison = bison2;
   };
 
-  llpp = callPackage ../applications/misc/llpp { inherit (ocamlPackages) lablgl; };
+  llpp = callPackage ../applications/misc/llpp {
+    inherit (ocamlPackages_4_02_1) lablgl findlib;
+    ocaml = ocaml_4_02_1;
+  };
 
   lmms = callPackage ../applications/audio/lmms { };
 
@@ -10282,7 +10309,7 @@ let
     lua = lua5_1;
     lua5_sockets = lua5_1_sockets;
     bs2bSupport = config.mpv.bs2bSupport or true;
-    quviSupport = config.mpv.quviSupport or false;
+    youtubeSupport = config.mpv.youtubeSupport or true;
     cacaSupport = config.mpv.cacaSupport or true;
     vaapiSupport = config.mpv.vaapiSupport or false;
   };
@@ -10561,6 +10588,7 @@ let
   pythonmagick = callPackage ../applications/graphics/PythonMagick { };
 
   qbittorrent = callPackage ../applications/networking/p2p/qbittorrent {
+    boost = boost156;
     libtorrentRasterbar = libtorrentRasterbar_0_16;
   };
 
@@ -10569,6 +10597,8 @@ let
   qemu = callPackage ../applications/virtualization/qemu { };
 
   qmmp = callPackage ../applications/audio/qmmp { };
+
+  qrcode = callPackage ../tools/graphics/qrcode {};
 
   qsampler = callPackage ../applications/audio/qsampler { };
 
@@ -10579,6 +10609,8 @@ let
   qtpfsgui = callPackage ../applications/graphics/qtpfsgui { };
 
   qtractor = callPackage ../applications/audio/qtractor { };
+
+  quirc = callPackage ../tools/graphics/quirc {};
 
   quodlibet = callPackage ../applications/audio/quodlibet {
     inherit (pythonPackages) mutagen;
@@ -10748,7 +10780,7 @@ let
 
   shntool = callPackage ../applications/audio/shntool { };
 
-  sonic_visualiser = callPackage ../applications/audio/sonic-visualiser {
+  sonic-visualiser = callPackage ../applications/audio/sonic-visualiser {
     inherit (pkgs.vamp) vampSDK;
     inherit (pkgs.xlibs) libX11;
     fftw = pkgs.fftwSinglePrec;
@@ -11022,6 +11054,10 @@ let
 
   vimpc = callPackage ../applications/audio/vimpc { };
 
+  neovim = callPackage ../applications/editors/neovim {
+    inherit (lua52Packages) lpeg luaMessagePack luabitop;
+  };
+
   virtviewer = callPackage ../applications/virtualization/virt-viewer {
     gtkvnc = gtkvnc.override { enableGTK3 = true; };
     spice_gtk = spice_gtk.override { enableGTK3 = true; };
@@ -11038,7 +11074,28 @@ let
 
   virtualgl = callPackage ../tools/X11/virtualgl { };
 
-  bumblebee = callPackage ../tools/X11/bumblebee { };
+  primus = callPackage ../tools/X11/primus {
+    primusLib = callPackage ../tools/X11/primus/lib.nix {
+      nvidia = linuxPackages.nvidia_x11;
+    };
+
+    primusLib_i686 = if system == "x86_64-linux"
+      then callPackage_i686 ../tools/X11/primus/lib.nix {
+             nvidia = pkgsi686Linux.linuxPackages.nvidia_x11.override { libsOnly = true; };
+           }
+      else null;
+  };
+
+  bumblebee = callPackage ../tools/X11/bumblebee {
+    nvidia_x11 = linuxPackages.nvidia_x11;
+    nvidia_x11_i686 = if system == "x86_64-linux"
+      then pkgsi686Linux.linuxPackages.nvidia_x11.override { libsOnly = true; }
+      else null;
+    virtualgl = virtualgl;
+    virtualgl_i686 = if system == "x86_64-linux"
+      then pkgsi686Linux.virtualgl
+      else null;
+  };
 
   vkeybd = callPackage ../applications/audio/vkeybd {
     inherit (xlibs) libX11;
@@ -11362,6 +11419,8 @@ let
     qt = qt4;
   };
 
+  yed = callPackage ../applications/graphics/yed {};
+
   ykpers = callPackage ../applications/misc/ykpers {};
 
   yoshimi = callPackage ../applications/audio/yoshimi {
@@ -11576,6 +11635,8 @@ let
 
   openxcom = callPackage ../games/openxcom { };
 
+  performous = callPackage ../games/performous { };
+
   pingus = callPackage ../games/pingus {};
 
   pioneers = callPackage ../games/pioneers { };
@@ -11783,16 +11844,6 @@ let
 
   enlightenment = callPackage ../desktops/enlightenment { };
 
-  e17 = recurseIntoAttrs (
-    let callPackage = newScope pkgs.e17; in
-    import ../desktops/e17 { inherit callPackage pkgs; }
-  );
-
-  e18 = recurseIntoAttrs (
-    let callPackage = newScope pkgs.e18; in
-    import ../desktops/e18 { inherit callPackage pkgs; }
-  );
-
   e19 = recurseIntoAttrs (
     let callPackage = newScope pkgs.e19; in
     import ../desktops/e19 { inherit callPackage pkgs; }
@@ -11876,7 +11927,9 @@ let
 
       kdevelop = callPackage ../applications/editors/kdevelop { };
 
-      kdevplatform = callPackage ../development/libraries/kdevplatform { };
+      kdevplatform = callPackage ../development/libraries/kdevplatform {
+        boost = boost156;
+      };
 
       kdiff3 = callPackage ../tools/text/kdiff3 { };
 
@@ -11906,7 +11959,9 @@ let
 
       libalkimia = callPackage ../development/libraries/libalkimia { };
 
-      libktorrent = callPackage ../development/libraries/libktorrent { };
+      libktorrent = callPackage ../development/libraries/libktorrent {
+        boost = boost156;
+      };
 
       libkvkontakte = callPackage ../development/libraries/libkvkontakte { };
 
@@ -12024,6 +12079,7 @@ let
   xfce = xfce4_10;
   xfce4_10 = recurseIntoAttrs (import ../desktops/xfce { inherit config pkgs newScope; });
 
+  xrandr-invert-colors = callPackage ../applications/misc/xrandr-invert-colors { };
 
   ### SCIENCE
 
@@ -12476,7 +12532,10 @@ let
 
   fakenes = callPackage ../misc/emulators/fakenes { };
 
+
   faust = callPackage ../applications/audio/faust { };
+
+  faust-compiler = callPackage ../applications/audio/faust-compiler { };
 
   fceux = callPackage ../misc/emulators/fceux { };
 
@@ -12777,6 +12836,10 @@ let
   vimprobable2Wrapper = wrapFirefox
     { browser = vimprobable2; browserName = "vimprobable2"; desktopName = "Vimprobable2";
     };
+
+  rekonqWrapper = wrapFirefox {
+    browser = kde4.rekonq; browserName = "rekonq"; desktopName = "Rekonq";
+  };
 
   vimb = callPackage ../applications/networking/browsers/vimb {
     webkit = webkitgtk2;

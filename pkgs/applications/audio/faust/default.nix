@@ -1,27 +1,58 @@
-{ fetchurl, stdenv, unzip }:
+{ fetchurl, stdenv, bash, alsaLib, atk, cairo, faust-compiler, fontconfig, freetype
+, gcc, gdk_pixbuf, glib, gtk, makeWrapper, pango, pkgconfig, unzip
+, gtkSupport ? true
+}:
 
 stdenv.mkDerivation rec {
 
   version = "0.9.67";
   name = "faust-${version}";
   src = fetchurl {
-    url = "http://downloads.sourceforge.net/project/faudiostream/${name}.zip";
+    url = "http://downloads.sourceforge.net/project/faudiostream/faust-${version}.zip";
     sha256 = "068vl9536zn0j4pknwfcchzi90rx5pk64wbcbd67z32w0csx8xm1";
   };
 
-  buildInputs = [ unzip ];
+  buildInputs = [ bash unzip faust-compiler gcc makeWrapper pkgconfig ]
+    ++ stdenv.lib.optionals gtkSupport [
+      alsaLib atk cairo fontconfig freetype gdk_pixbuf glib gtk pango
+    ]
+  ;
 
-  patchPhase=''
-    sed -i '77,101d' Makefile
-    sed -i 's#?= $(shell uname -s)#:= Linux#g'  architecture/osclib/oscpack/Makefile
-    sed -e "s@\$FAUST_INSTALL /usr/local /usr /opt /opt/local@$out@g" -i tools/faust2appls/faustpath
-    '';
-
-  postInstallPhase=''
-    rm -rf $out/include/
-    '';
-  
   makeFlags="PREFIX=$(out)";
+  FPATH="$out"; # <- where to search
+
+  phases = [ "unpackPhase installPhase postInstall" ];
+
+  installPhase  = ''
+    mkdir $out/bin
+    install tools/faust2appls/faust2alsaconsole $out/bin
+    install tools/faust2appls/faustpath  $out/bin
+    install tools/faust2appls/faustoptflags  $out/bin
+    install tools/faust2appls/faust2alsa $out/bin
+
+    wrapProgram $out/bin/faust2alsaconsole \
+    --prefix PKG_CONFIG_PATH : ${alsaLib}/lib/pkgconfig \
+    --set FAUSTLIB ${faust-compiler}/lib/faust \
+    --set FAUSTINC ${faust-compiler}/include/
+
+    GTK_PKGCONFIG_PATHS=${gtk}/lib/pkgconfig:${pango}/lib/pkgconfig:${glib}/lib/pkgconfig:${cairo}/lib/pkgconfig:${gdk_pixbuf}/lib/pkgconfig:${atk}/lib/pkgconfig:${freetype}/lib/pkgconfig:${fontconfig}/lib/pkgconfig
+
+    wrapProgram  $out/bin/faust2alsa \
+    --prefix PKG_CONFIG_PATH :  ${alsaLib}/lib/pkgconfig:$GTK_PKGCONFIG_PATHS \
+    --set FAUSTLIB ${faust-compiler}/lib/faust \
+    --set FAUSTINC ${faust-compiler}/include/ \
+    '' + stdenv.lib.optionalString (!gtkSupport) "rm $out/bin/faust2alsa"
+  ;
+
+  postInstall = ''
+    find $out/bin/ -name "faust2*" -type f | xargs sed "s@/bin/bash@${bash}/bin/bash@g" -i
+    sed -i "s@/bin/bash@${bash}/bin/bash@g" $out/bin/faustpath
+    sed -e "s@\$FAUST_INSTALL /usr/local /usr /opt /opt/local@${faust-compiler}@g" -i $out/bin/faustpath
+    sed -i "s@/bin/bash@${bash}/bin/bash@g" $out/bin/faustoptflags
+    find $out/bin/ -name "faust2*" -type f | xargs sed "s@pkg-config@${pkgconfig}/bin/pkg-config@g" -i
+    find $out/bin/ -name "faust2*" -type f | xargs sed "s@CXX=g++@CXX=${gcc}/bin/g++@g" -i
+    find $out/bin/ -name "faust2*" -type f | xargs sed "s@faust -i -a @${faust-compiler}/bin/faust -i -a ${faust-compiler}/lib/faust/@g" -i
+  '';
 
   meta = with stdenv.lib; {
     description = "A functional programming language for realtime audio signal processing";

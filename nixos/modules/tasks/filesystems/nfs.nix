@@ -13,7 +13,7 @@ let
   idmapdConfFile = pkgs.writeText "idmapd.conf" ''
     [General]
     Pipefs-Directory = ${rpcMountpoint}
-    ${optionalString (config.networking.domain != "")
+    ${optionalString (config.networking.domain != null)
       "Domain = ${config.networking.domain}"}
 
     [Mapping]
@@ -73,8 +73,7 @@ in
 
         path = [ pkgs.nfsUtils pkgs.sysvtools pkgs.utillinux ];
 
-        wantedBy = [ "network-online.target" "multi-user.target" ];
-        before = [ "network-online.target" ];
+        wantedBy = [ "multi-user.target" ];
         requires = [ "basic.target" "rpcbind.service" ];
         after = [ "basic.target" "rpcbind.service" "network.target" ];
 
@@ -100,8 +99,7 @@ in
 
         path = [ pkgs.sysvtools pkgs.utillinux ];
 
-        wantedBy = [ "network-online.target" "multi-user.target" ];
-        before = [ "network-online.target" ];
+        wantedBy = [ "multi-user.target" ];
         requires = [ "rpcbind.service" ];
         after = [ "rpcbind.service" ];
 

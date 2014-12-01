@@ -1500,7 +1500,9 @@ let
 
   imapproxy = callPackage ../tools/networking/imapproxy { };
 
-  imapsync = callPackage ../tools/networking/imapsync { };
+  imapsync = callPackage ../tools/networking/imapsync {
+    inherit (perlPackages) MailIMAPClient;
+  };
 
   inadyn = callPackage ../tools/networking/inadyn { };
 

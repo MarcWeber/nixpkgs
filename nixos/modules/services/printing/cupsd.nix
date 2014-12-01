@@ -113,6 +113,19 @@ in
         '';
       };
 
+      extraConf = mkOption {
+        type = types.lines;
+        default = "";
+        example =
+          ''
+            BrowsePoll cups.example.com
+            LogLevel debug
+          '';
+        description = ''
+          Extra contents of the configuration file of the CUPS daemon
+          (<filename>cupsd.conf</filename>).
+        '';
+      };
 
       clientConf = mkOption {
         type = types.lines;
@@ -283,6 +296,7 @@ in
             Order deny,allow
           </Limit>
         </Policy>
+        ${cfg.extraConf}
       '';
 
     security.pam.services.cups = {};

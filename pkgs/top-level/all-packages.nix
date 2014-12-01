@@ -5210,11 +5210,6 @@ let
   gegl_0_1_6 = gegl.override { version = "0.1.6"; };
   geglGit = gegl.override { version = "git"; };
 
-  gegl_0_0_22 = callPackage ../development/libraries/gegl/0_0_22.nix {
-    #  avocodec avformat librsvg
-    libpng = libpng12;
-  };
-
   geoclue = callPackage ../development/libraries/geoclue {};
 
   geoclue2 = callPackage ../development/libraries/geoclue/2.0.nix {};

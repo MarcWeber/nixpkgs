@@ -309,8 +309,8 @@ let
       self.transaction
       self.waitress
       self.webhelpers
-      self.zope_sqlalchemy
       self.psycopg2
+      (self.zope_sqlalchemy.override rec {propagatedBuildInputs = with self; [ sqlalchemy8 transaction ];})
     ];
 
     postInstall = ''
@@ -3397,11 +3397,11 @@ let
   };
 
   deluge = buildPythonPackage rec {
-    name = "deluge-1.3.7";
+    name = "deluge-1.3.10";
 
     src = pkgs.fetchurl {
       url = "http://download.deluge-torrent.org/source/${name}.tar.bz2";
-      sha256 = "07m5lgkqymlh0810bk2f5l0k83n51xb3gszj11sr509jgbnxjnmm";
+      sha256 = "1x8ylcw88a6x3zyvyxmzjsbcy9dr2s5dxam2aw6harb4n1l2v9kd";
     };
 
     propagatedBuildInputs = with self; [
@@ -6237,7 +6237,8 @@ let
 
     propagatedBuildInputs = with self; [ pycrypto ecdsa ];
 
-    doCheck = !isPyPy;
+    # https://github.com/paramiko/paramiko/issues/449
+    doCheck = !(isPyPy || isPy33);
     checkPhase = ''
       ${python}/bin/${python.executable} test.py --no-sftp --no-big-file
     '';
@@ -8176,6 +8177,28 @@ let
     };
   };
 
+  robomachine = buildPythonPackage rec {
+    name = "robomachine-0.6";
+
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/R/RoboMachine/RoboMachine-0.6.tar.gz";
+      md5 = "4e95eaa43afda0f363c78a88e9da7159";
+    };
+
+    propagatedBuildInputs = with self; [ pyparsing argparse robotframework ];
+
+    # Remove Windows .bat files
+    postInstall = ''
+      rm "$out"/bin/*.bat
+    '';
+
+    meta = with stdenv.lib; {
+      description = "Test data generator for Robot Framework";
+      homepage = https://github.com/mkorpela/RoboMachine;
+      license = licenses.asl20;
+      maintainers = [ maintainers.bjornfor ];
+    };
+  };
 
   robotframework = buildPythonPackage rec {
     version = "2.8.5";
@@ -11873,26 +11896,6 @@ let
       export NIX_CFLAGS_COMPILE="-I${pkgs.e19.efl}/include/eo-1 -I${pkgs.e19.efl}/include/eina-1 -I${pkgs.e19.efl}/include/eina-1/eina -I${pkgs.e19.efl}/include/evas-1 -I${self.dbus}/include/dbus-1.0 -I${pkgs.e19.efl}/include/efl-1 -I${pkgs.e19.efl}/include/eet-1 -I${pkgs.e19.efl}/include/ecore-1 -I${pkgs.e19.efl}/include/ecore-evas-1 -I${pkgs.e19.efl}/include/ecore-file-1 -I${pkgs.e19.efl}/include/ecore-input-1 -I${pkgs.e19.efl}/include/ecore-imf-1 -I${pkgs.e19.efl}/include/ecore-con-1 -I${pkgs.e19.efl}/include/edje-1 -I${pkgs.e19.efl}/include/eldbus-1 -I${pkgs.e19.efl}/include/efreet-1 -I${pkgs.e19.efl}/include/ethumb-client-1 -I${pkgs.e19.efl}/include/ethumb-1 -I${pkgs.e19.efl}/include/ecore-x-1 $NIX_CFLAGS_COMPILE"
     '';
     buildInputs = with self; [ pkgs.pkgconfig pkgs.e19.efl pkgs.e19.elementary ];
-    meta = {
-      description = "Python bindings for EFL and Elementary.";
-      homepage = http://enlightenment.org/;
-      maintainers = [ stdenv.lib.maintainers.matejc ];
-      platforms = stdenv.lib.platforms.linux;
-      license = stdenv.lib.licenses.gpl3;
-    };
-  };
-
-  pythonefl = buildPythonPackage rec {
-    name = "python-efl-${version}";
-    version = "1.10.0";
-    src = pkgs.fetchurl {
-      url = "http://download.enlightenment.org/rel/bindings/python/${name}.tar.gz";
-      sha256 = "1inv2qalnm9paifdwyh9q3ffxcp9bjj92phvfw1rgkaildvfji5i";
-    };
-    preConfigure = ''
-      export NIX_CFLAGS_COMPILE="-I${pkgs.e18.efl}/include/eo-1 -I${pkgs.e18.efl}/include/eina-1 -I${pkgs.e18.efl}/include/eina-1/eina -I${pkgs.e18.efl}/include/evas-1 -I${self.dbus}/include/dbus-1.0 -I${pkgs.e18.efl}/include/efl-1 -I${pkgs.e18.efl}/include/eet-1 -I${pkgs.e18.efl}/include/ecore-1 -I${pkgs.e18.efl}/include/ecore-evas-1 -I${pkgs.e18.efl}/include/ecore-file-1 -I${pkgs.e18.efl}/include/ecore-input-1 -I${pkgs.e18.efl}/include/ecore-imf-1 -I${pkgs.e18.efl}/include/ecore-con-1 -I${pkgs.e18.efl}/include/edje-1 -I${pkgs.e18.efl}/include/eldbus-1 -I${pkgs.e18.efl}/include/efreet-1 -I${pkgs.e18.efl}/include/ethumb-client-1 -I${pkgs.e18.efl}/include/ethumb-1 -I${pkgs.e18.efl}/include/ecore-x-1 $NIX_CFLAGS_COMPILE"
-    '';
-    buildInputs = with self; [ pkgs.pkgconfig pkgs.e18.efl pkgs.e18.elementary ];
     meta = {
       description = "Python bindings for EFL and Elementary.";
       homepage = http://enlightenment.org/;

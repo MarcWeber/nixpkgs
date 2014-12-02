@@ -81,67 +81,20 @@ in
     provided by vim-addon-manager.
 
     " Copy /tmp/tmp.vim file and run: :source /tmp/tmp.vim
-    call nix#ExportPluginsForNix({
-    \  'path_to_nixpkgs': '/etc/nixos/nixpkgs',
-    \  'cache_file': '/tmp/vim2nix-cache',
-    \  'names': [
-    \    "vim-addon-syntax-checker",
-    \    "vim-addon-other",
-    \    "vim-addon-local-vimrc",
-    \    "snipmate",
-    \    "vim-snippets",
-    \    "vim-addon-mru",
-    \    "vim-addon-commenting",
-    \    "vim-addon-sql",
-    \    "vim-addon-async",
-    \    "vim-addon-toggle-buffer",
-    \    "vim-addon-mw-utils",
-    \    "matchit.zip",
-    \    "vim-addon-xdebug",
-    \    "vim-addon-php-manual",
-    \    "sourcemap.vim",
-    \    "vim-iced-coffee-script",
-    \    "ctrlp",
-    \    "commentary",
-    \    "Colour_Sampler_Pack",
-    \    "Solarized",
-    \    "vim-coffee-script",
-    \    "vim-easy-align",
-    \    "Tagbar",
-    \    "Tabular",
-    \    "table-mode",
-    \    "Syntastic",
-    \    "vim-signature",
-    \    "surround",
-    \    "Supertab",
-    \    "rust",
-    \    "rainbow_parentheses",
-    \    "pathogen",
-    \    "quickfixstatus",
-    \    "The_NERD_Commenter",
-    \    "The_NERD_tree",
-    \    "vim-latex-live-preview",
-    \    "Hoogle",
-    \    "Gundo",
-    \    "vim-gitgutter",
-    \    "Gist",
-    \    "ghcmod",
-    \    "fugitive",
-    \    "extradite",
-    \    "vim-airline",
-    \    "VimOutliner",
-    \    "vim2hs",
-    \    "undotree",
-    \    "UltiSnips",
-    \    "wombat256",
-    \    "vundle",
-    \    "WebAPI",
-    \    "YankRing",
-    \    "vim-addon-manager",
-    \    "vim-addon-nix",
-    \    "YUNOcommit"
-    \ ],
-    \ })
+
+     call nix#ExportPluginsForNix({
+     \  'path_to_nixpkgs': '/etc/nixos/nixpkgs',
+     \  'cache_file': '/tmp/vim2nix-cache',
+     \  'names': NAMES
+     \ })
+
+    where NAMES is
+
+      map(readfile("PATH_TO_THIS_DIR/vim-plugin-names"), 'eval(v:val)')
+
+    where vim-plugin-names is a file in nixpkgs or a file in a user's home
+    dircetory whose path could be could be passed to vam#Scripts (see VAM
+    documentation).
 
 # TODO: think about how to add license information?
 */

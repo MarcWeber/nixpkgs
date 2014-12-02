@@ -574,10 +574,7 @@ let
 
   inherit (androidenv) androidsdk_4_4 androidndk;
 
-  anyterm = callPackage ../tools/networking/anyterm {
-    boost = boost149;
-  };
-
+  anyterm = callPackage ../tools/networking/anyterm { };
 
   aria2 = callPackage ../tools/networking/aria2 { };
   aria = aria2;

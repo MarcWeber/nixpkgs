@@ -10,3 +10,39 @@ index 0a4933d..b16ebf9 100644
  #include "SmtpClient.hh"
  
  #include "ip.hh"
+
+
+diff --git a/libpbe/src/URI.cc b/libpbe/src/URI.cc
+index 4019342..834e951 100644
+--- a/libpbe/src/URI.cc
++++ b/libpbe/src/URI.cc
+@@ -19,10 +19,7 @@
+ #include "URI.hh"
+ 
+ #include <boost/spirit.hpp>
+-#include <boost/spirit/actor/insert_at_actor.hpp>
+-#include <boost/spirit/dynamic/if.hpp>
+-#include <boost/spirit/utility/loops.hpp>
+-#include <boost/spirit/iterator/multi_pass.hpp>
++#include <boost/spirit/include/classic.hpp>
+ 
+ #include <boost/lexical_cast.hpp>
+ #include <boost/scoped_array.hpp>
+diff --git a/libpbe/src/parse_http_request.cc b/libpbe/src/parse_http_request.cc
+index 8732323..91cb0a7 100644
+--- a/libpbe/src/parse_http_request.cc
++++ b/libpbe/src/parse_http_request.cc
+@@ -19,10 +19,9 @@
+ #include "parse_http_request.hh"
+ 
+ #include <boost/spirit.hpp>
+-#include <boost/spirit/actor/insert_at_actor.hpp>
+-#include <boost/spirit/dynamic/if.hpp>
+-#include <boost/spirit/utility/loops.hpp>
+-#include <boost/spirit/iterator/multi_pass.hpp>
++#include <boost/spirit/include/classic.hpp>
++#include <boost/spirit/include/classic.hpp>
++#include <boost/spirit/home/classic/actor.hpp>
+ 
+ #include <boost/lexical_cast.hpp>
+ #include <boost/scoped_array.hpp>

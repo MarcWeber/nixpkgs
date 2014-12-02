@@ -579,6 +579,8 @@ rec {
     vimrcConfig.vam.knownPlugins = vimPlugins;
     vimrcConfig.vam.pluginDictionaries = [];
     vimrcConfig.customRC = ''
+      " Yes - this is impure and will create the cache file and checkout vim-pi
+      " into ~/.vim/vim-addons
       let opts = {}
       let opts.nix_prefetch_git = "${../../../pkgs/build-support/fetchgit/nix-prefetch-git}"
       let opts.nix_prefetch_hg  = "${../../../pkgs/build-support/fetchhg/nix-prefetch-hg}"

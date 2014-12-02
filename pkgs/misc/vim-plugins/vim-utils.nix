@@ -1,36 +1,137 @@
-{stdenv, vimPlugins, vim_configurable, buildEnv, writeText, writeScriptBin}:
+{stdenv, vim, vimPlugins, vim_configurable, buildEnv, writeText, writeScriptBin}:
 
-  /* usage example::
-     let vimrcConfig = {
+/* 
 
-       # If you like pathogen use such
-       pathogen.knownPlugins = vimPlugins; # optional
-       pathogen.pluginNames = ["vim-addon-nix"];
+USAGE EXAMPLE
+=============
 
-       # If you like VAM (more featureful and slightly faster) use such:
-       vam.knownPlugins = vimPlugins; # optional
-       vam.pluginDictionaries = [
-         # load always
-         { name = "youcompleteme"; }
-         { names = ["youcompleteme" "foo"]; }
-         # only load when opening a .php file
-         { name = "phpCompletion"; ft_regex = "^php\$"; }
-         { name = "phpCompletion"; filename_regex = "^.php\$"; }
+install Vim like this eg using nixos option environment.systemPackages which will provide
+vim-with-plugins in PATH:
 
-         # provide plugin which can be loaded manually:
-         { name = "phpCompletion"; tag = "lazy"; }
-       ];
+  vim_configurable.customize {
+    name = "vim-with-plugins";
 
-       # if you like NeoBundle or Vundle provide an implementation
+    # add custom .vimrc lines like this:
+    vimrcConfig.customRC = ''
+      set hidden
+    '';
 
-       # add custom .vimrc lines like this:
-       customRC = ''
-         set hidden
-       '';
-     };
-     in vim_configurable.customize { name = "vim-with-plugins"; inherit vimrcConfig; };
+    vimrcConfig.vam.knownPlugins = pkgs.vimPlugins; # optional
+    vimrcConfig.vam.pluginDictionaries = [
+      # load always
+      { name = "youcompleteme"; }
+      { names = ["youcompleteme" "foo"]; }
 
-  */
+      # only load when opening a .php file
+      { name = "phpCompletion"; ft_regex = "^php\$"; }
+      { name = "phpCompletion"; filename_regex = "^.php\$"; }
+
+      # provide plugin which can be loaded manually:
+      { name = "phpCompletion"; tag = "lazy"; }
+
+      # full ducomentation at github.com/MarcWeber/vim-addon-manager
+    ];
+
+    # there is a pathogen implementation as well, but its startup is slower and [VAM] has more feature
+    # vimrcConfig.pathogen.knownPlugins = vimPlugins; # optional
+    # vimrcConfig.pathogen.pluginNames = ["vim-addon-nix"];
+  };
+
+WHAT IS A VIM PLUGIN?
+=====================
+Typical plugin files:
+
+  plugin/P1.vim
+  autoload/P1.vim
+  ftplugin/xyz.vim
+  doc/plugin-documentation.txt (traditional documentation)
+  README(.md) (nowadays thanks to github)
+
+
+Vim offers the :h rtp setting which works for most plugins. Thus adding
+this to your .vimrc should make most plugins work:
+
+  set rtp+=~/.nix-profile/vim-plugins/youcompleteme
+  " or for p in ["youcompleteme"] | exec 'set rtp+=~/.nix-profile/vim-plugins/'.p | endfor
+
+which is what the [VAM]/pathogen solutions above basically do.
+
+Learn about about plugin Vim plugin mm managers at
+http://vim-wiki.mawercer.de/wiki/topic/vim%20plugin%20managment.html.
+
+The documentation can be accessed by Vim's :help command if it was tagged.
+See vimHelpTags sample code below.
+
+CONTRIBUTING AND CUSTOMIZING
+============================
+The example file pkgs/misc/vim-plugins/default.nix provides both: 
+* manually mantained plugins 
+* plugins created by VAM's nix#ExportPluginsForNix implementation
+
+I highly recommend to lookup vim plugin attribute names at the [vim-pi] project
+ which is a database containing all plugins from
+vim.org and quite a lot of found at github and similar sources. vim-pi's documented purpose
+is to associate vim.org script ids to human readable names so that dependencies
+can be describe easily.
+
+How to find a name?
+  * http://vam.mawercer.de/ or VAM's
+  * grep vim-pi
+  * use VAM's completion or :AddonsInfo command
+
+It might happen than a plugin is not known by vim-pi yet. We encourage you to
+contribute to vim-pi so that plugins can be updated automatically.
+
+
+CREATING DERVITATIONS AUTOMATICALLY BY PLUGIN NAME
+==================================================
+Most convenient is to use a ~/.vim-scripts file putting a plugin name into each line
+as documented by [VAM]'s README.md
+It is the same format you pass to vimrcConfig.vam.pluginDictionaries from the
+usage example above.
+
+Then create a temp vim file and insert:
+
+  let opts = {}
+  let opts.path_to_nixpkgs = '/etc/nixos/nixpkgs'
+  let opts.cache_file = '/tmp/export-vim-plugin-for-nix-cache-file'
+  let opts.names = map(readfile("vim-plugins"), 'eval(v:val)')
+  " add more files
+  " let opts.names += map(.. other file )
+  call nix#ExportPluginsForNix(opts)
+
+Then ":source %" it.
+
+A buffer will open containing the plugin derivation lines as well list 
+fitting the vimrcConfig.vam.pluginDictionaries option.
+
+Thus the most simple usage would be:
+
+  vim_with_plugins =
+    let vim = vim_configurable;
+        inherit (vimUtil.override {inherit vim}) rtpPath addRtp buildVimPlugin vimHelpTags;
+        vimPlugins = [
+          # the derivation list from the buffer created by nix#ExportPluginsForNix
+          # don't set which will default to pkgs.vimPlugins
+        ];
+    in vim.customize {
+      name = "vim-with-plugins";
+
+      vimrcConfig.customRC = '' .. '';
+
+      vimrcConfig.vam.knownPlugins = vimPlugins;
+      vimrcConfig.vam.pluginDictionaries = [
+          # the plugin list form ~/.vim-scripts turned into nix format added to
+          # the buffer created by the nix#ExportPluginsForNix 
+      ];
+    }
+
+vim_with_plugins can be installed like any other application within Nix.
+
+[VAM]    https://github.com/MarcWeber/vim-addon-manager
+[vim-pi] https://bitbucket.org/vimcommunity/vim-pi
+*/
+
 
 let
   inherit (stdenv) lib;
@@ -190,9 +291,45 @@ rec {
     };
   };
 
+  rtpPath = "share/vim-plugins";
+
+  vimHelpTags = ''
+  vimHelpTags(){
+    if [ -d "$1/doc" ]; then
+      ${vim}/bin/vim -N -u NONE -i NONE -n -e -s -c "helptags $1/doc" +quit!
+    fi
+  }
+  '';
+
+  addRtp = path: derivation:
+    derivation // { rtp = "${derivation}/${path}"; };
+
+  buildVimPlugin = a@{
+    name,
+    namePrefix ? "vimplugin-",
+    src,
+    buildPhase ? "",
+    path ? (builtins.parseDrvName name).name,
+    ...
+  }:
+    addRtp "${rtpPath}/${path}" (stdenv.mkDerivation (a // {
+      name = namePrefix + name;
+
+      inherit buildPhase;
+
+      installPhase = ''
+        target=$out/${rtpPath}/${path}
+        mkdir -p $out/${rtpPath}
+        cp -r . $target
+        ${vimHelpTags}
+        vimHelpTags $target
+      '';
+    }));
+
+
   # test cases:
   test_vim_with_vim_addon_nix_using_vam = vim_configurable.customize {
-    name = "vim-with-vim-addon-nix-using-vam";
+   name = "vim-with-vim-addon-nix-using-vam";
     vimrcConfig.vam.pluginDictionaries = [{name = "vim-addon-nix"; }];
   };
 
@@ -200,4 +337,5 @@ rec {
     name = "vim-with-vim-addon-nix-using-pathogen";
     vimrcConfig.pathogen.pluginNames = [ "vim-addon-nix" ];
   };
+
 }

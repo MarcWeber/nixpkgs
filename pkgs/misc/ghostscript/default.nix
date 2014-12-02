@@ -5,7 +5,7 @@
 , cupsSupport ? false, cups ? null
 
 , versionedDerivation
-, version ? "9.14"
+, version ? "9.15"
 }:
 
 assert x11Support -> x11 != null;

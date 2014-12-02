@@ -7,7 +7,7 @@
        pathogen.knownPlugins = vimPlugins; # optional
        pathogen.pluginNames = ["vim-addon-nix"];
 
-       # If you like VAM use such:
+       # If you like VAM (more featureful and slightly faster) use such:
        vam.knownPlugins = vimPlugins; # optional
        vam.pluginDictionaries = [
          # load always

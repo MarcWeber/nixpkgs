@@ -12738,6 +12738,44 @@ let
   vimrc = callPackage ../misc/vim-plugins/vimrc.nix { inherit writeText; };
 
   vimPlugins = recurseIntoAttrs (callPackage ../misc/vim-plugins { });
+  vimPluginsUsedByMarcWeber = recurseIntoAttrs (callPackage ../misc/vim-plugins/vim-plugins-used-by-marc-weber.nix { });
+  vimMarc =
+     vim_configurable.customize {
+       name = "vim-with-plugins";
+       vimrcConfig.vam.knownPlugins = vimPluginsUsedByMarcWeber;
+       vimrcConfig.vam.pluginDictionaries = [
+        ''vim-addon-manager''
+        { "name" = ''github:MarcWeber''; }
+        { "name" = ''vim-addon-other''; }
+        { "name" = ''vim-addon-local-vimrc''; }
+        { "name" = ''snipmate''; }
+        { "name" = ''vim-snippets''; }
+        { "name" = ''vim-addon-mru''; }
+        { "name" = ''vim-addon-commenting''; }
+        { "name" = ''vim-addon-sql''; }
+        { "name" = ''vim-addon-completion''; }
+        { "name" = ''vim-addon-async''; }
+        { "name" = ''tlib''; }
+        { "name" = ''vim-addon-toggle-buffer''; }
+        { "name" = ''vim-addon-git''; }
+        { "name" = ''vim-addon-mw-utils''; }
+        { "name" = ''vim-addon-goto-thing-at-cursor''; }
+        { "name" = ''matchit.zip''; }
+        { "name" = ''vim-addon-syntax-checker''; }
+        { "name" = ''vim-addon-rfc''; }
+        { "name" = ''vim-addon-surround''; }
+        { "name" = ''vim-addon-toc''; }
+        { "name" = ''vim-addon-haskell''; "filename_regex" = ''\%(\%(l\)hs\|cabal\)$$''; }
+        { "filename_regex" = ''\%(php\|inc\|php.inc\|hsc\|lhs\)$$''; "names" = [ ''phpcomplete'' ''vim-addon-xdebug'' ''vim-addon-php-manual'' ]; }
+        { "filename_regex" = ''\.\%(iced\|coffee\)$$''; "names" = [ ''sourcemap.vim'' ''vim-iced-coffee-script'' ]; }
+        { "name" = ''vim-addon-haskell''; "filetype_regex" = ''\%(cabal\|hs\|hsc\|lhs\)$$''; }
+        { "filetype_regex" = ''\%(rb)$$''; "names" = [ ''vim-ruby'' ''vim-addon-rdebug'' ''vim-addon-ruby-debug-ide'' ''textobj-rubyblock'' ]; }
+        { "filetype_regex" = ''\%(rs)$$''; "names" = [ ''rust'' ]; }
+        { "filetype_regex" = ''\%(nix)$$''; "names" = [ ''vim-addon-nix'' ]; }
+        { "filetype_regex" = ''\%(vim)$$''; "names" = [ ''reload'' ''vim-dev-plugin'' ]; }
+        { "name" = ''sparkup''; "filename_regex" = ''\%(html\|xml\|php\|php.inc\|inc\)''; }
+        ];
+     };
 
   vimprobable2 = callPackage ../applications/networking/browsers/vimprobable2 {
     webkit = webkitgtk2;

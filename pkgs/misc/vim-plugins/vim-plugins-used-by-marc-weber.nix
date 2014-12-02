@@ -1,53 +1,13 @@
-{ fetchurl, bash, stdenv, python, cmake, vim, perl, ruby, unzip, which, fetchgit, fetchzip, llvmPackages, zip }:
+{ fetchurl, bash, stdenv, python, cmake, vim, vimUtils, perl, ruby, unzip,
+  which, fetchgit, fetchhg, fetchzip, llvmPackages, zip, vim_configurable,
+  vimPlugins
+}:
 
-# documentation see ./default.nix
+let
 
-let rtpPath = "share/vim-plugins";
-
-    vimHelpTags = ''
-    vimHelpTags(){
-      if [ -d "$1/doc" ]; then
-        ${vim}/bin/vim -N -u NONE -i NONE -n -e -s -c "helptags $1/doc" +quit!
-      fi
-    }
-  '';
-
-  addRtp = path: derivation:
-    derivation // { rtp = "${derivation}/${path}"; };
-
-  buildVimPlugin = a@{
-    name,
-    namePrefix ? "vimplugin-",
-    src,
-    buildPhase ? "",
-    path ? (builtins.parseDrvName name).name,
-    ...
-  }:
-    addRtp "${rtpPath}/${path}" (stdenv.mkDerivation (a // {
-      name = namePrefix + name;
-
-      inherit buildPhase;
-
-      installPhase = ''
-        target=$out/${rtpPath}/${path}
-        mkdir -p $out/${rtpPath}
-        cp -r . $target
-        ${vimHelpTags}
-        vimHelpTags $target
-      '';
-    }));
+inherit (vimUtils.override {inherit vim;}) rtpPath addRtp buildVimPlugin vimHelpTags;
 
 in
-
-/*
-     call nix#ExportPluginsForNix({
-     \  'path_to_nixpkgs': '/etc/nixos/nixpkgs',
-     \  'cache_file': '/tmp/vim2nix-cache',
-     \  'names': 
-
-     \ })
-
-*/
 
 rec {
   inherit rtpPath;

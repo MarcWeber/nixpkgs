@@ -1,0 +1,7 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] experimental/vim-plugins-extra-file
+
+Put names of plugin derivations dervide by VAM into its own file.
+This is so that the command gets shorter and that you could mix
+multiple source files by using VimLs + list concatenation operator more easily
+in order to maintain your own fork.

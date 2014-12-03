@@ -95,12 +95,14 @@ Then create a temp vim file and insert:
   let opts = {}
   let opts.path_to_nixpkgs = '/etc/nixos/nixpkgs'
   let opts.cache_file = '/tmp/export-vim-plugin-for-nix-cache-file'
-  let opts.names = map(readfile("vim-plugins"), 'eval(v:val)')
+  let opts.plugin_dictionaries = map(readfile("vim-plugins"), 'eval(v:val)')
   " add more files
-  " let opts.names += map(.. other file )
+  " let opts.plugin_dictionaries += map(.. other file )
   call nix#ExportPluginsForNix(opts)
 
 Then ":source %" it.
+
+nix#ExportPluginsForNix is provided by github.com/MarcWeber/vim-addon-vim2nix
 
 A buffer will open containing the plugin derivation lines as well list 
 fitting the vimrcConfig.vam.pluginDictionaries option.
@@ -294,17 +296,25 @@ rec {
   pluginnames2Nix = {name, namesFile} : vim_configurable.customize {
     inherit name;
     vimrcConfig.vam.knownPlugins = vimPlugins;
-    vimrcConfig.vam.pluginDictionaries = [];
+    vimrcConfig.vam.pluginDictionaries = ["github:MarcWeber/vim-addon-vim2nix"];
     vimrcConfig.customRC = ''
       " Yes - this is impure and will create the cache file and checkout vim-pi
       " into ~/.vim/vim-addons
+      let g:vim_addon_manager.plugin_root_dir = "/tmp/vim2nix"
+      if !isdirectory(g:vim_addon_manager.plugin_root_dir)
+        call mkdir(g:vim_addon_manager.plugin_root_dir)
+      endif
       let opts = {}
       let opts.nix_prefetch_git = "${../../../pkgs/build-support/fetchgit/nix-prefetch-git}"
       let opts.nix_prefetch_hg  = "${../../../pkgs/build-support/fetchhg/nix-prefetch-hg}"
-      let opts.cache_file = '/tmp/export-vim-plugin-for-nix-cache-file'
-      let opts.names = map(readfile("${namesFile}"), 'eval(v:val)')
+      let opts.cache_file = '/tmp/vim2nix/cache'
+      let opts.plugin_dictionaries = map(readfile("${namesFile}"), 'eval(v:val)')
+
+      " uncomment for debugging failures
+      " let opts.try_catch = 0
+
       " add more files
-      " let opts.names += map(.. other file )
+      " let opts.plugin_dictionaries += map(.. other file )
       call nix#ExportPluginsForNix(opts)
     '';
   };
@@ -330,12 +340,13 @@ rec {
     configurePhase ? "",
     buildPhase ? "",
     path ? (builtins.parseDrvName name).name,
+    addonInfo ? null,
     ...
   }:
     addRtp "${rtpPath}/${path}" (stdenv.mkDerivation (a // {
       name = namePrefix + name;
 
-      inherit unpackPhase configurePhase buildPhase;
+      inherit unpackPhase configurePhase buildPhase addonInfo;
 
       installPhase = ''
         target=$out/${rtpPath}/${path}
@@ -343,13 +354,16 @@ rec {
         cp -r . $target
         ${vimHelpTags}
         vimHelpTags $target
+        if [ -n "$addonInfo" ]; then
+          echo "$addonInfo" > $target/addon-info.json
+        fi
       '';
     }));
 
   buildVimPluginFrom2Nix = a: buildVimPlugin ({
     buildPhase = ":";
     configurePhase =":";
-  } // ((import ./from-2nix-patches.nix).${a.name} or {}) // a);
+  } // a);
 
   # test cases:
   test_vim_with_vim_addon_nix_using_vam = vim_configurable.customize {

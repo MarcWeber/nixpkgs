@@ -51,8 +51,8 @@ Typical plugin files:
 Vim offers the :h rtp setting which works for most plugins. Thus adding
 this to your .vimrc should make most plugins work:
 
-  set rtp+=~/.nix-profile/vim-plugins/youcompleteme
-  " or for p in ["youcompleteme"] | exec 'set rtp+=~/.nix-profile/vim-plugins/'.p | endfor
+  set rtp+=~/.nix-profile/share/vim-plugins/youcompleteme
+  " or for p in ["youcompleteme"] | exec 'set rtp+=~/.nix-profile/share/vim-plugins/'.p | endfor
 
 which is what the [VAM]/pathogen solutions above basically do.
 

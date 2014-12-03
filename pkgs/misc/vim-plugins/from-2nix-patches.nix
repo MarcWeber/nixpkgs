@@ -1,0 +1,11 @@
+{
+  "matchit.zip" = {
+    unpackPhase = "
+      (
+       sourceRoot=d
+       mkdir $sourceRoot; cd $sourceRoot;
+       unzip $src
+      )
+    ";
+  };
+}

@@ -569,27 +569,13 @@ rec {
 
 
   ### section II: automatically generated plugin derivations
-  # recreate with vimUtils.vimPlugins.automaticallyCreated
+  # Update with vimUtils.vimPlugins.pluginnames2Nix command
 
-  # this is not a plugin, it provides bin/vim-open-buffer-with-plugins-derivations
+  # This is not a plugin, it provides bin/vim-open-buffer-with-plugins-derivations
   # which recreates this the following derivations based on ./vim-plugin-names
-  recreate = vim_configurable.customize {
-    name = "vim-open-buffer-with-plugins-derivations";
-
-    vimrcConfig.vam.knownPlugins = vimPlugins;
-    vimrcConfig.vam.pluginDictionaries = [];
-    vimrcConfig.customRC = ''
-      " Yes - this is impure and will create the cache file and checkout vim-pi
-      " into ~/.vim/vim-addons
-      let opts = {}
-      let opts.nix_prefetch_git = "${../../../pkgs/build-support/fetchgit/nix-prefetch-git}"
-      let opts.nix_prefetch_hg  = "${../../../pkgs/build-support/fetchhg/nix-prefetch-hg}"
-      let opts.cache_file = '/tmp/export-vim-plugin-for-nix-cache-file'
-      let opts.names = map(readfile("${./vim-plugin-names}"), 'eval(v:val)')
-      " add more files
-      " let opts.names += map(.. other file )
-      call nix#ExportPluginsForNix(opts)
-    '';
+  pluginnames2nix = vimUtils.vimPluginNames2Nix {
+    name = "vim-plugin-names-to-nix";
+    namesFile = ./vim-plugin-names;
   };
 
   # aliasess

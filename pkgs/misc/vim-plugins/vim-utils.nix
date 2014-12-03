@@ -5,7 +5,7 @@
 USAGE EXAMPLE
 =============
 
-install Vim like this eg using nixos option environment.systemPackages which will provide
+Install Vim like this eg using nixos option environment.systemPackages which will provide
 vim-with-plugins in PATH:
 
   vim_configurable.customize {
@@ -289,6 +289,24 @@ rec {
       inherit name;
       vimrcFile = vimrcFile vimrcConfig;
     };
+  };
+
+  pluginnames2Nix = {name, namesFile} : vim_configurable.customize {
+    inherit name;
+    vimrcConfig.vam.knownPlugins = vimPlugins;
+    vimrcConfig.vam.pluginDictionaries = [];
+    vimrcConfig.customRC = ''
+      " Yes - this is impure and will create the cache file and checkout vim-pi
+      " into ~/.vim/vim-addons
+      let opts = {}
+      let opts.nix_prefetch_git = "${../../../pkgs/build-support/fetchgit/nix-prefetch-git}"
+      let opts.nix_prefetch_hg  = "${../../../pkgs/build-support/fetchhg/nix-prefetch-hg}"
+      let opts.cache_file = '/tmp/export-vim-plugin-for-nix-cache-file'
+      let opts.names = map(readfile("${namesFile}"), 'eval(v:val)')
+      " add more files
+      " let opts.names += map(.. other file )
+      call nix#ExportPluginsForNix(opts)
+    '';
   };
 
   rtpPath = "share/vim-plugins";

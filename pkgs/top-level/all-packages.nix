@@ -12741,7 +12741,7 @@ let
   vimPluginsUsedByMarcWeber = recurseIntoAttrs (callPackage ../misc/vim-plugins/vim-plugins-used-by-marc-weber.nix { });
   vimMarc =
      vim_configurable.customize {
-       name = "vim-with-plugins";
+       name = "vim-marc-weber";
        vimrcConfig.vam.knownPlugins = vimPluginsUsedByMarcWeber;
        vimrcConfig.vam.pluginDictionaries = [
         ''vim-addon-manager''

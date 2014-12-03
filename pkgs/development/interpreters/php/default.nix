@@ -1,6 +1,6 @@
 { pkgs, stdenv, fetchurl, composableDerivation, autoconf, automake
 , flex, bison, apacheHttpd, mysql, libxml2, readline, uwimap, pam
-, zlib, curl, gd, postgresql, openssl, pkgconfig, sqlite, config, libiconv
+, zlib, curl, gd, postgresql, openssl, pkgconfig, sqlite, config, libiconv, libiconvOrEmpty
 , libjpeg, libpng, htmlTidy, libmcrypt, fcgi, callPackage, gettext
 , freetype, writeText
 , openldap, cyrus_sasl, libmhash
@@ -222,11 +222,11 @@ let
       };
 
       libxml2 = {
-        configureFlags = [
-          "--with-libxml-dir=${pkgs.libxml2}"
-          "--with-iconv-dir=${libiconv}"
-          ];
-        buildInputs = [ pkgs.libxml2 ];
+        configureFlags
+          = [ "--with-libxml-dir=${libxml2}" ]
+            ++ stdenv.lib.optional (libiconvOrEmpty != [])
+              [ "--with-iconv=${libiconv}" ];
+        buildInputs = [ libxml2 ] ++ libiconvOrEmpty;
       };
 
       pcntl = {

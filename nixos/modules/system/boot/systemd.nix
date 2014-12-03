@@ -36,6 +36,7 @@ let
       "graphical.target"
       "multi-user.target"
       "network.target"
+      "network-pre.target"
       "network-online.target"
       "nss-lookup.target"
       "nss-user-lookup.target"
@@ -946,6 +947,16 @@ in
       };
 
     systemd.targets.network-online.after = [ "ip-up.target" ];
+
+    systemd.targets.network-pre = {
+      wantedBy = [ "network.target" ];
+      before = [ "network.target" ];
+    };
+
+    systemd.targets.remote-fs-pre = {
+      wantedBy = [ "remote-fs.target" ];
+      before = [ "remote-fs.target" ];
+    };
 
     systemd.units =
       mapAttrs' (n: v: nameValuePair "${n}.target" (targetToUnit n v)) cfg.targets

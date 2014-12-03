@@ -4690,6 +4690,8 @@ let
 
   remake = callPackage ../development/tools/build-managers/remake { };
 
+  rr = callPackage_i686 ../development/tools/analysis/rr { };
+
   saleae-logic = callPackage ../development/tools/misc/saleae-logic { };
 
   # couldn't find the source yet
@@ -6105,6 +6107,8 @@ let
 
   libpaper = callPackage ../development/libraries/libpaper { };
 
+  libpfm = callPackage ../development/libraries/libpfm { };
+
   libproxy = callPackage ../development/libraries/libproxy {
     stdenv = if stdenv.isDarwin
       then overrideGCC stdenv gcc
@@ -7460,7 +7464,7 @@ let
     packages = [];
   };
 
-  rPackages = import ../development/r-modules/cran-packages.nix {
+  rPackages = import ../development/r-modules {
     inherit pkgs;
     overrides = (config.rPackageOverrides or (p: {})) pkgs;
   };
@@ -8124,6 +8128,10 @@ let
   iptables = callPackage ../os-specific/linux/iptables { };
 
   iw = callPackage ../os-specific/linux/iw { };
+
+  iwlwifi = callPackage ../os-specific/linux/firmware/iwlwifi { };
+
+  iwlegacy = callPackage ../os-specific/linux/firmware/iwlegacy { };
 
   jujuutils = callPackage ../os-specific/linux/jujuutils { };
 
@@ -9180,6 +9188,8 @@ let
     hiDPISupport = config.chromium.hiDPISupport or false;
   };
 
+  chronos = callPackage ../applications/networking/cluster/chronos { };
+
   chromiumBeta = lowPrio (chromium.override { channel = "beta"; });
 
   chromiumDev = lowPrio (chromium.override { channel = "dev"; });
@@ -9799,6 +9809,8 @@ let
   gphoto2fs = builderDefsPackage ../applications/misc/gphoto2/gphotofs.nix {
     inherit libgphoto2 fuse pkgconfig glib libtool;
   };
+
+  gramps = callPackage ../applications/misc/gramps { };
 
   graphicsmagick = callPackage ../applications/graphics/graphicsmagick { };
   graphicsmagick_q16 = callPackage ../applications/graphics/graphicsmagick { quantumdepth = 16; };
@@ -10482,6 +10494,8 @@ let
 
   pidginsipe = callPackage ../applications/networking/instant-messengers/pidgin-plugins/sipe { };
 
+  pidginwindowmerge = callPackage ../applications/networking/instant-messengers/pidgin-plugins/window-merge { };
+
   toxprpl = callPackage ../applications/networking/instant-messengers/pidgin-plugins/tox-prpl { };
 
   pinfo = callPackage ../applications/misc/pinfo { };
@@ -10645,6 +10659,8 @@ let
   skype4pidgin = callPackage ../applications/networking/instant-messengers/pidgin-plugins/skype4pidgin { };
 
   skype_call_recorder = callPackage ../applications/networking/instant-messengers/skype-call-recorder { };
+
+  slmenu = callPackage ../applications/misc/slmenu {};
 
   slrn = callPackage ../applications/networking/newsreaders/slrn { };
 

@@ -4,7 +4,7 @@
   vimPlugins
 }:
 
-let 
+let
 
 inherit (vimUtils.override {inherit vim;}) rtpPath addRtp buildVimPlugin
   buildVimPluginFrom2Nix vimHelpTags;

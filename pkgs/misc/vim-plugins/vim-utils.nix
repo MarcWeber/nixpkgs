@@ -218,7 +218,7 @@ let
         ${lib.concatMapStrings (name: ''
           let g:nix_plugin_locations['${name}'] = "${knownPlugins.${name}.rtp}"
         '') names}
-        let g:nix_plugin_locations['vim-addon-manager'] = "${vimPlugins."vim-addon-manager".rtp}"
+        let g:nix_plugin_locations['vim-addon-manager'] = "${knownPlugins."vim-addon-manager".rtp}"
 
         let g:vim_addon_manager = {}
 
@@ -326,6 +326,8 @@ rec {
     name,
     namePrefix ? "vimplugin-",
     src,
+    unpackPhase ? "",
+    configurePhase ? "",
     buildPhase ? "",
     path ? (builtins.parseDrvName name).name,
     ...
@@ -333,7 +335,7 @@ rec {
     addRtp "${rtpPath}/${path}" (stdenv.mkDerivation (a // {
       name = namePrefix + name;
 
-      inherit buildPhase;
+      inherit unpackPhase configurePhase buildPhase;
 
       installPhase = ''
         target=$out/${rtpPath}/${path}
@@ -344,6 +346,10 @@ rec {
       '';
     }));
 
+  buildVimPluginFrom2Nix = a: buildVimPlugin ({
+    buildPhase = ":";
+    configurePhase =":";
+  } // ((import ./from-2nix-patches.nix).${a.name} or {}) // a);
 
   # test cases:
   test_vim_with_vim_addon_nix_using_vam = vim_configurable.customize {

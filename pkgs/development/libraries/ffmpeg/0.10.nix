@@ -24,7 +24,7 @@ assert faacSupport -> faac != null;
 
 versionedDerivation "ffpmeg" version {
 
-  "0.10.14" = rec {
+  "0.10.15" = rec {
     name = "ffmpeg-0.10.15";
 
     src = fetchurl {

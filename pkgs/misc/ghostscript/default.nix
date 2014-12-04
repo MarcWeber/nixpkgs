@@ -64,7 +64,7 @@ versionedDerivation "ghostscript" version {
   };
 
   "9.15" = rec {
-    name = "ghostscript-9.14";
+    name = "ghostscript-9.15";
     src = fetchurl {
       url = "http://downloads.ghostscript.com/public/${name}.tar.bz2";
       sha256 = "0p1isp6ssfay141klirn7n9s8b546vcz6paksfmksbwy0ljsypg6";

@@ -1250,6 +1250,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   hoogleLocal = callPackage ../development/libraries/haskell/hoogle/local.nix {};
 
+  hoopl = callPackage ../development/libraries/haskell/hoopl {};
+
   hopenssl = callPackage ../development/libraries/haskell/hopenssl {};
 
   hosc = callPackage ../development/libraries/haskell/hosc {
@@ -1692,6 +1694,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   monadLogger = callPackage ../development/libraries/haskell/monad-logger {};
 
+  monadIO = callPackage ../development/libraries/haskell/monadIO {};
+
   monadPar_0_1_0_3 = callPackage ../development/libraries/haskell/monad-par/0.1.0.3.nix {};
   monadPar_0_3_4_6 = callPackage ../development/libraries/haskell/monad-par/0.3.4.6.nix {};
   monadPar = self.monadPar_0_3_4_6;
@@ -1884,6 +1888,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   parseargs = callPackage ../development/libraries/haskell/parseargs {};
 
   parsec = callPackage ../development/libraries/haskell/parsec {};
+
+  parsecExtra = callPackage ../development/libraries/haskell/parsec-extra {};
 
   parsek = callPackage ../development/libraries/haskell/parsek {};
 
@@ -2652,6 +2658,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   unbound = callPackage ../development/libraries/haskell/unbound {};
 
   unboundedDelays = callPackage ../development/libraries/haskell/unbounded-delays {};
+
+  unboundGenerics = callPackage ../development/libraries/haskell/unbound-generics {};
 
   unificationFd = callPackage ../development/libraries/haskell/unification-fd {};
 

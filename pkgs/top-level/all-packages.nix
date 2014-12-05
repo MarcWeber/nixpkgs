@@ -540,6 +540,8 @@ let
 
   grc = callPackage ../tools/misc/grc { };
 
+  lastpass-cli = callPackage ../tools/security/lastpass-cli { };
+
   otool = callPackage ../os-specific/darwin/otool { };
 
   pass = callPackage ../tools/security/pass {
@@ -1507,6 +1509,8 @@ let
   };
 
   ipmiutil = callPackage ../tools/system/ipmiutil {};
+
+  ipxe = callPackage ../tools/misc/ipxe { };
 
   ised = callPackage ../tools/misc/ised {};
 
@@ -5366,7 +5370,7 @@ let
 
   qt_gstreamer = callPackage ../development/libraries/gstreamer/legacy/qt-gstreamer {};
 
-  qt_gstreamer1 = callPackage ../development/libraries/gstreamer/qt-gstreamer {};
+  qt_gstreamer1 = callPackage ../development/libraries/gstreamer/qt-gstreamer { boost = boost156;};
 
   gnet = callPackage ../development/libraries/gnet { };
 
@@ -9126,7 +9130,8 @@ let
 
   altcoins = recurseIntoAttrs (
     (callPackage ../applications/misc/bitcoin/altcoins.nix {}) //
-    (callPackage ../applications/misc/bitcoin/dogecoin.nix {})
+    (callPackage ../applications/misc/bitcoin/dogecoin.nix {}) //
+    (callPackage ../applications/misc/bitcoin/litecoin.nix {})
   );
 
   bitlbee = callPackage ../applications/networking/instant-messengers/bitlbee { };
@@ -10211,6 +10216,8 @@ let
 
   mopidy-moped = callPackage ../applications/audio/mopidy-moped { };
 
+  mopidy-mopify = callPackage ../applications/audio/mopidy-mopify { };
+
   mozilla = callPackage ../applications/networking/browsers/mozilla {
     inherit (gnome) libIDL;
   };
@@ -10964,7 +10971,7 @@ let
 
   vimHugeX = vim_configurable;
 
-  vim_configurable = vimrc.makeCustomizable (callPackage ../applications/editors/vim/configurable.nix {
+  vim_configurable = vimUtils.makeCustomizable (callPackage ../applications/editors/vim/configurable.nix {
     inherit (pkgs) fetchurl fetchhg stdenv ncurses pkgconfig gettext
       composableDerivation lib config glib gtk python perl tcl ruby;
     inherit (pkgs.xlibs) libX11 libXext libSM libXpm libXt libXaw libXau libXmu
@@ -11404,7 +11411,10 @@ let
     pygtk = pyGtkGlade;
   };
 
-  zotero = callPackage ../applications/office/zotero { };
+  zotero = callPackage ../applications/office/zotero {
+    inherit (gnome) libIDL;
+    inherit (pythonPackages) pysqlite;
+  };
 
   zynaddsubfx = callPackage ../applications/audio/zynaddsubfx { };
 
@@ -11820,6 +11830,7 @@ let
   kde414 = kdePackagesFor (pkgs.kde414 // {
       libusb = libusb1;
       libcanberra = libcanberra_kde;
+      boost = boost156;
     }) ../desktops/kde-4.14;
 
   kdePackagesFor = self: dir:
@@ -12162,6 +12173,8 @@ let
     containers = callPackage ../development/coq-modules/containers {};
 
     coqExtLib = callPackage ../development/coq-modules/coq-ext-lib {};
+
+    coqeal = callPackage ../development/coq-modules/coqeal {};
 
     domains = callPackage ../development/coq-modules/domains {};
 
@@ -12751,7 +12764,7 @@ let
 
   viewnior = callPackage ../applications/graphics/viewnior { };
 
-  vimrc = callPackage ../misc/vim-plugins/vimrc.nix { inherit writeText; };
+  vimUtils = callPackage ../misc/vim-plugins/vim-utils.nix { inherit writeText; };
 
   vimPlugins = recurseIntoAttrs (callPackage ../misc/vim-plugins { });
 

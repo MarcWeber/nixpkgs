@@ -115,6 +115,7 @@
   nslqqq = "Nikita Mikhailov <nslqqq@gmail.com>";
   ocharles = "Oliver Charles <ollie@ocharles.org.uk>";
   offline = "Jaka Hudoklin <jakahudoklin@gmail.com>";
+  olcai = "Erik Timan <dev@timan.info>";
   orbitz = "Malcolm Matalka <mmatalka@gmail.com>";
   page = "Carles Pagès <page@cubata.homelinux.net>";
   pashev = "Igor Pashev <pashev.igor@gmail.com>";
@@ -180,4 +181,5 @@
   zef = "Zef Hemel <zef@zef.me>";
   zimbatm = "zimbatm <zimbatm@zimbatm.com>";
   zoomulator = "Kim Simmons <zoomulator@gmail.com>";
+  Gonzih = "Max Gonzih <gonzih@gmail.com>";
 }

@@ -25,7 +25,8 @@ stdenv.mkDerivation rec {
     optional enableLibmad libmad ++
     optionals enableLibogg [ libogg libvorbis ] ++
     optional enableFLAC flac ++
-    optional enablePNG libpng;
+    optional enablePNG libpng ++
+    optional enableMP3 lame;
 
   meta = {
     description = "Sample Rate Converter for audio";

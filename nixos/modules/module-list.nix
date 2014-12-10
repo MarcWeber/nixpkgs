@@ -1,6 +1,7 @@
 [
   ./config/fonts/corefonts.nix
   ./config/fonts/fontconfig.nix
+  ./config/fonts/fontconfig-ultimate.nix
   ./config/fonts/fontdir.nix
   ./config/fonts/fonts.nix
   ./config/fonts/ghostscript.nix
@@ -302,7 +303,6 @@
   ./services/security/fprot.nix
   ./services/security/frandom.nix
   ./services/security/haveged.nix
-  ./services/security/torify.nix
   ./services/security/tor.nix
   ./services/security/torsocks.nix
   ./services/system/dbus.nix
@@ -400,6 +400,7 @@
   ./virtualisation/container-config.nix
   ./virtualisation/containers.nix
   ./virtualisation/docker.nix
+  ./virtualisation/fleet.nix
   ./virtualisation/kubernetes.nix
   ./virtualisation/libvirtd.nix
   ./virtualisation/lxc.nix

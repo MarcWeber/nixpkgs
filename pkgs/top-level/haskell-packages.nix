@@ -249,6 +249,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   binary_0_7_2_2 = callPackage ../development/libraries/haskell/binary/0.7.2.2.nix {};
   binary = null;                # core package since ghc >= 7.2.x
 
+  binaryStrict = callPackage ../development/libraries/haskell/binary-strict {};
+
   binaryConduit = callPackage ../development/libraries/haskell/binary-conduit {};
 
   binaryShared = callPackage ../development/libraries/haskell/binary-shared {};
@@ -1440,10 +1442,6 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   ivory = callPackage ../development/libraries/haskell/ivory {};
 
-  ixdopp = callPackage ../development/libraries/haskell/ixdopp {
-    preprocessorTools = self.preprocessorTools_0_1_3;
-  };
-
   ixset = callPackage ../development/libraries/haskell/ixset {};
 
   ixShapable = callPackage ../development/libraries/haskell/ix-shapable {};
@@ -1562,7 +1560,11 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   liftedBase = callPackage ../development/libraries/haskell/lifted-base {};
 
+  linAlg = callPackage ../development/libraries/haskell/lin-alg {};
+
   linear = callPackage ../development/libraries/haskell/linear {};
+
+  linearOpenGL = callPackage ../development/libraries/haskell/linear-opengl {};
 
   linuxInotify = callPackage ../development/libraries/haskell/linux-inotify {};
 
@@ -1760,6 +1762,10 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   murmurHash = callPackage ../development/libraries/haskell/murmur-hash {};
 
+  mvc = callPackage ../development/libraries/haskell/mvc {};
+
+  mvcUpdates = callPackage ../development/libraries/haskell/mvc-updates {};
+
   mwcRandom = callPackage ../development/libraries/haskell/mwc-random {};
 
   mysql = callPackage ../development/libraries/haskell/mysql {
@@ -1843,6 +1849,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   ObjectName = callPackage ../development/libraries/haskell/ObjectName {};
 
   oeis = callPackage ../development/libraries/haskell/oeis {};
+
+  ofx = callPackage ../development/libraries/haskell/ofx {};
 
   opaleye = callPackage ../development/libraries/haskell/opaleye {};
 
@@ -2009,9 +2017,7 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   preludeSafeenum = callPackage ../development/libraries/haskell/prelude-safeenum {};
 
-  preprocessorTools_0_1_3 = callPackage ../development/libraries/haskell/preprocessor-tools/0.1.3.nix {};
-  preprocessorTools_1_0_1 = callPackage ../development/libraries/haskell/preprocessor-tools/1.0.1.nix {};
-  preprocessorTools = self.preprocessorTools_1_0_1;
+  preprocessorTools = callPackage ../development/libraries/haskell/preprocessor-tools {};
 
   presburger = callPackage ../development/libraries/haskell/presburger {};
 

@@ -212,6 +212,7 @@
       privoxy = 32;
       disnix = 33;
       osgi = 34;
+      tor = 35;
       ghostOne = 40;
       git = 41;
       fourstore = 42;
@@ -306,6 +307,7 @@
       scollector = 156;
       bosun = 157;
       kubernetes = 158;
+      fleet = 159;
 
       # When adding a gid, make sure it doesn't match an existing uid. And don't use gids above 399!
 

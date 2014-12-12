@@ -9,9 +9,14 @@ in
 {
   options = {
     services.virtualboxHost.enable = mkEnableOption "VirtualBox Host support";
+    services.virtualboxHost.addNetworkInterface = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Automatically set up a vboxnet0 host-only network interface.";
+    };
   };
 
-  config = mkIf config.services.virtualboxHost.enable {
+  config = mkIf config.services.virtualboxHost.enable (mkMerge [{
     boot.kernelModules = [ "vboxdrv" "vboxnetadp" "vboxnetflt" ];
     boot.extraModulePackages = [ virtualbox ];
     environment.systemPackages = [ virtualbox ];
@@ -46,7 +51,7 @@ in
       '';
 
     # Since we lack the right setuid binaries, set up a host-only network by default.
-
+  } (mkIf config.services.virtualboxHost.addNetworkInterface {
     systemd.services."vboxnet0" =
       { description = "VirtualBox vboxnet0 Interface";
         requires = [ "dev-vboxnetctl.device" ];
@@ -68,5 +73,5 @@ in
       };
 
     networking.interfaces.vboxnet0.ip4 = [ { address = "192.168.56.1"; prefixLength = 24; } ];
-  };
+  })]);
 }

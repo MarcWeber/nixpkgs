@@ -1237,6 +1237,8 @@ let
 
   ftgl212 = callPackage ../development/libraries/ftgl/2.1.2.nix { };
 
+  ftop = callPackage ../os-specific/linux/ftop { };
+
   fuppes = callPackage ../tools/networking/fuppes {
     ffmpeg = ffmpeg_0_6_90;
   };
@@ -2550,6 +2552,8 @@ let
   tmin = callPackage ../tools/security/tmin { };
 
   tor = callPackage ../tools/security/tor { };
+
+  tor-arm = callPackage ../tools/security/tor/tor-arm.nix { };
 
   torbutton = callPackage ../tools/security/torbutton { };
 
@@ -4731,7 +4735,7 @@ let
 
   remake = callPackage ../development/tools/build-managers/remake { };
 
-  rr = callPackage_i686 ../development/tools/analysis/rr { };
+  rr = callPackage ../development/tools/analysis/rr { };
 
   saleae-logic = callPackage ../development/tools/misc/saleae-logic { };
 
@@ -6778,6 +6782,7 @@ let
   qt5SDK = qtcreator.override {
     sdkBuild = true;
     qtLib = qt5Full;
+    withDocumentation = false; # fails to setup some paths
   };
 
   qtcreator = callPackage ../development/qtcreator {
@@ -7997,6 +8002,7 @@ let
   apparmor = callPackage ../os-specific/linux/apparmor {
     inherit (perlPackages) LocaleGettext TermReadKey RpcXML;
     bison = bison2;
+    perl = perl516; # ${perl}/.../CORE/handy.h:124:34: error: 'bool' undeclared
   };
 
   atop = callPackage ../os-specific/linux/atop { };
@@ -9253,6 +9259,8 @@ let
     inherit (xlibs) libXScrnSaver scrnsaverproto libX11 xproto kbproto;
   };
   funpidgin = carrier;
+
+  cava = callPackage ../applications/audio/cava { };
 
   cc1394 = callPackage ../applications/video/cc1394 { };
 
@@ -11159,8 +11167,6 @@ let
     ffmpeg = ffmpeg_2_3;
   };
 
-  libvlc = vlc.override { onlyLibVLC = true; };
-
   vmpk = callPackage ../applications/audio/vmpk { };
 
   vnstat = callPackage ../applications/networking/vnstat { };
@@ -11180,8 +11186,6 @@ let
   };
 
   weechat = callPackage ../applications/networking/irc/weechat { };
-
-  weechatDevel = lowPrio (callPackage ../applications/networking/irc/weechat/devel.nix { });
 
   westonLite = callPackage ../applications/window-managers/weston {
     pango = null;

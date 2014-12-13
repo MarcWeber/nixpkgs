@@ -293,22 +293,27 @@ rec {
     };
   };
 
-  pluginnames2Nix = {name, namesFile} : vim_configurable.customize {
+  pluginnames2Nix = {name, namefiles} : vim_configurable.customize {
     inherit name;
     vimrcConfig.vam.knownPlugins = vimPlugins;
     vimrcConfig.vam.pluginDictionaries = ["github:MarcWeber/vim-addon-vim2nix"];
     vimrcConfig.customRC = ''
       " Yes - this is impure and will create the cache file and checkout vim-pi
       " into ~/.vim/vim-addons
-      let g:vim_addon_manager.plugin_root_dir = "/tmp/vim2nix"
+      let g:vim_addon_manager.plugin_root_dir = "/tmp/vim2nix-".$USER
       if !isdirectory(g:vim_addon_manager.plugin_root_dir)
         call mkdir(g:vim_addon_manager.plugin_root_dir)
+      else
+        echom repeat("=", 80)
+        echom "WARNING: reusing cache directory :".g:vim_addon_manager.plugin_root_dir
+        echom repeat("=", 80)
       endif
       let opts = {}
       let opts.nix_prefetch_git = "${../../../pkgs/build-support/fetchgit/nix-prefetch-git}"
       let opts.nix_prefetch_hg  = "${../../../pkgs/build-support/fetchhg/nix-prefetch-hg}"
-      let opts.cache_file = '/tmp/vim2nix/cache'
-      let opts.plugin_dictionaries = map(readfile("${namesFile}"), 'eval(v:val)')
+      let opts.cache_file = g:vim_addon_manager.plugin_root_dir.'/cache'
+      let opts.plugin_dictionaries = []
+      ${lib.concatMapStrings (file: "let opts.plugin_dictionaries += map(readfile(\"${file}\"), 'eval(v:val)')\n") namefiles }
 
       " uncomment for debugging failures
       " let opts.try_catch = 0

@@ -13,6 +13,9 @@ php nixpkgs:
   There have been quite a lot of changes in nixpkgs master. I think I merged
   all changes.
 
+  keep supporting PHP 5.3 because PHP 5.3 and 5.4 are not compatible always
+  I know I should upgrade ...
+
 nixos:
   provide php-fpm module which figures out how many php-fpm daemoens to use
   automatically. Its still your task to to configure apache/ nginx.

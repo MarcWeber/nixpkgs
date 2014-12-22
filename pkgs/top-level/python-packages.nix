@@ -522,11 +522,11 @@ let
   });
 
   astroid = buildPythonPackage (rec {
-    name = "astroid-1.2.1";
-    propagatedBuildInputs = with self; [ logilab_common ];
+    name = "astroid-1.3.2";
+    propagatedBuildInputs = with self; [ logilab_common six ];
     src = pkgs.fetchurl {
-      url = "https://pypi.python.org/packages/source/a/astroid/${name}.zip";
-      md5 = "337017c82a28c97741797493fb2c980f";
+      url = "https://pypi.python.org/packages/source/a/astroid/${name}.tar.gz";
+      md5 = "2ab96129a977b6eba27765a15d1a9bf2";
     };
   });
 
@@ -2378,12 +2378,12 @@ let
 
 
   dropbox = buildPythonPackage rec {
-    name = "dropbox-2.0.0";
-    doCheck = !isPy3k; # failures with hash randomization
+    name = "dropbox-2.2.0";
+    doCheck = false; # python 2.7.9 does verify ssl certificates
 
     src = pkgs.fetchurl {
       url = "https://pypi.python.org/packages/source/d/dropbox/${name}.zip";
-      sha256 = "1bi2z1lql6ryylfflmizhqn98ab55777vn7n5krhqz40pdcjilkx";
+      sha256 = "069jrwb67brqh0sics8fgqdf2mv5y5jl9k5729x8vf80pq2c9p36";
     };
 
     propagatedBuildInputs = with self; [ urllib3 mock setuptools ];
@@ -2752,6 +2752,42 @@ let
     meta = with stdenv.lib; {
       description = "helpers to pass trusted data to untrusted environments and back";
       homepage = "https://pypi.python.org/pypi/itsdangerous/";
+    };
+  };
+
+  jsonpatch = buildPythonPackage rec {
+    name = "jsonpatch-1.8";
+
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/j/jsonpatch/jsonpatch-1.8.tar.gz";
+      sha256 = "0xhp6prvk219vnzixbj231wymd458nqbnmsf5fn4252092prvig5";
+    };
+
+    propagatedBuildInputs = with self; [ six jsonpointer ];
+
+    meta = {
+      description = "Apply JSON-Patches (RFC 6902)";
+      homepage = "https://github.com/stefankoegl/python-json-patch";
+      license = stdenv.lib.licenses.bsd3;
+      platforms = stdenv.lib.platforms.all;
+    };
+  };
+
+  jsonpointer = buildPythonPackage rec {
+    name = "jsonpointer-1.4";
+
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/j/jsonpointer/jsonpointer-1.4.tar.gz";
+      sha256 = "1d0555smqwdbi0nm48hyqzywb9m2jlz5izgv56ll3zk7viz3b7fb";
+    };
+
+    #propagatedBuildInputs = with self; [ six jsonpointer ];
+
+    meta = {
+      description = "Identify specific nodes in a JSON document (RFC 6901)";
+      homepage = "https://github.com/stefankoegl/python-json-pointer";
+      license = stdenv.lib.licenses.bsd3;
+      platforms = stdenv.lib.platforms.all;
     };
   };
 
@@ -6170,6 +6206,22 @@ let
     };
   };
 
+  oauth = buildPythonPackage (rec {
+    name = "oauth-1.0.1";
+
+    src = pkgs.fetchurl {
+      url = "http://pypi.python.org/packages/source/o/oauth/oauth-1.0.1.tar.gz";
+      sha256 = "0pdgi35hczsslil4890xqawnbpdazkgf2v1443847h5hy2gq2sg7";
+    };
+
+    meta = {
+      homepage = "http://code.google.com/p/oauth";
+      description = "Library for OAuth version 1.0a.";
+      license = licenses.mit;
+      platforms = stdenv.lib.platforms.all;
+    };
+  });
+
   oauth2 = buildPythonPackage (rec {
     name = "oauth2-1.5.211";
     disabled = isPy3k;
@@ -6386,6 +6438,9 @@ let
     # https://github.com/paramiko/paramiko/issues/449
     doCheck = !(isPyPy || isPy33);
     checkPhase = ''
+      # test_util needs to resolve an hostname, thus failing when the fw blocks it
+      sed '/UtilTest/d' -i test.py
+
       ${python}/bin/${python.executable} test.py --no-sftp --no-big-file
     '';
 
@@ -12108,12 +12163,12 @@ let
     };
   };
 
-  pythonefl_1_11 = buildPythonPackage rec {
+  pythonefl_1_12 = buildPythonPackage rec {
     name = "python-efl-${version}";
-    version = "1.11.0";
+    version = "1.12.0";
     src = pkgs.fetchurl {
-      url = "http://download.enlightenment.org/rel/bindings/python/${name}.tar.xz";
-      sha256 = "1d4hj39alg6j7ah1bc8wvlka9d13i8iy3fxxraik2f60w6811i48";
+      url = "http://download.enlightenment.org/rel/bindings/python/${name}.tar.gz";
+      sha256 = "0rxv5nrqg5c2l93ns2k6gjil1y7qq6amfh5slkarm3kv8fzk17xv";
     };
     preConfigure = ''
       export NIX_CFLAGS_COMPILE="-I${pkgs.e19.efl}/include/eo-1 -I${pkgs.e19.efl}/include/eina-1 -I${pkgs.e19.efl}/include/eina-1/eina -I${pkgs.e19.efl}/include/evas-1 -I${self.dbus}/include/dbus-1.0 -I${pkgs.e19.efl}/include/efl-1 -I${pkgs.e19.efl}/include/eet-1 -I${pkgs.e19.efl}/include/ecore-1 -I${pkgs.e19.efl}/include/ecore-evas-1 -I${pkgs.e19.efl}/include/ecore-file-1 -I${pkgs.e19.efl}/include/ecore-input-1 -I${pkgs.e19.efl}/include/ecore-imf-1 -I${pkgs.e19.efl}/include/ecore-con-1 -I${pkgs.e19.efl}/include/edje-1 -I${pkgs.e19.efl}/include/eldbus-1 -I${pkgs.e19.efl}/include/efreet-1 -I${pkgs.e19.efl}/include/ethumb-client-1 -I${pkgs.e19.efl}/include/ethumb-1 -I${pkgs.e19.efl}/include/ecore-x-1 $NIX_CFLAGS_COMPILE"
@@ -12223,7 +12278,7 @@ let
     };
 
     propagatedBuildInputs = with self; [ boto-230 crcmod httplib2 gcs-oauth2-boto-plugin google_api_python_client gflags
-                                         retry_decorator pkgs.pyopenssl socksipy-branch ];
+                                         retry_decorator pkgs.pyopenssl socksipy-branch crcmod ];
   };
 
   pypi2nix = self.buildPythonPackage rec {

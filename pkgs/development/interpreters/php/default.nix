@@ -18,6 +18,7 @@
 # keep *Support args sorted
 , bcmathSupport ? true
 , curlSupport ? true
+, curlWrappersSupport ? true
 , fastcgiSupport ? false
 , gdSupport ? true
 , gettextSupport ? true
@@ -89,6 +90,7 @@ let
     # keep sorted
     "bcmathSupport"
     "curlSupport"
+    "curlWrappersSupport"
     "fastcgiSupport"
     "fpmSystemdSocketActivationPatchSupport"
     "gdSupport"
@@ -202,8 +204,12 @@ let
       };
 
       curl = {
-        configureFlags = ["--with-curl=${curl}" "--with-curlwrappers"];
+        configureFlags = ["--with-curl=${curl}"];
         buildInputs = [curl openssl];
+      };
+
+      curlWrappers = {
+        configureFlags = ["--with-curlwrappers"];
       };
 
       ldap = {
@@ -378,6 +384,7 @@ let
     inherit
     bcmathSupport
     curlSupport
+    curlWrappersSupport
     fastcgiSupport
     gdSupport
     gettextSupport

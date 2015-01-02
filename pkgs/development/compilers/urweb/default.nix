@@ -29,7 +29,7 @@ stdenv.mkDerivation ( stdenv.lib.mergeAttrsByVersion "urweb" version {
 
   preConfigure =
     ''
-      export CC="${stdenv.gcc}/bin/gcc";
+      export CC="${stdenv.cc}/bin/gcc";
       export CCARGS="-I$out/include \
                       -L${mysql}/lib/mysql -L${postgresql}/lib -L${sqlite}/lib";
 

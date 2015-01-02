@@ -15,7 +15,7 @@
 , flashplayer
 }:
 
-assert stdenv.isLinux && stdenv.gcc.gcc != null && stdenv.gcc.libc != null;
+assert stdenv.isLinux && stdenv.cc.gcc != null && stdenv.cc.libc != null;
 
 let
   mirror = ftp://ftp.ussg.iu.edu/pub/opera;

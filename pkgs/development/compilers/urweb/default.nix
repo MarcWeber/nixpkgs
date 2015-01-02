@@ -21,7 +21,7 @@ stdenv.mkDerivation ( stdenv.lib.mergeAttrsByVersion "urweb" version {
     };
 } {
 
-  buildInputs = [ stdenv.gcc file openssl mlton mysql postgresql sqlite pkgconfig ];
+  buildInputs = [ stdenv.cc file openssl mlton mysql postgresql sqlite pkgconfig ];
 
   prePatch = ''
     sed -e 's@/usr/bin/file@${file}/bin/file@g' -i configure

@@ -103,6 +103,15 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
     extension = self : super : {};
   };
 
+  cabalJs = callPackage ../build-support/cabal/ghcjs.nix {
+    Cabal = null;               # prefer the Cabal version shipped with the compiler
+    hscolour = self.hscolourBootstrap;
+    inherit enableLibraryProfiling enableCheckPhase
+      enableStaticLibraries enableSharedLibraries enableSharedExecutables;
+    glibcLocales = if pkgs.stdenv.isLinux then pkgs.glibcLocales else null;
+    extension = self : super : {};
+  };
+
   # A variant of the cabal build driver that disables unit testing.
   # Useful for breaking cycles, where the unit test of a package A
   # depends on package B, which has A as a regular build input.
@@ -240,6 +249,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   bencoding = callPackage ../development/libraries/haskell/bencoding {};
 
+  bencode = callPackage ../development/libraries/haskell/bencode {};
+
   bert = callPackage ../development/libraries/haskell/bert {};
 
   bifunctors = callPackage ../development/libraries/haskell/bifunctors {};
@@ -353,7 +364,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   Cabal_1_16_0_3 = callPackage ../development/libraries/haskell/Cabal/1.16.0.3.nix {};
   Cabal_1_18_1_3 = callPackage ../development/libraries/haskell/Cabal/1.18.1.3.nix {};
-  Cabal_1_20_0_2 = callPackage ../development/libraries/haskell/Cabal/1.20.0.2.nix {};
+  Cabal_1_20_0_3 = callPackage ../development/libraries/haskell/Cabal/1.20.0.3.nix {};
+  Cabal_HEAD = callPackage ../development/libraries/haskell/Cabal/head.nix {};
   Cabal = null;                 # core package since forever
 
   cabalCargs = callPackage ../development/libraries/haskell/cabal-cargs {};
@@ -366,7 +378,7 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   cairo = callPackage ../development/libraries/haskell/cairo {
     inherit (pkgs) cairo zlib;
-    libc = pkgs.stdenv.gcc.libc;
+    libc = pkgs.stdenv.cc.libc;
   };
 
   carray = callPackage ../development/libraries/haskell/carray {};
@@ -753,6 +765,14 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   Elm = callPackage ../development/compilers/elm/elm.nix {};
 
+  elmCompiler = callPackage ../development/compilers/elm/elm-compiler.nix {};
+
+  elmMake = callPackage ../development/compilers/elm/elm-make.nix {
+    optparseApplicative = self.optparseApplicative_0_10_0;
+  };
+
+  elmPackage = callPackage ../development/compilers/elm/elm-package.nix {};
+
   elmServer = callPackage ../development/compilers/elm/elm-server.nix {};
 
   elmRepl = callPackage ../development/compilers/elm/elm-repl.nix {};
@@ -934,9 +954,19 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   ghcid = callPackage ../development/tools/haskell/ghcid {};
 
-  ghcjsDom = callPackage ../development/libraries/haskell/ghcjs-codemirror {};
+  ghcjs = callPackage ../development/compilers/ghcjs {
+    Cabal = self.Cabal_HEAD;
+    cabalInstall = self.cabalInstall_HEAD;
+    haddock = self.haddock.override {
+      Cabal = null;
+    };
+  };
+
+  ghcjsDom = callPackage ../development/libraries/haskell/ghcjs-dom {};
 
   ghcjsCodemirror = callPackage ../development/libraries/haskell/ghcjs-codemirror {};
+
+  ghcjsPrim = callPackage ../development/libraries/haskell/ghcjs-prim {};
 
   ghcMod = callPackage ../development/libraries/haskell/ghc-mod { inherit (pkgs) emacs; };
 
@@ -973,7 +1003,7 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   glade = callPackage ../development/libraries/haskell/glade {
     inherit (pkgs.gnome) libglade;
     gtkC = pkgs.gtk;
-    libc = pkgs.stdenv.gcc.libc;
+    libc = pkgs.stdenv.cc.libc;
   };
 
   GLFW = callPackage ../development/libraries/haskell/GLFW {};
@@ -982,7 +1012,7 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   glib = callPackage ../development/libraries/haskell/glib {
     glib = pkgs.glib;
-    libc = pkgs.stdenv.gcc.libc;
+    libc = pkgs.stdenv.cc.libc;
   };
 
   Glob = callPackage ../development/libraries/haskell/Glob {};
@@ -1021,7 +1051,7 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   gtk = callPackage ../development/libraries/haskell/gtk {
     inherit (pkgs) gtk;
-    libc = pkgs.stdenv.gcc.libc;
+    libc = pkgs.stdenv.cc.libc;
   };
 
   gtk3 = callPackage ../development/libraries/haskell/gtk3 {
@@ -1034,7 +1064,7 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   gtksourceview2 = callPackage ../development/libraries/haskell/gtksourceview2 {
     inherit (pkgs.gnome) gtksourceview;
-    libc = pkgs.stdenv.gcc.libc;
+    libc = pkgs.stdenv.cc.libc;
   };
 
   gtkTraymanager = callPackage ../development/libraries/haskell/gtk-traymanager {};
@@ -1558,7 +1588,7 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   libmpd = callPackage ../development/libraries/haskell/libmpd {};
 
-  libnotify = callPackage ../development/libraries/haskell/libnotify {};
+  libnotify = callPackage ../development/libraries/haskell/libnotify { inherit (pkgs) libnotify; };
 
   liblastfm = callPackage ../development/libraries/haskell/liblastfm {};
 
@@ -1900,7 +1930,7 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   pango = callPackage ../development/libraries/haskell/pango {
     inherit (pkgs) pango;
-    libc = pkgs.stdenv.gcc.libc;
+    libc = pkgs.stdenv.cc.libc;
   };
 
   parallel_3_2_0_3 = callPackage ../development/libraries/haskell/parallel/3.2.0.3.nix {};
@@ -2007,7 +2037,7 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   poppler = callPackage ../development/libraries/haskell/poppler {
     popplerGlib = pkgs.poppler.poppler_glib;
-    libc = pkgs.stdenv.gcc.libc;
+    libc = pkgs.stdenv.cc.libc;
   };
 
   posixPaths = callPackage ../development/libraries/haskell/posix-paths {};
@@ -2473,7 +2503,7 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   stripe = callPackage ../development/libraries/haskell/stripe {};
 
   svgcairo = callPackage ../development/libraries/haskell/svgcairo {
-    libc = pkgs.stdenv.gcc.libc;
+    libc = pkgs.stdenv.cc.libc;
   };
 
   SVGFonts = callPackage ../development/libraries/haskell/SVGFonts {};
@@ -2630,6 +2660,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   timeCompat = callPackage ../development/libraries/haskell/time-compat {};
 
   tls = callPackage ../development/libraries/haskell/tls {};
+
+  torrent = callPackage ../development/libraries/haskell/torrent {};
 
   tostring = callPackage ../development/libraries/haskell/tostring {};
 
@@ -2817,6 +2849,10 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   webkit = callPackage ../development/libraries/haskell/webkit {
     webkit = pkgs.webkitgtk2;
+  };
+
+  webkitgtk3 = callPackage ../development/libraries/haskell/webkitgtk3 {
+    webkitgtk = pkgs.webkitgtk24x;
   };
 
   webRoutes = callPackage ../development/libraries/haskell/web-routes {};
@@ -3136,9 +3172,9 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   cabalDelete = callPackage ../development/tools/haskell/cabal-delete {};
 
   cabalBounds = callPackage ../development/tools/haskell/cabal-bounds {
-    Cabal = self.Cabal_1_20_0_2;
+    Cabal = self.Cabal_1_20_0_3;
     cabalLenses = self.cabalLenses.override {
-      Cabal = self.Cabal_1_20_0_2;
+      Cabal = self.Cabal_1_20_0_3;
     };
   };
 
@@ -3152,8 +3188,9 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   cabalInstall_1_16_0_2 = callPackage ../tools/package-management/cabal-install/1.16.0.2.nix { Cabal = self.Cabal_1_16_0_3; };
   cabalInstall_1_18_0_3 = callPackage ../tools/package-management/cabal-install/1.18.0.3.nix { Cabal = self.Cabal_1_18_1_3; };
-  cabalInstall_1_20_0_4 = callPackage ../tools/package-management/cabal-install/1.20.0.4.nix { Cabal = self.Cabal_1_20_0_2; };
-  cabalInstall = self.cabalInstall_1_20_0_4;
+  cabalInstall_1_20_0_6 = callPackage ../tools/package-management/cabal-install/1.20.0.6.nix { Cabal = self.Cabal_1_20_0_3; };
+  cabalInstall_HEAD = callPackage ../tools/package-management/cabal-install/head.nix { Cabal = self.Cabal_HEAD; };
+  cabalInstall = self.cabalInstall_1_20_0_6;
 
   codex = callPackage ../development/tools/haskell/codex {};
 
@@ -3173,6 +3210,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   hobbes = callPackage ../development/tools/haskell/hobbes {};
 
   jailbreakCabal = callPackage ../development/tools/haskell/jailbreak-cabal {};
+
+  journalMailer = callPackage ../tools/system/journal-mailer {};
 
   keter = callPackage ../development/tools/haskell/keter {};
 

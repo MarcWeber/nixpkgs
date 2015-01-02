@@ -65,7 +65,7 @@ stdenv.mkDerivation rec {
   # `operapluginwrapper' requires libXt. Adding it makes startup faster
   # and omits error messages (on x86).
   libPath =
-    let list = [ stdenv.gcc.gcc glibc zlib libX11 libXt libXext libSM libICE
+    let list = [ stdenv.cc.gcc glibc zlib libX11 libXt libXext libSM libICE
                 libXft freetype fontconfig libXrender libXcursor libXi libuuid]
               ++ (stdenv.lib.concatMap (x: builtins.getAttr x libsForGuis) guiSupport);
     in stdenv.lib.makeLibraryPath list

@@ -1,10 +1,11 @@
+{ moduleName ? "mysql"}: # eg pass mysql2 to add a second mysql instance
 { config, lib, pkgs, ... }:
 
 with lib;
 
 let
 
-  cfg = config.services.mysql;
+  cfg = config.services.${moduleName};
 
   mysql = cfg.package;
 
@@ -16,13 +17,13 @@ let
 
   mysqldOptions =
     "--user=${cfg.user} --datadir=${cfg.dataDir} --basedir=${mysql} " +
-    "--pid-file=${pidFile}";
+    "--pid-file=${pidFile} --socket=${cfg.socketFile}";
 
   myCnf = pkgs.writeText "my.cnf"
   ''
     [mysqld]
     port = ${toString cfg.port}
-    ${optionalString (cfg.replication.role == "master" || cfg.replication.role == "slave") "log-bin=mysql-bin"}
+    ${optionalString (cfg.replication.role == "master" || cfg.replication.role == "slave") "log-bin=${moduleName}-bin"}
     ${optionalString (cfg.replication.role == "master" || cfg.replication.role == "slave") "server-id = ${toString cfg.replication.serverId}"}
     ${optionalString (cfg.replication.role == "slave" && !is55)
     ''
@@ -42,7 +43,7 @@ in
 
   options = {
 
-    services.mysql = {
+    services.${moduleName} = {
 
       enable = mkOption {
         default = false;
@@ -65,18 +66,22 @@ in
       };
 
       user = mkOption {
-        default = "mysql";
+        default = moduleName;
         description = "User account under which MySQL runs";
       };
 
       dataDir = mkOption {
-        default = "/var/mysql"; # !!! should be /var/db/mysql
+        default = "/var/${moduleName}"; # !!! should be /var/db/mysql
         description = "Location where MySQL stores its table files";
       };
 
       pidDir = mkOption {
-        default = "/var/run/mysql";
+        default = "/var/run/${moduleName}";
         description = "Location of the file which stores the PID of the MySQL server";
+      };
+
+      socketFile = mkOption {
+        default = "/tmp/${moduleName}.sock";
       };
 
       extraOptions = mkOption {
@@ -84,7 +89,7 @@ in
         example = ''
           key_buffer_size = 6G
           table_cache = 1600
-          log-error = /var/log/mysql_err.log
+          log-error = /var/log/${moduleName}_err.log
         '';
         description = ''
           Provide extra options to the MySQL configuration file.
@@ -150,19 +155,22 @@ in
 
   ###### implementation
 
-  config = mkIf config.services.mysql.enable {
+  config = mkIf config.services.${moduleName}.enable {
 
-    users.extraUsers.mysql = {
+    ids.uids.mysql_tmpfs = 20000;
+    ids.gids.mysql_tmpfs = 20000;
+
+    users.extraUsers.${moduleName} = {
       description = "MySQL server user";
-      group = "mysql";
-      uid = config.ids.uids.mysql;
+      group = moduleName;
+      uid = config.ids.uids.${moduleName};
     };
 
-    users.extraGroups.mysql.gid = config.ids.gids.mysql;
+    users.extraGroups.${moduleName}.gid = config.ids.gids.${moduleName};
 
     environment.systemPackages = [mysql];
 
-    systemd.services.mysql =
+    systemd.services.${moduleName} =
       { description = "MySQL Server";
 
         wantedBy = [ "multi-user.target" ];
@@ -171,7 +179,7 @@ in
 
         preStart =
           ''
-            if ! test -e ${cfg.dataDir}/mysql; then
+            if ! test -e ${cfg.dataDir}/${moduleName}; then
                 mkdir -m 0700 -p ${cfg.dataDir}
                 chown -R ${cfg.user} ${cfg.dataDir}
                 ${mysql}/bin/mysql_install_db ${mysqldOptions}
@@ -188,7 +196,7 @@ in
           ''
             # Wait until the MySQL server is available for use
             count=0
-            while [ ! -e /tmp/mysql.sock ]
+            while [ ! -e ${cfg.socketFile} ]
             do
                 if [ $count -eq 30 ]
                 then
@@ -201,7 +209,7 @@ in
                 sleep 1
             done
 
-            if [ -f /tmp/mysql_init ]
+            if [ -f /tmp/${moduleName}_init ]
             then
                 ${concatMapStrings (database:
                   ''
@@ -248,7 +256,7 @@ in
                     ) | ${mysql}/bin/mysql -u root -N
                   ''}
 
-              rm /tmp/mysql_init
+              rm /tmp/${moduleName}_init
             fi
           ''; # */
       };

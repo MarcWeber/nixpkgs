@@ -157,9 +157,6 @@ in
 
   config = mkIf config.services.${moduleName}.enable {
 
-    ids.uids.mysql_tmpfs = 20000;
-    ids.gids.mysql_tmpfs = 20000;
-
     users.extraUsers.${moduleName} = {
       description = "MySQL server user";
       group = moduleName;

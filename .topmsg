@@ -14,3 +14,6 @@ Usage example:
   services.mysql_on_tmp.package = pkgs.mysql55;
   services.mysql_on_tmp.dataDir = "/tmp/mysql";
   services.mysql_on_tmp.socketDir = "/tmp/mysql_tmpfs.socket";
+
+  ids.uids.mysql_on_tmp = 20000;
+  ids.gids.mysql_on_tmp = 20000;

@@ -727,9 +727,7 @@ let
 
   enca = callPackage ../tools/text/enca { };
 
-  fasd = callPackage ../tools/misc/fasd {
-    inherit (haskellPackages) pandoc;
-  };
+  fasd = callPackage ../tools/misc/fasd { };
 
   fop = callPackage ../tools/typesetting/fop { };
 
@@ -816,7 +814,6 @@ let
 
   bup = callPackage ../tools/backup/bup {
     inherit (pythonPackages) pyxattr pylibacl setuptools fuse;
-    inherit (haskellPackages) pandoc;
     par2Support = (config.bup.par2Support or false);
   };
 
@@ -2078,6 +2075,20 @@ let
   p7zip = callPackage ../tools/archivers/p7zip { };
 
   pal = callPackage ../tools/misc/pal { };
+
+  pandoc = with haskellPackages; pandoc.override {
+    cabal = cabal.override {
+      extension = self: super: {
+        configureFlags = super.configureFlags or "" + " -fembed_data_files";
+        buildTools = super.buildTools or [] ++ [hsb2hs];
+        enableSharedExecutables = false;
+        enableSharedLibraries = false;
+        isLibrary = false;
+        noHaddock = true;
+        postFixup = "rm -rf $out/lib $out/nix-support $out/share";
+      };
+    };
+  };
 
   panomatic = callPackage ../tools/graphics/panomatic { };
 

@@ -1448,6 +1448,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   interlude = callPackage ../development/libraries/haskell/interlude {};
 
+  intern = callPackage ../development/libraries/haskell/intern {};
+
   interpolate = callPackage ../development/libraries/haskell/interpolate {};
 
   interpolatedstringPerl6 = callPackage ../development/libraries/haskell/interpolatedstring-perl6 {};
@@ -3216,6 +3218,10 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   keter = callPackage ../development/tools/haskell/keter {};
 
   lhs2tex = callPackage ../tools/typesetting/lhs2tex {};
+
+  liquidFixpoint = callPackage ../development/tools/haskell/liquid-fixpoint { ocaml = pkgs.ocaml; };
+
+  liquidhaskell = callPackage ../development/tools/haskell/liquidhaskell {};
 
   packunused = callPackage ../development/tools/haskell/packunused {};
 

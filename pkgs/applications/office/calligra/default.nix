@@ -1,5 +1,5 @@
 { stdenv, fetchurl, cmake, kdelibs, attica, perl, zlib, libpng, boost, mesa
-, kdepimlibs, createresources ? null, eigen, qca2, exiv2, soprano, marble, lcms2
+, kdepimlibs, createresources ? null, eigen2, qca2, exiv2, soprano, marble, lcms2
 , fontconfig, freetype, sqlite, icu, libwpd, libwpg, pkgconfig, popplerQt4
 , libkdcraw, libxslt, fftw, glew, gsl, shared_desktop_ontologies, okular
 , libvisio, kactivities, mysql, postgresql, freetds, xbase, openexr, ilmbase
@@ -21,7 +21,7 @@ stdenv.mkDerivation rec {
 # TODO: not found popplerQt4
 
   buildInputs = [ kdelibs attica zlib libpng boost mesa kdepimlibs
-    createresources eigen qca2 exiv2 soprano marble lcms2 fontconfig freetype
+    createresources eigen2 qca2 exiv2 soprano marble lcms2 fontconfig freetype
     sqlite icu libwpd libwpg popplerQt4 libkdcraw libxslt fftw glew gsl
     shared_desktop_ontologies okular 
     libvisio kactivities mysql postgresql freetds xbase openexr

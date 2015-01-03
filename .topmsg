@@ -1,0 +1,16 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] experimental/multiple-mysqld-instances
+
+Allow instantiating multiple mysql instances.
+
+Usage example:
+
+  imports = [
+      (import (<nixpkgs>+"/nixos/modules/services/databases/mysql.nix") {moduleName = "mysql_on_tmp"; })
+  ]
+
+  services.mysql_on_tmp.enable = true;
+  services.mysql_on_tmp.port = 3307;
+  services.mysql_on_tmp.package = pkgs.mysql55;
+  services.mysql_on_tmp.dataDir = "/tmp/mysql";
+  services.mysql_on_tmp.socketDir = "/tmp/mysql_tmpfs.socket";

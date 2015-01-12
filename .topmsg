@@ -1,0 +1,10 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] experimental/nixos-module-resource-tracking
+
+Adding a nixos module resource-tracking.nix which is used to track which
+modules require what resources. A resource could be anything which should be
+prevented from being used multiple times such as
+  - paths
+  - sockets
+  - memory
+  - ports

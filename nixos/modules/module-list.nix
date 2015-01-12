@@ -51,6 +51,7 @@
   ./misc/meta.nix
   ./misc/nixpkgs.nix
   ./misc/passthru.nix
+  ./misc/resources.nix
   ./misc/version.nix
   ./programs/atop.nix
   ./programs/bash/bash.nix

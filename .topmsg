@@ -8,3 +8,5 @@ prevented from being used multiple times such as
   - sockets
   - memory
   - ports
+  - mysql instance ids
+  ..

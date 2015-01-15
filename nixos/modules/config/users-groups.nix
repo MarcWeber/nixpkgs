@@ -335,19 +335,6 @@ let
 
   subgidFile = concatStrings (map mkSubgidEntry (attrValues cfg.extraUsers));
 
-  idsAreUnique = set: idAttr: !(fold (name: args@{ dup, acc }:
-    let
-      id = builtins.toString (builtins.getAttr idAttr (builtins.getAttr name set));
-      exists = builtins.hasAttr id acc;
-      newAcc = acc // (builtins.listToAttrs [ { name = id; value = true; } ]);
-    in if dup then args else if exists
-      then builtins.trace "Duplicate ${idAttr} ${id}" { dup = true; acc = null; }
-      else { dup = false; acc = newAcc; }
-    ) { dup = false; acc = {}; } (builtins.attrNames set)).dup;
-
-  uidsAreUnique = idsAreUnique (filterAttrs (n: u: u.uid != null) cfg.extraUsers) "uid";
-  gidsAreUnique = idsAreUnique (filterAttrs (n: g: g.gid != null) cfg.extraGroups) "gid";
-
   spec = pkgs.writeText "users-groups.json" (builtins.toJSON {
     inherit (cfg) mutableUsers;
     users = mapAttrsToList (n: u:
@@ -511,11 +498,17 @@ in {
       mode = "0644";
     };
 
-    assertions = [
-      { assertion = !cfg.enforceIdUniqueness || (uidsAreUnique && gidsAreUnique);
-        message = "UIDs and GIDs must be unique!";
-      }
-    ];
+    resources.uids = mkMerge
+      lib.optionals cfg.enforceIdUniqueness
+          (mapAttrsToList (n: u:
+            { "${u.uid}".required_by = "user ${n}"; }
+          ) (filterAttrs(n: u: u.uid != null)) cfg.extraUsers);
+
+    resources.gids = mkMerge
+      lib.optionals cfg.enforceIdUniqueness
+        ( mapAttrsToList (n: g:
+            { "${g.gid}".required_by = "user ${n}"; }
+        ) (filterAttrs(n: u: u.gid != null)) cfg.extraGroups);
 
   };
 

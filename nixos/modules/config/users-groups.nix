@@ -499,16 +499,20 @@ in {
     };
 
     resources.uids = mkMerge
-      lib.optionals cfg.enforceIdUniqueness
-          (mapAttrsToList (n: u:
-            { "${u.uid}".required_by = "user ${n}"; }
-          ) (filterAttrs(n: u: u.uid != null)) cfg.extraUsers);
+      (lib.optionals cfg.enforceIdUniqueness
+        (mapAttrsToList (n: u:
+          { "${builtins.toString u.uid}".required_by = "user ${n}"; }
+        ) (filterAttrs (n: u: u.uid != null) cfg.extraUsers)
+        )
+      );
 
     resources.gids = mkMerge
-      lib.optionals cfg.enforceIdUniqueness
+      (lib.optionals cfg.enforceIdUniqueness
         ( mapAttrsToList (n: g:
-            { "${g.gid}".required_by = "user ${n}"; }
-        ) (filterAttrs(n: u: u.gid != null)) cfg.extraGroups);
+            { "${builtins.toString g.gid}".required_by = "group ${n}"; }
+        ) (filterAttrs (n: g: g.gid != null) cfg.extraGroups)
+        )
+      );
 
   };
 

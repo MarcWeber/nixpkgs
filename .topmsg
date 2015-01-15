@@ -5,15 +5,15 @@ Allow instantiating multiple mysql instances.
 
 Usage example:
 
-  imports = [
-      (import (<nixpkgs>+"/nixos/modules/services/databases/mysql.nix") {moduleName = "mysql_on_tmp"; })
-  ]
+  services.mysql.enable = true; // traditional
 
-  services.mysql_on_tmp.enable = true;
-  services.mysql_on_tmp.port = 3307;
-  services.mysql_on_tmp.package = pkgs.mysql55;
-  services.mysql_on_tmp.dataDir = "/tmp/mysql";
-  services.mysql_on_tmp.socketDir = "/tmp/mysql_tmpfs.socket";
-
-  ids.uids.mysql_on_tmp = 20000;
-  ids.gids.mysql_on_tmp = 20000;
+  // add another instance:
+  service.mysql.services.mysql_on_tmp = {
+    enable = true;
+    port = 3307;
+    package = pkgs.mysql55;
+    dataDir = "/tmp/mysql";
+    socketDir = "/tmp/mysql_tmpfs.socket";
+    uid = 20000;
+    gid = 20000;
+  };

@@ -119,7 +119,7 @@
   ./services/databases/memcached.nix
   ./services/databases/monetdb.nix
   ./services/databases/mongodb.nix
-  (import ./services/databases/mysql.nix {})
+  ./services/databases/mysqls.nix
   ./services/databases/neo4j.nix
   ./services/databases/openldap.nix
   ./services/databases/opentsdb.nix

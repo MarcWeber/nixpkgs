@@ -175,6 +175,7 @@
       gitlab = 165;
       tox-bootstrapd = 166;
       cadvisor = 167;
+      nylon = 168;
 
       # When adding a uid, make sure it doesn't match an existing gid. And don't use uids above 399!
 
@@ -308,13 +309,16 @@
       systemd-resolve = 153;
       systemd-timesync = 154;
       liquidsoap = 155;
-      scollector = 156;
-      bosun = 157;
-      kubernetes = 158;
       fleet = 159;
-      gitlab = 160;
+      scollector = 160;
+      bosun = 161;
+      kubernetes = 162;
+      gitlab = 165;
+      nylon = 166;
 
-      # When adding a gid, make sure it doesn't match an existing uid. And don't use gids above 399!
+      # When adding a gid, make sure it doesn't match an existing
+      # uid. Users and groups with the same name should have equal
+      # uids and gids. Also, don't use gids above 399!
 
       users = 100;
       nixbld = 30000;

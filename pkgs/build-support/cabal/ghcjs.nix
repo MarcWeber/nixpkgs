@@ -6,14 +6,13 @@
 , enableSharedLibraries ? false
 , enableSharedExecutables ? false
 , enableStaticLibraries ? true
-, enableCheckPhase ? stdenv.lib.versionOlder "7.4" ghc.version
+, enableCheckPhase ? true
 , enableHyperlinkSource ? false
 , extension ? (self : super : {})
 }:
 
 let
   enableFeature         = stdenv.lib.enableFeature;
-  versionOlder          = stdenv.lib.versionOlder;
   optional              = stdenv.lib.optional;
   optionals             = stdenv.lib.optionals;
   optionalString        = stdenv.lib.optionalString;
@@ -82,7 +81,7 @@ in
             # default buildInputs are just ghc, if more buildInputs are required
             # buildInputs can be extended by the client by using extraBuildInputs,
             # but often propagatedBuildInputs is preferable anyway
-            buildInputs = [ghc ghc.ghc.parent.Cabal_HEAD] ++ self.extraBuildInputs;
+            buildInputs = [ghc ghc.ghc.parent.Cabal_1_22_0_0] ++ self.extraBuildInputs;
             extraBuildInputs = self.buildTools ++
                                (optionals self.doCheck self.testDepends) ++
                                (if self.pkgconfigDepends == [] then [] else [pkgconfig]) ++
@@ -156,9 +155,9 @@ in
               (enableFeature self.enableSplitObjs "split-objs")
               (enableFeature enableLibraryProfiling "library-profiling")
               (enableFeature true "shared")
-              (optional (versionOlder "7" ghc.version) (enableFeature self.enableStaticLibraries "library-vanilla"))
-              (optional (versionOlder "7.4" ghc.version) (enableFeature self.enableSharedExecutables "executable-dynamic"))
-              (optional (versionOlder "7" ghc.version) (enableFeature self.doCheck "tests"))
+              (enableFeature self.enableStaticLibraries "library-vanilla")
+              (enableFeature self.enableSharedExecutables "executable-dynamic")
+              (enableFeature self.doCheck "tests")
             ];
 
             # GHC needs the locale configured during the Haddock phase.

@@ -40,6 +40,9 @@
   };
 
   ghc763Prefs = self : super : ghc784Prefs self super // {
+    Cabal_1_22_0_0 = super.Cabal_1_22_0_0.override {
+      binary = self.binary_0_7_2_2.override { cabal = self.cabal.override { extension = self: super: { doCheck = false; }; }; };
+    };
     aeson = self.aeson_0_7_0_4;
     ariadne = super.ariadne.override {
       haskellNames = self.haskellNames.override {
@@ -83,6 +86,7 @@
   };
 
   ghc722Prefs = self : super : ghc742Prefs self super // {
+    cabalInstall = self.cabalInstall_1_20_0_6;
     caseInsensitive = self.caseInsensitive_1_0_0_1;
     deepseq = self.deepseq_1_3_0_2;
     DrIFT = null;                       # doesn't compile with old GHC versions
@@ -303,6 +307,24 @@
         unix = null;
         unorderedContainers = null;
         vector = null;
+
+        # GHCJS-specific workarounds
+        split = super.split.override {
+          cabal = self.cabal.override {
+            extension = self: super: {
+              doCheck = false; # Under ghcjs, the tests hang
+            };
+          };
+        };
+        dependentMap = super.dependentMap.override {
+          cabal = self.cabal.override {
+            extension = self: super: {
+              preConfigure = ''
+                sed -i 's/^.*ghc-options:.*$//' *.cabal
+              ''; # Without this, we get "target ‘base’ is not a module name or a source file"
+            };
+          };
+        };
       };
     };
 

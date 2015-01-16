@@ -1088,12 +1088,12 @@ let
   };
 
   botocore = buildPythonPackage rec {
-    version = "0.80.0";
+    version = "0.81.0";
     name = "botocore-${version}";
 
     src = pkgs.fetchurl {
       url = "https://pypi.python.org/packages/source/b/botocore/${name}.tar.gz";
-      sha256 = "1zmsg0n21wq25v1dgnmf3hvw8yszxyryiylmp4alybcsg8nkg5fz";
+      sha256 = "0mdkkk0038ng6557cw5520xy624sqgv0avjx387bc3fbgxi8bksj";
     };
 
     propagatedBuildInputs =
@@ -1465,20 +1465,25 @@ let
     };
   };
 
+  click = buildPythonPackage rec {
+    name = "click-3.3";
 
-  click = buildPythonPackage {
-    name = "click-2.1";
     src = pkgs.fetchurl {
-      url = https://pypi.python.org/packages/source/c/click/click-2.1.tar.gz;
-      md5 = "0ba97ba09af82c56e2d35f3412d0aa6e";
+      url = "https://pypi.python.org/packages/source/c/click/${name}.tar.gz";
+      sha256 = "1rfn8ml80rw3hkgpm1an5p3vdyhh7hzx4zynr8dhfl7bsw28r77p";
     };
-    meta = {
-      homepage = "http://click.pocoo.org/";
-      description = "A Python package for creating beautiful command line interfaces in a composable way with as little code as necessary";
-      license = stdenv.lib.licenses.bsd3;
+
+    meta = with stdenv.lib; {
+      homepage = http://click.pocoo.org/;
+      description = "Create beautiful command line interfaces in Python";
+      longDescription = ''
+        A Python package for creating beautiful command line interfaces in a
+        composable way, with as little code as necessary.
+      '';
+      license = with licenses; [ bsd3 ];
+      maintainers = with maintainers; [ nckx ];
     };
   };
-
 
   clepy = buildPythonPackage rec {
     name = "clepy-0.3.20";
@@ -5114,11 +5119,11 @@ let
   };
 
   jedi = buildPythonPackage (rec {
-    name = "jedi-0.8.0-final0";
+    name = "jedi-0.8.1";
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/j/jedi/${name}.tar.gz";
-      sha256 = "0jnhwh0b1hy5cssi3n5a4j7z9pgpcckyv5s52ba4jnq5bwgdpbcf";
+      sha256 = "1a7bg159mc1la5p1zsblzpr9hmypa7nz0mpvf7dww57cgi2sw8sd";
     };
 
     meta = {
@@ -6368,6 +6373,18 @@ let
     };
   };
 
+  ntplib = buildPythonPackage rec {
+    name = "ntplib-0.3.2";
+    src = pkgs.fetchurl {
+      url = https://pypi.python.org/packages/source/n/ntplib/ntplib-0.3.2.tar.gz;
+      md5 = "0f386dc00c0056ac4d77af0b4c21bb8e";
+    };
+
+    meta = {
+      description = "Python NTP library";
+    };
+  };
+
   numexpr = buildPythonPackage rec {
     version = "2.4";
     name = "numexpr-${version}";
@@ -6465,13 +6482,13 @@ let
   };
 
   livestreamer = buildPythonPackage rec {
-    version = "1.10.2";
+    version = "1.11.1";
     name = "livestreamer-${version}";
     disabled = isPyPy;
 
     src = pkgs.fetchurl {
       url = "https://github.com/chrippa/livestreamer/archive/v${version}.tar.gz";
-      sha256 = "0f1m51wax4q17ida4h0ckyakmlchf36kbhfa9qs6bpxc6xqqbry0";
+      sha256 = "1hic3z5any64gn2b0gs1b7m34bzgzv71inr8wgjq59pwf8mbrqk9";
     };
 
     buildInputs = with self; [ pkgs.makeWrapper ];
@@ -6486,7 +6503,7 @@ let
         Livestreamer is CLI program that extracts streams from various
         services and pipes them into a video player of choice.
       '';
-      license = "bsd";
+      license = stdenv.lib.licenses.bsd2;
     };
   };
 
@@ -7462,19 +7479,19 @@ let
 
 
   pycapnp = buildPythonPackage rec {
-    name = "pycapnp-0.4.4";
+    name = "pycapnp-0.5.1";
     disabled = isPyPy || isPy3k;
 
     src = pkgs.fetchurl {
       url = "https://pypi.python.org/packages/source/p/pycapnp/${name}.tar.gz";
-      sha256 = "33b2b79438bb9bf37097966e1c90403c34ab49be1eb647ee251b62f362ee3537";
+      sha256 = "1kp97il34419gcrhn866n6a10lvh8qr13bnllnnh9473n4cq0cvk";
     };
 
     buildInputs = with pkgs; [ capnproto self.cython ];
 
     # import setuptools as soon as possible, to minimize monkeypatching mayhem.
     postConfigure = ''
-      sed -i '2iimport setuptools' setup.py
+      sed -i '3iimport setuptools' setup.py
     '';
 
     meta = with stdenv.lib; {
@@ -7695,16 +7712,19 @@ let
   };
 
   pygments = buildPythonPackage rec {
-    name = "Pygments-1.6";
+    version = "2.0.1";
+    name = "Pygments-${version}";
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/P/Pygments/${name}.tar.gz";
-      md5 = "a18feedf6ffd0b0cc8c8b0fbdb2027b1";
+      sha256 = "1js5vq0xvsiykzpj5snxhdz3li9fmk8vc549slg9hcnj80frw0sy";
     };
 
-    meta = {
+    meta = with stdenv.lib; {
       homepage = http://pygments.org/;
       description = "A generic syntax highlighter";
+      license = with licenses; [ bsd2 ];
+      maintainers = with maintainers; [ nckx ];
     };
   };
 
@@ -9976,16 +9996,20 @@ let
   });
 
 
-  subunit = buildPythonPackage rec {
+  subunit = stdenv.mkDerivation rec {
     name = "subunit-${version}";
-    version = "0.0.16";
+    version = "1.0.0";
 
     src = pkgs.fetchurl {
-      url = "https://launchpad.net/subunit/trunk/${version}/+download/python-${name}.tar.gz";
-      sha256 = "1ylla1wlmv29vdr76r5kgr7y21bz4ahi3v26mxsys42w90rfkahi";
+      url = "https://launchpad.net/subunit/trunk/${version}/+download/${name}.tar.gz";
+      sha256 = "1fnhrrwww90746an2nz2kn9qdf9pklmaf5lm22gssl6648f2rp2m";
     };
 
-    propagatedBuildInputs = with self; [ testtools ];
+    buildInputs = (with pkgs; [ pkgconfig check cppunit perl ]) ++ [ self.wrapPython ];
+
+    propagatedBuildInputs = with self; [ testtools testscenarios ];
+
+    postFixup = "wrapPythonPrograms";
 
     meta = {
       description = "A streaming protocol for test results";
@@ -10170,6 +10194,25 @@ let
     meta = {
       homepage = http://pythonpaste.org/tempita/;
       description = "A very small text templating language";
+    };
+  };
+
+
+  testscenarios = buildPythonPackage rec {
+    name = "testscenarios-${version}";
+    version = "0.4";
+
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/t/testscenarios/${name}.tar.gz";
+      sha256 = "1671jvrvqlmbnc42j7pc5y6vc37q44aiwrq0zic652pxyy2fxvjg";
+    };
+
+    propagatedBuildInputs = with self; [ testtools ];
+
+    meta = {
+      description = "a pyunit extension for dependency injection";
+      homepage = https://pypi.python.org/pypi/testscenarios;
+      license = licenses.asl20;
     };
   };
 
@@ -11595,7 +11638,7 @@ let
 
     propagatedBuildInputs = with self; [ zope_interface zope_exceptions zope_testing six ] ++ optional (!python.is_py3k or false) subunit;
 
-    doCheck = true;
+    doCheck = !isPy27;
 
     meta = {
       description = "A flexible test runner with layer support";

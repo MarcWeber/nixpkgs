@@ -198,6 +198,8 @@ in
         setopt NO_HIST_BEEP
         setopt NO_BEEP
 
+        setopt HIST_IGNORE_DUPS SHARE_HISTORY HIST_FCNTL_LOCK
+
         # history setup - maybe 20000 lines is much
         setopt share_history
         HISTFILE=~/.histfile

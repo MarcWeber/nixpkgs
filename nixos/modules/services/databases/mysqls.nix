@@ -17,8 +17,6 @@ let
   configs = map (m_config) enabled;
 
   m_config = {name, m_config}:
-    assert m_config.enable;
-
     let
 
       mysql = m_config.package;

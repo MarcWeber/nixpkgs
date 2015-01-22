@@ -5000,6 +5000,8 @@ let
 
   winpdb = callPackage ../development/tools/winpdb { };
 
+  grabserial = callPackage ../development/tools/grabserial { };
+
 
   ### DEVELOPMENT / LIBRARIES
 

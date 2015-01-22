@@ -16,7 +16,6 @@ self: super: {
   hasql-postgres = dontCheck super.hasql-postgres;
   hspec-expectations = dontCheck super.hspec-expectations;
   HTTP = dontCheck super.HTTP;
-  matlab = super.matlab.override { matlab = null; };
   mwc-random = dontCheck super.mwc-random;
   nanospec = dontCheck super.nanospec;
   options = dontCheck super.options;
@@ -149,9 +148,8 @@ self: super: {
     })];});
 
   # https://github.com/NixOS/cabal2nix/issues/136
-  gio = overrideCabal (super.gio.override { glib = self.glib; }) (drv: { pkgconfigDepends = [pkgs.glib]; });
-  glade = overrideCabal super.gio (drv: { pkgconfigDepends = [pkgs.gtk2]; buildDepends = drv.buildDepends ++ [self.glib]; });
-  pango = super.pango.override { cairo = self.cairo; };
+  gtk = addBuildDepends super.gtk [pkgs.pkgconfig pkgs.gtk];
+  glib = addBuildDepends super.glib [pkgs.pkgconfig pkgs.glib];
 
   # https://github.com/jgm/zip-archive/issues/21
   zip-archive = addBuildTool super.zip-archive pkgs.zip;
@@ -233,7 +231,6 @@ self: super: {
   command-qq = dontCheck super.command-qq;              # http://hydra.cryp.to/build/499042/log/raw
   conduit-connection = dontCheck super.conduit-connection;
   craftwerk = dontCheck super.craftwerk;
-  crypto-pubkey = dontCheck super.crypto-pubkey;
   damnpacket = dontCheck super.damnpacket;              # http://hydra.cryp.to/build/496923/log
   Deadpan-DDP = dontCheck super.Deadpan-DDP;            # http://hydra.cryp.to/build/496418/log/raw
   DigitalOcean = dontCheck super.DigitalOcean;
@@ -372,8 +369,19 @@ self: super: {
   # Needs older versions of its dependencies.
   structured-haskell-mode = (dontJailbreak super.structured-haskell-mode).override {
     haskell-src-exts = self.haskell-src-exts_1_15_0_1;  # https://github.com/chrisdone/structured-haskell-mode/issues/90
-    descriptive = self.descriptive_0_0_2;               # https://github.com/chrisdone/structured-haskell-mode/issues/94
   };
+
+  # Expect to find sendmail(1) in $PATH.
+  mime-mail = appendConfigureFlag super.mime-mail "--ghc-option=-DMIME_MAIL_SENDMAIL_PATH=\"sendmail\"";
+
+  # Help the test suite find system timezone data.
+  tz = overrideCabal super.tz (drv: { preConfigure = "export TZDIR=${pkgs.tzdata}/share/zoneinfo"; });
+
+  # https://ghc.haskell.org/trac/ghc/ticket/9625
+  vty = dontCheck super.vty;
+
+  # https://github.com/vincenthz/hs-crypto-pubkey/issues/20
+  crypto-pubkey = dontCheck super.crypto-pubkey;
 
 }
 // {

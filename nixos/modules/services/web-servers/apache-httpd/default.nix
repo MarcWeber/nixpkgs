@@ -693,6 +693,7 @@ in
         serviceConfig.Type = "forking";
         serviceConfig.PIDFile = "${mainCfg.stateDir}/httpd.pid";
         serviceConfig.Restart = "always";
+        serviceConfig.RestartSec = "5s";
       };
 
   };

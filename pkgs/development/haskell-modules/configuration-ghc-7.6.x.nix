@@ -16,7 +16,6 @@ self: super: {
   directory = null;
   filepath = null;
   ghc-prim = null;
-  haskeline = self.haskeline_0_7_1_3;   # GHC's version is broken: https://github.com/NixOS/nixpkgs/issues/5616.
   haskell2010 = null;
   haskell98 = null;
   hoopl = null;
@@ -28,7 +27,6 @@ self: super: {
   process = null;
   rts = null;
   template-haskell = null;
-  terminfo = self.terminfo_0_4_0_0;     # GHC's version is broken: https://github.com/NixOS/nixpkgs/issues/5616.
   time = null;
   unix = null;
 
@@ -36,6 +34,10 @@ self: super: {
   transformers = self.transformers_0_4_2_0;
   mtl = self.mtl_2_2_1;
   transformers-compat = disableCabalFlag super.transformers-compat "three";
+
+  # haskeline and terminfo are not core libraries for this compiler.
+  haskeline = self.haskeline_0_7_1_3;
+  terminfo = self.terminfo_0_4_0_0;
 
   # https://github.com/haskell/cabal/issues/2322
   Cabal_1_22_0_0 = super.Cabal_1_22_0_0.override { binary = self.binary_0_7_2_3; };
@@ -48,5 +50,17 @@ self: super: {
 
   # Haddock chokes on the prologue from the cabal file.
   ChasingBottoms = dontHaddock super.ChasingBottoms;
+
+  # Later versions require a newer version of bytestring than we have.
+  aeson = self.aeson_0_7_0_6;
+
+  # The test suite depends on time >=1.4.0.2.
+  cookie = dontCheck super.cookie ;
+
+  # Work around bytestring >=0.10.2.0 requirement.
+  streaming-commons = addBuildDepend super.streaming-commons self.bytestring-builder;
+
+  # Choose appropriate flags for our version of 'bytestring'.
+  bytestring-builder = disableCabalFlag super.bytestring-builder "bytestring_has_builder";
 
 }

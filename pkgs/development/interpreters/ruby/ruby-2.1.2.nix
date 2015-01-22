@@ -2,7 +2,7 @@
 , zlib, zlibSupport ? true
 , openssl, opensslSupport ? true
 , gdbm, gdbmSupport ? true
-, ncurses, readline, cursesSupport ? false
+, ncurses, readline, cursesSupport ? true
 , groff, docSupport ? false
 , libyaml, yamlSupport ? true
 , libffi, fiddleSupport ? true
@@ -104,7 +104,8 @@ stdenv.mkDerivation rec {
     minorVersion = "1";
     teenyVersion = "2";
     patchLevel = "353";
-    libPath = "lib/ruby/${majorVersion}.${minorVersion}";
-    gemPath = "lib/ruby/gems/${majorVersion}.${minorVersion}";
+    rubyEngine = "ruby";
+    libPath = "lib/${rubyEngine}/${majorVersion}.${minorVersion}.${teenyVersion}";
+    gemPath = "lib/${rubyEngine}/gems/${majorVersion}.${minorVersion}.${teenyVersion}";
   };
 }

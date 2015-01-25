@@ -31,6 +31,17 @@ stdenv.mkDerivation rec {
 
   NIX_CFLAGS_COMPILE = "-I${ilmbase}/include/OpenEXR";
 
+  # If any of the following progs fails the dependencies might be wrong or the
+  # executable might have been dropped.
+  postInstall = ''
+    for prog in braindump calligra calligraactive calligraauthor calligraconverter calligraflow calligraplan calligraplanwork calligrasheets calligrastage calligrawords cstester cstrunner karbon kexi kexi_sqlite3_dump krita; do
+      [ -x $out/bin/$prog ] || {
+        echo "$out/bin/$prog not found"
+        exit 1
+      }
+    done
+  '';
+
   meta = {
     description = "Calligra Suite is a set of applications written to help you to accomplish your work. Calligra includes efficient and capable office components: Words for text processing,  Sheets for computations, Stage for presentations, Plan for planning, Flow for flowcharts, Kexi for database creation, Krita for painting and raster drawing, and Karbon for vector graphics.";
     homepage = http://calligra.org;

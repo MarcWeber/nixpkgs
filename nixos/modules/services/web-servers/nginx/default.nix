@@ -184,7 +184,7 @@ in
 
           ${server.config}
         }
-      '') (cfg.http.servers);
+      '') (attrValues cfg.http.servers);
 
     systemd.services.nginx = {
       description = "Nginx Web Server";

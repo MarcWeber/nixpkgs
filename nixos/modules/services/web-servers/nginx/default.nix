@@ -63,7 +63,7 @@ in
         description = "Configuration lines to be appended inside of the http {} block.";
       };
 
-      httpServers = mkOption {
+      http.server = mkOption {
         description = ''
           http servers
         '';
@@ -184,7 +184,7 @@ in
 
           ${server.config}
         }
-      '') (attrValues cfg.httpServers);
+      '') (attrValues cfg.http.server);
 
     systemd.services.nginx = {
       description = "Nginx Web Server";

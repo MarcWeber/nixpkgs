@@ -63,14 +63,14 @@ in
         description = "Configuration lines to be appended inside of the http {} block.";
       };
 
-      http.server = mkOption {
+      http.servers = mkOption {
         description = ''
           http servers
         '';
 
         default = {};
 
-        type = types.attrsOf (types.submodule (
+        type = types.loaOf (types.submodule (
           {
             options = {
               server_name = mkOption {
@@ -184,7 +184,7 @@ in
 
           ${server.config}
         }
-      '') (attrValues cfg.http.server);
+      '') (cfg.http.servers);
 
     systemd.services.nginx = {
       description = "Nginx Web Server";

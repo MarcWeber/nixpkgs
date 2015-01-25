@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, pkgconfig, glib, babl, libpng, cairo, libjpeg, bzip2
+{ stdenv, fetchurl, pkgconfig, glib, babl, libpng, cairo, libjpeg, bzip2, json_glib, python
 
 , librsvg, pango, gtk, automake, autoconf, sourceFromHead, libtool, ruby, which, intltool
 , version ? "0.2.0" }:
@@ -12,13 +12,15 @@ in
   stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "gegl" version {
     git = let babl_ =babl.override { version = "git"; }; in {
       # REGION AUTO UPDATE: { name="gegl"; type="git"; url="git://git.gnome.org/gegl"; groups = "gimp_group"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gegl-git-91ac0.tar.bz2"; sha256 = "e58a45bd81d51b172560da1e980d35f20708dc4887a9a5ff203cea2304c120a2"; });
-      name = "gegl-git-91ac0";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gegl-git-c81d1.tar.bz2"; sha256 = "8ced8d1957b4eeadea6c86949eba72f4d531301b4db293f909ac90711169f997"; });
+      name = "gegl-git-c81d1";
       # END
       buildInputs = commonBuildInputs ++ [
         babl_
         automake bzip2 autoconf libtool ruby which
+        python
       ];
+      propagatedBuildInputs = [json_glib];
       preConfigure = "./autogen.sh";
       passthru = { babl = babl_; };
     };

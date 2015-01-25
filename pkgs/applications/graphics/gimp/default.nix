@@ -112,7 +112,27 @@ let
         url = "ftp://ftp.gimp.org/pub/gimp/v2.8/gimp-2.8.8.tar.bz2";
         md5 = "ef2547c3514a1096931637bd6250635a";
       };
-      buildInputs = commonBuildInputs ++ commonBuildInputs28 ++ [ p.babl p.gegl p.libpng ];
+      buildInputs =
+        commonBuildInputs
+        ++ commonBuildInputs28
+        ++ [ p.babl p.gegl p.libpng ];
+
+      passthru = {
+        pluginDir = "lib/gimp/2.0/plug-ins";
+        scriptDir = "share/gimp/2.0/scripts";
+      };
+    };
+    
+
+    "latest" = {
+      src = fetchurl {
+        url = "ftp://ftp.gimp.org/pub/gimp/v2.9/gimp-2.8.8.tar.bz2";
+        md5 = "ef2547c3514a1096931637bd6250635a";
+      };
+      buildInputs =
+        commonBuildInputs
+        ++ commonBuildInputs28
+        ++ [ p.babl p.gegl p.libpng ];
 
       passthru = {
         pluginDir = "lib/gimp/2.0/plug-ins";
@@ -121,10 +141,15 @@ let
     };
 
     "git" = {
-      buildInputs = commonBuildInputs ++ commonBuildInputs28 ++ [
+      buildInputs =
+        commonBuildInputs
+        ++ commonBuildInputs28
+        ++ [
         ( p.babl.override { version = "git"; } )
         ( p.gegl.override { version = "git"; } )
-        p.autoconf p.automake111x p.gnome.gtkdoc p.libxslt p.libtool
+        p.autoconf p.automake111x p.libxslt p.libtool
+        p.gnome.gtkdoc
+        p.gnome3.gexiv2
         p.pango p.cairo
         p.libpng
       ];
@@ -136,8 +161,8 @@ let
       sed -i 's@gegl >= 0.1.6@gegl-2.0 >= 0.1.6@' configure
       '';
       # REGION AUTO UPDATE: { name="gimp"; type="git"; url="git://git.gnome.org/gimp"; groups = "gimp_group"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-6208d.tar.bz2"; sha256 = "04b022cb4e49d3cd3c9ca41e5ae24353f3df96dd6a81ac6f722bb8b856d83c5e"; });
-      name = "gimp-git-6208d";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-4ace9.tar.bz2"; sha256 = "83d9f6fad797458f52581acb52938a3bfa12ca2b05f6718820560b72392611a1"; });
+      name = "gimp-git-4ace9";
       # END
 
       passthru = {

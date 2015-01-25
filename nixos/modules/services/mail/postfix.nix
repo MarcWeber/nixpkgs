@@ -17,8 +17,8 @@ let
 
   postfixEtcDir = pkgs.runCommand "postfix-etc-dir" {} ''
     ensureDir $out
-    ln -s ${postfix}/share/postfix/conf/master.cf $out/master.cf
-    ln -s ${postfix}/share/postfix/conf/bounce.cf.default $out/bounce.cf
+    ln -s ${masterCfFile} $out/master.cf
+    ln -s ${postfix}/etc/postfix/bounce.cf.default $out/bounce.cf
     ln -s ${mainCfFile} $out/main.cf
   '';
   # helper functions
@@ -45,7 +45,6 @@ let
       '' else ''
         cp ${inputFile} "${fname}"
         ${postfix}/sbin/${command} ${commandArgs} "${type}:${fname}"
-        rm $n
         # sanity check
         ${postfix}/sbin/${command} ${commandArgs} -s "${type}:${fname}" > /dev/null || { echo "${fname} bad format!"; exit 1; }
         [ -f "${fname}.db" ]
@@ -158,7 +157,48 @@ let
     + (concatStrings (catAttrs "cfg" configForTables))
     + cfg.extraConfig;
 
+  masterCf = ''
+    # ==========================================================================
+    # service type  private unpriv  chroot  wakeup  maxproc command + args
+    #               (yes)   (yes)   (yes)   (never) (100)
+    # ==========================================================================
+    smtp      inet  n       -       n       -       -       smtpd
+    #submission inet n       -       n       -       -       smtpd
+    #  -o smtpd_tls_security_level=encrypt
+    #  -o smtpd_sasl_auth_enable=yes
+    #  -o smtpd_client_restrictions=permit_sasl_authenticated,reject
+    #  -o milter_macro_daemon_name=ORIGINATING
+    pickup    unix  n       -       n       60      1       pickup
+    cleanup   unix  n       -       n       -       0       cleanup
+    qmgr      unix  n       -       n       300     1       qmgr
+    tlsmgr    unix  -       -       n       1000?   1       tlsmgr
+    rewrite   unix  -       -       n       -       -       trivial-rewrite
+    bounce    unix  -       -       n       -       0       bounce
+    defer     unix  -       -       n       -       0       bounce
+    trace     unix  -       -       n       -       0       bounce
+    verify    unix  -       -       n       -       1       verify
+    flush     unix  n       -       n       1000?   0       flush
+    proxymap  unix  -       -       n       -       -       proxymap
+    proxywrite unix -       -       n       -       1       proxymap
+    smtp      unix  -       -       n       -       -       smtp
+    relay     unix  -       -       n       -       -       smtp
+    	      -o smtp_fallback_relay=
+    #       -o smtp_helo_timeout=5 -o smtp_connect_timeout=5
+    showq     unix  n       -       n       -       -       showq
+    error     unix  -       -       n       -       -       error
+    retry     unix  -       -       n       -       -       error
+    discard   unix  -       -       n       -       -       discard
+    local     unix  -       n       n       -       -       local
+    virtual   unix  -       n       n       -       -       virtual
+    lmtp      unix  -       -       n       -       -       lmtp
+    anvil     unix  -       -       n       -       1       anvil
+    scache    unix  -       -       n       -       1       scache
+    ${cfg.extraMasterConf}
+  '';
+
   mainCfFile = pkgs.writeText "postfix-main.cf" mainCf;
+
+  masterCfFile = pkgs.writeText "postfix-master.cf" masterCf;
 
 in
 
@@ -392,6 +432,12 @@ in
         };
       };
 
+      extraMasterConf = mkOption {
+        default = "";
+        example = "submission inet n - n - - smtpd";
+        description = "Extra lines to append to the generated master.cf file.";
+      };
+
     };
 
   };
@@ -461,7 +507,7 @@ in
 
         # maybe some more chown / chomd commands must be run (TODO)
         preStartScript = pkgs.writeScript "postfix-pre-start" ''
-        #!/bin/sh
+        #!/bin/sh -e
         if ! [ -d /var/spool/postfix ]; then
           ${pkgs.coreutils}/bin/mkdir -p /var/spool/mail /etc/postfix /var/postfix/queue
         fi
@@ -476,6 +522,7 @@ in
 
         rm -fr ${generatedFiles}
         mkdir -p ${generatedFiles}
+
         ${concatStrings (catAttrs "cmd" configForTables)}
         '';
       in {

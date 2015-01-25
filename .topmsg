@@ -1,2 +1,2 @@
-Adding services.nginx.http.server.<name> option
-which can be used to define servers in the http section
+Adding services.nginx.http.servers option
+which can be used to define servers in nginx's http section

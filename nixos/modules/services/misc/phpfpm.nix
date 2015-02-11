@@ -59,6 +59,11 @@ debugging is only enable for php 5.3
             "php53" = rec {
               daemonCfg.php = pkgs.php5_3fpm;
               daemonCfg.xdebug = { enable = true; remote_port = "9000"; };
+              daemonCfg.opcache = {
+                # only php 5.5 or greater
+                enable = true;
+                # memory_consumption=128;
+              };
               daemonCfg.phpIniLines = ''
               additional php ini lines
               '';
@@ -120,7 +125,7 @@ debugging is only enable for php 5.3
 let
   inherit (builtins) listToAttrs head baseNameOf unsafeDiscardStringContext toString;
   inherit (pkgs.lib) mkOption mkIf mkMerge mergeAttrs foldAttrs attrValues
-                    mapAttrs catAttrs fold optionalString;
+                    mapAttrs catAttrs fold optionalString concatStrings mapAttrsFlatten;
 
   cfg =  config.services.phpfpm;
 
@@ -132,8 +137,36 @@ let
 
   preparePool = item: # item = item of phpfpm.pools
     let
+      opCacheDefaults = {
+        memory_consumption = 64;
+        interned_strings_buffer = 8;
+        max_accelerated_files = 2000;
+        revalidate_freq = 2;
+        fast_shutdown = 1;
+        enable_cli = 1;
+      };
+
+      enableOpcache = item.daemonCfg.opcache.enable or false;
       enableXdebug = item.daemonCfg.xdebug.enable or false;
       profileDir = item.daemonCfg.xdebug.profileDir or (id: "/tmp/xdebug-profiler-dir-${id}");
+
+      # op must be before xdebug otherwise xdebug doesn't work
+      op = if enableOpcache
+        then {
+          idAppend = "-opcache";
+          phpIniLines = ''
+          zend_extension=opcache.so
+          ''
+          + concatStrings (
+                        mapAttrsFlatten (n: v: "opcache.${n}=${builtins.toString v}\n")
+                                        (builtins.removeAttrs  (opCacheDefaults // item.daemonCfg.opcache) ["enable"])
+                        );
+        }
+        else {
+          idAppend = "";
+          phpIniLines = "";
+        };
+
       xd = if enableXdebug
         then
           let remote_host = item.xdebug.remote_host or "127.0.0.1";
@@ -157,12 +190,14 @@ let
           phpIniLines = "";
         };
       phpIniLines =
-          xd.phpIniLines
+          op.phpIniLines
+          + xd.phpIniLines
           + (item.daemonCfg.phpIniLines or "");
 
 
       # using phpIniLines create a cfg-id
       iniId = builtins.substring 0 5 (builtins.hashString "sha256" (unsafeDiscardStringContext phpIniLines))
+              +op.idAppend
               +xd.idAppend;
 
       phpIni = (item.daemonCfg.phpIniFile or phpIniFile) {

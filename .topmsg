@@ -26,6 +26,8 @@ nixos:
   Enabling xdebug is very easy now, see example at
   nixos/modules/services/misc/phpfpm.nix
 
+  Same to enabling opcache.
+
   replace nixos/modules/services/web-servers/phpfpm.nix
   by nixos/modules/services/misc/phpfpm.nix
   because its more powerful

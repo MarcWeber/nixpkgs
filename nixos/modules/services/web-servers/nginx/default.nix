@@ -169,7 +169,7 @@ in
                 listen ${server.listen} ssl ${defaultServer};
                 ssl_certificate     ${server.sslCert};
                 ssl_certificate_key ${server.sslKey};
-                ssl_protocols       SSLv3 TLSv1 TLSv1.1 TLSv1.2;
+                ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
                 ssl_ciphers         HIGH:!aNULL:!MD5;
               '' else ''
                 listen ${server.listen} ${defaultServer};

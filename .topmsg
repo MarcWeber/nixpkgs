@@ -13,5 +13,7 @@ branch for each
 - adding ziproxy
 - ffmpeg git
 - calligra krita fix (eigen -> eigen2)
+- writeText: support large files
+  (https://github.com/NixOS/nixpkgs/pull/6303)
 
 Signed-off-by: Marc Weber <marco-oweber@gmx.de>

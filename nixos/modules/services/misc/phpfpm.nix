@@ -58,6 +58,7 @@ debugging is only enable for php 5.3
 
             "php53" = rec {
               daemonCfg.php = pkgs.php5_3fpm;
+              daemonCfg.apcu.enable = true;
               daemonCfg.xdebug = { enable = true; remote_port = "9000"; };
               daemonCfg.opcache = {
                 # only php 5.5 or greater
@@ -146,9 +147,37 @@ let
         enable_cli = 1;
       };
 
+      apcuDefaults = {
+        enabled = 1;
+        shm_size = 128; # you may want to increase this
+        ttl = 7200;
+        enable_cli = 0;
+        gc_ttl = 3600;
+        entries_hint = 4096;
+        slam_defense = 1;
+        serializer = "igbinary";
+      };
+
       enableOpcache = item.daemonCfg.opcache.enable or false;
       enableXdebug = item.daemonCfg.xdebug.enable or false;
+      enableApcu = item.daemonCfg.apcu.enable or false;
       profileDir = item.daemonCfg.xdebug.profileDir or (id: "/tmp/xdebug-profiler-dir-${id}");
+
+      formatIni = prefix: opts: concatStrings (mapAttrsFlatten (n: v: "${prefix}.${n}=${builtins.toString v}\n") opts);
+
+      apcu = if enableApcu
+        then {
+          idAppend = "-apcu";
+          phpIniLines = ''
+          extension="${item.daemonCfg.php.apcu}/lib/php/extensions/apcu.so"
+          ''
+          + formatIni "apc" (builtins.removeAttrs  (apcuDefaults // item.daemonCfg.apcu) ["enable"]);
+        }
+        else {
+          idAppend = "";
+          phpIniLines = "";
+        };
+
 
       # op must be before xdebug otherwise xdebug doesn't work
       op = if enableOpcache
@@ -157,10 +186,7 @@ let
           phpIniLines = ''
           zend_extension=opcache.so
           ''
-          + concatStrings (
-                        mapAttrsFlatten (n: v: "opcache.${n}=${builtins.toString v}\n")
-                                        (builtins.removeAttrs  (opCacheDefaults // item.daemonCfg.opcache) ["enable"])
-                        );
+          + formatIni "opcache" (builtins.removeAttrs  (opCacheDefaults // item.daemonCfg.opcache) ["enable"]);
         }
         else {
           idAppend = "";
@@ -192,13 +218,15 @@ let
       phpIniLines =
           op.phpIniLines
           + xd.phpIniLines
+          + apcu.phpIniLines
           + (item.daemonCfg.phpIniLines or "");
 
 
       # using phpIniLines create a cfg-id
       iniId = builtins.substring 0 5 (builtins.hashString "sha256" (unsafeDiscardStringContext phpIniLines))
               +op.idAppend
-              +xd.idAppend;
+              +xd.idAppend
+              +apcu.idAppend;
 
       phpIni = (item.daemonCfg.phpIniFile or phpIniFile) {
         inherit item;

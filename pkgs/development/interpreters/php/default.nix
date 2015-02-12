@@ -481,6 +481,7 @@ let
 
     phpPackages = callPackage ../../../top-level/php-packages.nix { php = php_with_id; };
     xdebug = phpPackages.xdebug;
+    apcu = phpPackages.apcu;
 
     # TODO move this into the fpm module?
     system_fpm_config =

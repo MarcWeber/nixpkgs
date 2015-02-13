@@ -1,7 +1,7 @@
 {stdenv, fetchurl, fetchgit, pkgconfig, readline, openssl, go, zlib, icu, gnused, python
 , gyp, libev, etcd, v8
 , versionedDerivation
-, version ? "2.2.3"
+, version ? "2.4"
 }:
 
 versionedDerivation "arangodb" version {
@@ -19,6 +19,16 @@ versionedDerivation "arangodb" version {
     src = fetchurl {
       url = https://www.arangodb.org/repositories/Source/ArangoDB-2.2.3.tar.bz2;
       sha256 = "1fs5azbncy15hf7qh1k13xwnwpvl34l93d2b82v89l5ywf6czllc";
+    };
+  };
+
+  "2.4" = {
+    # arangod  --javascript.app-path /tmp/app-path --javascript.dev-app-path  /tmp/dev-app-path  --log.file /tmp/log  /tmp/db
+    name = "arangodb-2.4.1";
+
+    src = fetchurl {
+      url = https://www.arangodb.com/repositories/Source/ArangoDB-2.4.1.tar.bz2;
+      sha256 = "1i28y2d3p1rry8z439cdjwj1cabc0xdmz5xaxig9dz21x7046qk8";
     };
   };
 }
@@ -45,7 +55,7 @@ versionedDerivation "arangodb" version {
   ];
 
   patchPhase = "
-    sed -i 's@/bin/bash@/bin/sh@' 3rdParty/V8/build/gyp/gyp
+    sed -i 's@/bin/bash@/bin/sh@' 3rdParty/V8*/build/gyp/gyp
   ";
 
   meta = {

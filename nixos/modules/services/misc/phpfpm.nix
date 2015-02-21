@@ -149,7 +149,7 @@ let
 
       apcuDefaults = {
         enabled = 1;
-        shm_size = 128; # you may want to increase this
+        shm_size = "128M"; # you may want to increase this
         ttl = 7200;
         enable_cli = 0;
         gc_ttl = 3600;

@@ -62,9 +62,6 @@ self: super: {
   # bos/attoparsec#92
   attoparsec = dontCheck super.attoparsec;
 
-  # test suite hangs silently for at least 10 minutes
-  split = dontCheck super.split;
-
   # Test suite fails with some (seemingly harmless) error.
   # https://code.google.com/p/scrapyourboilerplate/issues/detail?id=24
   syb = dontCheck super.syb;
@@ -78,8 +75,13 @@ self: super: {
   # Version 1.19.5 fails its test suite.
   happy = dontCheck super.happy;
 
-  # Test suite hangs silently without consuming any CPU.
-  # https://github.com/ndmitchell/extra/issues/4
-  extra = dontCheck super.extra;
+  # Test suite fails in "/tokens_bytestring_unicode.g.bin".
+  alex = dontCheck super.alex;
+
+  # Upstream was notified about the over-specified constraint on 'base'
+  # but refused to do anything about it because he "doesn't want to
+  # support a moving target". Go figure.
+  barecheck = doJailbreak super.barecheck;
+  cartel = overrideCabal super.cartel (drv: { doCheck = false; patchPhase = "sed -i -e 's|base >= .*|base|' cartel.cabal"; });
 
 }

@@ -130,6 +130,11 @@ lib.mapAttrs (n: v: v // { shortName = n; }) rec {
     fullName = "Eclipse Public License 1.0";
   };
 
+  fdl12 = spdx {
+    spdxId = "GFDL-1.2";
+    fullName = "GNU Free Documentation License v1.2";
+  };
+
   free = {
     fullName = "Unspecified free software license";
   };
@@ -183,6 +188,11 @@ lib.mapAttrs (n: v: v // { shortName = n; }) rec {
   iasl = {
     fullName = "iASL";
     url = http://www.calculate-linux.org/packages/licenses/iASL;
+  };
+
+  ijg = spdx {
+    spdxId = "IJG";
+    fullName = "Independent JPEG Group License";
   };
 
   inria = {

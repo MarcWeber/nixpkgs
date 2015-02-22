@@ -1658,6 +1658,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   logict = callPackage ../development/libraries/haskell/logict {};
 
+  logsink = callPackage ../development/libraries/haskell/logsink {};
+
   loop = callPackage ../development/libraries/haskell/loop {};
 
   lushtags = callPackage ../development/libraries/haskell/lushtags {};
@@ -2825,6 +2827,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
 
   vectorBinaryInstances = callPackage ../development/libraries/haskell/vector-binary-instances {};
 
+  vectorFftw = callPackage ../development/libraries/haskell/vector-fftw {};
+
   vectorInstances = callPackage ../development/libraries/haskell/vector-instances {};
 
   vectorSpace = callPackage ../development/libraries/haskell/vector-space {};
@@ -2886,6 +2890,8 @@ self : let callPackage = x : y : modifyPrio (newScope self x y); in
   webRoutes = callPackage ../development/libraries/haskell/web-routes {};
 
   webRoutesBoomerang = callPackage ../development/libraries/haskell/web-routes-boomerang {};
+
+  webRoutesHappstack = callPackage ../development/libraries/haskell/web-routes-happstack {};
 
   websockets = callPackage ../development/libraries/haskell/websockets {};
 

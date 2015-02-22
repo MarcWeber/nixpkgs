@@ -37,6 +37,9 @@ self: super: {
   # mtl 2.2.x needs the latest transformers.
   mtl_2_2_1 = super.mtl_2_2_1.override { transformers = self.transformers_0_4_2_0; };
 
+  # Configure build for mtl 2.1.x.
+  mtl-compat = addBuildDepend (enableCabalFlag super.mtl-compat "two-point-one") self.transformers-compat;
+
   # Idris requires mtl 2.2.x.
   idris = overrideCabal (super.idris.overrideScope (self: super: {
     mkDerivation = drv: super.mkDerivation (drv // { doCheck = false; });
@@ -50,7 +53,7 @@ self: super: {
   });                           # warning: "Module ‘Control.Monad.Error’ is deprecated"
 
   # Depends on time == 0.1.5, which we don't have.
-  HStringTemplate_0_8 = dontDistribute super.HStringTemplate_0_8;
+  HStringTemplate_0_8_1 = dontDistribute super.HStringTemplate_0_8_1;
 
   # This is part of bytestring in our compiler.
   bytestring-builder = dontHaddock super.bytestring-builder;
@@ -59,21 +62,47 @@ self: super: {
   imports = super.imports.override { mtl = self.mtl_2_2_1; };
 
   # Newer versions require mtl 2.2.x.
-  mtl-prelude = self.mtl-prelude_1_0_2;
+  mtl-prelude = self.mtl-prelude_1_0_3;
 
   # The test suite pulls in mtl 2.2.x
   command-qq = dontCheck super.command-qq;
+
+  # Doesn't support GHC < 7.10.x.
+  ghc-exactprint = dontDistribute super.ghc-exactprint;
+
+  # Newer versions require transformers 0.4.x.
+  seqid = super.seqid_0_1_0;
+  seqid-streams = super.seqid-streams_0_1_0;
+
+  # Need binary >= 0.7.2, but our compiler has only 0.7.1.0.
+  hosc = dontDistribute super.hosc;
+  tidal-midi = dontDistribute super.tidal-midi;
+
+  # Needs mtl 2.2.x due to "plailude".
+  clac = dontDistribute super.clac;
+
+  # https://github.com/junjihashimoto/test-sandbox-compose/issues/1
+  test-sandbox = markBroken super.test-sandbox;
+  test-sandbox-compose = markBroken super.test-sandbox-compose;
+
+  # https://github.com/alephcloud/hs-configuration-tools/issues/38
+  configuration-tools = markBroken super.configuration-tools;
+  yet-another-logger = markBroken super.yet-another-logger;
+
+  # Needs mtl 2.2.x.
+  hypher = markBroken super.hypher;
 
 }
 
 // # packages relating to amazonka
 
 (let
-  amazonkaEnv = let self_ = self; in self: super: {
+  Cabal = self.Cabal_1_18_1_6.overrideScope amazonkaEnv;
+  amazonkaEnv = self: super: {
     mkDerivation = drv: super.mkDerivation (drv // {
       doCheck = false;
       hyperlinkSource = false;
-      extraLibraries = (drv.extraLibraries or []) ++ [ (
+      buildTools = (drv.buildTools or []) ++ [ (
         if pkgs.stdenv.lib.elem drv.pname [
           "Cabal"
           "time"
@@ -81,7 +110,7 @@ self: super: {
           "directory"
           "process"
           "jailbreak-cabal"
-        ] then null else self.Cabal_1_18_1_6
+        ] then null else Cabal
       ) ];
     });
     mtl = self.mtl_2_2_1;
@@ -91,21 +120,16 @@ self: super: {
     time = self.time_1_5_0_1;
     unix = self.unix_2_7_1_0;
     directory = self.directory_1_2_1_0;
-    process = overrideCabal self.process_1_2_1_0 (drv: { coreSetup = true; });
-    inherit amazonka-core amazonkaEnv amazonka amazonka-cloudwatch;
+    process = overrideCabal self.process_1_2_2_0 (drv: { coreSetup = true; });
+    inherit amazonka-core amazonkaEnv amazonka amazonka-cloudwatch amazonka-glacier amazonka-ecs;
   };
-  Cabal = self.Cabal_1_18_1_6.overrideScope amazonkaEnv;
-  amazonka-core =
-    overrideCabal (super.amazonka-core.overrideScope amazonkaEnv) (drv: {
-      # https://github.com/brendanhay/amazonka/pull/57
-      prePatch = "sed -i 's|nats >= 0.1.3 && < 1|nats|' amazonka-core.cabal";
-      extraLibraries = (drv.extraLibraries or []) ++ [ Cabal ];
-    });
-  useEnvCabal = p: overrideCabal (p.overrideScope amazonkaEnv) (drv: {
-    buildDepends = (drv.buildDepends or []) ++ [ Cabal ];
-  });
-  amazonka = useEnvCabal super.amazonka;
-  amazonka-cloudwatch = useEnvCabal super.amazonka-cloudwatch;
+  amazonka = super.amazonka.overrideScope amazonkaEnv;
+  amazonka-cloudwatch = super.amazonka-cloudwatch.overrideScope amazonkaEnv;
+  amazonka-core = super.amazonka-core.overrideScope amazonkaEnv;
+  amazonka-ecs = super.amazonka-ecs.overrideScope amazonkaEnv;
+  amazonka-glacier = super.amazonka-glacier.overrideScope amazonkaEnv;
+  amazonka-kms = super.amazonka-kms.overrideScope amazonkaEnv;
 in {
-  inherit amazonka-core amazonkaEnv amazonka amazonka-cloudwatch;
+  inherit amazonkaEnv;
+  inherit amazonka amazonka-cloudwatch amazonka-core amazonka-ecs amazonka-kms amazonka-glacier;
 })

@@ -88,6 +88,7 @@ let
   setupCompileFlags = [
     (optionalString (!coreSetup) "-${packageDbFlag}=$packageConfDir")
     (optionalString (versionOlder "7.8" ghc.version) "-j$NIX_BUILD_CORES")
+    (optionalString (versionOlder "7.10" ghc.version) "-threaded") # https://github.com/haskell/cabal/issues/2398
   ];
 
   isHaskellPkg = x: (x ? pname) && (x ? version) && (x ? env);
@@ -252,6 +253,8 @@ stdenv.mkDerivation ({
     env = stdenv.mkDerivation {
       name = "interactive-${optionalString hasActiveLibrary "haskell-"}${pname}-${version}-environment";
       nativeBuildInputs = [ ghcEnv systemBuildInputs ];
+      LANG = "en_US.UTF-8";
+      LOCALE_ARCHIVE = optionalString stdenv.isLinux "${glibcLocales}/lib/locale/locale-archive";
       shellHook = ''
         export NIX_GHC="${ghcEnv}/bin/ghc"
         export NIX_GHCPKG="${ghcEnv}/bin/ghc"

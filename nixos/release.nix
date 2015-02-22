@@ -252,7 +252,7 @@ in rec {
   tests.firefox = callTest tests/firefox.nix {};
   tests.firewall = callTest tests/firewall.nix {};
   tests.fleet = scrubDrv (import tests/fleet.nix { system = "x86_64-linux"; });
-  tests.gitlab = callTest tests/gitlab.nix {};
+  #tests.gitlab = callTest tests/gitlab.nix {};
   tests.gnome3 = callTest tests/gnome3.nix {};
   tests.installer.grub1 = forAllSystems (system: scrubDrv (import tests/installer.nix { inherit system; }).grub1.test);
   tests.installer.lvm = forAllSystems (system: scrubDrv (import tests/installer.nix { inherit system; }).lvm.test);
@@ -300,6 +300,7 @@ in rec {
   tests.nfs3 = callTest tests/nfs.nix { version = 3; };
   tests.nsd = callTest tests/nsd.nix {};
   tests.openssh = callTest tests/openssh.nix {};
+  tests.panamax = scrubDrv (import tests/panamax.nix { system = "x86_64-linux"; });
   tests.peerflix = callTest tests/peerflix.nix {};
   tests.printing = callTest tests/printing.nix {};
   tests.proxy = callTest tests/proxy.nix {};

@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, patchelf, perl, ncurses, expat, python, zlib
+{ lib, stdenv, fetchurl, patchelf, perl, ncurses, expat, python, zlib
 , xlibs, gtk2, glib, fontconfig, freetype, unixODBC, alsaLib
 } :
 
@@ -26,7 +26,7 @@ stdenv.mkDerivation rec {
     gtk2 glib fontconfig freetype unixODBC alsaLib
   ];
 
-  rpath = "${stdenv.lib.makeLibraryPath runtimeDependencies}:${stdenv.cc.gcc}/lib64";
+  rpath = "${stdenv.lib.makeLibraryPath runtimeDependencies}:${stdenv.cc.cc}/lib64";
 
   unpackPhase = ''
     sh $src --keep --noexec
@@ -57,6 +57,6 @@ stdenv.mkDerivation rec {
   setupHook = ./setup-hook.sh;
 
   meta = {
-    license = [ "nonfree" ];
+    license = lib.licenses.unfree;
   };
 }

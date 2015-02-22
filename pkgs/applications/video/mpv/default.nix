@@ -50,19 +50,19 @@ assert cacaSupport -> libcaca != null;
 
 let
   waf = fetchurl {
-    url = http://ftp.waf.io/pub/release/waf-1.8.1;
-    sha256 = "ec658116ba0b96629d91fde0b32321849e866e0819f1e835c4c2c7f7ffe1a21d";
+    url = http://ftp.waf.io/pub/release/waf-1.8.5;
+    sha256 = "0gh266076pd9fzwkycskyd3kkv2kds9613blpxmn9w4glkiwmmh5";
   };
 
 in
 
 stdenv.mkDerivation rec {
   name = "mpv-${version}";
-  version = "0.7.1";
+  version = "0.7.3";
 
   src = fetchurl {
     url = "https://github.com/mpv-player/mpv/archive/v${version}.tar.gz";
-    sha256 = "1grnmhj7hymi77ivvyzpgykj4wwrjd7a9apm5vyz2xqrankn3hyc";
+    sha256 = "1cg82zwzi6qh8s8w3716ikm1l1sigl9h6pd9ffdrp3ja4r2drp48";
   };
 
   buildInputs = with stdenv.lib;

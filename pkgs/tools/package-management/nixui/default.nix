@@ -4,13 +4,13 @@
 , configurations ? (config.nixui.configurations or ["/etc/nixos/configuration.nix"])
 , NIX_PATH ? (config.nixui.NIX_PATH or "/nix/var/nix/profiles/per-user/root/channels/nixos:nixpkgs=/etc/nixos/nixpkgs:nixos-config=/etc/nixos/configuration.nix") }:
 let
-  version = "0.1.0";
+  version = "0.1.2";
   src = fetchgit {
     url = "git://github.com/matejc/nixui.git";
     rev = "refs/tags/${version}";
-    sha256 = "198inv8ih751fc1l4dvjp9p6k4kfacikab61v6f604d45psnk6qf";
+    sha256 = "0rq8q867j4fx5j8mkidbwgbzqj4w4xi45xr8ya79m6v3iqqblhhj";
   };
-  nixui = (import "${src}/default.nix" { nixui = src; inherit pkgs; }).build;
+  nixui = (import ./node-default.nix { nixui = src; inherit pkgs; }).build;
   script = writeScript "nixui" ''
     #! ${stdenv.shell}
     export PATH="${nix}/bin:\$PATH"

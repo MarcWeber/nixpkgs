@@ -57,6 +57,7 @@
   ./programs/bash/bash.nix
   ./programs/zsh/zsh.nix
   ./programs/blcr.nix
+  ./programs/cdemu.nix
   ./programs/command-not-found/command-not-found.nix
   ./programs/dconf.nix
   ./programs/environment.nix
@@ -106,6 +107,7 @@
   ./services/backup/tarsnap.nix
   ./services/cluster/fleet.nix
   ./services/cluster/kubernetes.nix
+  ./services/cluster/panamax.nix
   ./services/computing/torque/server.nix
   ./services/computing/torque/mom.nix
   ./services/continuous-integration/jenkins/default.nix
@@ -146,11 +148,13 @@
   ./services/hardware/acpid.nix
   ./services/hardware/amd-hybrid-graphics.nix
   ./services/hardware/bluetooth.nix
+  ./services/hardware/freefall.nix
   ./services/hardware/nvidia-optimus.nix
   ./services/hardware/pcscd.nix
   ./services/hardware/pommed.nix
   ./services/hardware/sane.nix
   ./services/hardware/tcsd.nix
+  ./services/hardware/tlp.nix
   ./services/hardware/thinkfan.nix
   ./services/hardware/udev.nix
   ./services/hardware/udisks2.nix
@@ -164,13 +168,16 @@
   ./services/logging/syslogd.nix
   ./services/logging/syslog-ng.nix
   ./services/mail/dovecot.nix
+  ./services/mail/exim.nix
   ./services/mail/freepops.nix
   ./services/mail/mail.nix
   # ./services/mail/mlmmj.nix
   ./services/mail/opensmtpd.nix
   ./services/mail/postfix.nix
   ./services/mail/spamassassin.nix
+  ./services/misc/apache-kafka.nix
   #./services/misc/autofs.nix
+  ./services/misc/canto-daemon.nix
   ./services/misc/cpuminer-cryptonight.nix
   ./services/misc/cgminer.nix
   ./services/misc/dictd.nix
@@ -188,6 +195,7 @@
   ./services/misc/nix-gc.nix
   ./services/misc/nixos-manual.nix
   ./services/misc/nix-ssh-serve.nix
+  ./services/misc/parsoid.nix
   ./services/misc/phd.nix
   ./services/misc/phpfpm.nix
   ./services/misc/redmine.nix
@@ -285,6 +293,7 @@
   ./services/networking/searx.nix
   ./services/networking/seeks.nix
   ./services/networking/spiped.nix
+  ./services/networking/sslh.nix
   ./services/networking/ssh/lshd.nix
   ./services/networking/ssh/sshd.nix
   ./services/networking/strongswan.nix
@@ -292,7 +301,9 @@
   ./services/networking/syncthing.nix
   ./services/networking/tcpcrypt.nix
   ./services/networking/teamspeak3.nix
+  ./services/networking/tinc.nix
   ./services/networking/tftpd.nix
+  ./services/networking/tlsdated.nix
   ./services/networking/tox-bootstrapd.nix
   ./services/networking/unbound.nix
   ./services/networking/unifi.nix
@@ -309,6 +320,7 @@
   ./services/scheduling/chronos.nix
   ./services/scheduling/cron.nix
   ./services/scheduling/fcron.nix
+  ./services/scheduling/marathon.nix
   ./services/search/elasticsearch.nix
   ./services/search/solr.nix
   ./services/security/clamav.nix
@@ -340,6 +352,7 @@
   ./services/web-servers/nginx/default.nix
   # ./services/web-servers/phpfpm.nix
   ./services/web-servers/tomcat.nix
+  ./services/web-servers/uwsgi.nix
   ./services/web-servers/varnish/default.nix
   ./services/web-servers/winstone.nix
   ./services/web-servers/zope2.nix
@@ -373,6 +386,7 @@
   ./system/boot/kernel.nix
   ./system/boot/kexec.nix
   ./system/boot/loader/efi.nix
+  ./system/boot/loader/loader.nix
   ./system/boot/loader/generations-dir/generations-dir.nix
   ./system/boot/loader/grub/grub.nix
   ./system/boot/loader/grub/ipxe.nix
@@ -418,7 +432,7 @@
   ./virtualisation/docker.nix
   ./virtualisation/libvirtd.nix
   ./virtualisation/lxc.nix
-  #./virtualisation/nova.nix
+  ./virtualisation/amazon-options.nix
   ./virtualisation/openvswitch.nix
   ./virtualisation/parallels-guest.nix
   ./virtualisation/virtualbox-guest.nix

@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, fetchFromGitHub
+{ stdenv, lib, fetchurl, fetchFromGitHub
 , zlib, zlibSupport ? true
 , openssl, opensslSupport ? true
 , gdbm, gdbmSupport ? true
@@ -81,6 +81,12 @@ stdenv.mkDerivation rec {
     # required for ruby-line ruby-debug like libraries
     cp *.h *.inc $out/include
     cp -a include/* $out/include
+  '' + lib.optionalString useRailsExpress ''
+    rbConfig=$(find $out/lib/ruby -name rbconfig.rb)
+
+    # Prevent the baseruby from being included in the closure.
+    sed -i '/^  CONFIG\["BASERUBY"\]/d' $rbConfig
+    sed -i "s|'--with-baseruby=${baseruby}/bin/ruby'||" $rbConfig
   '';
 
   meta = {

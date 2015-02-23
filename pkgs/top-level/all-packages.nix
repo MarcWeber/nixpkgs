@@ -3759,7 +3759,7 @@ let
 
   nim = callPackage ../development/compilers/nim { };
 
-  neko = callPackage ../development/compilers/neko { };
+  neko = callPackage ../development/compilers/neko { apache = apacheHttpd; };
 
   nasm = callPackage ../development/compilers/nasm { };
 

@@ -4426,16 +4426,19 @@ let
   phpPackages = import ./php-packages.nix {
     inherit php pkgs;
   };
-  # php55Packages = recurseIntoAttrs (import ./php-packages.nix {
-  #   inherit pkgs;
-  #   php = php55;
-  # });
 
-  # php54 = callPackage ../development/interpreters/php/5.4.nix { };
+/*
+  php55Packages = recurseIntoAttrs (import ./php-packages.nix {
+    inherit pkgs;
+    php = php55;
+  });
 
-  # php55 = callPackage ../development/interpreters/php/5.5.nix { };
+  php54 = callPackage ../development/interpreters/php/5.4.nix { };
 
-  # php56 = callPackage ../development/interpreters/php/5.6.nix { };
+  php55 = callPackage ../development/interpreters/php/5.5.nix { };
+
+  php56 = callPackage ../development/interpreters/php/5.6.nix { };
+*/
 
   picolisp = callPackage ../development/interpreters/picolisp {};
 

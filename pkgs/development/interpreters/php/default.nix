@@ -5,7 +5,7 @@
 , freetype, writeText
 , openldap, cyrus_sasl, libmhash
 , systemd
-, version ? "5.3.x" # latest stable
+, version ? "5.6.x" # latest stable
 , icu
 , libxslt
 , bzip2
@@ -57,7 +57,7 @@
 }:
 
 /* version specific notes:
-   5.3, 5.4: maintained officially. Everything which does not work is a bug
+   5.4: maintained officially. Everything which does not work is a bug
 
   Having all versions in one file can be considered "complicated" - but I feel
   more code is shared - so I think its the simplest way - unless configuration
@@ -79,9 +79,8 @@
 
 let
 
-  true_version = if version == "5.3.x" then "5.3.29"
-  else if version == "5.4.x" then "5.4.33"
-  else if version == "5.5.x" then "5.5.17"
+  true_version = if version == "5.4.x" then "5.4.38"
+  else if version == "5.5.x" then "5.5.22"
   else if version == "5.6.x" then "5.6.0"
   else version;
 
@@ -438,13 +437,12 @@ let
    src = fetchurl {
      url = "http://de2.php.net/distributions/php-${true_version}.tar.bz2";
      md5 = lib.maybeAttr true_version (throw "unkown php version ${true_version}") {
-       "5.6.0" = "1f889357528809a6675e2f23995832d7";
+      # "5.6.0" = "1f889357528809a6675e2f23995832d7";
+      "5.6.6" = "b198117ee1d44c8143e030cee15f1b52";
 
-      "5.5.17" = "09b4de1d684bad93a9ea4eca6fa476a9";
+      "5.5.22" = "cd5a6321d71897dec26e29e795926669";
 
-      "5.4.33" = "c6878bb1cdb46bfc1e1a5cd67a024737";
-
-      "5.3.29" = "9469e240cbe6ac865aeaec89b253dd30";
+      "5.4.38" = "2bf5007ba4bd012f9895c1b441dd4f50";
      };
      name = "php-${true_version}.tar.bz2";
    };

@@ -1,6 +1,6 @@
 { pkgs, stdenv, fetchurl, composableDerivation, autoconf, automake
 , flex, bison, apacheHttpd, mysql, libxml2, readline
-, zlib, curl, gd, postgresql, openssl, pkgconfig, sqlite, config, libiconv
+, zlib, curl, gd, postgresql, openssl, pkgconfig, sqlite, config
 , libjpeg, libpng, htmlTidy, libmcrypt, fcgi, callPackage, gettext
 , freetype, writeText
 , openldap, cyrus_sasl, libmhash
@@ -78,7 +78,7 @@ let
 
   true_version = if version == "5.4.x" then "5.4.38"
   else if version == "5.5.x" then "5.5.22"
-  else if version == "5.6.x" then "5.6.0"
+  else if version == "5.6.x" then "5.6.6"
   else version;
 
   # used to calculate php id based on features
@@ -219,9 +219,8 @@ let
 
       libxml2 = {
         configureFlags
-          = [ "--with-libxml-dir=${libxml2}"
-              "--with-iconv=${libiconv}" ];
-        buildInputs = [ libxml2 libiconv];
+          = [ "--with-libxml-dir=${libxml2}" ];
+        buildInputs = [ libxml2 ];
       };
 
       pcntl = {

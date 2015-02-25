@@ -4405,9 +4405,6 @@ let
 
   php = callPackage ../development/interpreters/php { };
 
-  php5_3 = php.override { version = "5.3.x"; };
-  php5_3fpm = php5_3.override { sapi = "fpm"; };
-
   php5_4 = php.override { version = "5.4.x"; };
   php5_4fpm = php5_4.override { sapi = "fpm"; };
 

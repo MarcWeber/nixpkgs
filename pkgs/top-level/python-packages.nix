@@ -4575,6 +4575,7 @@ let
     # auto confirming missing dependencies:
     # PORTMIDI and PORTTIME still missing
     patchPhase = ''
+      NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -I${pkgs.SDL_ttf}/include"
       sed -i 's@raw_input(.*@"1"@' config_unix.py
       sed -i 's@linux/videodev.h@libv4l1-videodev.h@' src/camera.h
       unset patchPhase
@@ -12800,7 +12801,11 @@ let
   fly = buildPythonPackage rec {
     name = "plover-2.2.0";
     doCheck = false;
-    installCommand = ''
+    configurePhase = "true";
+    buildPhase = "true";
+    checkPhase = "true";
+    shellHook = "true";
+    installPhase = ''
       ensureDir $out/bin
       cp -a fly $out/fly
       cat >> $out/bin/fly << EOF
@@ -12809,6 +12814,9 @@ let
       $out/fly/main.py "\$@"
       EOF
       chmod +x $out/bin/fly
+    '';
+    postFixup = ''
+      wrapPythonPrograms
     '';
     src = pkgs.fetchurl {
       url = https://launchpadlibrarian.net/113180132/fly_v1.0.0_linux.tar.gz;

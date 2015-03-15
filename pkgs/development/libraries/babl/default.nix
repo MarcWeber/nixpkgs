@@ -27,8 +27,8 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "babl" version {
 
   git = {
     # REGION AUTO UPDATE: { name="babl"; type="git"; url="git://git.gnome.org/babl"; groups = "gimp_group"; }
-    src = (fetchurl { url = "http://mawercer.de/~nix/repos/babl-git-21897.tar.bz2"; sha256 = "4d6419d633ec0a63cf7c10b701e8d6bcc93d045e56aed2022538d6affcf28aa4"; });
-    name = "babl-git-21897";
+    src = (fetchurl { url = "http://mawercer.de/~nix/repos/babl-git-c9690.tar.bz2"; sha256 = "e03531500ea3f136dadfd2b749955708ee84c154aa20b8ddce9e8eeec39f1124"; });
+    name = "babl-git-c9690";
     # END
     buildInputs = [ autoconf automake libtool glib pkgconfig which];
     preConfigure = "./autogen.sh";

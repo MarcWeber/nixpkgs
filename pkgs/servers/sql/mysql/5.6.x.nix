@@ -4,11 +4,11 @@
 
 stdenv.mkDerivation rec {
   name = "mysql-${version}";
-  version = "5.6.21";
+  version = "5.6.23";
 
   src = fetchurl {
     url = "http://cdn.mysql.com/Downloads/MySQL-5.6/${name}.tar.gz";
-    sha256 = "0z7bdzwxwi10z1700f6pcxk6igywzc49l90nwii9q6jbixmaykga";
+    md5 = "60344f26eae136a267a0277407926e79";
   };
 
   preConfigure = stdenv.lib.optional stdenv.isDarwin ''

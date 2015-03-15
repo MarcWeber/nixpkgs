@@ -4565,7 +4565,7 @@ let
 
   game = buildPythonPackage rec {
     name = "pygame-1.9.1";
-    src = fetchurl {
+    src = pkgs.fetchurl {
       url = http://www.pygame.org/ftp/pygame-1.9.1release.tar.gz;
       sha256 = "0cyl0ww4fjlf289pjxa53q4klyn55ajvkgymw0qrdgp4593raq52";
     };
@@ -4575,6 +4575,7 @@ let
     # auto confirming missing dependencies:
     # PORTMIDI and PORTTIME still missing
     patchPhase = ''
+      NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -I${pkgs.SDL_ttf}/include"
       sed -i 's@raw_input(.*@"1"@' config_unix.py
       sed -i 's@linux/videodev.h@libv4l1-videodev.h@' src/camera.h
       unset patchPhase
@@ -12287,7 +12288,7 @@ let
   serial = buildPythonPackage rec {
     name = "pyserial-2.5";
     doCheck = false;
-    src = fetchurl {
+    src = pkgs.fetchurl {
       url = http://heanet.dl.sourceforge.net/project/pyserial/pyserial/2.5/pyserial-2.5.tar.gz;
       sha256 = "04gmpfb43ppc8cf1bvkz8r1gl0nrxc38kpfdqs40ib0d1ql25pgd";
     };
@@ -12789,18 +12790,22 @@ let
       sed -i 's@/usr@usr@g' setup.py
     '';
     installCommand = "python setup.py install --prefix=$out";
-    src = fetchurl {
+    src = pkgs.fetchurl {
       url = http://launchpad.net/plover/trunk/plover-2.2.0/+download/plover-2.2.0.tar.gz;
       sha256 = "1wwgp39zcwqdwj2p8dh1l5bh8qc48s5da7gzp8n8kyv8ja87yzkq";
     };
-    propagatedBuildInputs = [wxPython lockfile serial xlib];
+    propagatedBuildInputs = with self; [wxPython lockfile serial xlib];
   };
 
   # learning app for plover
   fly = buildPythonPackage rec {
     name = "plover-2.2.0";
     doCheck = false;
-    installCommand = ''
+    configurePhase = "true";
+    buildPhase = "true";
+    checkPhase = "true";
+    shellHook = "true";
+    installPhase = ''
       ensureDir $out/bin
       cp -a fly $out/fly
       cat >> $out/bin/fly << EOF
@@ -12810,11 +12815,14 @@ let
       EOF
       chmod +x $out/bin/fly
     '';
-    src = fetchurl {
+    postFixup = ''
+      wrapPythonPrograms
+    '';
+    src = pkgs.fetchurl {
       url = https://launchpadlibrarian.net/113180132/fly_v1.0.0_linux.tar.gz;
       sha256 = "0w2xgq1hvbzk5gswl08a1bannjzi7z1kh4zcjsnvmjp3qz4v39z8";
     };
-    propagatedBuildInputs = [wxPython lockfile serial xlib game];
+    propagatedBuildInputs = with self; [wxPython lockfile serial xlib game];
   };
 
   graphite_api = buildPythonPackage rec {

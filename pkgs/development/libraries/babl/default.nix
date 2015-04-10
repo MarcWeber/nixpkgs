@@ -1,6 +1,6 @@
 { stdenv, fetchurl
 , autoconf, automake, libtool, sourceFromHead, glib, pkgconfig, which
-, version ? "0.1.10"
+, version ? "0.1.12"
 }:
 
 stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "babl" version {
@@ -16,12 +16,14 @@ stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "babl" version {
   };
   */
 
-  "0.1.10" = {
-    name = "babl-0.1.10";
+  "0.1.12" = rec {
+    name = "babl-0.1.12";
+
     src = fetchurl {
-      url = "ftp://ftp.gtk.org/pub/babl/0.1/babl-0.1.10.tar.bz2";
-      sha256 = "943fc36ceac7dd25bc928256bc7b535a42989c6b971578146869eee5fe5955f4";
+      url = "http://ftp.gtk.org/pub/babl/0.1/${name}.tar.bz2";
+      sha256 = "01x4an6zixrhn0vibkxpcb7gg348gadydq8gpw82rdqp39zjp01g";
     };
+
     buildInputs = [];
   };
 

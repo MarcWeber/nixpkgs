@@ -4,6 +4,9 @@ with import ./lib.nix { inherit pkgs; };
 
 self: super: {
 
+  # LLVM is not supported on this GHC; use the latest one.
+  inherit (pkgs) llvmPackages;
+
   # Disable GHC 6.12.x core libraries.
   array = null;
   base = null;
@@ -38,14 +41,14 @@ self: super: {
   unix = null;
 
   # binary is not a core library for this compiler.
-  binary = self.binary_0_7_3_0;
+  binary = self.binary_0_7_4_0;
 
   # deepseq is not a core library for this compiler.
   deepseq_1_3_0_1 = dontJailbreak super.deepseq_1_3_0_1;
   deepseq = self.deepseq_1_3_0_1;
 
   # transformers is not a core library for this compiler.
-  transformers = self.transformers_0_4_2_0;
+  transformers = self.transformers_0_4_3_0;
   mtl = self.mtl_2_2_1;
   transformers-compat = disableCabalFlag super.transformers-compat "three";
 

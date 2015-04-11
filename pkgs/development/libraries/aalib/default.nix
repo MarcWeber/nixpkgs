@@ -19,6 +19,8 @@ stdenv.mkDerivation {
 
   configureFlags = "--without-x --with-ncurses=${ncurses}";
 
+  patches = stdenv.lib.optionals stdenv.isDarwin [ ./darwin.patch ];
+
   meta = {
     description = "ASCII art graphics library";
   };

@@ -50,10 +50,9 @@ rec {
     stripAllFlags=" " # the Darwin "strip" command doesn't know "-s"
     xargsFlags=" "
     export MACOSX_DEPLOYMENT_TARGET=10.7
-    export SDKROOT=
-    export SDKROOT_X=/ # FIXME: impure!
-    export NIX_CFLAGS_COMPILE+=" --sysroot=/var/empty -idirafter $SDKROOT_X/usr/include -F$SDKROOT_X/System/Library/Frameworks -Wno-multichar -Wno-deprecated-declarations"
-    export NIX_LDFLAGS_AFTER+=" -L$SDKROOT_X/usr/lib"
+    export SDKROOT=$(/usr/bin/xcrun --sdk macosx$(/usr/bin/xcrun --show-sdk-version) --show-sdk-path 2> /dev/null || echo /)
+    export NIX_CFLAGS_COMPILE+=" --sysroot=/var/empty -idirafter $SDKROOT/usr/include -F$SDKROOT/System/Library/Frameworks -Wno-multichar -Wno-deprecated-declarations"
+    export NIX_LDFLAGS_AFTER+=" -L$SDKROOT/usr/lib"
     export CMAKE_OSX_ARCHITECTURES=x86_64
   '';
 
@@ -65,7 +64,9 @@ rec {
       name = "stdenv-darwin-boot-1";
 
       inherit system config;
-      inherit (stage0.stdenv) shell initialPath fetchurlBoot;
+      inherit (stage0.stdenv) shell fetchurlBoot;
+
+      initialPath = stage0.stdenv.initialPath ++ [ nativePrefix ];
 
       preHook = preHook + "\n" + ''
         export NIX_LDFLAGS_AFTER+=" -L/usr/lib"
@@ -83,7 +84,7 @@ rec {
         cc           = {
           name    = "clang-9.9.9";
           cc      = "/usr";
-          outPath = "${buildTools.tools}/Library/Developer/CommandLineTools/usr";
+          outPath = nativePrefix;
         };
       };
     };
@@ -127,7 +128,7 @@ rec {
       nativeTools  = false;
       nativeLibc   = true;
       binutils  = pkgs.darwin.cctools;
-      cc        = pkgs.llvmPackages.clang;
+      cc        = pkgs.llvmPackages.clang-unwrapped;
       coreutils = pkgs.coreutils;
       shell     = "${pkgs.bash}/bin/bash";
       extraPackages = [ pkgs.libcxx ];

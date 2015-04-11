@@ -118,6 +118,29 @@ let
     };
   };
 
+  lpty = buildLuaPackage rec {
+    name = "lpty-${version}";
+    version = "1.1.1";
+    src = fetchurl {
+      url = "http://www.tset.de/downloads/lpty-1.1-1.tar.gz";
+      sha256 = "0d4ffda654dcf37dd8c99bcd100d0ee0dde7782cbd0ba9200ef8711c5cab02f1";
+    };
+    meta = {
+      homepage = "http://www.tset.de/lpty";
+      hydraPlatforms = stdenv.lib.platforms.linux;
+      license = stdenv.lib.licenses.mit;
+    };
+    preBuild = ''
+      makeFlagsArray=(
+        INST_LIBDIR="$out/lib/lua/${lua.luaversion}"
+        INST_LUADIR="$out/share/lua/${lua.luaversion}"
+        LUA_BINDIR="${lua}/bin"
+        LUA_INCDIR="-I${lua}/include"
+        LUA_LIBDIR="-L${lua}/lib"
+        );
+    '';
+  };
+
   luasec = buildLuaPackage rec {
     version = "0.5";
     name = "sec-${version}";
@@ -259,6 +282,12 @@ let
     };
     buildInputs = [ unzip ];
 
+    preBuild = ''
+      makeFlagsArray=(CC=$CC);
+    '';
+
+    buildFlags = if stdenv.isDarwin then "macosx" else "";
+
     installPhase = ''
       mkdir -p $out/lib/lua/${lua.luaversion}
       install -p lpeg.so $out/lib/lua/${lua.luaversion}
@@ -267,7 +296,28 @@ let
 
     meta = {
       homepage = "http://www.inf.puc-rio.br/~roberto/lpeg/";
-      hydraPlatforms = stdenv.lib.platforms.linux;
+      hydraPlatforms = stdenv.lib.platforms.all;
+      license = stdenv.lib.licenses.mit;
+    };
+  };
+
+  cjson = buildLuaPackage rec {
+    name = "cjson-${version}";
+    version = "2.1.0";
+    src = fetchurl {
+      url = "http://www.kyne.com.au/~mark/software/download/lua-cjson-2.1.0.tar.gz";
+      sha256 = "0y67yqlsivbhshg8ma535llz90r4zag9xqza5jx0q7lkap6nkg2i";
+    };
+    preBuild = ''
+      sed -i "s|/usr/local|$out|" Makefile
+    '';
+    makeFlags = [ "LUA_VERSION=${lua.luaversion}" ];
+    postInstall = ''
+      rm -rf $out/share/lua/${lua.luaversion}/cjson/tests
+    '';
+    installTargets = "install install-extra";
+    meta = {
+      description = "Lua C extension module for JSON support";
       license = stdenv.lib.licenses.mit;
     };
   };

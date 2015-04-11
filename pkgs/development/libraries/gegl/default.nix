@@ -33,15 +33,16 @@ in
       buildInputs = commonBuildInputs ++ [babl_];
       passthru = { babl = babl_; };
     };
-    "0.1.6" = let babl_ = babl.override { version = "0.1.4"; }; in {
-      name = "gegl-0.1.6";
+    "0.1.12" = let babl_ = babl.override { version = "0.1.12"; }; in rec {
+      name = "gegl-0.1.12";
       src = fetchurl {
-        url = "http://ftp.snt.utwente.nl/pub/software/gimp/gegl/0.1/gegl-0.1.6.tar.bz2";
-        sha256 = "1l966ygss2zkksyw62nm139v2abfzbqqrj0psizvbgzf4mb24rm1";
+        url = "http://ftp.gtk.org/pub/babl/0.1/${name}.tar.bz2";
+        sha256 = "01x4an6zixrhn0vibkxpcb7gg348gadydq8gpw82rdqp39zjp01g";
       };
       buildInputs = commonBuildInputs ++ [babl_ bzip2];
-
       passthru = { babl = babl_; };
+
+      NIX_LDFLAGS = if stdenv.isDarwin then "-lintl" else null;
     };
   }
   {
@@ -52,7 +53,7 @@ in
 
     nativeBuildInputs = [ pkgconfig ];
 
-    meta = { 
+    meta = {
       description = "Graph-based image processing framework";
       homepage = http://www.gegl.org;
       license = stdenv.lib.licenses.gpl3;

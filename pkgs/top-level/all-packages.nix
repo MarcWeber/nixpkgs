@@ -4611,7 +4611,7 @@ let
 
   # you can also use php5_3.phpPackages.memcached for instance
   phpPackages = import ./php-packages.nix {
-    inherit php pkgs;
+    inherit php pkgs fetchgit;
   };
 
   # php55 = callPackage ../development/interpreters/php/5.5.nix { };

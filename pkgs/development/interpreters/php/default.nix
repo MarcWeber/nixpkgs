@@ -1,4 +1,4 @@
-{ pkgs, stdenv, fetchurl, composableDerivation, autoconf, automake
+{ pkgs, stdenv, fetchurl, composableDerivation, autoconf, automake, fetchgit
 , flex, bison, apacheHttpd, mysql, libxml2, readline
 , zlib, curl, gd, postgresql, openssl, pkgconfig, sqlite, config
 , libjpeg, libpng, htmlTidy, libmcrypt, fcgi, callPackage, gettext
@@ -428,7 +428,7 @@ let
     # TODO patch still required? I use php-fpm only
     if lessThan54
     then [./fix.patch]
-    else [./fix-5.4.patch];
+    else [./fix-paths.patch];
 
   });
 
@@ -447,7 +447,7 @@ let
     xcache = callPackage ../../libraries/php-xcache { php = php_with_id; };
     # apc = gone
 
-    phpPackages = callPackage ../../../top-level/php-packages.nix { php = php_with_id; };
+    phpPackages = callPackage ../../../top-level/php-packages.nix { php = php_with_id; inherit fetchgit; };
     xdebug = phpPackages.xdebug;
     apcu = phpPackages.apcu;
 

@@ -1,27 +1,16 @@
-{ stdenv, fetchurl, file, openssl, mlton, mysql, postgresql, sqlite, pkgconfig
-, version ? "20130421"
-}:
+{ stdenv, fetchurl, file, openssl, mlton, mysql, postgresql, sqlite }:
 
-stdenv.mkDerivation ( stdenv.lib.mergeAttrsByVersion "urweb" version {
-    "20130421" = rec {
-      pname = "urweb";
-      version = "20141206";
-      name = "${pname}-${version}";
+stdenv.mkDerivation rec {
+  pname = "urweb";
+  version = "20150214";
+  name = "${pname}-${version}";
 
-      src = fetchurl {
-        url = "http://www.impredicative.com/ur/${name}.tgz";
-        sha256 = "077yakksxvdjlmwgc9wlz9jnkr345sikqjchvmxyv0axga5bw4rj";
-      };
-    };
-    "hg" = {
-      # REGION AUTO UPDATE: { name="urweb"; type="hg"; url="http://hg.impredicative.com/urweb"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/urweb-hg-ae8b0e0.tar.bz2"; sha256 = "e725241daf3b9c31fb95b366e4371118abae326a96bdc17f32685ed38b758e39"; });
-      name = "urweb-hg-ae8b0e0";
-      # END
-    };
-} {
+  src = fetchurl {
+    url = "http://www.impredicative.com/ur/${name}.tgz";
+    sha256 = "f7b7587fe72c04f14581ded11588777f7bb61e392634966cc0354e13d69f236d";
+  };
 
-  buildInputs = [ stdenv.cc file openssl mlton mysql postgresql sqlite pkgconfig ];
+  buildInputs = [ stdenv.cc file openssl mlton mysql postgresql sqlite ];
 
   prePatch = ''
     sed -e 's@/usr/bin/file@${file}/bin/file@g' -i configure
@@ -31,10 +20,10 @@ stdenv.mkDerivation ( stdenv.lib.mergeAttrsByVersion "urweb" version {
     ''
       export CC="${stdenv.cc}/bin/gcc";
       export CCARGS="-I$out/include \
-                      -L${mysql}/lib/mysql -L${postgresql}/lib -L${sqlite}/lib";
+                      -L${mysql.lib}/lib/mysql -L${postgresql}/lib -L${sqlite}/lib";
 
       export PGHEADER="${postgresql}/include/libpq-fe.h";
-      export MSHEADER="${mysql}/include/mysql/mysql.h";
+      export MSHEADER="${mysql.lib}/include/mysql/mysql.h";
       export SQHEADER="${sqlite}/include/sqlite3.h";
     '';
 
@@ -85,4 +74,4 @@ stdenv.mkDerivation ( stdenv.lib.mergeAttrsByVersion "urweb" version {
     license = stdenv.lib.licenses.bsd3;
     platforms = [ "i686-linux" "x86_64-linux" ];
   };
-})
+}

@@ -182,6 +182,9 @@ let
 
     SSLRandomSeed startup builtin
     SSLRandomSeed connect builtin
+
+    SSLProtocol All -SSLv2 -SSLv3
+    SSLCipherSuite HIGH:MEDIUM:!aNULL:!MD5:!EXP
   '';
 
 

@@ -79,7 +79,7 @@
 
 let
 
-  true_version = if version == "5.4.x" then "5.4.38"
+  true_version = if version == "5.4.x" then "5.4.39"
   else if version == "5.5.x" then "5.5.22"
   else if version == "5.6.x" then "5.6.6"
   else version;
@@ -440,7 +440,7 @@ let
 
       "5.5.22" = "cd5a6321d71897dec26e29e795926669";
 
-      "5.4.38" = "2bf5007ba4bd012f9895c1b441dd4f50";
+      "5.4.39" = "017f7ba7484e738c88bf19eec4369d78";
      };
      name = "php-${true_version}.tar.bz2";
    };

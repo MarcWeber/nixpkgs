@@ -3,16 +3,33 @@
 , glibmm, libsigcxx, lcms, boost, gettext, makeWrapper, intltool
 , gsl, python, pyxml, lxml, poppler, imagemagick, libwpg, librevenge
 , libvisio, libcdr, libexif
+, fetchbzr, automake, autoconf, libtool, which
+, versionedDerivation, version ? "0.91.x"
 }:
 
-stdenv.mkDerivation rec {
-  name = "inkscape-0.91";
+versionedDerivation "inkscape" version {
+  "0.91.x" = rec {
+    name = "inkscape-0.91";
 
-  src = fetchurl {
-    url = "https://inkscape.global.ssl.fastly.net/media/resources/file/"
-        + "${name}.tar.bz2";
-    sha256 = "06ql3x732x2rlnanv0a8aharsnj91j5kplksg574090rks51z42d";
+    src = fetchurl {
+      url = "https://inkscape.global.ssl.fastly.net/media/resources/file/"
+          + "${name}.tar.bz2";
+      sha256 = "06ql3x732x2rlnanv0a8aharsnj91j5kplksg574090rks51z42d";
+    };
+
   };
+  "dev" = {
+    src = fetchbzr {
+      url = "https://code.launchpad.net/~inkscape.dev/inkscape/trunk";
+      rev = 12339;
+      sha256 = "1k6fnq6xh4h4wd5bnfnyc9v0kvqrjvv58r75qj1b132mpzl9vlqi";
+    };
+    buildInputs = [ automake autoconf libtool which];
+    preConfigure = ''
+      sh autogen.sh
+    '';
+  };
+} rec {
 
   postPatch = ''
     patchShebangs share/extensions

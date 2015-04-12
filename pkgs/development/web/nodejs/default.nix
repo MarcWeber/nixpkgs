@@ -1,5 +1,5 @@
-{ stdenv, fetchurl, openssl, python, zlib, v8, utillinux, http-parser
-, pkgconfig, runCommand, which, unstableVersion ? false 
+{ stdenv, fetchurl, openssl, python, zlib, libuv, v8, utillinux, http-parser
+, pkgconfig, runCommand, which, unstableVersion ? false
 }:
 
 let
@@ -8,11 +8,10 @@ let
     ln -sv /usr/sbin/dtrace $out/bin
   '';
 
-  version = if unstableVersion then "0.11.13" else "0.12.0";
+  version = "0.12.0";
 
-  # !!! Should we also do shared libuv?
   deps = {
-    inherit openssl zlib;
+    inherit openssl zlib libuv;
 
     # disabled system v8 because v8 3.14 no longer receives security fixes
     # we fall back to nodejs' internal v8 copy which receives backports for now
@@ -33,9 +32,7 @@ in stdenv.mkDerivation {
 
   src = fetchurl {
     url = "http://nodejs.org/dist/v${version}/node-v${version}.tar.gz";
-    sha256 = if unstableVersion
-             then "1642zj3sajhqflfhb8fsvy84w9mm85wagm8w8300gydd2q6fkmhm"
-             else "0cifd2qhpyrbxx71a4hsagzk24qas8m5zvwcyhx69cz9yhxf404p";
+    sha256 = "0cifd2qhpyrbxx71a4hsagzk24qas8m5zvwcyhx69cz9yhxf404p";
   };
 
   configureFlags = concatMap sharedConfigureFlags (builtins.attrNames deps);
@@ -54,6 +51,8 @@ in stdenv.mkDerivation {
     ++ (optional stdenv.isLinux utillinux)
     ++ optionals stdenv.isDarwin [ pkgconfig openssl dtrace ];
   setupHook = ./setup-hook.sh;
+
+  passthru.interpreterName = "nodejs";
 
   meta = {
     description = "Event-driven I/O framework for the V8 JavaScript engine";

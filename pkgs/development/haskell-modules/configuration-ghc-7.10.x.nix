@@ -145,8 +145,15 @@ self: super: {
     ];
   });
 
+  # ekmett/linear#74
+  linear = overrideCabal super.linear (drv: {
+    prePatch = "sed -i 's/-Werror//g' linear.cabal";
+  });
+
   # Cabal_1_22_1_1 requires filepath >=1 && <1.4
   cabal-install = dontCheck (super.cabal-install.override { Cabal = null; });
+
+  HStringTemplate = self.HStringTemplate_0_8_3;
 
   # We have Cabal 1.22.x.
   jailbreak-cabal = super.jailbreak-cabal.override { Cabal = null; };
@@ -182,6 +189,9 @@ self: super: {
   });
   esqueleto = doJailbreak super.esqueleto;
   pointfree = doJailbreak super.pointfree;
+
+  # acid-state/safecopy#25 acid-state/safecopy#26
+  safecopy = dontCheck (super.safecopy);
 
   # bos/attoparsec#92
   attoparsec = dontCheck super.attoparsec;
@@ -227,20 +237,18 @@ self: super: {
   });
 
   wl-pprint = overrideCabal super.wl-pprint (drv: {
-    patchPhase = "sed -i '113iimport Prelude hiding ((<$>))' Text/PrettyPrint/Leijen.hs";
-  });
-
-  wl-pprint-text = overrideCabal super.wl-pprint-text (drv: {
-    patchPhase = ''
-      sed -i '71iimport Prelude hiding ((<$>))' Text/PrettyPrint/Leijen/Text/Monadic.hs
-      sed -i '119iimport Prelude hiding ((<$>))' Text/PrettyPrint/Leijen/Text.hs
-    '';
+    postPatch = "sed -i '113iimport Prelude hiding ((<$>))' Text/PrettyPrint/Leijen.hs";
+    jailbreak = true;
   });
 
   # https://github.com/kazu-yamamoto/unix-time/issues/30
   unix-time = dontCheck super.unix-time;
 
   # Until the changes have been pushed to Hackage
+  arithmoi = appendPatch super.arithmoi (pkgs.fetchpatch {
+    url = "https://github.com/cartazio/arithmoi/pull/3.patch";
+    sha256 = "1rqs796sh81inqkg2vadskcjpp6q92j6k8zpn370990wndndzzmq";
+  });
   mono-traversable = appendPatch super.mono-traversable (pkgs.fetchpatch {
     url = "https://github.com/snoyberg/mono-traversable/pull/68.patch";
     sha256 = "11hqf6hi3sc34wl0fn4rpigdf7wfklcjv6jwp8c3129yphg8687h";
@@ -269,4 +277,25 @@ self: super: {
     buildDepends = [ primitive ];
     license = pkgs.stdenv.lib.licenses.bsd3;
   }) {};
+
+  # diagrams/monoid-extras#19
+  monoid-extras = overrideCabal super.monoid-extras (drv: {
+    prePatch = "sed -i 's|4\.8|4.9|' monoid-extras.cabal";
+  });
+
+  # diagrams/statestack#5
+  statestack = overrideCabal super.statestack (drv: {
+    prePatch = "sed -i 's|4\.8|4.9|' statestack.cabal";
+  });
+
+  # diagrams/diagrams-core#83
+  diagrams-core = overrideCabal super.diagrams-core (drv: {
+    prePatch = "sed -i 's|4\.8|4.9|' diagrams-core.cabal";
+  });
+
+  # diagrams/diagrams-core#83
+  diagrams-lib = overrideCabal super.diagrams-lib (drv: {
+    prePatch = "sed -i 's|4\.8|4.9|' diagrams-lib.cabal";
+    patches = [ ./diagrams-lib-flexible-contexts.patch ];
+  });
 }

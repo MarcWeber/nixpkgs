@@ -484,11 +484,11 @@ let
 
   arrow = buildPythonPackage rec {
     name = "arrow-${version}";
-    version = "0.4.4";
+    version = "0.5.0";
 
     src = pkgs.fetchurl {
       url    = "https://pypi.python.org/packages/source/a/arrow/${name}.tar.gz";
-      sha256 = "1sdr4gyjgvz86yr0ll0i11mgy8l1slndr7f0ngam87rpy78gp052";
+      sha256 = "1q3a6arjm6ysl2ff6lgdm504np7b1rbivrzspybjypq1nczcb7qy";
     };
 
     doCheck = false;
@@ -745,11 +745,11 @@ let
   };
 
   bcdoc = buildPythonPackage rec {
-    name = "bcdoc-0.12.1";
+    name = "bcdoc-0.13.0";
 
     src = pkgs.fetchurl {
-      url = "https://pypi.python.org/packages/source/b/bcdoc/bcdoc-0.12.1.tar.gz";
-      md5 = "7c8617347c294ea4d36ec73fb5b2c26e";
+      url = "https://pypi.python.org/packages/source/b/bcdoc/bcdoc-0.13.0.tar.gz";
+      md5 = "819882458be7b642e00ddc9846073d89";
     };
 
     buildInputs = with self; [ self.docutils self.six ];
@@ -1199,12 +1199,12 @@ let
   };
 
   botocore = buildPythonPackage rec {
-    version = "0.81.0";
+    version = "0.102.0";
     name = "botocore-${version}";
 
     src = pkgs.fetchurl {
       url = "https://pypi.python.org/packages/source/b/botocore/${name}.tar.gz";
-      sha256 = "0mdkkk0038ng6557cw5520xy624sqgv0avjx387bc3fbgxi8bksj";
+      sha256 = "1266hwkcchzr9r2z1q1150zmk20p3d4a75p6nppi6w9bhsywxhnr";
     };
 
     propagatedBuildInputs =
@@ -2385,11 +2385,11 @@ let
 
 
   deform = buildPythonPackage rec {
-    name = "deform-0.9.9";
+    name = "deform-2.0a2";
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/d/deform/${name}.tar.gz";
-      sha256 = "0ympsjhxz5v8h4hi1mv811h064221bh26d68l9hv1x6m7sxbxpd0";
+      md5 = "7a90d41f7fbc18002ce74f39bd90a5e4";
     };
 
     buildInputs = with self; [] ++ optional isPy26 unittest2;
@@ -3353,11 +3353,11 @@ let
 
 
   peppercorn = buildPythonPackage rec {
-    name = "peppercorn-0.4";
+    name = "peppercorn-0.5";
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/p/peppercorn/${name}.tar.gz";
-      md5 = "464d6f2342eaf704dfb52046c1f5c320";
+      md5 = "f08efbca5790019ab45d76b7244abd40";
     };
 
     meta = {
@@ -3437,11 +3437,11 @@ let
 
 
   pyramid = buildPythonPackage rec {
-    name = "pyramid-1.5.1";
+    name = "pyramid-1.5.2";
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/p/pyramid/${name}.tar.gz";
-      md5 = "8a1ab3b773d8e22437828f7df22852c1";
+      md5 = "d56b140b41d42f818f4349d94d968c9a";
     };
 
     preCheck = ''
@@ -3581,11 +3581,11 @@ let
 
 
   pyramid_tm = buildPythonPackage rec {
-    name = "pyramid_tm-0.7";
+    name = "pyramid_tm-0.10";
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/p/pyramid_tm/${name}.tar.gz";
-      md5 = "6dc917d262c69366630c542bd21859a3";
+      md5 = "89a293488093d6c30036345fa46184d2";
     };
 
     # tests are failing in version 0.7 but are fixed in trunk
@@ -4010,11 +4010,11 @@ let
 
 
   zope_deprecation = buildPythonPackage rec {
-    name = "zope.deprecation-3.5.1";
+    name = "zope.deprecation-4.1.2";
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/z/zope.deprecation/${name}.tar.gz";
-      md5 = "836cfea5fad548cd5a0d9af1300ec05e";
+      md5 = "e9a663ded58f4f9f7881beb56cae2782";
     };
 
     buildInputs = with self; [ zope_testing ];
@@ -4030,11 +4030,11 @@ let
 
 
   venusian = buildPythonPackage rec {
-    name = "venusian-1.0a7";
+    name = "venusian-1.0";
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/v/venusian/${name}.tar.gz";
-      md5 = "6f67506dd3cf77116f1c01682a6c3f27";
+      md5 = "dccf2eafb7113759d60c86faf5538756";
     };
 
     # TODO: https://github.com/Pylons/venusian/issues/23
@@ -4685,11 +4685,11 @@ let
   };
 
   flake8 = buildPythonPackage (rec {
-    name = "flake8-2.1.0";
+    name = "flake8-2.3.0";
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/f/flake8/${name}.tar.gz";
-      md5 = "cf326cfb88a1db6c5b29a3a6d9efb257";
+      md5 = "488d6166f6b9ef9fe9d433b95e77dc07";
     };
 
     buildInputs = with self; [ nose mock ];
@@ -5915,11 +5915,11 @@ let
 
 
   jmespath = buildPythonPackage rec {
-    name = "jmespath-0.5.0";
+    name = "jmespath-0.6.1";
 
     src = pkgs.fetchurl {
       url = "https://pypi.python.org/packages/source/j/jmespath/${name}.tar.gz";
-      sha256 = "1hiqqaz1a9qv1j8n02r9c2c010krr0ar2sf35j2z2kci7ywky963";
+      sha256 = "1f7nxk62yifh6zwhf34w4fgwxvyls8x2daphljgrg4lh0i2sgwgr";
     };
 
     propagatedBuildInputs = with self; [ ply ];
@@ -6370,14 +6370,21 @@ let
 
 
   mccabe = buildPythonPackage (rec {
-    name = "mccabe-0.2.1";
+    name = "mccabe-0.3";
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/m/mccabe/${name}.tar.gz";
-      md5 = "5a3f3fa6a4bad126c88aaaa7dab682f5";
+      md5 = "81640948ff226f8c12b3277059489157";
     };
 
-    buildInputs = with self; [ ];
+    # See https://github.com/flintwork/mccabe/issues/31
+    postPatch = ''
+      cp "${pkgs.fetchurl {
+        url = "https://raw.githubusercontent.com/flintwork/mccabe/"
+            + "e8aea16d28e92bd3c62601275762fc9c16808f6c/test_mccabe.py";
+        sha256 = "0xhjxpnaxvbpi4myj9byrban7a5nrw931br9sgvfk42ayg4sn6lm";
+      }}" test_mccabe.py
+    '';
 
     meta = {
       description = "McCabe checker, plugin for flake8";
@@ -6534,11 +6541,11 @@ let
 
   rainbowstream = buildPythonPackage rec {
     name = "rainbowstream-${version}";
-    version = "1.1.6";
+    version = "1.2.5";
 
     src = pkgs.fetchurl {
       url    = "https://pypi.python.org/packages/source/r/rainbowstream/${name}.tar.gz";
-      sha256 = "04i2a8a5k6n6lgfpa9bzzbkhvywgd4bn3qlspl97pn8ply9kgszm";
+      sha256 = "1fch1vckzf4nmq67fk2jgfxpvyygviavx8di4xhjq2mib9nfc3mr";
     };
 
     doCheck = false;
@@ -7484,12 +7491,12 @@ let
 
   obfsproxy = buildPythonPackage ( rec {
     name = "obfsproxy-${version}";
-    version = "0.2.12";
+    version = "0.2.13";
 
     src = pkgs.fetchgit {
       url = meta.repositories.git;
       rev = "refs/tags/${name}";
-      sha256 = "82d694aa7f3de7327fc4dc517fb262ab076f536ed6d4377573c76df8cf019dcf";
+      sha256 = "16jb8x5hbs3g4dq10y6rqc1005bnffwnlws8x7j1d96n7k9mjn8h";
     };
 
     propagatedBuildInputs = with self;
@@ -7826,7 +7833,7 @@ let
 
     propagatedBuildInputs = with self; [
       jinja2 pygments docutils pytz unidecode six dateutil feedgenerator
-      blinker pillow beautifulsoup4
+      blinker pillow beautifulsoup4 markupsafe
     ];
 
     meta = {
@@ -7911,11 +7918,11 @@ let
 
 
   pg8000 = buildPythonPackage rec {
-    name = "pg8000-1.9.14";
+    name = "pg8000-1.10.1";
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/p/pg8000/${name}.tar.gz";
-      sha256 = "1vandvfaf1m3a1fbc7nbm6syfqr9bazhzsnmai0jpjkbmb349izs";
+      md5 = "173275fd76628b0e0cbed70ed9ce9eb9";
     };
 
     propagatedBuildInputs = with self; [ pytz ];
@@ -10197,13 +10204,13 @@ let
   };
 
   robotframework = buildPythonPackage rec {
-    version = "2.8.6";
+    version = "2.8.7";
     name = "robotframework-${version}";
     disabled = isPy3k;
 
     src = pkgs.fetchurl {
       url = "https://pypi.python.org/packages/source/r/robotframework/${name}.tar.gz";
-      sha256 = "0hl44pwfkagr5272s90y0bkfllj0q1l4yw4rvkdrc6ikn6l61d9v";
+      sha256 = "0mfd0s989j3jrpl8q0lb4wsjy1x280chfr9r74m2dyi9c7rxzc58";
     };
 
     # error: invalid command 'test'
@@ -11986,11 +11993,11 @@ let
 
 
   turses = buildPythonPackage (rec {
-    name = "turses-0.2.22";
+    name = "turses-0.2.23";
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/t/turses/${name}.tar.gz";
-      sha256 = "1dqgvdqly4c4d6819mbkqy4g8r7zch4dkmxicfwck7q8h96wmyx3";
+      md5 = "71b9e3ab12d9186798e739b5273d1438";
     };
 
     propagatedBuildInputs = with self; [ oauth2 urwid tweepy ] ++ optional isPy26 argparse;
@@ -12014,7 +12021,7 @@ let
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/t/tweepy/${name}.tar.gz";
-      sha256 = "0wcj5g21brcqr1g7m4by4rs72lfiib4scg19qynn2wz1x77jyrzp";
+      md5 = "065c80d244360988c61d64b5dfb7e229";
     };
 
     meta = {
@@ -12207,14 +12214,14 @@ let
 
 
   urwid = buildPythonPackage (rec {
-    name = "urwid-1.2.1";
+    name = "urwid-1.3.0";
 
     # multiple:  NameError: name 'evl' is not defined
     doCheck = false;
 
     src = pkgs.fetchurl {
       url = "https://pypi.python.org/packages/source/u/urwid/${name}.tar.gz";
-      md5 = "6a05ada11b87e7b026b01fc5150855b0";
+      md5 = "a989acd54f4ff1a554add464803a9175";
     };
 
     meta = {
@@ -12359,11 +12366,11 @@ let
   });
 
   waitress = buildPythonPackage rec {
-    name = "waitress-0.8.7";
+    name = "waitress-0.8.9";
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/w/waitress/${name}.tar.gz";
-      md5 = "714f3d458d82a47f12fb168460de8366";
+      md5 = "da3f2e62b3676be5dd630703a68e2a04";
     };
 
     doCheck = false;
@@ -13587,11 +13594,11 @@ let
   };
 
   translationstring = buildPythonPackage rec {
-    name = "translationstring-1.1";
+    name = "translationstring-1.3";
 
     src = pkgs.fetchurl {
       url = "http://pypi.python.org/packages/source/t/translationstring/${name}.tar.gz";
-      md5 = "0979b46d8f0f852810c8ec4be5c26cf2";
+      md5 = "a4b62e0f3c189c783a1685b3027f7c90";
     };
 
     meta = {

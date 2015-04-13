@@ -211,6 +211,15 @@ self: super: {
   # https://github.com/liamoc/wizards/issues/5
   wizards = doJailbreak super.wizards;
 
+  # https://github.com/tibbe/ekg-core/commit/c986d9750d026a0c049cf6e6610d69fc1f23121f, not yet in hackage
+  ekg-core = doJailbreak super.ekg-core;
+
+  # https://github.com/tibbe/ekg/commit/95018646f48f60d9ccf6209cc86747e0f132e737, not yet in hackage
+  ekg = doJailbreak super.ekg;
+
+  # https://github.com/diagrams/diagrams-rasterific/commit/2758e5760c64f8ca2528628bd11de502f354ab15, not yet in hackage
+  diagrams-rasterific = doJailbreak super.diagrams-rasterific;
+
   # https://github.com/NixOS/cabal2nix/issues/136
   glib = addBuildDepends super.glib [pkgs.pkgconfig pkgs.glib];
   gtk3 = super.gtk3.override { inherit (pkgs) gtk3; };
@@ -493,6 +502,9 @@ self: super: {
 
   # https://github.com/joeyadams/haskell-stm-delay/issues/3
   stm-delay = dontCheck super.stm-delay;
+
+  # https://github.com/cgaebel/stm-conduit/issues/33
+  stm-conduit = dontCheck super.stm-conduit;
 
   # https://github.com/fumieval/call/issues/3
   call = markBrokenVersion "0.1.2" super.call;

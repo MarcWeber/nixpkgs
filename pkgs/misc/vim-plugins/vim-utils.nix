@@ -344,6 +344,7 @@ rec {
     unpackPhase ? "",
     configurePhase ? "",
     buildPhase ? "",
+    postInstall ? "",
     path ? (builtins.parseDrvName name).name,
     addonInfo ? null,
     ...
@@ -351,7 +352,7 @@ rec {
     addRtp "${rtpPath}/${path}" (stdenv.mkDerivation (a // {
       name = namePrefix + name;
 
-      inherit unpackPhase configurePhase buildPhase addonInfo;
+      inherit unpackPhase configurePhase buildPhase addonInfo postInstall;
 
       installPhase = ''
         target=$out/${rtpPath}/${path}
@@ -362,12 +363,17 @@ rec {
         if [ -n "$addonInfo" ]; then
           echo "$addonInfo" > $target/addon-info.json
         fi
+
+        ${postInstall}
       '';
     }));
 
   buildVimPluginFrom2Nix = a: buildVimPlugin ({
     buildPhase = ":";
     configurePhase =":";
+    postInstall =
+      (lib.optionalString (a.name == "vim-addon-async") "cd $out/share/vim-plugins/vim-addon-async/C; gcc -o vim-addon-async-helper vim-addon-async-helper.c")
+    ;
   } // a);
 
   # test cases:

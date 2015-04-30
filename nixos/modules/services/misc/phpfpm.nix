@@ -195,8 +195,8 @@ let
 
       xd = if enableXdebug
         then
-          let remote_host = item.xdebug.remote_host or "127.0.0.1";
-              remote_port = builtins.toString item.xdebug.remote_port or 9000;
+          let remote_host = item.daemonCfg.xdebug.remote_host or "127.0.0.1";
+              remote_port = builtins.toString item.daemonCfg.xdebug.remote_port or 9000;
            in {
              idAppend = "-xdebug";
              phpIniLines = ''

@@ -149,8 +149,10 @@
   ./services/games/minecraft-server.nix
   ./services/games/minetest-server.nix
   ./services/hardware/acpid.nix
+  ./services/hardware/actkbd.nix
   ./services/hardware/amd-hybrid-graphics.nix
   ./services/hardware/bluetooth.nix
+  ./services/hardware/brltty.nix
   ./services/hardware/freefall.nix
   ./services/hardware/nvidia-optimus.nix
   ./services/hardware/pcscd.nix
@@ -194,6 +196,7 @@
   ./services/misc/gitolite.nix
   ./services/misc/gpsd.nix
   ./services/misc/ihaskell.nix
+  ./services/misc/mbpfan.nix
   ./services/misc/mediatomb.nix
   ./services/misc/mesos-master.nix
   ./services/misc/mesos-slave.nix
@@ -272,6 +275,7 @@
   ./services/networking/haproxy.nix
   ./services/networking/hostapd.nix
   ./services/networking/i2pd.nix
+  ./services/networking/i2p.nix
   ./services/networking/ifplugd.nix
   ./services/networking/iodined.nix
   ./services/networking/ircd-hybrid/default.nix

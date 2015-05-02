@@ -50,6 +50,11 @@ self: super: {
   # https://ghc.haskell.org/trac/ghc/ticket/9921
   mkDerivation = drv: super.mkDerivation (drv // { doHoogle = false; });
 
+  Extra = appendPatch super.Extra (pkgs.fetchpatch {
+    url = "https://github.com/seereason/sr-extra/commit/29787ad4c20c962924b823d02a7335da98143603.patch";
+    sha256 = "193i1xmq6z0jalwmq0mhqk1khz6zz0i1hs6lgfd7ybd6qyaqnf5f";
+  });
+
   # haddock: No input file(s).
   nats = dontHaddock super.nats;
   bytestring-builder = dontHaddock super.bytestring-builder;
@@ -96,7 +101,8 @@ self: super: {
   # Test suite fails in "/tokens_bytestring_unicode.g.bin".
   alex = dontCheck super.alex;
 
-  # TODO: update generation code in cabal2nix
+  # https://github.com/haskell/haddock/issues/378
+  haddock-library_1_2_0 = dontCheck super.haddock-library_1_2_0;
   haddock-library = self.haddock-library_1_2_0;
 
   # Upstream was notified about the over-specified constraint on 'base'
@@ -124,6 +130,10 @@ self: super: {
   mueval = appendPatch super.mueval (pkgs.fetchpatch {
     url = "https://patch-diff.githubusercontent.com/raw/gwern/mueval/pull/10.patch";
     sha256 = "1gs8p89d1qsrd1qycbhf6kv4qw0sbb8m6dy106dqkmdzcjzcyq74";
+  });
+  present = appendPatch super.present (pkgs.fetchpatch {
+    url = "https://github.com/chrisdone/present/commit/6a61f099bf01e2127d0c68f1abe438cd3eaa15f7.patch";
+    sha256 = "1vn3xm38v2f4lzyzkadvq322f3s2yf8c88v56wpdpzfxmvlzaqr8";
   });
 
   # Already applied in darcs repository.
@@ -187,7 +197,7 @@ self: super: {
   edit-distance = let pkg = appendPatch super.edit-distance ./edit-distance-fix-boundaries.patch;
                   in appendPatch pkg (pkgs.fetchpatch {
                     url = "https://patch-diff.githubusercontent.com/raw/batterseapower/edit-distance/pull/3.patch";
-                    sha256 = "013x9za47vr9jx0liwgi8cdh2h2882a87h5nqvr41xqipzxfiyw1";
+                    sha256 = "0v47pa5ymh9f23bqpkdv3k7vnb6h3ssccdmjdylhs2ybarqzrcwh";
                   });
 
   # https://github.com/BNFC/bnfc/issues/137
@@ -210,6 +220,7 @@ self: super: {
   nettle-netkit = dontDistribute super.nettle-netkit;
   nettle-openflow = dontDistribute super.nettle-openflow;
   oberon0 = dontDistribute super.oberon0;
+  poly-arity = dontDistribute super.poly-arity;
   respond = dontDistribute super.respond;
   semi-iso = dontDistribute super.semi-iso;
   syntax = dontDistribute super.syntax;
@@ -317,5 +328,10 @@ self: super: {
   QuickCheck_1_2_0_1 = markBroken super.QuickCheck_1_2_0_1;
   seqid-streams_0_1_0 = markBroken super.seqid-streams_0_1_0;
   vector_0_10_9_3 = markBroken super.vector_0_10_9_3;
+
+  # https://github.com/bos/wreq/issues/61
+  wreq = markBrokenVersion "0.3.0.1" (dontCheck super.wreq);
+  wreq-sb = dontDistribute (dontCheck super.wreq-sb);
+  hipbot = dontDistribute super.hipbot;
 
 }

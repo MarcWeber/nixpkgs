@@ -75,9 +75,10 @@ let
                   ${mysql}/bin/mysql_install_db ${mysqldOptions}
                   touch /tmp/mysql_init
               fi
-
+              socketDir=$(dirname "${m_config.socketFile}")
+              mkdir -m 0755 -p  $socketDir
               mkdir -m 0700 -p ${m_config.pidDir}
-              chown -R ${m_config.user} ${m_config.pidDir}
+              chown -R ${m_config.user} ${m_config.pidDir} $socketDir
             '';
 
           serviceConfig.ExecStart = "${mysqldDir}/mysqld --defaults-extra-file=${myCnf} ${mysqldOptions}";

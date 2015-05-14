@@ -1,5 +1,5 @@
 { pkgs, stdenv, fetchurl, composableDerivation, autoconf, automake, fetchgit
-, flex, bison, apacheHttpd, mysql, libxml2, readline
+, flex, bison, apacheHttpd, libmysql, libxml2, readline
 , zlib, curl, gd, postgresql, openssl, pkgconfig, sqlite, config, uwimap, pam
 , libjpeg, libpng, htmlTidy, libmcrypt, fcgi, callPackage, gettext
 , freetype, writeText
@@ -253,13 +253,13 @@ let
       };
     
       mysql = {
-        configureFlags = ["--with-mysql=${mysql}"];
-        buildInputs = [ mysql ];
+        configureFlags = ["--with-mysql=${libmysql}"];
+        buildInputs = [ libmysql ];
       };
 
       mysqli = {
-        configureFlags = ["--with-mysqli=${mysql}/bin/mysql_config"];
-        buildInputs = [ mysql];
+        configureFlags = ["--with-mysqli=${libmysql}/bin/mysql_config"];
+        buildInputs = [ libmysql];
       };
 
       mysqli_embedded = {
@@ -269,8 +269,8 @@ let
       };
 
       pdo_mysql = {
-        configureFlags = ["--with-pdo-mysql=${mysql}"];
-        buildInputs = [ mysql ];
+        configureFlags = ["--with-pdo-mysql=${libmysql}"];
+        buildInputs = [ libmysql ];
       };
 
       pdo_pgsql = {

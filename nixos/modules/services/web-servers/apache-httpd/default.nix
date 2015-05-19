@@ -338,8 +338,9 @@ let
 
     ${let
         listen = concatMap getListen allHosts;
-        uniqueListen = uniqList {inputList = listen;};
-      in concatMapStrings (listen: "Listen ${listenToString listen}\n") uniqueListen
+        toStr = listen: "Listen ${listenToString listen}\n";
+        uniqueListen = uniqList {inputList = map toStr listen;};
+      in concatStrings uniqueListen
     }
 
     User ${mainCfg.user}
@@ -703,5 +704,4 @@ in
       };
 
   };
-
 }

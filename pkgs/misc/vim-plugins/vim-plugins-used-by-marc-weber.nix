@@ -47,8 +47,8 @@ rec {
     };
 
   unpackPhase = ''
+    sourceRoot=d
     (
-     sourceRoot=d
      mkdir $sourceRoot; cd $sourceRoot;
      unzip $src
     )

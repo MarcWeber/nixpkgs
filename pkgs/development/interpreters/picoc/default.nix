@@ -1,7 +1,7 @@
 { stdenv, fetchFromGitHub, readline }:
 
 let version = "2015-05-04"; in
-stdenv.mkDerivation rec {
+stdenv.mkDerivation {
   name = "picoc-${version}";
 
   src = fetchFromGitHub {
@@ -26,7 +26,7 @@ stdenv.mkDerivation rec {
     '';
     homepage = https://github.com/zsaleeba/picoc;
     downloadPage = https://code.google.com/p/picoc/downloads/list;
-    license = with licenses; bsd3;
+    license = licenses.bsd3;
     platforms = with platforms; linux;
     maintainers = with maintainers; [ nckx ];
   };

@@ -1,6 +1,6 @@
 { stdenv, fetch, cmake, libxml2, libedit, llvm, version, clang-tools-extra_src }:
 let
-  gcc = if stdenv.cc.cc.isGNU or false then stdenv.cc.cc else stdenv.cc.cc.gcc;
+  gcc = if stdenv.cc.isGNU then stdenv.cc.cc else stdenv.cc.cc.gcc;
 in stdenv.mkDerivation {
   name = "clang-${version}";
 
@@ -49,7 +49,6 @@ in stdenv.mkDerivation {
     description = "A c, c++, objective-c, and objective-c++ frontend for the llvm compiler";
     homepage    = http://llvm.org/;
     license     = stdenv.lib.licenses.bsd3;
-    maintainers = [ stdenv.lib.maintainers.shlevy ];
     platforms   = stdenv.lib.platforms.all;
   };
 }

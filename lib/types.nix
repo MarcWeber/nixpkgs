@@ -54,7 +54,7 @@ rec {
     bool = mkOptionType {
       name = "boolean";
       check = isBool;
-      merge = loc: fold (x: y: x.value || y) false;
+      merge = mergeEqualOption;
     };
 
     int = mkOptionType {
@@ -88,7 +88,7 @@ rec {
     attrs = mkOptionType {
       name = "attribute set";
       check = isAttrs;
-      merge = loc: fold (def: mergeAttrs def.value) {};
+      merge = loc: foldl' (res: def: mergeAttrs res def.value) {};
     };
 
     # derivation is a reserved keyword.

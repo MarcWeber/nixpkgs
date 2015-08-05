@@ -49,9 +49,8 @@ in
       type = types.int;
       default = 4;
       description = ''
-        The kernel console log level.  Only log messages with a
-        priority numerically less than this will appear on the
-        console.
+        The kernel console log level.  Log messages with a priority
+        numerically less than this will not appear on the console.
       '';
     };
 
@@ -159,7 +158,7 @@ in
 
     boot.kernel.sysctl."kernel.printk" = config.boot.consoleLogLevel;
 
-    boot.kernelModules = [ "loop" "configs" ];
+    boot.kernelModules = [ "loop" "configs" "atkbd" ];
 
     boot.initrd.availableKernelModules =
       [ # Note: most of these (especially the SATA/PATA modules)

@@ -1,7 +1,7 @@
-{ stdenv, fetchurl, bobcat, gcc49, icmake, yodl }:
+{ stdenv, fetchurl, bobcat, icmake, yodl }:
 
 let version = "2.02.00"; in
-stdenv.mkDerivation rec {
+stdenv.mkDerivation {
   name = "flexc++-${version}";
 
   src = fetchurl {
@@ -19,12 +19,13 @@ stdenv.mkDerivation rec {
     '';
     homepage = http://flexcpp.sourceforge.net/;
     downloadPage = http://sourceforge.net/projects/flexcpp/files/;
-    license = with licenses; gpl3;
+    license = licenses.gpl3;
     platforms = with platforms; linux;
     maintainers = with maintainers; [ nckx ];
   };
 
-  buildInputs = [ bobcat gcc49 icmake yodl ];
+  buildInputs = [ bobcat ];
+  nativeBuildInputs = [ icmake yodl ];
 
   postPatch = ''
     substituteInPlace INSTALL.im --replace /usr $out

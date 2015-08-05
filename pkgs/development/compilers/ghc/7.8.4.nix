@@ -1,6 +1,6 @@
 { stdenv, fetchurl, ghc, perl, gmp, ncurses, libiconv }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (rec {
   version = "7.8.4";
   name = "ghc-${version}";
 
@@ -76,4 +76,7 @@ stdenv.mkDerivation rec {
     ];
   };
 
-}
+} // stdenv.lib.optionalAttrs stdenv.isDarwin {
+  # https://ghc.haskell.org/trac/ghc/ticket/9762
+  patches = [ ./hpc-7.8.4.patch ];
+})

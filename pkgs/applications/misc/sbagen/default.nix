@@ -1,11 +1,18 @@
-{ stdenv, fetchurl }:
+{ stdenv, fetchurl, libmad, libvorbis }:
 
 stdenv.mkDerivation {
-  name = "sbagen-1.4.4";
+  name = "sbagen-1.4.5";
 
   buildPhases = "buildPhase installPhase";
 
-  buildPhase = "./mk";
+  buildInput = [ libmad libvorbis ];
+
+  buildPhase = ''
+    echo "start build phase"
+    rm -fr libs
+    gcc -Wall -s -O3 -lpthread -lm -DT_LINUX -o sbagen sbagen.c
+    echo "end build phase"
+  '';
 
   installPhase = ''
     mkdir -p $out/{bin,share/sbagen/doc}
@@ -25,3 +32,8 @@ stdenv.mkDerivation {
     license = "GPL";
   };
 }
+
+/*
+./sbagen-1.4.4/libs/linux-libvorbisidec.a
+./sbagen-1.4.4/libs/linux-libmad.a
+*/

@@ -198,9 +198,6 @@ let
     <IfModule mod_mime_magic.c>
         MIMEMagicFile ${httpd}/conf/magic
     </IfModule>
-
-    AddEncoding x-compress Z
-    AddEncoding x-gzip gz tgz
   '';
 
 

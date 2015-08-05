@@ -72,6 +72,30 @@ in
         '';
       };
 
+      defaultShared = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Specifies whether local printers are shared by default.
+        '';
+      };
+
+      browsing = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Specifies whether shared printers are advertised.
+        '';
+      };
+
+      webInterface = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''
+          Specifies whether the web interface is enabled.
+        '';
+      };
+
       cupsdConf = mkOption {
         type = types.lines;
         default = "";
@@ -183,10 +207,10 @@ in
     # gets loaded, and then cups cannot access the printers.
     boot.blacklistedKernelModules = [ "usblp" ];
 
-    systemd.services.cups =
-      { description = "CUPS Printing Daemon";
+    systemd.packages = [ cups ];
 
-        wantedBy = [ "multi-user.target" ];
+    systemd.services.cups =
+      { wantedBy = [ "multi-user.target" ];
         wants = [ "network.target" ];
         after = [ "network.target" ];
 
@@ -200,17 +224,14 @@ in
             mkdir -m 0755 -p ${cfg.tempDir}
           '';
 
-        serviceConfig.Type = "forking";
-        serviceConfig.ExecStart = "@${cups}/sbin/cupsd cupsd";
-
         restartTriggers =
           [ config.environment.etc."cups/cups-files.conf".source
             config.environment.etc."cups/cupsd.conf".source
           ];
       };
 
-    systemd.services.cups-browsed =
-      { description = "Make remote CUPS printers available locally";
+    systemd.services.cups-browsed = mkIf config.services.avahi.enable
+      { description = "CUPS Remote Printer Discovery";
 
         wantedBy = [ "multi-user.target" ];
         wants = [ "cups.service" "avahi-daemon.service" ];
@@ -262,9 +283,11 @@ in
 
         SetEnv PATH ${bindir}/lib/cups/filter:${bindir}/bin:${bindir}/sbin
 
-        Browsing On
-        BrowseOrder allow,deny
-        BrowseAllow @LOCAL
+        DefaultShared ${if cfg.defaultShared then "Yes" else "No"}
+
+        Browsing ${if cfg.browsing then "Yes" else "No"}
+
+        WebInterface ${if cfg.webInterface then "Yes" else "No"}
 
         DefaultAuthType Basic
 

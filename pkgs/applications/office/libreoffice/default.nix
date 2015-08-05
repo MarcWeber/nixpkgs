@@ -24,8 +24,8 @@ let
   langsSpaces = stdenv.lib.concatStringsSep " " langs;
   major = "4";
   minor = "4";
-  patch = "2";
-  tweak = "2";
+  patch = "4";
+  tweak = "3";
   subdir = "${major}.${minor}.${patch}";
   version = "${subdir}${if tweak == "" then "" else "."}${tweak}";
 
@@ -80,14 +80,14 @@ let
 
     translations = fetchSrc {
       name = "translations";
-      sha256 = "0m1a09vzgh5mz0dgx2ji3fwmsqr7xymr0hhrrhf75nd1dr0blv2s";
+      sha256 = "1zyfpbdsx0kjkabdpkf0lg7hjnvxsf6hj9ljs8v9iqw3x3b7llib";
     };
 
     # TODO: dictionaries
 
     help = fetchSrc {
       name = "help";
-      sha256 = "06i2c143dpqm4w1a9nba0gn1ayrvrhdrcm2kydzapvljgljqswkh";
+      sha256 = "1jbbbv63p63mwby52ynz2yk79pb32wsnakhxfhc75ng1br6cpll0";
     };
 
   };
@@ -97,7 +97,7 @@ stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "http://download.documentfoundation.org/libreoffice/src/${subdir}/libreoffice-${version}.tar.xz";
-    sha256 = "0dif783zbh9qb4636mm055clwwsv8j6pmb8msi9lr183drnaw73x";
+    sha256 = "0wns7ny19bsl5ar1rq7n4033rfijl2cjn9l8bj1gwhpqlkd8db1i";
   };
 
   # Openoffice will open libcups dynamically, so we link it directly
@@ -111,7 +111,7 @@ stdenv.mkDerivation rec {
 
   postUnpack = ''
     mkdir -v $sourceRoot/src
-  '' + (stdenv.lib.concatMapStrings (f: "ln -sv ${f} $sourceRoot/src/${f.outputHash}-${f.name}\nln -sv ${f} $sourceRoot/src/${f.name}\n") srcs.third_party)
+  '' + (stdenv.lib.concatMapStrings (f: "ln -sfv ${f} $sourceRoot/src/${f.outputHash}-${f.name}\nln -sfv ${f} $sourceRoot/src/${f.name}\n") srcs.third_party)
   + ''
     ln -sv ${srcs.help} $sourceRoot/src/${srcs.help.name}
     ln -svf ${srcs.translations} $sourceRoot/src/${srcs.translations.name}

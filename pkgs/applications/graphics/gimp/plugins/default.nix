@@ -159,12 +159,12 @@ rec {
       sed -e 's,^\(GIMP_PLUGIN_DIR=\).*,\1'"$out/${gimp.name}-plugins", \
        -e 's,^\(GIMP_DATA_DIR=\).*,\1'"$out/share/${gimp.name}", -i configure
     '';
-    meta = {
+    meta = with stdenv.lib; {
       description = "The GIMP Animation Package";
       homepage = http://www.gimp.org;
       # The main code is given in GPLv3, but it has ffmpeg in it, and I think ffmpeg license
       # falls inside "free".
-      license = [ "GPLv3" "free" ];
+      license = with licenses; [ gpl3 free ];
     };
   };
 
@@ -288,13 +288,33 @@ rec {
   };
 
   gmic =
-    gmicDerivation {
-      name = "gmic-1.5.7.2";
+    pluginDerivation rec {
+      name = "gmic-1.6.5.0";
+
+      buildInputs = [pkgconfig pkgs.fftw pkgs.opencv gimp] ++ gimp.nativeBuildInputs;
+
       src = fetchurl {
-        url = mirror://sourceforge/gmic/gmic_1.5.7.2.tar.gz;
-        sha256 = "1cpbxb3p2c8bcv2cbr150whapzjc7w09i3jza0z9x3xj8c0vdyv1";
+        url = http://gmic.eu/files/source/gmic_1.6.5.0.tar.gz;
+        sha256 = "1vb6zm5zpqfnzxjvb9yfvczaqacm55rf010ib0yk9f28b17qrjgb";
       };
-    };
+
+      sourceRoot = "${name}/src";
+
+      buildFlags = "gimp";
+
+      installPhase = "installPlugins gmic_gimp";
+
+      meta = {
+        description = "script language for image processing which comes with its open-source interpreter";
+        homepage = http://gmic.eu/gimp.shtml;
+        license = stdenv.lib.licenses.cecill20;
+        /*
+        The purpose of this Free Software license agreement is to grant users
+        the right to modify and redistribute the software governed by this
+        license within the framework of an open source distribution model.
+        [ ... ] */
+      };
+  };
 
   gmicCVS = gmicDerivation {
       runQmake = true;
@@ -303,7 +323,6 @@ rec {
       name = "gmic-cvs-F_13-43-56";
       # END
   };
-
   # this is more than a gimp plugin !
   # either load the raw image with gimp (and the import dialog will popup)
   # or use the binary

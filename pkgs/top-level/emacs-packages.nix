@@ -198,6 +198,19 @@ let self = _self // overrides;
     };
   };
 
+  autotetris = melpaBuild {
+    pname = "autotetris-mode";
+    version = "20141114.846";
+    src = fetchFromGitHub {
+      owner = "skeeto";
+      repo = "autotetris-mode";
+      rev = "7d348d33829bc89ddbd2b4d5cfe5073c3b0cbaaa";
+      sha256 = "14pjsb026mgjf6l3dggy255knr7c1vfmgb6kgafmkzvr96aglcdc";
+    };
+    files = [ "autotetris-mode.el" ];
+    meta =  { license = unlicense; };
+  };
+
   bind-key = melpaBuild {
     pname   = "bind-key";
     version = "20150317";
@@ -314,12 +327,12 @@ let self = _self // overrides;
 
   dash = melpaBuild rec {
     pname   = "dash";
-    version = "2.9.0";
+    version = "2.11.0";
     src = fetchFromGitHub {
       owner  = "magnars";
       repo   = "${pname}.el";
       rev    = version;
-      sha256 = "1lg31s8y6ljsz6ps765ia5px39wim626xy8fbc4jpk8fym1jh7ay";
+      sha256 = "02gfrcda7gj3j5yx71dz40xylrafl4pcaj7bgfajqi9by0w2nrnx";
     };
     meta = { license = gpl3Plus; };
   };
@@ -490,6 +503,32 @@ let self = _self // overrides;
     };
   };
 
+  flycheck = melpaBuild rec {
+    pname   = "flycheck";
+    version = "0.23";
+    src = fetchFromGitHub {
+      owner  = pname;
+      repo   = pname;
+      rev    = version;
+      sha256 = "1ydk1wa7h7z9qw7prfvszxrmy2dyzsdij3xdy10rq197xnrw94wz";
+    };
+    packageRequires = [ dash let-alist pkg-info ];
+    meta = { license = gpl3Plus; };
+  };
+
+  flycheck-haskell = melpaBuild rec {
+    pname   = "flycheck-haskell";
+    version = "0.7.2";
+    src = fetchFromGitHub {
+      owner  = "flycheck";
+      repo   = pname;
+      rev    = version;
+      sha256 = "0143lcn6g46g7skm4r6lqq09s8mr3268rikbzlh65qg80rpg9frj";
+    };
+    packageRequires = [ dash flycheck haskell-mode let-alist pkg-info ];
+    meta = { license = gpl3Plus; };
+  };
+
   flycheck-pos-tip = melpaBuild rec {
     pname   = "flycheck-pos-tip";
     version = "20140813";
@@ -500,19 +539,6 @@ let self = _self // overrides;
       sha256 = "0b4x24aq0jh4j4bjv0fqyaz6hzh3gqf57k9763jj9rl32cc3dpnp";
     };
     packageRequires = [ flycheck popup ];
-    meta = { license = gpl3Plus; };
-  };
-
-  flycheck = melpaBuild rec {
-    pname   = "flycheck";
-    version = "0.20";
-    src = fetchFromGitHub {
-      owner  = pname;
-      repo   = pname;
-      rev    = version;
-      sha256 = "0cq7y7ssm6phvx5pfv2yqq4j0yqmm0lhjav7v4a8ql7094cd790a";
-    };
-    packageRequires = [ dash pkg-info ];
     meta = { license = gpl3Plus; };
   };
 
@@ -673,12 +699,12 @@ let self = _self // overrides;
 
   haskell-mode = melpaBuild rec {
     pname   = "haskell-mode";
-    version = "13.12";
+    version = "13.14";
     src = fetchFromGitHub {
       owner  = "haskell";
       repo   = pname;
       rev    = "v${version}";
-      sha256 = "1l8sby2626hpp0li23mic3qq8w7jirsp1hd08hkx2z84gvz4j6fz";
+      sha256 = "1mxr2cflgafcr8wkvgbq8l3wmc9qhhb7bn9zl1bkf10zspw9m58z";
     };
     meta = { license = gpl3Plus; };
   };
@@ -775,6 +801,20 @@ let self = _self // overrides;
     meta = { license = gpl3Plus; };
   };
 
+  let-alist = melpaBuild rec {
+    pname   = "let-alist";
+    version = "1.0.4";
+    src = fetchurl {
+      url    = "http://elpa.gnu.org/packages/${pname}-${version}.el";
+      sha256 = "07312bvvyz86lf64vdkxg2l1wgfjl25ljdjwlf1bdzj01c4hm88x";
+    };
+    unpackPhase = "true";
+    buildPhase = ''
+      cp $src ${pname}-${version}.el
+    '';
+    meta = { license = gpl3Plus; };
+  };
+
   log4e = melpaBuild rec {
     pname = "log4e";
     version = "0.3.0";
@@ -803,14 +843,62 @@ let self = _self // overrides;
 
   magit = melpaBuild rec {
     pname   = "magit";
-    version = "1.4.0";
+    version = "2.1.0";
     src = fetchFromGitHub {
-      owner  = "magit";
-      repo   = "magit";
+      owner  = pname;
+      repo   = pname;
       rev    = version;
-      sha256 = "0x8bvfw47bfpzsv9yr98aays4idbbwvnkp0pag1q78gcn9h2k9vi";
+      sha256 = "0pyqa79km1y58phsf4sq2a25rx9lw0di1hb6a5y17xisa8li7sfl";
     };
-    packageRequires = [ git-commit-mode git-rebase-mode ];
+    packageRequires = [ dash git-commit magit-popup with-editor ];
+    fileSpecs = [ "lisp/magit-utils.el"
+                  "lisp/magit-section.el"
+                  "lisp/magit-git.el"
+                  "lisp/magit-mode.el"
+                  "lisp/magit-process.el"
+                  "lisp/magit-core.el"
+                  "lisp/magit-diff.el"
+                  "lisp/magit-wip.el"
+                  "lisp/magit-apply.el"
+                  "lisp/magit-log.el"
+                  "lisp/magit.el"
+                  "lisp/magit-sequence.el"
+                  "lisp/magit-commit.el"
+                  "lisp/magit-remote.el"
+                  "lisp/magit-bisect.el"
+                  "lisp/magit-stash.el"
+                  "lisp/magit-blame.el"
+                  "lisp/magit-ediff.el"
+                  "lisp/magit-extras.el"
+                  "lisp/git-rebase.el"
+                  "Documentation/magit.texi"
+                  "Documentation/AUTHORS.md"
+                  "COPYING"
+                ];
+    meta = { license = gpl3Plus; };
+  };
+  git-commit = melpaBuild rec {
+    pname = "git-commit";
+    version = magit.version;
+    src = magit.src;
+    packageRequires = [ dash with-editor ];
+    fileSpecs = [ "lisp/git-commit.el" ];
+    meta = { license = gpl3Plus; };
+  };
+  magit-popup = melpaBuild rec {
+    pname = "magit-popup";
+    version = magit.version;
+    src = magit.src;
+    packageRequires = [ dash with-editor ];
+    fileSpecs = [ "Documentation/magit-popup.texi" "lisp/magit-popup.el" ];
+    meta = { license = gpl3Plus; };
+  };
+  with-editor = melpaBuild rec {
+    pname = "with-editor";
+    version = magit.version;
+    src = magit.src;
+    packageRequires = [ dash ];
+    fileSpecs = [ "Documentation/with-editor.texi" "lisp/with-editor.el" ];
     meta = { license = gpl3Plus; };
   };
 
@@ -826,6 +914,18 @@ let self = _self // overrides;
     meta = { license = gpl3Plus; };
   };
 
+  moe-theme = melpaBuild rec {
+    pname   = "moe-theme";
+    version = "1.0";
+    src = fetchFromGitHub {
+      owner  = "kuanyui";
+      repo   = "${pname}.el";
+      rev    = "39384a7a9e6886f3a3d79efac4009fcd800a4a14";
+      sha256 = "0i7m15x9sij5wh0gwbijsis8a4jm8izywj7xprk21644ndskvfiz";
+    };
+    meta = { license = gpl3Plus; };
+  };
+
   monokai-theme = melpaBuild rec {
     pname   = "monokai-theme";
     version = "1.0.0";
@@ -836,6 +936,17 @@ let self = _self // overrides;
       sha256 = "02w7k4s4698p4adjy4a36na28sb1s2zw4xsjs7p2hv9iiw9kmyvz";
     };
     meta = { license = gpl3Plus; };
+  };
+
+  multiple-cursors = melpaBuild rec {
+    pname = "multiple-cursors";
+    version = "20150627";
+    src = fetchFromGitHub {
+      owner  = "magnars";
+      repo   = "multiple-cursors.el";
+      rev    = "9b53e892e6167f930763a3c5aedf8773110a8ae9";
+      sha256 = "0wcrdb137a9aq6dynlqbvypb6m2dj48m899xwy7ilnf2arrmipid";
+    };
   };
 
   nyan-mode = callPackage ../applications/editors/emacs-modes/nyan-mode {};
@@ -875,6 +986,18 @@ let self = _self // overrides;
     };
   };
 
+  perspective = melpaBuild rec {
+    pname   = "perspective";
+    version = "1.12";
+    src = fetchFromGitHub {
+      owner  = "nex3";
+      repo   = "${pname}-el";
+      rev    = version;
+      sha256 = "12c2rrhysrcl2arc6hpzv6lxbb1r3bzlvdp23hnp9sci6yc10k3q";
+    };
+    meta = { license = gpl3Plus; };
+  };
+
   pkg-info = melpaBuild rec {
     pname   = "pkg-info";
     version = "20140610";
@@ -902,14 +1025,31 @@ let self = _self // overrides;
 
   projectile = melpaBuild rec {
     pname   = "projectile";
-    version = "20141020";
+    version = "0.12.0";
     src = fetchFromGitHub {
       owner  = "bbatsov";
       repo   = pname;
-      rev    = "13580d83374e0c17c55b3a680b816dfae407657e";
-      sha256 = "10c28h2g53sg68lwamhak0shdhh26h5xaipipz3n4281sr1fwg58";
+      rev    = "v${version}";
+      sha256 = "1bl5wpkyv9xlf5v5hzkj8si1z4hjn3yywrjs1mx0g4irmq3mk29m";
     };
-    packageRequires = [ dash helm s pkg-info epl ];
+    fileSpecs = [ "projectile.el" ];
+    packageRequires = [ dash helm pkg-info ];
+    meta = { license = gpl3Plus; };
+  };
+  helm-projectile = melpaBuild rec {
+    pname   = "helm-projectile";
+    version = projectile.version;
+    src     = projectile.src;
+    fileSpecs = [ "helm-projectile.el" ];
+    packageRequires = [ helm projectile ];
+    meta = { license = gpl3Plus; };
+  };
+  persp-projectile = melpaBuild rec {
+    pname   = "persp-projectile";
+    version = projectile.version;
+    src     = projectile.src;
+    fileSpecs = [ "persp-projectile.el" ];
+    packageRequires = [ perspective projectile ];
     meta = { license = gpl3Plus; };
   };
 
@@ -1091,6 +1231,19 @@ let self = _self // overrides;
     };
   };
 
+  swiper = melpaBuild rec {
+    pname   = "swiper";
+    version = "0.5.0";
+    src = fetchFromGitHub {
+      owner  = "abo-abo";
+      repo   = pname;
+      rev    = version;
+      sha256 = "1a28vignwpcn62xk46w5p5wjfrbcmvs0gz1jgn4ba7ibmn4cmnnm";
+    };
+    fileSpecs = [ "swiper.el" "ivy.el" "colir.el" "counsel.el" ];
+    meta = { license = gpl3Plus; };
+  };
+
   switch-window = melpaBuild rec {
     pname   = "switch-window";
     version = "20140919";
@@ -1185,6 +1338,22 @@ let self = _self // overrides;
     meta = {
       description = "E-Mail client for Emacs";
       license = gpl3Plus; # probably
+    };
+  };
+
+  web-mode = melpaBuild rec {
+    pname   = "web-mode";
+    version = "11.1.12";
+    src = fetchFromGitHub {
+      owner  = "fxbois";
+      repo   = pname;
+      rev    = "67259f16bfaec5c006a53533b8feeba7771e1365";
+      sha256 = "16zcnwm7wnbl1xbsx7rr5rr697ax141akfx2lknwirx18vqmkijj";
+    };
+
+    meta = {
+      description = "Web template editing mode for emacs";
+      license = gpl2;
     };
   };
 

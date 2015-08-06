@@ -80,7 +80,7 @@ in
   };
 
   libxkbfile = attrs: attrs // {
-    patches = lib.optional (stdenv.cc.cc.isClang or false) ./libxkbfile-clang36.patch;
+    patches = lib.optional stdenv.cc.isClang ./libxkbfile-clang36.patch;
   };
 
   libpciaccess = attrs : attrs // {
@@ -173,6 +173,9 @@ in
     patchPhase = "sed -i '/USE_GETTEXT_TRUE/d' sxpm/Makefile.in cxpm/Makefile.in";
   };
 
+  libXpresent = attrs: attrs
+    // { buildInputs = with xorg; attrs.buildInputs ++ [ libXext libXfixes libXrandr ]; };
+
   setxkbmap = attrs: attrs // {
     postInstall =
       ''
@@ -189,6 +192,10 @@ in
     buildInputs = attrs.buildInputs ++ [ args.freetype args.fontconfig ];
   };
 
+  xcbutilcursor = attrs: attrs // {
+    meta.maintainers = [ stdenv.lib.maintainers.lovek323 ];
+  };
+
   xf86inputevdev = attrs: attrs // {
     preBuild = "sed -e '/motion_history_proc/d; /history_size/d;' -i src/*.c";
     installFlags = "sdkdir=\${out}/include/xorg";
@@ -203,6 +210,11 @@ in
     installFlags = "sdkdir=\${out}/include/xorg";
   };
 
+  xf86inputlibinput = attrs: attrs // {
+    buildInputs = attrs.buildInputs ++ [ args.libinput ];
+    installFlags = "sdkdir=\${out}/include/xorg";
+  };
+
   xf86inputsynaptics = attrs: attrs // {
     buildInputs = attrs.buildInputs ++ [args.mtdev args.libevdev];
     installFlags = "sdkdir=\${out}/include/xorg configdir=\${out}/share/X11/xorg.conf.d";
@@ -214,11 +226,6 @@ in
       "--with-xorg-conf-dir=$(out)/share/X11/xorg.conf.d"
       "--with-udev-rules-dir=$(out)/lib/udev/rules.d"
     ];
-    patches = [( args.fetchpatch {
-      url = "http://cgit.freedesktop.org/xorg/driver/xf86-input-vmmouse/patch/"
-        + "?id=1cbbc03c4b37d57760c57bd2e0b0f89d744a5795";
-      sha256 = "1qkhwj2yal0cz15lv9557d10ylvxlq05ibq43pm2rrvqdg3mb6h4";
-    })];
   };
 
   xf86videoati = attrs: attrs // {
@@ -249,15 +256,14 @@ in
   };
 
   xkbcomp = attrs: attrs // {
-    configureFlags = "--with-xkb-config-root=${xorg.xkeyboardconfig}/share/X11/xkb"; 
+    configureFlags = "--with-xkb-config-root=${xorg.xkeyboardconfig}/share/X11/xkb";
   };
 
   xkeyboardconfig = attrs: attrs // {
 
     buildInputs = attrs.buildInputs ++ [args.intltool];
 
-    #TODO: resurrect patches for US_intl?
-    patches = [ ./xkeyboard-config-eo.patch ];
+    #TODO: resurrect patches for US_intl or Esperanto?
 
     # 1: compatibility for X11/xkb location
     # 2: I think pkgconfig/ is supposed to be in /lib/
@@ -408,6 +414,7 @@ in
 
   xf86videointel = attrs: attrs // {
     buildInputs = attrs.buildInputs ++ [xorg.libXfixes];
+    nativeBuildInputs = [args.autoreconfHook xorg.utilmacros];
   };
 
   xwd = attrs: attrs // {

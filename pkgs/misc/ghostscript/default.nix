@@ -156,11 +156,11 @@ versionedDerivation "ghostscript" version {
     # [] # maybe sometimes jpeg2000 support
     ;
 
-  CFLAGS = "-fPIC";
-  NIX_LDFLAGS =
-    "-lz -rpath${ if stdenv.isDarwin then " " else "="}${freetype}/lib";
-
-  patches = [ ./urw-font-files.patch ];
+  patches = [
+    ./urw-font-files.patch
+    # fetched from debian's ghostscript 9.15_dfsg-1 (called 020150707~0c0b085.patch there)
+    ./CVE-2015-3228.patch
+  ];
 
   configureFlags =
     [ "--with-system-libtiff" "--disable-sse2"
@@ -188,5 +188,7 @@ preConfigure = ''
     done
 
     rm -rf $out/lib/cups/filter/{gstopxl,gstoraster}
+
+    rm -rf $out/share/ghostscript/*/{doc,examples}
   '';
 }

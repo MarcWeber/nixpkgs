@@ -11,6 +11,7 @@
 
 allAttrs@{ stdenv, fetchurl, python, makeWrapper, docutils, unzip, config
 , tk ? null, curses
+, ApplicationServices
 
 , subversion, pkgs
 , plain ? false # true = no plugins
@@ -106,7 +107,7 @@ let
 in
 
 let
-  version = "3.3.3";
+  version = "3.4.2";
   name = "mercurial-${version}";
 in
 
@@ -115,13 +116,14 @@ stdenv.mkDerivation {
 
   src = fetchurl {
     url = "http://mercurial.selenic.com/release/${name}.tar.gz";
-    sha256 = "04xfzwb7jabzsfv2r18c3w6vwag7cjrl79xzg5i3mbyb1mzkcid4";
+    sha256 = "1kcfznv990mj30y4yk59hz4wkd3050h0hg7iib69w53nhi50xjfw";
   };
 
   inherit python; # pass it so that the same version can be used in hg2git
   pythonPackages = [ curses ];
 
-  buildInputs = [ python makeWrapper docutils unzip ];
+  buildInputs = [ python makeWrapper docutils unzip ]
+      ++ stdenv.lib.optional stdenv.isDarwin ApplicationServices;
 
   PYTHONPATH = "${python}/lib/python2.7/site-packages:${python}/lib/python2.7/site-packages:${docutils}/lib/python2.5/site-packages:${docutils}/lib/python2.7/site-packages:${docutils}/lib/python2.7/site-packages";
 
@@ -156,6 +158,10 @@ stdenv.mkDerivation {
       mkdir -p $out/share/cgi-bin
       cp -v hgweb.cgi contrib/hgweb.wsgi $out/share/cgi-bin
       chmod u+x $out/share/cgi-bin/hgweb.cgi
+
+      # install bash completion
+      install -D -v contrib/bash_completion $out/share/bash-completion/completions/mercurial
+
       echo "verify that extensions are found"
       PATH=$PATH:$out/bin
       ${tests}

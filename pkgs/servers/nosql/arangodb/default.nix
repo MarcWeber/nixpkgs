@@ -1,5 +1,5 @@
 {stdenv, fetchurl, fetchgit, pkgconfig, readline, openssl, go, zlib, icu, gnused, python
-, gyp, libev, etcd, v8
+, gyp, bash, libev, etcd, v8
 , versionedDerivation
 , version ? "2.4"
 }:
@@ -31,6 +31,18 @@ versionedDerivation "arangodb" version {
       sha256 = "1i28y2d3p1rry8z439cdjwj1cabc0xdmz5xaxig9dz21x7046qk8";
     };
   };
+  "2.5.2" = {
+    name = "arangodb-2.5.2";
+
+    src = fetchgit {
+      url = https://github.com/arangodb/arangodb.git;
+      rev = "refs/tags/v${version}";
+      sha256 = "04l9palmh0jwbylapsss7d1s0h54wb6kng30zqsl3dq9l91ii6s0";
+    };
+
+    configureFlagsArray = [ "--with-openssl-lib=${openssl}/lib" ];
+
+  };
 }
 {
 
@@ -54,9 +66,10 @@ versionedDerivation "arangodb" version {
     python gyp # v8 # TODO: does it use system gyp?
   ];
 
-  patchPhase = "
-    sed -i 's@/bin/bash@/bin/sh@' 3rdParty/V8*/build/gyp/gyp
-  ";
+  patchPhase = ''
+    substituteInPlace 3rdParty/V8-3.31.74.1/build/gyp/gyp --replace /bin/bash ${bash}/bin/bash
+    substituteInPlace 3rdParty/etcd/build --replace /bin/bash ${bash}/bin/bash
+    '';
 
   meta = {
     description = "the multi-purpose NoSQL DB";

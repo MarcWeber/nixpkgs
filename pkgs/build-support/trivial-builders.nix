@@ -17,36 +17,22 @@ rec {
     , text
     , executable ? false # run chmod +x ?
     , destination ? ""   # relative path appended to $out eg "/bin/foo"
-    , split_at ? 100 * 1024 # if text size is bigger than split_at use cat
     }:
-    let
-        # There is a problem passing more than 400k to a builder, thus split the
-        # text into chunks and concatenate again using cat shell command
-        # The better fix would be fix builtins.toFile which cannot
-        # write text depending on other derivations yet.
-        # See https://github.com/NixOS/nix/issues/473
-
-        split = builtins.stringLength text > split_at;
-        many_files = s: split_at:
-          if s == "" then []
-          else
-            [(writeText "concat-part" (builtins.substring 0 split_at s))]
-            ++ (many_files (builtins.substring split_at (builtins.stringLength s - split_at) s) split_at);
-
-        common = {
-          inherit executable;
-          # Pointless to do this on a remote machine.
-          preferLocalBuild = true;
-        };
-    in
     runCommand name
-      (if split then (common // { files = many_files text split_at; })
-                else (common // { inherit text; })
-      )
+      { inherit text executable;
+        passAsFile = [ "text" ];
+        # Pointless to do this on a remote machine.
+        preferLocalBuild = true;
+        allowSubstitutes = false;
+      }
       ''
         n=$out${destination}
         mkdir -p "$(dirname "$n")"
-        ${if split then ''cat $files > "$n"'' else ''echo -n "$text" > "$n"''}
+        if [ -e "$textPath" ]; then
+          mv "$textPath" "$n"
+        else
+          echo -n "$text" > "$n"
+        fi
         (test -n "$executable" && chmod +x "$n") || true
       '';
 
@@ -103,23 +89,33 @@ rec {
     (lib.concatMapStrings (x: "ln -s '${x.path}' '${x.name}';\n") entries));
 
   # Require file
-  requireFile = {name, sha256, url ? null, message ? null} :
+  requireFile = { name ? null
+                , sha256 ? null
+                , sha1 ? null
+                , url ? null
+                , message ? null
+                } :
     assert (message != null) || (url != null);
+    assert (sha256 != null) || (sha1 != null);
+    assert (name != null) || (url != null);
     let msg =
       if message != null then message
       else ''
-        Unfortunately, we may not download file ${name} automatically.
+        Unfortunately, we may not download file ${name_} automatically.
         Please, go to ${url}, download it yourself, and add it to the Nix store
         using either
-          nix-store --add-fixed sha256 ${name}
+          nix-store --add-fixed ${hashAlgo} ${name_}
         or
-          nix-prefetch-url file://path/to/${name}
+          nix-prefetch-url --type ${hashAlgo} file://path/to/${name_}
       '';
+      hashAlgo = if sha256 != null then "sha256" else "sha1";
+      hash = if sha256 != null then sha256 else sha1;
+      name_ = if name == null then baseNameOf (toString url) else name;
     in
     stdenv.mkDerivation {
-      inherit name;
-      outputHashAlgo = "sha256";
-      outputHash = sha256;
+      name = name_;
+      outputHashAlgo = hashAlgo;
+      outputHash = hash;
       builder = writeScript "restrict-message" ''
 source ${stdenv}/setup
 cat <<_EOF_

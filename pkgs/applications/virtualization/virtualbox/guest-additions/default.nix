@@ -12,7 +12,7 @@ stdenv.mkDerivation {
 
   src = fetchurl {
     url = "http://download.virtualbox.org/virtualbox/${version}/VBoxGuestAdditions_${version}.iso";
-    sha256 = "c5e46533a6ff8df177ed5c9098624f6cec46ca392bab16de2017195580088670";
+    sha256 = "7b61f523db7ba75aebc4c7bb0cae2da92674fa72299e4a006c5c67517f7d786b";
   };
 
   KERN_DIR = "${kernel.dev}/lib/modules/*/build";
@@ -87,9 +87,8 @@ stdenv.mkDerivation {
     sed -i -e "s|/usr/bin|$out/bin|" bin/VBoxClient-all
 
     # Install binaries
-    mkdir -p $out/sbin
-    install -m 4755 lib/VBoxGuestAdditions/mount.vboxsf $out/sbin/mount.vboxsf
-    install -m 755 sbin/VBoxService $out/sbin
+    install -D -m 4755 lib/VBoxGuestAdditions/mount.vboxsf $out/bin/mount.vboxsf
+    install -D -m 755 sbin/VBoxService $out/bin/VBoxService
 
     mkdir -p $out/bin
     install -m 755 bin/VBoxClient $out/bin

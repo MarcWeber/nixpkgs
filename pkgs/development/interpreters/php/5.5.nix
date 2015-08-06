@@ -1,6 +1,6 @@
 { callPackage, apacheHttpd  }:
 callPackage ./generic.nix {
-  phpVersion = "5.5.21";
-  sha = "1zl3valcak5hb4fmivpfa66arwpvi19js1d5cxq5vjn4fncl5sb2";
+  phpVersion = "5.5.27";
+  sha = "0w0zgqria3i3mrp03p9m0613xlaj3vsw9girmslngjn06jjwdd64";
   apacheHttpd = apacheHttpd;
 }

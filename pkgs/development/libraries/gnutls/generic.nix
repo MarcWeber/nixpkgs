@@ -1,8 +1,9 @@
-{ fetchurl, stdenv, zlib, lzo, libtasn1, nettle, pkgconfig, lzip
-, guileBindings, guile, perl, gmp
+{ lib, fetchurl, stdenv, autoreconfHook, zlib, lzo, libtasn1, nettle, pkgconfig, lzip
+, guileBindings, guile, perl, gmp, libidn, p11_kit, unbound
+, tpmSupport ? false, trousers
 
 # Version dependent args
-, version, src
+, version, src, patches ? []
 , ...}:
 
 assert guileBindings -> guile != null;
@@ -10,43 +11,42 @@ assert guileBindings -> guile != null;
 stdenv.mkDerivation rec {
   name = "gnutls-${version}";
 
-  inherit src;
+  inherit src patches;
 
-  patches =
-    # FreeBSD doesn't have <alloca.h>, and Gnulib's `alloca' module isn't used.
-    stdenv.lib.optional stdenv.isFreeBSD ./guile-gnulib-includes.patch
-    ;
-
-  # Note: GMP is a dependency of Nettle, whose public headers include
-  # GMP headers, hence the hack.
-  configurePhase = ''
-    ./configure --prefix="$out"                                 \
-      --disable-dependency-tracking --enable-fast-install       \
-      --without-p11-kit                                         \
-      --with-lzo --with-libtasn1-prefix="${libtasn1}"           \
-      --with-libnettle-prefix="${nettle}"                       \
-      CPPFLAGS="-I${gmp}/include"                               \
-      ${stdenv.lib.optionalString guileBindings
-          "--enable-guile --with-guile-site-dir=\"$out/share/guile/site\""}
-  '';
+  configureFlags =
+    # FIXME: perhaps use $SSL_CERT_FILE instead
+    lib.optional stdenv.isLinux "--with-default-trust-store-file=/etc/ssl/certs/ca-certificates.crt"
+  ++ [
+    "--disable-dependency-tracking"
+    "--enable-fast-install"
+  ] ++ lib.optional guileBindings
+    [ "--enable-guile" "--with-guile-site-dir=\${out}/share/guile/site" ];
 
   # Build of the Guile bindings is not parallel-safe.  See
   # <http://git.savannah.gnu.org/cgit/gnutls.git/commit/?id=330995a920037b6030ec0282b51dde3f8b493cad>
   # for the actual fix.
   enableParallelBuilding = !guileBindings;
 
-  buildInputs = [ zlib lzo lzip ]
-    ++ stdenv.lib.optional guileBindings guile;
+  buildInputs = [ lzo lzip nettle libtasn1 libidn p11_kit zlib gmp ]
+    ++ lib.optional (tpmSupport && stdenv.isLinux) trousers
+    ++ [ unbound ]
+    ++ lib.optional guileBindings guile;
 
-  nativeBuildInputs = [ perl pkgconfig ];
-
-  propagatedBuildInputs = [ nettle libtasn1 ];
+  nativeBuildInputs = [ perl pkgconfig autoreconfHook ];
 
   # XXX: Gnulib's `test-select' fails on FreeBSD:
   # http://hydra.nixos.org/build/2962084/nixlog/1/raw .
   doCheck = (!stdenv.isFreeBSD && !stdenv.isDarwin);
 
-  meta = with stdenv.lib; {
+  # Fixup broken libtool and pkgconfig files
+  preFixup = lib.optionalString (!stdenv.isDarwin) ''
+    sed ${lib.optionalString tpmSupport "-e 's,-ltspi,-L${trousers}/lib -ltspi,'"} \
+        -e 's,-lz,-L${zlib}/lib -lz,' \
+        -e 's,-lgmp,-L${gmp}/lib -lgmp,' \
+        -i $out/lib/libgnutls.la $out/lib/pkgconfig/gnutls.pc
+  '';
+
+  meta = with lib; {
     description = "The GNU Transport Layer Security Library";
 
     longDescription = ''

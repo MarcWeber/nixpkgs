@@ -9,7 +9,7 @@
 }:
 
 let
-  version = "2.3.6";
+  version = "2.5.0";
   svn = subversionClient.override { perlBindings = true; };
 in
 
@@ -18,7 +18,7 @@ stdenv.mkDerivation {
 
   src = fetchurl {
     url = "https://www.kernel.org/pub/software/scm/git/git-${version}.tar.xz";
-    sha256 = "1z30gj5a9n0sylqlwd35vvpi49051ql44xzmarkkcirbx5a1rq1w";
+    sha256 = "0p747j94kynrx71qaamc9i0dkq5vqpv66a47b68pmin1qsxb2nfc";
   };
 
   patches = [
@@ -85,6 +85,10 @@ stdenv.mkDerivation {
       # gitweb.cgi, need to patch so that it's found
       sed -i -e "s|'compressor' => \['gzip'|'compressor' => ['${gzip}/bin/gzip'|" \
           $out/share/gitweb/gitweb.cgi
+
+      # Also put git-http-backend into $PATH, so that we can use smart
+      # HTTP(s) transports for pushing
+      ln -s $out/libexec/git-core/git-http-backend $out/bin/git-http-backend
     ''
 
    + (if svnSupport then

@@ -492,6 +492,6 @@
   ./virtualisation/virtualbox-guest.nix
   ./virtualisation/virtualbox-server.nix
   # ./virtualisation/virtualbox-host.nix
-  # ./virtualisation/vmware-guest.nix
+  ./virtualisation/vmware-guest.nix
   ./virtualisation/xen-dom0.nix
 ]

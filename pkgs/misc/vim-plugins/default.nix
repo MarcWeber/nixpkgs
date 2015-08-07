@@ -483,7 +483,7 @@ rec {
       sha256 = "1ccb0e63eaf68548feb1c37b09c07c84b6bea9b350c4257549f091aa414601e2";
     };
     dependencies = [];
-    postInstall = false;
+    postInstall = "";
   };
 
   vim-eighties = buildVimPluginFrom2Nix { # created by nix#NixDerivation

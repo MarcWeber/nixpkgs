@@ -7,6 +7,7 @@ stdenv.mkDerivation rec {
   # src = (fetchurl { url = "http://mawercer.de/~nix/repos/ctags-svn-804.tar.bz2"; sha256 = "9ab3b13f60ec285df4c33cae3b79b32aa1523ede734d0b5e0af47eeaaf58f2b4"; });
   # # END
 
+  name = "ctags-${revision}";
   revision = "816";
 
   src = fetchsvn {

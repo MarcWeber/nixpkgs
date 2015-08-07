@@ -4797,7 +4797,7 @@ let
   tinycc = callPackage ../development/compilers/tinycc { };
 
   urweb = callPackage ../development/compilers/urweb { };
-  urwebHG = callPackage ../development/compilers/urweb { version = "hg"; };
+  # urwebHG = callPackage ../development/compilers/urweb { version = "hg"; };
 
   vala = callPackage ../development/compilers/vala/default.nix { };
 

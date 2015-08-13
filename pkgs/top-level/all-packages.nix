@@ -14807,9 +14807,6 @@ let
     cupsSupport = config.ghostscript.cups or (!stdenv.isDarwin);
   };
 
-  ghostscriptMainline_9_10 = ghostscript.override { version = "9.10"; };
-  ghostscriptMainline_9_15 = ghostscript.override { version = "9.15"; };
-
   ghostscriptX = appendToName "with-X" (ghostscript.override {
     x11Support = true;
   });

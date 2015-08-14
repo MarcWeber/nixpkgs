@@ -2300,7 +2300,7 @@ let
 
     buildInputs = [ pkgs.openssl self.pretend self.cryptography_vectors
                     self.iso8601 self.pyasn1 self.pytest ];
-    propagatedBuildInputs = [ self.six ] ++ optional (!isPyPy) self.cffi;
+    propagatedBuildInputs = [ self.six ] ++ optional (!isPyPy) self.cffi_0_8;
   };
 
   cryptography_vectors = buildPythonPackage rec {
@@ -2396,6 +2396,21 @@ let
     };
 
     buildInputs = with self; [ pycparser mock pytest py ] ++ optionals (!isPyPy) [ cffi ];
+
+    meta = {
+      maintainers = with maintainers; [ iElectric ];
+    };
+  };
+
+  cffi_0_8 = buildPythonPackage rec {
+    name = "cffi-0.8.6";
+ 
+    src = pkgs.fetchurl {
+      url = "http://pypi.python.org/packages/source/c/cffi/${name}.tar.gz";
+      sha256 = "0406j3sgndmx88idv5zxkkrwfqxmjl18pj8gf47nsg4ymzixjci5";
+    };
+
+    propagatedBuildInputs = with self; [ pkgs.libffi pycparser ];
 
     meta = {
       maintainers = with maintainers; [ iElectric ];
@@ -3717,6 +3732,23 @@ let
     };
   };
 
+  iniparse = buildPythonPackage rec {
+
+    name = "iniparse-${version}";
+    version = "0.4";
+
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/i/iniparse/iniparse-${version}.tar.gz";
+      sha256 = "0m60k46vr03x68jckachzsipav0bwhhnqb8715hm1cngs89fxhdb";
+    };
+
+    meta = with stdenv.lib; {
+      description = "Accessing and Modifying INI files";
+      license = licenses.mit;
+      maintainers = [ "abcz2.uprola@gmail.com" ];
+    };
+  };
+
   i3-py = buildPythonPackage rec {
     version = "0.6.4";
     name = "i3-py-${version}";
@@ -4555,6 +4587,19 @@ let
     meta = {
       maintainers = with maintainers; [ iElectric ];
     };
+  };
+
+
+  ssdeep = buildPythonPackage rec {
+    name = "ssdeep-3.1.1";
+
+    src = pkgs.fetchurl {
+      url = "http://pypi.python.org/packages/source/s/ssdeep/${name}.tar.gz";
+      sha256 = "1p9dpykmnfb73cszdiic5wbz5bmbbmkiih08pb4dah5mwq4n7im6";
+    };
+
+    buildInputs = with pkgs; [ ssdeep ];
+    propagatedBuildInputs = with self; [ cffi six ];
   };
 
 
@@ -7993,11 +8038,11 @@ let
 
   pymysql = buildPythonPackage rec {
     name = "pymysql-${version}";
-    version = "0.6.3";
+    version = "0.6.6";
     src = pkgs.fetchgit {
       url = https://github.com/PyMySQL/PyMySQL.git;
       rev = "refs/tags/pymysql-${version}";
-      sha256 = "1m9fr2x49s3aixlmccr3w80skl19dya9h3x69wgl6ly1z27iyg24";
+      sha256 = "12v8bw7pp455zqkwraxk69qycz2ngk18bbz60v72kdbp6kssnqhz";
     };
   };
 
@@ -8118,12 +8163,12 @@ let
   };
 
   nbxmpp = buildPythonPackage rec {
-    name = "nbxmpp-0.5.2";
+    name = "nbxmpp-0.5.3";
 
     src = pkgs.fetchurl {
       name = "${name}.tar.gz";
-      url = "https://python-nbxmpp.gajim.org/downloads/7";
-      sha256 = "0q2iph07aahwn6hlr38v0cvzlfc9hrf5mz6qs1kp4b4x9l8x5mqn";
+      url = "https://python-nbxmpp.gajim.org/downloads/8";
+      sha256 = "0dcr786dyips1fdvgsn8yvpgcz5j7217fi05c29cfypdl8jnp6mp";
     };
 
     meta = {
@@ -8270,6 +8315,57 @@ let
       license = "BSD-style";
     };
   });
+
+  nibabel = buildPythonPackage rec {
+    version = "2.0.1";
+    name = "nibabel-${version}";
+
+    src = pkgs.fetchurl {
+      url = "http://pypi.python.org/packages/source/n/nibabel/${name}.tar.gz";
+      md5 = "3be518fde5ec5b09483d4f28c81dc974";
+    };
+
+    propagatedBuildInputs = with self; [
+      numpy
+      nose
+      modules.sqlite3
+    ];
+
+    meta = {
+      homepage = http://nipy.org/nibabel/;
+      description = "Access a multitude of neuroimaging data formats";
+      license = "BSD";
+    };
+  };
+
+  nipype = buildPythonPackage rec {
+    version = "0.10.0";
+    name = "nipype-${version}";
+
+    src = pkgs.fetchurl {
+      url = "http://pypi.python.org/packages/source/n/nipype/${name}.tar.gz";
+      md5 = "480013709633a6d292e2ef668443e0c9";
+    };
+
+    # Tests fail due to getcwd returning ENOENT???
+    doCheck = false;
+
+    propagatedBuildInputs = with self; [
+     numpy
+     dateutil
+     nose
+     traits
+     scipy
+     nibabel
+     networkx
+   ];
+
+    meta = {
+      homepage = http://nipy.org/nipype/;
+      description = "Neuroimaging in Python: Pipelines and Interfaces";
+      license = "BSD";
+    };
+  };
 
   nose = buildPythonPackage rec {
     version = "1.3.4";
@@ -8449,14 +8545,16 @@ let
   };
 
   numexpr = buildPythonPackage rec {
-    version = "2.4";
+    version = "2.4.3";
     name = "numexpr-${version}";
 
-    src = pkgs.fetchgit {
-      url = https://github.com/pydata/numexpr.git;
-      rev = "606cc9a110711e947d35ac2770749c00dab184c8";
-      sha256 = "1gxgkg7ncgjhnifn444iha5nrjhyr8sr6w5yp204186a1ysz858g";
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/n/numexpr/${name}.tar.gz";
+      sha256 = "3ae7191c89df40db6b0a8637a4dace7c5956bc910793a53225f985f3b443c722";
     };
+    
+    # Tests fail with python 3. https://github.com/pydata/numexpr/issues/177
+    doCheck = !isPy3k;
 
     propagatedBuildInputs = with self; [ numpy ];
 
@@ -9255,10 +9353,10 @@ let
 
   pgcli = buildPythonPackage rec {
     name = "pgcli-${version}";
-    version = "0.19.0";
+    version = "0.19.1";
 
     src = pkgs.fetchFromGitHub {
-      sha256 = "1fp73zwbfd4xalrcjnnplvr6890hr528jmqsvc4xgxh9ic2x03bp";
+      sha256 = "1r34bbqbd4h72cl0cxi9w6q2nwx806wpxq220mzyiy8g45xv0ghj";
       rev = "v${version}";
       repo = "pgcli";
       owner = "amjith";
@@ -9304,6 +9402,29 @@ let
     propagatedBuildInputs = with self; [ unittest2 ];
   };
 
+  pysftp = buildPythonPackage rec {
+    name = "pysftp-${version}";
+    version = "0.2.8";
+    disabled = isPyPy;
+
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/p/pysftp/${name}.tar.gz";
+      sha256 = "1d69z8yngciksch1i8rivy1xl8f6g6sb7c3kk5cm3pf8304q6hhm";
+    };
+
+    propagatedBuildInputs = with self; [ paramiko ];
+
+    meta = {
+      homepage = https://bitbucket.org/dundeemt/pysftp;
+      description = "A friendly face on SFTP";
+      license = licenses.mit;
+      longDescription = ''
+        A simple interface to SFTP. The module offers high level abstractions
+        and task based routines to handle your SFTP needs. Checkout the Cook
+        Book, in the docs, to see what pysftp can do for you.
+      '';
+    };
+  };
 
   python3pika = buildPythonPackage {
     name = "python3-pika-0.9.14";
@@ -9524,15 +9645,21 @@ let
 
 
 
-  praw = pythonPackages.buildPythonPackage rec {
-    name = "praw-2.1.21";
+  praw = buildPythonPackage rec {
+    name = "praw-3.1.0";
 
     src = pkgs.fetchurl {
-      url = "https://pypi.python.org/packages/source/p/praw/praw-2.1.21.tar.gz";
-      md5 = "3b0388c9105662f8be8f1a4d3a38216d";
+      url = "https://pypi.python.org/packages/source/p/praw/${name}.zip";
+      sha256 = "1dilb3vr5llqy344i6nh7gl07wcssb5dmqrhjwhfqi1mais7b953";
     };
 
-    propagatedBuildInputs = with pythonPackages; [ update_checker six mock flake8 ];
+    propagatedBuildInputs = with self; [
+      decorator
+      flake8
+      mock
+      six
+      update_checker
+    ];
 
     # can't find the tests module?
     doCheck = false;
@@ -9541,6 +9668,8 @@ let
       description = "Python Reddit API wrapper";
       homepage = http://praw.readthedocs.org/;
       license = licenses.gpl3;
+      platforms = platforms.all;
+      maintainers = with maintainers; [ jgeerds ];
     };
   };
 
@@ -10486,6 +10615,7 @@ let
       homepage = https://github.com/seb-m/pyinotify/wiki;
       description = "Monitor filesystems events on Linux platforms with inotify";
       license = licenses.mit;
+      platforms = platforms.linux;
     };
   };
 
@@ -11417,6 +11547,26 @@ let
     };
   };
 
+  rencode = buildPythonPackage rec {
+    name = "rencode-${version}";
+    version = "git20150810";
+    disabled = isPy33;
+
+    src = pkgs.fetchgit {
+      url = https://github.com/aresch/rencode;
+      rev = "b45e04abdca0dea36e383a8199783269f186c99e";
+      sha256 = "b4bd82852d4220e8a9493d3cfaecbc57b1325708a2d48c0f8acf262edb10dc40";
+    };
+
+    buildInputs = with self; [ cython ];
+
+    meta = {
+      homepage = https://github.com/aresch/rencode;
+      description = "Fast (basic) object serialization similar to bencode";
+      license = licenses.gpl3;
+    };
+  };
+
 
   reportlab =
    let freetype = overrideDerivation pkgs.freetype (args: { configureFlags = "--enable-static --enable-shared"; });
@@ -11521,6 +11671,37 @@ let
       license = licenses.mit;
     };
   };
+
+  qscintilla = pkgs.stdenv.mkDerivation rec {
+    # TODO: Qt5 support
+    name = "qscintilla-${version}";
+    version = pkgs.qscintilla.version;
+    disabled = isPy3k || isPyPy;
+
+    src = pkgs.qscintilla.src;
+
+    buildInputs = with pkgs; [ xorg.lndir qt4 pyqt4 python ];
+
+    preConfigure = ''
+      mkdir -p $out
+      lndir ${pkgs.pyqt4} $out
+      cd Python
+      ${python.executable} ./configure-old.py \
+          --destdir $out/lib/${python.libPrefix}/site-packages/PyQt4 \
+          --apidir $out/api/${python.libPrefix} \
+          -n ${pkgs.qscintilla}/include \
+          -o ${pkgs.qscintilla}/lib \
+          --sipdir $out/share/sip
+    '';
+
+    meta = with stdenv.lib; {
+      description = "A Python binding to QScintilla, Qt based text editing control";
+      license = licenses.lgpl21Plus;
+      maintainers = [ "abcz2.uprola@gmail.com" ];
+      platforms = platforms.linux;
+    };
+  };
+
 
   qserve = buildPythonPackage rec {
     name = "qserve-0.2.8";
@@ -12168,6 +12349,22 @@ let
     meta = {
       description = "A library for testing interactive command-line applications";
       homepage = http://pypi.python.org/pypi/ScriptTest/;
+    };
+  };
+
+  seaborn= buildPythonPackage rec {
+    name = "seaborn-0.6.0";
+    src = pkgs.fetchurl {
+      url = "http://pypi.python.org/packages/source/s/seaborn/${name}.tar.gz";
+      md5 = "bc518f1f45dadb9deb2bb57ca3af3cad";
+    };
+
+    propagatedBuildInputs = with self; [ pandas matplotlib ];
+
+    meta = {
+      description = "statisitical data visualization";
+      homepage = "http://stanford.edu/~mwaskom/software/seaborn/";
+      license     = "BSD";
     };
   };
 
@@ -13606,6 +13803,24 @@ let
     meta = {
       description = "Enhanced wiki and issue tracking system for software development projects";
 
+      license = "BSD";
+    };
+  };
+
+  traits = buildPythonPackage rec {
+    name = "traits-${version}";
+    version = "4.5.0";
+
+    src = pkgs.fetchurl {
+      url = "http://pypi.python.org/packages/source/t/traits/${name}.tar.gz";
+      md5 = "3ad558eebaedc63c29c80183c0371d2f";
+    };
+
+    propagatedBuildInputs = with self; [ numpy ];
+
+    meta = {
+      description = "explicitly typed attributes for Python";
+      homepage = http://pypi.python.org/pypi/traits;
       license = "BSD";
     };
   };
@@ -15138,16 +15353,15 @@ let
     doCheck = false;
   };
   tornado = buildPythonPackage rec {
-    name = "tornado-4.1";
+    name = "tornado-${version}";
+    version = "4.2.1";
 
     propagatedBuildInputs = with self; [ backports_ssl_match_hostname_3_4_0_2 certifi ];
 
     src = pkgs.fetchurl {
       url = "https://pypi.python.org/packages/source/t/tornado/${name}.tar.gz";
-      sha256 = "0a12f00h277zbifibnj46wf14801f573irvf6hwkgja5vspd7awr";
+      sha256 = "a16fcdc4f76b184cb82f4f9eaeeacef6113b524b26a2cb331222e4a7fa6f2969";
     };
-
-    doCheck = false;
   };
 
   tokenlib = buildPythonPackage rec {
@@ -15241,6 +15455,22 @@ let
     };
 
     propagatedBuildInputs = with self; [ pkgs.libarchive ];
+  };
+
+  libarchive-c = buildPythonPackage rec {
+    name = "libarchive-c-2.1";
+
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/l/libarchive-c/${name}.tar.gz";
+      sha256 = "089lrz6xyrfnk55v35vis6jyqyyl77w093057djyspnd2744wi2n";
+    };
+
+    patchPhase = ''
+      substituteInPlace libarchive/ffi.py --replace \
+        "find_library('archive')" "'${pkgs.libarchive}/lib/libarchive.so'"
+    '';
+
+    buildInputs = [ pkgs.libarchive ];
   };
 
   pybrowserid = buildPythonPackage rec {
@@ -15511,7 +15741,7 @@ let
 
 
   pyusb = buildPythonPackage rec {
-    name = "pyusb-1.0.0b1";
+    name = "pyusb-1.0.0b2";
 
     src = pkgs.fetchurl {
       url = "https://pypi.python.org/packages/source/p/pyusb/${name}.tar.gz";
@@ -15528,7 +15758,7 @@ let
     meta = {
       description = "Python USB access module (wraps libusb 1.0)";  # can use other backends
       homepage = http://pyusb.sourceforge.net/;
-      license = "BSD";
+      license = licenses.bsd3;
       maintainers = with maintainers; [ bjornfor ];
     };
   };
@@ -16021,12 +16251,12 @@ let
     };
   };
 
-  pythonefl_1_14 = buildPythonPackage rec {
+  pythonefl_1_15 = buildPythonPackage rec {
     name = "python-efl-${version}";
-    version = "1.14.0";
+    version = "1.15.0";
     src = pkgs.fetchurl {
       url = "http://download.enlightenment.org/rel/bindings/python/${name}.tar.gz";
-      sha256 = "1pns5mdyc069z6j1pywjasdd6v9xka5kjdl2yxpd6ds948dia0q0";
+      sha256 = "1k3vb7pb70l2v1s2mzg91wvmncq93vb04vn60pzdlrnbcns0grhi";
     };
     preConfigure = ''
       export NIX_CFLAGS_COMPILE="$(pkg-config --cflags efl) -I${self.dbus}/include/dbus-1.0 $NIX_CFLAGS_COMPILE"
@@ -16901,6 +17131,7 @@ let
   
   suds = buildPythonPackage rec {
     name = "suds-0.4";
+    disabled = isPy3k;
     
     src = pkgs.fetchurl {
       url = "https://pypi.python.org/packages/source/s/suds/suds-0.4.tar.gz";

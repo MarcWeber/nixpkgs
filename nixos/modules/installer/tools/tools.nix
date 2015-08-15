@@ -104,7 +104,9 @@ let
 in
 
 {
+
   config = {
+
     environment.systemPackages =
       [ nixos-build-vms
         nixos-install
@@ -123,5 +125,7 @@ in
       # expose scripts
       inherit (installer2) nixosPrepareInstall runInChroot nixosBootstrap minimalInstallArchive;
     };
+
   };
+
 }

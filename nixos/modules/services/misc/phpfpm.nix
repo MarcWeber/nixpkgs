@@ -324,7 +324,7 @@ in {
               # see daemonIdFun etc.
 
               # php version, must support fpm, thus must have a system_fpm_config attr
-              php = pkgs.php5_3fpm.override {};
+              php = pkgs.php56.merge { fpmSupport = true; };
 
               # optional: append addditional php.ini lines.
 

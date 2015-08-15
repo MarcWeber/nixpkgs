@@ -41,6 +41,7 @@
   ./hardware/video/bumblebee.nix
   ./hardware/video/nvidia.nix
   ./hardware/video/ati.nix
+  ./installer/tools/auto-upgrade.nix
   ./installer/tools/nixos-checkout.nix
   ./installer/tools/tools.nix
   ./misc/assertions.nix
@@ -343,6 +344,7 @@
   ./services/networking/tlsdated.nix
   ./services/networking/tox-bootstrapd.nix
   ./services/networking/tvheadend.nix
+  ./services/networking/ubuntu-fan.nix
   ./services/networking/unbound.nix
   ./services/networking/unifi.nix
   ./services/networking/vsftpd.nix

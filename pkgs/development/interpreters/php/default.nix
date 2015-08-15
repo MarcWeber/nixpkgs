@@ -1,487 +1,377 @@
-{ pkgs, stdenv, fetchurl, composableDerivation, autoconf, automake, fetchgit
-, flex, bison, apacheHttpd, libmysql, libxml2, readline
-, zlib, curl, gd, postgresql, openssl, pkgconfig, sqlite, config, uwimap, pam
-, libjpeg, libpng, htmlTidy, libmcrypt, fcgi, callPackage, gettext
-, freetype, writeText
-, openldap, cyrus_sasl, libmhash
-, systemd
-, version ? "5.6.x" # latest stable
-, icu
-, libxslt
-, bzip2
-
-# options
-
-
-, sapi ? "apxs2" # SAPI support: only one can be used at a time ? (PHP >= 5.3)
-
-# keep *Support args sorted
-, bcmathSupport ? true
-, curlSupport ? true
-, curlWrappersSupport ? true
-, fastcgiSupport ? false
-, gdSupport ? true
-, gettextSupport ? true
-, imapSupport ? false
-, ldapSupport ? true
-, libxml2Support ? true
-, mbstringSupport ? true
-, mcryptSupport ? true
-, mysqlSupport ? true
-, mysqliSupport ? true
-, opensslSupport ? true
-, pcntlSupport ? true
-, pdo_mysqlSupport ? true
-, pdo_pgsqlSupport ? true
-, postgresqlSupport ? true
-, readlineSupport ? true
-, soapSupport ? true
-, socketsSupport ? true
-, sqliteSupport ? true
-, tidySupport ? true
-, ttfSupport ? true
-, zipSupport ? true
-, zlibSupport ? true
-
-, gdShared ? true
-
-, fpmSystemdSocketActivationPatchSupport ? true
-
+{ lib, stdenv, fetchurl, composableDerivation, autoconf, automake, flex, bison
+, mysql, libxml2, readline, zlib, curl, postgresql, gettext
+, openssl, pkgconfig, sqlite, config, libjpeg, libpng, freetype
+, libxslt, libmcrypt, bzip2, icu, openldap, cyrus_sasl, libmhash, freetds
+, uwimap, pam, gmp, apacheHttpd
+, callPackage, fetchgit, pkgs, writeText
 , idByConfig ? true # if true the php.id value will only depend on php configuration, not on the store path, eg dependencies
 
-, lessThan54 ? builtins.lessThan (builtins.compareVersions version "5.4") 0
-, lessThan55 ? builtins.lessThan (builtins.compareVersions version "5.5") 0
-, lessThan56 ? builtins.lessThan (builtins.compareVersions version "5.6") 0
-
-, sendmail ? "/var/setuid-wrappers/sendmail"
 }:
-
-/* version specific notes:
-   5.4: maintained officially. Everything which does not work is a bug
-
-  Having all versions in one file can be considered "complicated" - but I feel
-  more code is shared - so I think its the simplest way - unless configuration
-  changes dramatically
-
-  The php derivation also has special names:
-
-  apc                   : PHP cache, might be included in PHP 6 eventually, so you might prefer this over xcache
-  xcache                : another cache implementation
-  xdebug                : module required to debug PHP - seems to build for all PHP versions
-  system_fpm_config     : provides nixos config values providing the same "API" for PHP 5.2 and 5.3
-                          See nixos module for details
-
-  id                    : something uniq identifying PHP configure options. Its
-                          used by the nixos module to find out which pools may
-                          be controlled by the same daemon. Eg to reduce security risks you
-                          can have special extensions enabled for some projects only.
-*/
 
 let
 
-  true_version = if version == "5.4.x" then "5.4.39"
-  else if version == "5.5.x" then "5.5.22"
-  else if version == "5.6.x" then "5.6.6"
-  else version;
+  generic =
+    { version, sha256, url ? "http://www.php.net/distributions/php-${version}.tar.bz2" }:
 
-  # used to calculate php id based on features
-  options = [ /* sapi */ 
-    # keep sorted
-    "bcmathSupport"
-    "curlSupport"
-    "curlWrappersSupport"
-    "fastcgiSupport"
-    "fpmSystemdSocketActivationPatchSupport"
-    "gdSupport"
-    "gettextSupport"
-    "imapSupport"
-    "ldapSupport"
-    "libxml2Support"
-    "mbstringSupport"
-    "mcryptSupport"
-    "mysqlSupport"
-    "mysqliSupport"
-    "opensslSupport"
-    "pdo_mysqlSupport"
-    "pdo_pgsqlSupport"
-    "postgresqlSupport"
-    "pcntlSupport"
-    "readlineSupport"
-    "soapSupport"
-    "socketsSupport"
-    "sqliteSupport"
-    "tidySupport"
-    "ttfSupport"
-    "zipSupport"
-    "zlibSupport"
-    ];
+    let php7 = lib.versionAtLeast version "7.0"; in
 
-  # note: this derivation contains a small hack: It contains several PHP
-  # versions
-  # If the differences get too large this shoud be split into several files
-  # At the moment this works fine for me.
-  # known differences:
-  # -ini location
-  # PHP 5.3 does no longer support fastcgi.
-  #  fpm seems to be the replacement.
-  #  There exist patches for 5.2
-  # PHP > 5.3 can only build one SAPI module
+    let options = [
+        "imapSupport"
+        "ldapSupport"
+        "mhashSupport"
+        "mysqlSupport"
+        "mysqliSupport"
+        "pdo_mysqlSupport"
+        "libxml2Support"
+        "apxs2Support"
+        "bcmathSupport"
+        "socketsSupport"
+        "curlSupport"
+        "curlWrappersSupport"
+        "gettextSupport"
+        "pcntlSupport"
+        "postgresqlSupport"
+        "pdo_pgsqlSupport"
+        "readlineSupport"
+        "sqliteSupport"
+        "soapSupport"
+        "zlibSupport"
+        "opensslSupport"
+        "mbstringSupport"
+        "gdSupport"
+        "intlSupport"
+        "exifSupport"
+        "xslSupport"
+        "mcryptSupport"
+        "bz2Support"
+        "zipSupport"
+        "ftpSupport"
+        "fpmSupport"
+        "gmpSupport"
+        "mssqlSupport"
+        "ztsSupport"
+        "calendarSupport"
+    ]; in
 
-  inherit (composableDerivation) edf wwf;
+    let php = composableDerivation.composableDerivation {} (fixed: {
 
-  inherit (stdenv) lib;
+      inherit version;
 
-  php = composableDerivation.composableDerivation {
-    inherit (stdenv) mkDerivation;
-  } (fixed: /* let inherit (fixed.fixed) version; in*/ {
-  # Yes, this isn't properly indented.
+      name = "php-${version}";
 
-  version = true_version;
+      enableParallelBuilding = true;
 
-  name = "php_configurable-${true_version}";
+      buildInputs = [ flex bison pkgconfig ];
 
-  buildInputs = [/*flex bison*/ pkgconfig];
+      flags = {
 
-  enableParallelBuilding = true;
+        # much left to do here...
 
-  flags = {
+        # SAPI modules:
 
-    mergeAttrBy = {
-      preConfigure = a: b: "${a}\n${b}";
+        apxs2 = {
+          configureFlags = ["--with-apxs2=${apacheHttpd}/bin/apxs"];
+          buildInputs = [apacheHttpd];
+        };
+
+        # Extensions
+        imap = {
+          configureFlags = [
+            "--with-imap=${uwimap}"
+            "--with-imap-ssl"
+            ];
+          buildInputs = [ uwimap openssl pam ];
+        };
+
+        ldap = {
+          configureFlags = ["--with-ldap=${openldap}"];
+          buildInputs = [openldap cyrus_sasl openssl];
+        };
+
+        mhash = {
+          configureFlags = ["--with-mhash"];
+          buildInputs = [libmhash];
+        };
+
+        curl = {
+          configureFlags = ["--with-curl=${curl}"];
+          buildInputs = [curl openssl];
+        };
+
+        curlWrappers = {
+          configureFlags = ["--with-curlwrappers"];
+        };
+
+        zlib = {
+          configureFlags = ["--with-zlib=${zlib}"];
+          buildInputs = [zlib];
+        };
+
+        libxml2 = {
+          configureFlags = [
+            "--with-libxml-dir=${libxml2}"
+            ];
+          buildInputs = [ libxml2 ];
+        };
+
+        pcntl = {
+          configureFlags = [ "--enable-pcntl" ];
+        };
+
+        readline = {
+          configureFlags = ["--with-readline=${readline}"];
+          buildInputs = [ readline ];
+        };
+
+        sqlite = {
+          configureFlags = ["--with-pdo-sqlite=${sqlite}"];
+          buildInputs = [ sqlite ];
+        };
+
+        postgresql = {
+          configureFlags = ["--with-pgsql=${postgresql}"];
+          buildInputs = [ postgresql ];
+        };
+
+        pdo_pgsql = {
+          configureFlags = ["--with-pdo-pgsql=${postgresql}"];
+          buildInputs = [ postgresql ];
+        };
+
+        mysql = {
+          configureFlags = ["--with-mysql=${mysql.lib}"];
+          buildInputs = [ mysql.lib ];
+        };
+
+        mysqli = {
+          configureFlags = ["--with-mysqli=${mysql.lib}/bin/mysql_config"];
+          buildInputs = [ mysql.lib ];
+        };
+
+        mysqli_embedded = {
+          configureFlags = ["--enable-embedded-mysqli"];
+          depends = "mysqli";
+          assertion = fixed.mysqliSupport;
+        };
+
+        pdo_mysql = {
+          configureFlags = ["--with-pdo-mysql=${mysql.lib}"];
+          buildInputs = [ mysql.lib ];
+        };
+
+        bcmath = {
+          configureFlags = ["--enable-bcmath"];
+        };
+
+        gd = {
+          # FIXME: Our own gd package doesn't work, see https://bugs.php.net/bug.php?id=60108.
+          configureFlags = [
+            "--with-gd"
+            "--with-freetype-dir=${freetype}"
+            "--with-png-dir=${libpng}"
+            "--with-jpeg-dir=${libjpeg}"
+          ];
+          buildInputs = [ libpng libjpeg freetype ];
+        };
+
+        gmp = {
+          configureFlags = ["--with-gmp=${gmp}"];
+          buildInputs = [ gmp ];
+        };
+
+        soap = {
+          configureFlags = ["--enable-soap"];
+        };
+
+        sockets = {
+          configureFlags = ["--enable-sockets"];
+        };
+
+        openssl = {
+          configureFlags = ["--with-openssl=${openssl}"];
+          buildInputs = [openssl];
+        };
+
+        mbstring = {
+          configureFlags = ["--enable-mbstring"];
+        };
+
+        gettext = {
+          configureFlags = ["--with-gettext=${gettext}"];
+          buildInputs = [gettext];
+        };
+
+        intl = {
+          configureFlags = ["--enable-intl"];
+          buildInputs = [icu];
+        };
+
+        exif = {
+          configureFlags = ["--enable-exif"];
+        };
+
+        xsl = {
+          configureFlags = ["--with-xsl=${libxslt}"];
+          buildInputs = [libxslt];
+        };
+
+        mcrypt = let libmcrypt' = libmcrypt.override { disablePosixThreads = true; }; in {
+          configureFlags = ["--with-mcrypt=${libmcrypt'}"];
+          buildInputs = [libmcrypt'];
+        };
+
+        bz2 = {
+          configureFlags = ["--with-bz2=${bzip2}"];
+          buildInputs = [bzip2];
+        };
+
+        zip = {
+          configureFlags = ["--enable-zip"];
+        };
+
+        ftp = {
+          configureFlags = ["--enable-ftp"];
+        };
+
+        fpm = {
+          configureFlags = ["--enable-fpm"];
+        };
+
+        mssql = stdenv.lib.optionalAttrs (!stdenv.isDarwin) {
+          configureFlags = ["--with-mssql=${freetds}"];
+          buildInputs = [freetds];
+        };
+
+        zts = {
+          configureFlags = ["--enable-maintainer-zts"];
+        };
+
+        calendar = {
+          configureFlags = ["--enable-calendar"];
+        };
+      };
+
+      cfg = {
+        imapSupport = config.php.imap or true;
+        ldapSupport = config.php.ldap or true;
+        mhashSupport = config.php.mhash or true;
+        mysqlSupport = (!php7) && (config.php.mysql or true);
+        mysqliSupport = config.php.mysqli or true;
+        pdo_mysqlSupport = config.php.pdo_mysql or true;
+        libxml2Support = config.php.libxml2 or true;
+        apxs2Support = config.php.apxs2 or true;
+        bcmathSupport = config.php.bcmath or true;
+        socketsSupport = config.php.sockets or true;
+        curlSupport = config.php.curl or true;
+        curlWrappersSupport = (!php7) && (config.php.curlWrappers or true);
+        gettextSupport = config.php.gettext or true;
+        pcntlSupport = config.php.pcntl or true;
+        postgresqlSupport = config.php.postgresql or true;
+        pdo_pgsqlSupport = config.php.pdo_pgsql or true;
+        readlineSupport = config.php.readline or true;
+        sqliteSupport = config.php.sqlite or true;
+        soapSupport = config.php.soap or true;
+        zlibSupport = config.php.zlib or true;
+        opensslSupport = config.php.openssl or true;
+        mbstringSupport = config.php.mbstring or true;
+        gdSupport = config.php.gd or true;
+        intlSupport = config.php.intl or true;
+        exifSupport = config.php.exif or true;
+        xslSupport = config.php.xsl or false;
+        mcryptSupport = config.php.mcrypt or true;
+        bz2Support = config.php.bz2 or false;
+        zipSupport = config.php.zip or true;
+        ftpSupport = config.php.ftp or true;
+        fpmSupport = config.php.fpm or true;
+        gmpSupport = config.php.gmp or true;
+        mssqlSupport = (!php7) && (config.php.mssql or (!stdenv.isDarwin));
+        ztsSupport = config.php.zts or false;
+        calendarSupport = config.php.calendar or true;
+      };
+
+      configurePhase = ''
+        # Don't record the configure flags since this causes unnecessary
+        # runtime dependencies.
+        for i in main/build-defs.h.in scripts/php-config.in; do
+          substituteInPlace $i \
+            --replace '@CONFIGURE_COMMAND@' '(omitted)' \
+            --replace '@CONFIGURE_OPTIONS@' "" \
+            --replace '@PHP_LDFLAGS@' ""
+        done
+
+        iniFile=$out/etc/php-recommended.ini
+        [[ -z "$libxml2" ]] || export PATH=$PATH:$libxml2/bin
+        ./configure --with-config-file-scan-dir=/etc --with-config-file-path=$out/etc --prefix=$out $configureFlags
+      '';
+
+      installPhase = ''
+        unset installPhase; installPhase;
+        cp php.ini-production $iniFile
+      '';
+
+      src = fetchurl {
+        inherit url sha256;
+      };
+
+      meta = with stdenv.lib; {
+        description = "An HTML-embedded scripting language";
+        homepage = http://www.php.net/;
+        license = stdenv.lib.licenses.php301;
+        maintainers = with maintainers; [ globin ];
+      };
+
+      patches = if !php7 then [ ./fix-paths.patch ] else [ ./fix-paths-php7.patch ];
+
+    });
+
+    php_with_id = php // {
+      id =
+         if idByConfig && builtins ? hashString
+         then # turn options into something hashable:
+              let opts_s = lib.concatMapStrings (x: if x then "1" else "") (lib.attrVals options php);
+              # you're never going to use that many php's at the same time, thus use a short hash
+              in "${php.version}-${builtins.substring 0 5 (builtins.hashString "sha256" opts_s)}"
+         else # the hash of the store path depending on php version and all configuration details
+              builtins.baseNameOf (builtins.unsafeDiscardStringContext php);
     };
-    # much left to do here...
 
-    # SAPI modules:
+    in php_with_id // rec {
+      xcache = callPackage ../../libraries/php-xcache { php = php_with_id; };
+      koellner_phonetik = callPackage ../../interpreters/koellner-phonetik { php = php_with_id; };
+      # apc = gone
 
-      apxs2 = {
-        configureFlags = ["--with-apxs2=${apacheHttpd}/bin/apxs"];
-        buildInputs = [apacheHttpd];
-      };
+      phpPackages = callPackage ../../../top-level/php-packages.nix { php = php_with_id; inherit fetchgit; };
+      xdebug = phpPackages.xdebug;
+      apcu = phpPackages.apcu;
 
-
-      fpmSystemdSocketActivationPatch = lib.optionalAttrs (fixed.fixed.cfg.fpmSupport) {
-	preConfigure = ''
-	export NIX_LDFLAGS="$NIX_LDFLAGS `pkg-config --libs libsystemd-daemon`"
-	'';
-        buildInputs = [systemd];
-	patches = [
-	  # wiki.php.net/rfc/socketactivation (merged both files)
-	  ./systemd-socket-activation.patch
-	] ++ lib.optional lessThan54 ./5.3-freetype-dirs.patch;
-      };
-
-      fpm = {
-        configureFlags = ["--enable-fpm"];
-      } // (lib.optionalAttrs (true_version == "5.2.17") {
-        configureFlags = [
-            "--enable-fpm"
-            "--enable-fastcgi"
-            "--with-fpm-log=/var/log/php-fpm-5.2"
-            "--with-fpm-pid=/var/run/php-fpm-5.2.pid"
-            # "--with-xml-config=/etc/php-fpm-5.2.conf"
-           ];
-
-        # experimental
-        patches = [(fetchurl {
-                      url = http://php-fpm.org/downloads/php-5.2.17-fpm-0.5.14.diff.gz;
-                      sha256 = "1v3fwiifx89y5lnj0kv4sb9yj90b4k27dfd2z3a5nw1qh5c44d2g";
-                    })];
-
-        postInstall = ''
-          mv $out/etc/php-fpm.conf{,.example}
-          ln -s /etc/php-fpm-5.2.conf $out/etc/php-fpm.conf
-        '';
-      })
-      ;
-
-      # Extensions
-
-      ttf = {
-        configureFlags = ["--enable-gd-native-ttf" "--with-ttf" "--with-freetype-dir=${freetype}"];
-        buildInputs = [freetype];
-      };
-
-      curl = {
-        configureFlags = ["--with-curl=${curl}"];
-        buildInputs = [curl openssl];
-      };
-
-      curlWrappers = {
-        configureFlags = ["--with-curlwrappers"];
-      };
-
-      ldap = {
-        configureFlags = ["--with-ldap=${openldap}" "--with-ldap-sasl=${cyrus_sasl}"];
-        buildInputs = [openldap cyrus_sasl];
-      };
-
-      mhash = {
-        # obsoleted by Hash, see http://php.net/manual/de/book.mhash.php ?
-        configureFlags = ["--with-mhash"];
-        buildInputs = [libmhash];
-      };
-
-      zlib = {
-        configureFlags = ["--with-zlib=${zlib}"];
-        buildInputs = [zlib];
-      };
-
-      libxml2 = {
-        configureFlags
-          = [ "--with-libxml-dir=${libxml2}" ];
-        buildInputs = [ libxml2 ];
-      };
-
-      pcntl = {
-        configureFlags = [ "--enable-pcntl" ];
-      };
-
-      readline = {
-        configureFlags = ["--with-readline=${readline}"];
-        buildInputs = [ readline ];
-      };
-    
-      sqlite = {
-        configureFlags = ["--with-pdo-sqlite=${sqlite}"];
-        buildInputs = [ sqlite ];
-      };
-    
-      postgresql = {
-        configureFlags = ["--with-pgsql=${postgresql}"];
-        buildInputs = [ postgresql ];
-      };
-    
-      mysql = {
-        configureFlags = ["--with-mysql=${libmysql}"];
-        buildInputs = [ libmysql ];
-      };
-
-      mysqli = {
-        configureFlags = ["--with-mysqli=${libmysql}/bin/mysql_config"];
-        buildInputs = [ libmysql];
-      };
-
-      mysqli_embedded = {
-        configureFlags = ["--enable-embedded-mysqli"];
-        depends = "mysqli";
-        assertion = fixed.mysqliSupport;
-      };
-
-      pdo_mysql = {
-        configureFlags = ["--with-pdo-mysql=${libmysql}"];
-        buildInputs = [ libmysql ];
-      };
-
-      pdo_pgsql = {
-        configureFlags = ["--with-pdo-pgsql=${postgresql}"];
-        buildInputs = [ postgresql ];
-      };
-
-      bcmath = {
-        configureFlags = ["--enable-bcmath"];
-      };
-
-      gd = 
-      let graphicLibraries = "--with-freetype-dir=${freetype} --with-png-dir=${libpng} --with-jpeg-dir=${libjpeg}"; in
-      {
-        configureFlags =
-          if gdShared then
-            # ok: ["--with-gd=${gd}"];
-            # does this work with 5.3?
-            ["--with-gd=shared  " graphicLibraries]
-          else ["--with-gd" graphicLibraries];
-        buildInputs = [gd libpng libjpeg ];
-      };
-
-      soap = {
-        configureFlags = ["--enable-soap"];
-      };
-
-      sockets = {
-        configureFlags = ["--enable-sockets"];
-      };
-
-      openssl = {
-        configureFlags = ["--with-openssl=${openssl}"];
-        buildInputs = ["openssl"];
-      };
-
-      mbstring = {
-        configureFlags = ["--enable-mbstring"];
-      };
-
-      gettext = {
-        configureFlags = ["--with-gettext=${gettext}"];
-        preConfigure = ''
-          sed -i 's@for i in \$PHP_GETTEXT /usr/local /usr; do@for i in '"$nativeBuildInputs"'; do@' configure
-        '';
-        buildInputs = [gettext stdenv.glibc /* libintl.h */];
-      };
-
-      imap = {
-        configureFlags = [ "--with-imap=${uwimap}" "--with-imap-ssl" ]
-          # uwimap builds with kerberos on darwin
-          ++ stdenv.lib.optional (stdenv.isDarwin) "--with-kerberos";
-        buildInputs = [ uwimap openssl ]
-          ++ stdenv.lib.optional (!stdenv.isDarwin) pam;
-      };
-
-      tidy = {
-        configureFlags = ["--with-tidy=${htmlTidy}"];
-      };
-
-      intl = {
-        configureFlags = ["--enable-intl"];
-        buildInputs = [icu];
-      };
-
-
-      exif = {
-        configureFlags = ["--enable-exif"];
-      };
-
-
-      xsl = {
-        configureFlags = ["--with-xsl=${libxslt}"];
-        buildInputs = [libxslt];
-      };
-
-      mcrypt = {
-        configureFlags = ["--with-mcrypt=${libmcrypt}"];
-        buildInputs = [ libmcrypt ];
-      };
-
-
-      bz2 = {
-        configureFlags = ["--with-bz2=${bzip2}"];
-        buildInputs = [bzip2];
-      };
-
-      zip = {
-        configureFlags = ["--enable-zip"];
-      };
-      /*
-         php is build within this derivation in order to add the xdebug lines to the php.ini.
-         So both Apache and command line php both use xdebug without having to configure anything.
-         Xdebug could be put in its own derivation.
-      * /
-        meta = {
-                description = "debugging support for PHP";
-                homepage = http://xdebug.org;
-                license = "based on the PHP license - as is";
-                };
-      */
+      # TODO move this into the fpm module?
+      system_fpm_config =
+            if (config.php.fpm or true) then
+                config: pool: (import ./php-5.3-fpm-system-config.nix) { php = php_with_id; inherit pkgs lib writeText config pool;}
+            else throw "php built without fpm support. use php.override { sapi = \"fpm\"; }";
     };
 
-  cfg = {
-    fpmSupport = sapi == "fpm";
-    apxs2Support = sapi == "apxs2";
+in {
 
-    inherit
-    bcmathSupport
-    curlSupport
-    curlWrappersSupport
-    fastcgiSupport
-    gdSupport
-    gettextSupport
-    imapSupport
-    libxml2Support
-    mbstringSupport
-    mcryptSupport
-    mysqliSupport
-    mysqlSupport
-    opensslSupport
-    pdo_mysqlSupport
-    postgresqlSupport
-    readlineSupport
-    soapSupport
-    socketsSupport
-    sqliteSupport
-    tidySupport
-    ttfSupport
-    zipSupport
-    zlibSupport
-    fpmSystemdSocketActivationPatchSupport;
+  php54 = generic {
+    version = "5.4.44";
+    sha256 = "0vc5lf0yjk1fs7inri76mh0lrcmq32ji4m6yqdmg7314x5f9xmcd";
   };
 
-  configurePhase = ''
-    runHook "preConfigure"
-    # Don't record the configure flags since this causes unnecessary
-    # runtime dependencies.
-    for i in main/build-defs.h.in scripts/php-config.in; do
-      substituteInPlace $i \
-        --replace '@CONFIGURE_COMMAND@' '(omitted)' \
-        --replace '@CONFIGURE_OPTIONS@' "" \
-        --replace '@PHP_LDFLAGS@' ""
-    done
-
-    iniFile=$out/etc/php-recommended.ini
-    [[ -z "$libxml2" ]] || export PATH=$PATH:$libxml2/bin
-    ./configure --with-config-file-scan-dir=/etc --with-config-file-path=$out/etc --prefix=$out  $configureFlags
-  '' + stdenv.lib.optionalString stdenv.isDarwin ''
-    # don't build php.dSYM as the php binary
-    sed -i 's/EXEEXT = \.dSYM/EXEEXT =/' Makefile
-  '';
-
-  preBuild = ''
-    sed -i 's@#define PHP_PROG_SENDMAIL	""@#define PHP_PROG_SENDMAIL	"${sendmail}"@' main/build-defs.h
-  '';
-
-  installPhase = ''
-    unset installPhase; installPhase
-    cp php.ini-production $iniFile
-  '';
-
-   src = fetchurl {
-     url = "http://de2.php.net/distributions/php-${true_version}.tar.bz2";
-     md5 = lib.maybeAttr true_version (throw "unkown php version ${true_version}") {
-      # "5.6.0" = "1f889357528809a6675e2f23995832d7";
-      "5.6.6" = "b198117ee1d44c8143e030cee15f1b52";
-
-      "5.5.22" = "cd5a6321d71897dec26e29e795926669";
-
-      "5.4.39" = "017f7ba7484e738c88bf19eec4369d78";
-     };
-     name = "php-${true_version}.tar.bz2";
-   };
-
-  meta = {
-    description = "The PHP language runtime engine";
-    homepage = http://www.php.net/;
-    license = "PHP-3";
+  php55 = generic {
+    version = "5.5.28";
+    sha256 = "1wy2v5rmbiia3v6fc8nwg1y3sdkdmicksxnkadz1f3035rbjqz8r";
   };
 
-  patches = 
-    # TODO patch still required? I use php-fpm only
-    if lessThan54
-    then [./fix.patch]
-    else [./fix-paths.patch];
+  php56 = generic {
+    version = "5.6.12";
+    sha256 = "0fl5r0lzav7icg97p7gkvbxk0xk2mh7i1r45dycjlyxgf91109vg";
+  };
 
+  php70 = lib.lowPrio (generic {
+    version = "7.0.0beta1";
+    url = "https://downloads.php.net/~ab/php-7.0.0beta1.tar.bz2";
+    sha256 = "1pj3ysfhswg2r370ivp33fv9zbcl3yvhmxgnc731k08hv6hmd984";
   });
 
-  php_with_id = php // {
-    id =
-       if idByConfig && builtins ? hashString
-       then # turn options into something hashable:
-            let opts_s = lib.concatMapStrings (x: if x then "1" else "") (lib.attrVals options php);
-            # you're never going to use that many php's at the same time, thus use a short hash
-            in "${php.version}-${builtins.substring 0 5 (builtins.hashString "sha256" opts_s)}"
-       else # the hash of the store path depending on php version and all configuration details
-            builtins.baseNameOf (builtins.unsafeDiscardStringContext php);
-  };
-
-  in php_with_id // rec {
-    xcache = callPackage ../../libraries/php-xcache { php = php_with_id; };
-    koellner_phonetik = callPackage ../../interpreters/koellner-phonetik { php = php_with_id; };
-    # apc = gone
-
-    phpPackages = callPackage ../../../top-level/php-packages.nix { php = php_with_id; inherit fetchgit; };
-    xdebug = phpPackages.xdebug;
-    apcu = phpPackages.apcu;
-
-    # TODO move this into the fpm module?
-    system_fpm_config =
-          if (sapi == "fpm") then
-              config: pool: (import ./php-5.3-fpm-system-config.nix) { php = php_with_id; inherit pkgs lib writeText config pool;}
-          else throw "php built without fpm support. use php.override { sapi = \"fpm\"; }";
-  }
+}

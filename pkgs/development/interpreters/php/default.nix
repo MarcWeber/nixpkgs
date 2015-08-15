@@ -5,7 +5,6 @@
 , uwimap, pam, gmp, apacheHttpd
 , callPackage, fetchgit, pkgs, writeText
 , idByConfig ? true # if true the php.id value will only depend on php configuration, not on the store path, eg dependencies
-
 }:
 
 let
@@ -53,7 +52,34 @@ let
         "calendarSupport"
     ]; in
 
-    let php = composableDerivation.composableDerivation {} (fixed: {
+    composableDerivation.composableDerivation {
+      # merge some php plugins into the derivation, so that the plugins fit the PHP version
+
+      mkDerivation = args:
+        let php = pkgs.stdenv.mkDerivation args;
+
+            php_with_id = php // {
+              id =
+                 if idByConfig && builtins ? hashString
+                 then # turn options into something hashable:
+                      let opts_s = lib.concatMapStrings (x: if x then "1" else "") (lib.attrVals options php);
+                      # you're never going to use that many php's at the same time, thus use a short hash
+                      in "${php.version}-${builtins.substring 0 5 (builtins.hashString "sha256" opts_s)}"
+                 else # the hash of the store path depending on php version and all configuration details
+                      builtins.baseNameOf (builtins.unsafeDiscardStringContext php);
+            };
+
+            in php_with_id // (callPackage ../../../top-level/php-packages.nix { php = php_with_id; inherit fetchgit; }) // rec {
+              xcache = callPackage ../../libraries/php-xcache { php = php_with_id; };
+              koellner_phonetik = callPackage ../../interpreters/koellner-phonetik { php = php_with_id; };
+
+              # TODO move this into the fpm module?
+              system_fpm_config =
+                    if (config.php.fpm or true) then
+                        config: pool: (import ./php-5.3-fpm-system-config.nix) { php = php_with_id; inherit pkgs lib writeText config pool;}
+                    else throw "php built without fpm support. use php.override { sapi = \"fpm\"; }";
+            };
+    } (fixed: {
 
       inherit version;
 
@@ -304,6 +330,10 @@ let
         ./configure --with-config-file-scan-dir=/etc --with-config-file-path=$out/etc --prefix=$out $configureFlags
       '';
 
+      preBuild = ''
+        sed -i 's@#define PHP_PROG_SENDMAIL	""@#define PHP_PROG_SENDMAIL	"${fixed.sendmail or "/var/setuid-wrappers/sendmail"}"@' main/build-defs.h
+      '';
+
       installPhase = ''
         unset installPhase; installPhase;
         cp php.ini-production $iniFile
@@ -324,34 +354,10 @@ let
 
     });
 
-    php_with_id = php // {
-      id =
-         if idByConfig && builtins ? hashString
-         then # turn options into something hashable:
-              let opts_s = lib.concatMapStrings (x: if x then "1" else "") (lib.attrVals options php);
-              # you're never going to use that many php's at the same time, thus use a short hash
-              in "${php.version}-${builtins.substring 0 5 (builtins.hashString "sha256" opts_s)}"
-         else # the hash of the store path depending on php version and all configuration details
-              builtins.baseNameOf (builtins.unsafeDiscardStringContext php);
-    };
-
-    in php_with_id // rec {
-      xcache = callPackage ../../libraries/php-xcache { php = php_with_id; };
-      koellner_phonetik = callPackage ../../interpreters/koellner-phonetik { php = php_with_id; };
-      # apc = gone
-
-      phpPackages = callPackage ../../../top-level/php-packages.nix { php = php_with_id; inherit fetchgit; };
-      xdebug = phpPackages.xdebug;
-      apcu = phpPackages.apcu;
-
-      # TODO move this into the fpm module?
-      system_fpm_config =
-            if (config.php.fpm or true) then
-                config: pool: (import ./php-5.3-fpm-system-config.nix) { php = php_with_id; inherit pkgs lib writeText config pool;}
-            else throw "php built without fpm support. use php.override { sapi = \"fpm\"; }";
-    };
 
 in {
+
+  # Example usage: php56.merge { fpmSupport = true; sendmail = ".."; .... }
 
   php54 = generic {
     version = "5.4.44";

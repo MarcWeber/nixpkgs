@@ -3,7 +3,7 @@
 , openssl, pkgconfig, sqlite, config, libjpeg, libpng, freetype
 , libxslt, libmcrypt, bzip2, icu, openldap, cyrus_sasl, libmhash, freetds
 , uwimap, pam, gmp, apacheHttpd
-, callPackage, fetchgit, pkgs, writeText
+, callPackage, fetchgit, pkgs, writeText, systemd
 , idByConfig ? true # if true the php.id value will only depend on php configuration, not on the store path, eg dependencies
 }:
 
@@ -89,6 +89,10 @@ let
       enableParallelBuilding = true;
 
       buildInputs = [ flex bison pkgconfig ];
+
+      mergeAttrBy = {
+        preConfigure = a: b: "${a}\n${b}";
+      };
 
       flags = {
 
@@ -278,7 +282,12 @@ let
         };
 
         systemd_socket_activation = {
-          patches = [ ./systemd-socket-activation.patch ];
+          patches = [ ./systemd-socket-activation.patch  ];
+          buildInputs = [ systemd ];
+          preConfigure = ''
+            pkg-config --libs libsystemd-daemon
+            export NIX_LDFLAGS="$NIX_LDFLAGS `pkg-config --libs libsystemd-daemon`"
+          '';
         };
       };
 
@@ -322,6 +331,7 @@ let
       };
 
       configurePhase = ''
+        runHook "preConfigure"
         # Don't record the configure flags since this causes unnecessary
         # runtime dependencies.
         for i in main/build-defs.h.in scripts/php-config.in; do

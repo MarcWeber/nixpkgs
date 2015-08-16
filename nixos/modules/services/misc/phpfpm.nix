@@ -233,7 +233,7 @@ let
         name = "php-${iniId}.ini";
         phpIniLines =
           phpIniLines
-          + optionalString enableXdebug "\nprofiler_output_dir = \"${item.daemonCfg.xdebug.profiler_output_dir or (profileDir iniId)}\;";
+          + optionalString enableXdebug "\nprofiler_output_dir = \"${item.daemonCfg.xdebug.profiler_output_dir or (profileDir iniId)}\"\;";
       };
 
       # [ID] see daemonIdFun

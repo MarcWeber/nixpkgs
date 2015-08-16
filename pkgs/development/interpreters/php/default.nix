@@ -50,6 +50,7 @@ let
         "mssqlSupport"
         "ztsSupport"
         "calendarSupport"
+        "systemd_socket_activationSupport"
     ]; in
 
     composableDerivation.composableDerivation {
@@ -275,6 +276,10 @@ let
         calendar = {
           configureFlags = ["--enable-calendar"];
         };
+
+        systemd_socket_activation = {
+          patches = [ ./systemd-socket-activation.patch ];
+        };
       };
 
       cfg = {
@@ -313,6 +318,7 @@ let
         mssqlSupport = (!php7) && (config.php.mssql or (!stdenv.isDarwin));
         ztsSupport = config.php.zts or false;
         calendarSupport = config.php.calendar or true;
+        systemd_socket_activationSupport = config.php.socket_activation_support or true;
       };
 
       configurePhase = ''

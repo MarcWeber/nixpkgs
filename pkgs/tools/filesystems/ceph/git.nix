@@ -1,12 +1,12 @@
 { callPackage, fetchgit, ... } @ args:
 
 callPackage ./generic.nix (args // rec {
-  version = "2015-08-18";
+  version = "2015-09-04";
 
   src = fetchgit {
     url = "git://github.com/ceph/ceph.git";
-    rev = "cf8a360cd1e3937aa1ac74fbf39790b7fb43e71f";
-    sha256 = "0d8vlxap800x8gil16124nb4yvfqb5wa3pk09knrikmmwia49k9v";
+    rev = "8c17e0197481205f8726b06d57313ffe08fba2bf";
+    sha256 = "189l412m6x0f0mqzhgzwfa3sgm5xfxzb9synlvbfm3n1fgdhj5iy";
   };
 
   patches = [ ./fix-pythonpath.patch ];

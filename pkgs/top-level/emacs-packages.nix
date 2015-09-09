@@ -33,7 +33,7 @@
 
 { overrides
 
-, lib, stdenv, fetchurl, fetchgit, fetchFromGitHub
+, lib, stdenv, fetchurl, fetchgit, fetchFromGitHub, fetchhg
 
 , emacs
 , trivialBuild
@@ -498,11 +498,11 @@ let self = _self // overrides;
 
   evil = melpaBuild {
     pname   = "evil";
-    version = "20141020";
-    src = fetchgit {
-      url = "https://github.com/emacsmirror/evil.git";
-      rev = "999ec15587f85100311c031aa8efb5d50c35afe4";
-      sha256 = "5f67643d19a31172e68f2f195959d33bcd26c2786eb71e67eb27eb52f5bf387a";
+    version = "1.2.3";
+    src = fetchhg {
+      url = "https://bitbucket.org/lyro/evil";
+      rev = "e5588e50c0e40a66c099868ea825755e348311fb";
+      sha256 = "0185vrzfdz6iwhmc22rjy0n7ppfppp2ddc8xl0vvbda79q6w3bp8";
     };
     packageRequires = [ goto-chg undo-tree ];
     meta = {
@@ -740,10 +740,10 @@ let self = _self // overrides;
   goto-chg = melpaBuild rec {
     pname   = "goto-chg";
     version = "1.6";
-    src = fetchgit {
-      url = "https://gitorious.org/evil/evil.git";
-      rev = "999ec15587f85100311c031aa8efb5d50c35afe4";
-      sha256 = "5f67643d19a31172e68f2f195959d33bcd26c2786eb71e67eb27eb52f5bf387a";
+    src = fetchhg {
+      url = "https://bitbucket.org/lyro/evil";
+      rev = "e5588e50c0e40a66c099868ea825755e348311fb";
+      sha256 = "0185vrzfdz6iwhmc22rjy0n7ppfppp2ddc8xl0vvbda79q6w3bp8";
     };
     files = [ "lib/goto-chg.el" ];
     meta = { license = gpl3Plus; };
@@ -828,13 +828,14 @@ let self = _self // overrides;
 
   idris-mode = melpaBuild rec {
     pname   = "idris-mode";
-    version = "0.9.18";
+    version = "0.9.19";
     src = fetchFromGitHub {
       owner  = "idris-hackers";
       repo   = "idris-mode";
       rev    = version;
-      sha256 = "11dw2ydlqhqx569wrp56w11rhgvm6mb6mzq2cwsv2vfyjvvawyxg";
+      sha256 = "0iwgbaq2797k1f7ql86i2pjfa67cha4s2v0mgmrd0qcgqkxsdq92";
     };
+    packageRequires = [ prop-menu ];
     meta = { license = gpl3Plus; };
   };
 
@@ -1102,6 +1103,18 @@ let self = _self // overrides;
     src     = projectile.src;
     fileSpecs = [ "persp-projectile.el" ];
     packageRequires = [ perspective projectile ];
+    meta = { license = gpl3Plus; };
+  };
+
+  prop-menu = melpaBuild rec {
+    pname   = "prop-menu";
+    version = "0.1.2";
+    src = fetchFromGitHub {
+      owner  = "david-christiansen";
+      repo   = "${pname}-el";
+      rev    = version;
+      sha256 = "18ap2liz5r5a8ja2zz9182fnfm47jnsbyblpq859zks356k37iwc";
+    };
     meta = { license = gpl3Plus; };
   };
 

@@ -11,7 +11,7 @@ let
   listCtl = domain: list: "${listDir domain list}/control";
   transport = domain: list: "${domain}--${list}@local.list.mlmmj mlmmj:${domain}/${list}";
   virtual = domain: list: "${list}@${domain} ${domain}--${list}@local.list.mlmmj";
-  alias = domain: list: "${list}: \"|${pkgs.mlmmj}/mlmmj-receive -L ${listDir domain list}/\"";
+  alias = domain: list: "${list}: \"|${pkgs.mlmmj}/bin/mlmmj-receive -L ${listDir domain list}/\"";
   subjectPrefix = list: "[${list}]";
   listAddress = domain: list: "${list}@${domain}";
   customHeaders = list: domain: [ "List-Id: ${list}" "Reply-To: ${list}@${domain}" ];
@@ -96,8 +96,9 @@ in
       extraAliases = concatMapStrings (alias cfg.listDomain) cfg.mailLists;
 
       extraConfig = ''
-        transport = hash:${stateDir}/transports
-        virtual = hash:${stateDir}/virtuals
+        transport_maps = hash:${stateDir}/transports
+        virtual_alias_maps = hash:${stateDir}/virtuals
+        propagate_unmatched_extensions = virtual
       '';
     };
 

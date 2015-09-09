@@ -6,6 +6,19 @@ let self = with self; {
     inherit (pkgs) stdenv autoreconfHook fetchurl;
   };
 
+  apcu = buildPecl {
+    name = "apcu-4.0.7";
+
+    sha256 = "1mhbz56mbnq7dryf2d64l84lj3fpr5ilmg2424glans3wcg772hp";
+  };
+
+  imagick = buildPecl {
+    name = "imagick-3.1.2";
+    sha256 = "14vclf2pqcgf3w8nzqbdw0b9v30q898344c84jdbw2sa62n6k1sj";
+    configureFlags = "--with-imagick=${pkgs.imagemagick}";
+    buildInputs = [ pkgs.pkgconfig ];
+  };
+
   memcache = buildPecl {
     name = "memcache-3.0.8";
 
@@ -36,15 +49,15 @@ let self = with self; {
     checkTarget = "test";
   };
 
-  apcu = buildPecl {
-    name = "apcu-git";
+  # apcu = buildPecl {
+  #   name = "apcu-git";
 
-    src = fetchgit {
-      url = https://github.com/krakjoe/apcu.git;
-      rev = "db5d3db91470fdf07f6d873cba3f75326079869f";
-      sha256 = "be868fec46f76693ab52ecbbb5c2abfe5ba634afdb238b80a0d18a7ba56080c7";
-    };
-  };
+  #   src = fetchgit {
+  #     url = https://github.com/krakjoe/apcu.git;
+  #     rev = "db5d3db91470fdf07f6d873cba3f75326079869f";
+  #     sha256 = "be868fec46f76693ab52ecbbb5c2abfe5ba634afdb238b80a0d18a7ba56080c7";
+  #   };
+  # };
 
   zendopcache = buildPecl {
     name = "zendopcache-7.0.3";

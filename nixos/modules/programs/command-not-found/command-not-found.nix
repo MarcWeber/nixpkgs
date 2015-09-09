@@ -53,14 +53,14 @@ in
   #       if [ -x $p -a -f /nix/var/nix/profiles/per-user/root/channels/nixos/programs.sqlite ]; then
   #         # Run the helper program.
   #         $p "$1"
-
+  #
   #         # Retry the command if we just installed it.
   #         if [ $? = 126 ]; then
   #           "$@"
   #         fi
-# 	else
+  #       else
   #         # Indicate than there was an error so ZSH falls back to its default handler
-# 	  return 127
+  #         return 127
   #       fi
   #     }
   #   '';

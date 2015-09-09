@@ -58,9 +58,9 @@ in
           if [ $? = 126 ]; then
             "$@"
           fi
-	else
+        else
           # Indicate than there was an error so ZSH falls back to its default handler
-	  return 127
+          return 127
         fi
       }
     '';

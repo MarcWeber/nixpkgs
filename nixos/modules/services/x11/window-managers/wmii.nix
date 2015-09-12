@@ -1,12 +1,22 @@
 { config, lib, pkgs, options, modulesPath }:
 
+with lib;
+
 let
   inherit (lib) mkOption mkIf singleton;
   cfg = config.services.xserver.windowManager.wmii;
-  wmii = pkgs.wmii_hg;
 in
 {
   options = {
+    services.xserver.windowManager.wmii.package = mkOption {
+      type = types.package;
+      default = pkgs.wmii_hg;
+      example = literalExample "pkgs.wmii_hg";
+      description = ''
+        wmii packgae to use
+      '';
+    };
+
     services.xserver.windowManager.wmii.enable = mkOption {
       default = false;
       example = true;

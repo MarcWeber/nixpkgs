@@ -1,6 +1,6 @@
 { stdenv, fetchurl, unzip }:
 
-let version = "2.013"; in
+let version = "2.018"; in
 stdenv.mkDerivation {
   name = "hack-font-${version}";
 
@@ -8,7 +8,7 @@ stdenv.mkDerivation {
     version_ = with stdenv.lib;
       concatStringsSep "_" (splitString "." version);
   in fetchurl {
-    sha256 = "16lap1796baiyn50fag3gszv7l1c5v62pvlr57ww501ka024gnnk";
+    sha256 = "0k1k6pi9znrdc8a4kv0gkdnyzi2w932m2zi27dvb1ignn7lzmfkx";
     url = "https://github.com/chrissimpkins/Hack/releases/download/v${version}/Hack-v${version_}-ttf.zip";
   };
 
@@ -42,7 +42,6 @@ stdenv.mkDerivation {
       the license is available in LICENSE.md" (From the GitHub page)
     */
     license = licenses.free;
-
     platforms = platforms.all;
     maintainers = with maintainers; [ nckx ];
   };

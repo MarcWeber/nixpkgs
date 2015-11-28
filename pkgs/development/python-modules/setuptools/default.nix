@@ -1,33 +1,24 @@
-{ stdenv, fetchurl, python, wrapPython, distutils-cfg }:
+{ stdenv, fetchurl, python, wrapPython }:
 
 stdenv.mkDerivation rec {
   shortName = "setuptools-${version}";
   name = "${python.executable}-${shortName}";
 
-  version = "18.2";
+  version = "18.2";  # 18.4 breaks python34Packages.characteristic and many others
 
   src = fetchurl {
     url = "http://pypi.python.org/packages/source/s/setuptools/${shortName}.tar.gz";
     sha256 = "07avbdc26yl2a46s76fc7m4vg611g8sh39l26x9dr9byya6sb509";
   };
 
-  buildInputs = [ python wrapPython distutils-cfg ];
-
-  buildPhase = "${python}/bin/${python.executable} setup.py build";
-
-  installPhase =
-    ''
-      dst=$out/lib/${python.libPrefix}/site-packages
+  buildInputs = [ python wrapPython ];
+  doCheck = false;  # requires pytest
+  installPhase = ''
+      dst=$out/${python.sitePackages}
       mkdir -p $dst
       export PYTHONPATH="$dst:$PYTHONPATH"
-      ${python}/bin/${python.executable} setup.py install --prefix=$out --install-lib=$out/lib/${python.libPrefix}/site-packages
+      ${python.interpreter} setup.py install --prefix=$out
       wrapPythonPrograms
-    '';
-
-  doCheck = false;  # requires pytest
-
-  checkPhase = ''
-    ${python}/bin/${python.executable} setup.py test
   '';
 
   meta = with stdenv.lib; {

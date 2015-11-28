@@ -1,8 +1,8 @@
 { stdenv, fetchurl, perl, gnum4, ncurses, openssl
 , makeWrapper, gnused, gawk
-, wxSupport ? false, mesa ? null, wxGTK ? null, xlibs ? null }:
+, wxSupport ? false, mesa ? null, wxGTK ? null, xorg ? null }:
 
-assert wxSupport -> mesa != null && wxGTK != null && xlibs != null;
+assert wxSupport -> mesa != null && wxGTK != null && xorg != null;
 
 let version = "15B03"; in
 
@@ -17,7 +17,7 @@ stdenv.mkDerivation {
   buildInputs =
     [ perl gnum4 ncurses openssl
       makeWrapper
-    ] ++ stdenv.lib.optional wxSupport [ mesa wxGTK xlibs.libX11 ];
+    ] ++ stdenv.lib.optional wxSupport [ mesa wxGTK xorg.libX11 ];
 
   patchPhase = '' sed -i "s@/bin/rm@rm@" lib/odbc/configure erts/configure '';
 
@@ -47,6 +47,8 @@ stdenv.mkDerivation {
     wrapProgram $out/lib/erlang/bin/erl --prefix PATH ":" "${gnused}/bin/"
     wrapProgram $out/lib/erlang/bin/start_erl --prefix PATH ":" "${gnused}/bin/:${gawk}/bin"
   '';
+
+  setupHook = ./setup-hook.sh;
 
   meta = {
     homepage = "http://www.erlang.org/";

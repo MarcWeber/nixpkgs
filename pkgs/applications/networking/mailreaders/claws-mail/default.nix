@@ -1,7 +1,8 @@
-{ fetchurl, stdenv
-, curl, dbus, dbus_glib, enchant, gtk, gnutls, gnupg, gpgme, libarchive
-, libcanberra, libetpan, libnotify, libsoup, libxml2, networkmanager, openldap
-, perl, pkgconfig, poppler, python, shared_mime_info, webkitgtk2
+{ fetchurl, stdenv, wrapGAppsHook
+, curl, dbus, dbus_glib, enchant, gtk, gnutls, gnupg, gpgme, hicolor_icon_theme
+, libarchive, libcanberra, libetpan, libnotify, libsoup, libxml2, networkmanager
+, openldap , perl, pkgconfig, poppler, python, shared_mime_info, webkitgtk2
+, glib_networking, gsettings_desktop_schemas
 
 # Build options
 # TODO: A flag to build the manual.
@@ -29,7 +30,7 @@
 
 with stdenv.lib;
 
-let version = "3.11.1"; in
+let version = "3.13.0"; in
 
 stdenv.mkDerivation {
   name = "claws-mail-${version}";
@@ -39,18 +40,25 @@ stdenv.mkDerivation {
     homepage = http://www.claws-mail.org/;
     license = licenses.gpl3;
     platforms = platforms.linux;
-    maintainers = [ maintainers.khumba ];
+    maintainers = with maintainers; [ khumba fpletz ];
   };
 
   src = fetchurl {
-    url = "http://downloads.sourceforge.net/project/claws-mail/Claws%20Mail/${version}/claws-mail-${version}.tar.bz2";
-    sha256 = "0w13xzri9d3165qsxf1dig1f0gxn3ib4lysfc9pgi4zpyzd0zgrw";
+    url = "http://www.claws-mail.org/download.php?file=releases/claws-mail-${version}.tar.xz";
+    sha256 = "0fpr9gdgrs5yggm61a6135ca06x0cflddsh8dwfqmpb3dj07cl1n";
   };
 
   patches = [ ./mime.patch ];
 
+  postPatch = ''
+    substituteInPlace src/procmime.c \
+        --subst-var-by MIMEROOTDIR ${shared_mime_info}/share
+  '';
+
   buildInputs =
-    [ curl dbus dbus_glib gtk gnutls libetpan perl pkgconfig python ]
+    [ curl dbus dbus_glib gtk gnutls gsettings_desktop_schemas hicolor_icon_theme
+      libetpan perl pkgconfig python wrapGAppsHook
+    ]
     ++ optional enableSpellcheck enchant
     ++ optionals (enablePgp || enablePluginSmime) [ gnupg gpgme ]
     ++ optional enablePluginArchive libarchive
@@ -84,10 +92,11 @@ stdenv.mkDerivation {
 
   enableParallelBuilding = true;
 
+  wrapPrefixVariables = [ "GIO_EXTRA_MODULES" ];
+  GIO_EXTRA_MODULES = "${glib_networking}/lib/gio/modules";
+
   postInstall = ''
     mkdir -p $out/share/applications
     cp claws-mail.desktop $out/share/applications
-
-    ln -sT ${shared_mime_info}/share/mime $out/share/mime
   '';
 }

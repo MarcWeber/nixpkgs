@@ -13522,13 +13522,13 @@ let
   wmiimenu = import ../applications/window-managers/wmii31 {
     libixp = libixp_for_wmii;
     inherit fetchurl /* fetchhg */ stdenv gawk;
-    inherit (xlibs) libX11;
+    inherit (xorg) libX11;
   };
 
   wmiiSnap = import ../applications/window-managers/wmii {
     libixp = libixp_for_wmii;
     inherit fetchurl /* fetchhg */ stdenv gawk;
-    inherit (xlibs) libX11 xextproto libXt libXext;
+    inherit (xorg) libX11 xextproto libXt libXext;
     includeUnpack = config.stdenv.includeUnpack or false;
   };
 

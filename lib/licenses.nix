@@ -155,6 +155,11 @@ lib.mapAttrs (n: v: v // { shortName = n; }) rec {
     fullName = "GNU Free Documentation License v1.2";
   };
 
+  fdl13 = spdx {
+    spdxId = "GFDL-1.3";
+    fullName = "GNU Free Documentation License v1.2";
+  };
+
   free = {
     fullName = "Unspecified free software license";
   };
@@ -395,6 +400,11 @@ lib.mapAttrs (n: v: v // { shortName = n; }) rec {
   tcltk = spdx {
     spdxId = "TCL";
     fullName = "TCL/TK License";
+  };
+
+  ufl = {
+    fullName = "Ubuntu Font License 1.0";
+    url = http://font.ubuntu.com/ufl/ubuntu-font-licence-1.0.txt;
   };
 
   unfree = {

@@ -1,18 +1,19 @@
 { stdenv, fetchurl, autoconf, automake, pkgconfig
-, libX11, libXinerama, libXft, pango
-, i3Support ? false, i3
+, libX11, libXinerama, libXft, pango, cairo
+, libstartup_notification, i3Support ? false, i3
 }:
 
 stdenv.mkDerivation rec {
   name = "rofi-${version}";
-  version = "0.15.7";
+  version = "0.15.10";
 
   src = fetchurl {
     url = "https://github.com/DaveDavenport/rofi/archive/${version}.tar.gz";
-    sha256 = "0alygwc82shkg9lmy8r5vmgd84imx1f9pndrisjpisl8h28dw5dq";
+    sha256 = "0wwdc9dj8qfmqv4pcllq78h38hqmz9s3hqf71fsk71byiid69ln9";
   };
 
   buildInputs = [ autoconf automake pkgconfig libX11 libXinerama libXft pango
+                  cairo libstartup_notification
                 ] ++ stdenv.lib.optional i3Support i3;
 
   preConfigure = ''

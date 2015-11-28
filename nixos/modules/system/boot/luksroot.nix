@@ -32,9 +32,12 @@ let
     ''}
 
     open_normally() {
-        cryptsetup luksOpen ${device} ${name} ${optionalString allowDiscards "--allow-discards"} \
+        echo luksOpen ${device} ${name} ${optionalString allowDiscards "--allow-discards"} \
           ${optionalString (header != null) "--header=${header}"} \
-          ${optionalString (keyFile != null) "--key-file=${keyFile} ${optionalString (keyFileSize != null) "--keyfile-size=${toString keyFileSize}"}"}
+          ${optionalString (keyFile != null) "--key-file=${keyFile} ${optionalString (keyFileSize != null) "--keyfile-size=${toString keyFileSize}"}"} \
+          > /.luksopen_args
+        cryptsetup-askpass
+        rm /.luksopen_args
     }
 
     ${optionalString (luks.yubikeySupport && (yubikey != null)) ''
@@ -242,20 +245,20 @@ in
 
         name = mkOption {
           example = "luksroot";
-          type = types.string;
+          type = types.str;
           description = "Named to be used for the generated device in /dev/mapper.";
         };
 
         device = mkOption {
           example = "/dev/sda2";
-          type = types.string;
+          type = types.str;
           description = "Path of the underlying block device.";
         };
 
         header = mkOption {
           default = null;
           example = "/root/header.img";
-          type = types.nullOr types.string;
+          type = types.nullOr types.str;
           description = ''
             The name of the file or block device that
             should be used as header for the encrypted device.
@@ -265,7 +268,7 @@ in
         keyFile = mkOption {
           default = null;
           example = "/dev/sdb1";
-          type = types.nullOr types.string;
+          type = types.nullOr types.str;
           description = ''
             The name of the file (can be a raw device or a partition) that
             should be used as the decryption key for the encrypted device. If
@@ -349,7 +352,7 @@ in
 
             ramfsMountPoint = mkOption {
               default = "/crypt-ramfs";
-              type = types.string;
+              type = types.str;
               description = "Path where the ramfs used to update the LUKS key will be mounted during early boot.";
             };
 
@@ -369,19 +372,19 @@ in
 
               fsType = mkOption {
                 default = "vfat";
-                type = types.string;
+                type = types.str;
                 description = "The filesystem of the unencrypted device.";
               };
 
               mountPoint = mkOption {
                 default = "/crypt-storage";
-                type = types.string;
+                type = types.str;
                 description = "Path where the unencrypted device will be mounted during early boot.";
               };
 
               path = mkOption {
                 default = "/crypt-storage/default";
-                type = types.string;
+                type = types.str;
                 description = ''
                   Absolute path of the salt on the unencrypted device with
                   that device's root directory as "/".
@@ -418,6 +421,18 @@ in
     boot.initrd.extraUtilsCommands = ''
       copy_bin_and_libs ${pkgs.cryptsetup}/bin/cryptsetup
 
+      cat > $out/bin/cryptsetup-askpass <<EOF
+      #!$out/bin/sh -e
+      if [ -e /.luksopen_args ]; then
+        cryptsetup \$(cat /.luksopen_args)
+        killall cryptsetup
+      else
+        echo "Passphrase is not requested now"
+        exit 1
+      fi
+      EOF
+      chmod +x $out/bin/cryptsetup-askpass
+
       ${optionalString luks.yubikeySupport ''
         copy_bin_and_libs ${pkgs.ykpers}/bin/ykchalresp
         copy_bin_and_libs ${pkgs.ykpers}/bin/ykinfo
@@ -432,6 +447,8 @@ in
 
         cat > $out/bin/openssl-wrap <<EOF
         #!$out/bin/sh
+        export OPENSSL_CONF=$out/etc/ssl/openssl.cnf
+        $out/bin/openssl "\$@"
         EOF
         chmod +x $out/bin/openssl-wrap
       ''}
@@ -442,11 +459,6 @@ in
       ${optionalString luks.yubikeySupport ''
         $out/bin/ykchalresp -V
         $out/bin/ykinfo -V
-        cat > $out/bin/openssl-wrap <<EOF
-        #!$out/bin/sh
-        export OPENSSL_CONF=$out/etc/ssl/openssl.cnf
-        $out/bin/openssl "\$@"
-        EOF
         $out/bin/openssl-wrap version
       ''}
     '';

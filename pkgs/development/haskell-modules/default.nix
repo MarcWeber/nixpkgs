@@ -1,13 +1,12 @@
 { pkgs, stdenv, ghc
+, compilerConfig ? (self: super: {})
 , packageSetConfig ? (self: super: {})
 , overrides ? (self: super: {})
 }:
 
 let
 
-  fix = f: let x = f x // { __unfix__ = f; }; in x;
-
-  extend = rattrs: f: self: let super = rattrs self; in super // f self super;
+  inherit (stdenv.lib) fix' extends;
 
   haskellPackages = self:
     let
@@ -40,10 +39,10 @@ let
       });
 
       callPackageWithScope = scope: drv: args: (stdenv.lib.callPackageWith scope drv args) // {
-        overrideScope = f: callPackageWithScope (mkScope (fix (extend scope.__unfix__ f))) drv args;
+        overrideScope = f: callPackageWithScope (mkScope (fix' (extends f scope.__unfix__))) drv args;
       };
 
-      mkScope = scope: pkgs // pkgs.xlibs // pkgs.gnome // scope;
+      mkScope = scope: pkgs // pkgs.xorg // pkgs.gnome // scope;
       defaultScope = mkScope self;
       callPackage = drv: args: callPackageWithScope defaultScope drv args;
 
@@ -77,4 +76,8 @@ let
 
 in
 
-  fix (extend (extend (extend haskellPackages commonConfiguration) packageSetConfig) overrides)
+  fix'
+    (extends overrides
+      (extends packageSetConfig
+        (extends compilerConfig
+          (extends commonConfiguration haskellPackages))))

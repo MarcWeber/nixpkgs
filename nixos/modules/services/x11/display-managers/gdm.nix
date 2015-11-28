@@ -20,7 +20,9 @@ in
 
       enable = mkEnableOption ''
         GDM as the display manager.
-        <emphasis>GDM is very experimental and may render system unusable.</emphasis>
+        <emphasis>GDM in NixOS is not well-tested with desktops other
+        than GNOME, so use with caution, as it could render the
+        system unusable.</emphasis>
       '';
 
       debug = mkEnableOption ''
@@ -106,7 +108,7 @@ in
     systemd.services.display-manager.wants = [ "systemd-machined.service" ];
     systemd.services.display-manager.after = [ "systemd-machined.service" ];
 
-    systemd.services.display-manager.path = [ gnome3.gnome_shell gnome3.caribou pkgs.xlibs.xhost pkgs.dbus_tools ];
+    systemd.services.display-manager.path = [ gnome3.gnome_shell gnome3.caribou pkgs.xorg.xhost pkgs.dbus_tools ];
 
     services.dbus.packages = [ gdm ];
 
@@ -160,7 +162,7 @@ in
 
       gdm.text = ''
         auth     requisite      pam_nologin.so
-        auth     required       pam_env.so
+        auth     required       pam_env.so envfile=${config.system.build.pamEnvironment}
 
         auth     required       pam_succeed_if.so uid >= 1000 quiet
         auth     optional       ${gnome3.gnome_keyring}/lib/security/pam_gnome_keyring.so

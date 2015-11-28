@@ -10723,6 +10723,10 @@ let
 
   docbook_xml_ebnf_dtd = callPackage ../data/sgml+xml/schemas/xml-dtd/docbook-ebnf { };
 
+  docbook_sgml_utils = callPackage ../data/sgml+xml/schemas/xml-dtd/docbook-sgml-utils { };
+
+  docbook_dsssl = callPackage ../data/sgml+xml/schemas/xml-dtd/docbook-dsssl { };
+
   inherit (callPackages ../data/sgml+xml/stylesheets/xslt/docbook-xsl { })
     docbook_xsl
     docbook_xsl_ns;

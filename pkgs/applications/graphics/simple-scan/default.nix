@@ -1,18 +1,25 @@
 { stdenv, fetchurl, cairo, colord, glib, gtk3, gusb, intltool, itstool, libusb
-, libxml2, makeWrapper, packagekit, pkgconfig, saneBackends, systemd, vala }:
+, libxml2, makeWrapper, pkgconfig, saneBackends, systemd, vala }:
 
-let version = "3.17.92"; in
+let version = "3.19.2"; in
 stdenv.mkDerivation rec {
   name = "simple-scan-${version}";
 
   src = fetchurl {
-    sha256 = "0ax4rqqpwcz65nvw8l89npjc5v0g1ik1mb5w3025xlipm7djgybp";
-    url = "https://launchpad.net/simple-scan/3.17/${version}/+download/${name}.tar.xz";
+    sha256 = "08454ky855iaiq5wn9rdbfal3i4fjss5fn5mg6cmags50wy9spsg";
+    url = "https://launchpad.net/simple-scan/3.19/${version}/+download/${name}.tar.xz";
   };
 
-  buildInputs = [ cairo colord glib gusb gtk3 libusb libxml2 packagekit
-    saneBackends systemd vala ];
+  buildInputs = [ cairo colord glib gusb gtk3 libusb libxml2 saneBackends
+    systemd vala ];
   nativeBuildInputs = [ intltool itstool makeWrapper pkgconfig ];
+
+  configureFlags = [ "--disable-packagekit" ];
+
+  preBuild = ''
+    # Clean up stale generated .c files still referencing packagekit headers:
+    make clean
+  '';
 
   enableParallelBuilding = true;
 

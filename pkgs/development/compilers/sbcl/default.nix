@@ -1,18 +1,13 @@
-{ stdenv, fetchurl, sbclBootstrap, clisp, which}:
+{ stdenv, fetchurl, sbclBootstrap, sbclBootstrapHost ? "${sbclBootstrap}/bin/sbcl --disable-debugger --no-userinit --no-sysinit" }:
 
 stdenv.mkDerivation rec {
   name    = "sbcl-${version}";
-  version = "1.2.14";
+  version = "1.3.0";
 
   src = fetchurl {
     url    = "mirror://sourceforge/project/sbcl/sbcl/${version}/${name}-source.tar.bz2";
-    sha256 = "01jw1w5siv6q16y1vmgd7s1i22aq0cqaipgn12jvq18c8vb6s55r";
+    sha256 = "1cwrmvbx8m7n7wkcm16yz7qwx221giz7jskzkvy42pj919may36n";
   };
-
-  buildInputs = [ which ]
-    ++ (stdenv.lib.optional stdenv.isDarwin sbclBootstrap)
-    ++ (stdenv.lib.optional stdenv.isLinux clisp)
-    ;
 
   patchPhase = ''
     echo '"${version}.nixos"' > version.lisp-expr
@@ -22,7 +17,10 @@ stdenv.mkDerivation rec {
                (pushnew x features))
              (disable (x)
                (setf features (remove x features))))
-        (enable :sb-thread))) " > customize-target-features.lisp
+        #-arm
+        (enable :sb-thread)
+        #+arm
+        (enable :arm))) " > customize-target-features.lisp
 
     pwd
 
@@ -40,7 +38,7 @@ stdenv.mkDerivation rec {
       '/date defaulted-source/i(or (and (= 2208988801 (file-write-date defaulted-source-truename)) (= 2208988801 (file-write-date defaulted-fasl-truename)))'
 
     # Fix software version retrieval
-    sed -e "s@/bin/uname@$(which uname)@g" -i src/code/*-os.lisp
+    sed -e "s@/bin/uname@$(command -v uname)@g" -i src/code/*-os.lisp
 
     # Fix the tests
     sed -e '/deftest pwent/inil' -i contrib/sb-posix/posix-tests.lisp
@@ -64,24 +62,15 @@ stdenv.mkDerivation rec {
     export HOME=$PWD/test-home
   '';
 
-  buildPhase = if stdenv.isLinux
-    then ''
-      sh make.sh clisp --prefix=$out
-    ''
-    else ''
-      sh make.sh --prefix=$out --xc-host='${sbclBootstrap}/bin/sbcl --core ${sbclBootstrap}/share/sbcl/sbcl.core --disable-debugger --no-userinit --no-sysinit'
-    '';
+  buildPhase = ''
+    sh make.sh --prefix=$out --xc-host="${sbclBootstrapHost} --disable-debugger --no-userinit --no-sysinit"
+  '';
 
   installPhase = ''
     INSTALL_ROOT=$out sh install.sh
   '';
 
-  meta = {
-    description = "Lisp compiler";
-    homepage = http://www.sbcl.org;
-    license = stdenv.lib.licenses.bsd3;
-    maintainers = [stdenv.lib.maintainers.raskin];
-    platforms = stdenv.lib.platforms.all;
+  meta = sbclBootstrap.meta // {
     inherit version;
     updateWalker = true;
   };

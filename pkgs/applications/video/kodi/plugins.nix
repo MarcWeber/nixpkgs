@@ -1,4 +1,4 @@
-{ stdenv, fetchFromGitHub, kodi }:
+{ stdenv, fetchFromGitHub, kodi, steam }:
 
 let
 
@@ -59,13 +59,13 @@ in
 
     plugin = "genesis";
     namespace = "plugin.video.genesis";
-    version = "4.0.1";
+    version = "5.1.3";
 
     src = fetchFromGitHub {
       owner = "lambda81";
       repo = "lambda-addons";
-      rev = "34af083980598177684eeb6e1e73da336b84575a";
-      sha256 = "1fh3j4ymkrx9flpvnlyjp1q4avfmjv5a6yfwl3cmqnslkkp6kn9n";
+      rev = "f2cd04f33af88d60e1330573bbf2ef9cee7f0a56";
+      sha256 = "0z0ldckqqif9v5nhnjr5n2495cm3z9grjmrh7czl4xlnq4bvviqq";
     };
 
     meta = with stdenv.lib; {
@@ -81,13 +81,13 @@ in
 
     plugin = "svtplay";
     namespace = "plugin.video.svtplay";
-    version = "4.0.14";
+    version = "4.0.18";
 
     src = fetchFromGitHub {
       owner = "nilzen";
       repo = "xbmc-" + plugin;
-      rev = "a6041aa6cf8f8461c0ebb093d901320822539094";
-      sha256 = "1nxa2855i1if4vsflhb88i9s12flp2yzgan2wzdv2117cmll4pvd";
+      rev = "b60cc1164d0077451be935d0d1a26f2d29b0f589";
+      sha256 = "0rdmrgjlzhnrpmhgqvf2947i98s51r0pjbnwrhw67nnqkylss5dj";
     };
 
     meta = with stdenv.lib; {
@@ -103,6 +103,35 @@ in
       maintainers = with maintainers; [ edwtjo ];
     };
 
+  };
+
+  steam-launcher = (mkKodiPlugin rec {
+  
+    plugin = "steam-launcher";
+    namespace = "script.steam.launcher";
+    version = "3.1.1";
+
+    src = fetchFromGitHub rec {
+      owner = "teeedubb";
+      repo = owner + "-xbmc-repo";
+      rev = "bb66db7c4927619485373699ff865a9b00e253bb";
+      sha256 = "1skjkz0h6nkg04vylhl4zzavf5lba75j0qbgdhb9g7h0a98jz7s4";
+    };
+
+    meta = with stdenv.lib; {
+      homepage = "http://forum.kodi.tv/showthread.php?tid=157499";
+      description = "Launch Steam in Big Picture Mode from Kodi";
+      longDescription = ''
+        This add-on will close/minimise Kodi, launch Steam in Big
+        Picture Mode and when Steam BPM is exited (either by quitting
+        Steam or returning to the desktop) Kodi will
+        restart/maximise. Running pre/post Steam scripts can be
+        configured via the addon.
+      '';
+      maintainers = with maintainers; [ edwtjo ];
+    };
+  }).override {
+    propagatedBuildinputs = [ steam ];
   };
 
 }

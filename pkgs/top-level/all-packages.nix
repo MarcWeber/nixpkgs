@@ -12317,7 +12317,6 @@ let
   mendeley = callPackage ../applications/office/mendeley { };
 
   mercurial = callPackage ../applications/version-management/mercurial {
-    inherit pkgs;
     inherit (pythonPackages) curses docutils hg-git dulwich;
     inherit (darwin.apple_sdk.frameworks) ApplicationServices;
     inherit (darwin) cf-private;

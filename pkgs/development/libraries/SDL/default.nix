@@ -1,8 +1,9 @@
 { stdenv, fetchurl, pkgconfig, audiofile, libcap
 , openglSupport ? false, mesa ? null
 , alsaSupport ? true, alsaLib ? null
-, x11Support ? true, x11 ? null, libXrandr ? null
+, x11Support ? true, xlibsWrapper ? null, libXrandr ? null
 , pulseaudioSupport ? true, libpulseaudio ? null
+, OpenGL, CoreAudio, CoreServices, AudioUnit, Kernel, Cocoa
 }:
 
 # OSS is no longer supported, for it's much crappier than ALSA and
@@ -10,7 +11,7 @@
 assert (stdenv.isLinux && !(stdenv ? cross)) -> alsaSupport || pulseaudioSupport;
 
 assert openglSupport -> (mesa != null && x11Support);
-assert x11Support -> (x11 != null && libXrandr != null);
+assert x11Support -> (xlibsWrapper != null && libXrandr != null);
 assert alsaSupport -> alsaLib != null;
 assert pulseaudioSupport -> libpulseaudio != null;
 
@@ -32,7 +33,7 @@ stdenv.mkDerivation rec {
 
   # Since `libpulse*.la' contain `-lgdbm', PulseAudio must be propagated.
   propagatedBuildInputs =
-    optionals x11Support [ x11 libXrandr ] ++
+    optionals x11Support [ xlibsWrapper libXrandr ] ++
     optional alsaSupport alsaLib ++
     optional stdenv.isLinux libcap ++
     optional openglSupport mesa ++
@@ -40,7 +41,8 @@ stdenv.mkDerivation rec {
 
   buildInputs = let
     notMingw = !(stdenv ? cross) || stdenv.cross.libc != "msvcrt";
-  in optional notMingw audiofile;
+  in optional notMingw audiofile
+  ++ optionals stdenv.isDarwin [ OpenGL CoreAudio CoreServices AudioUnit Kernel Cocoa ];
 
   # XXX: By default, SDL wants to dlopen() PulseAudio, in which case
   # we must arrange to add it to its RPATH; however, `patchelf' seems

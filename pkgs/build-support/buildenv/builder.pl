@@ -117,10 +117,20 @@ sub addPkg {
     }
 }
 
+# Read packages list.
+my $pkgs;
+
+if (exists $ENV{"pkgsPath"}) {
+    open FILE, $ENV{"pkgsPath"};
+    $pkgs = <FILE>;
+    close FILE;
+} else {
+    $pkgs = $ENV{"pkgs"}
+}
 
 # Symlink to the packages that have been installed explicitly by the
 # user.
-for my $pkg (@{decode_json $ENV{"pkgs"}}) {
+for my $pkg (@{decode_json $pkgs}) {
     for my $path (@{$pkg->{paths}}) {
         addPkg($path, $ENV{"ignoreCollisions"} eq "1", $pkg->{priority}) if -e $path;
     }
@@ -142,10 +152,11 @@ while (scalar(keys %postponed) > 0) {
 
 
 # Create the symlinks.
+my $extraPrefix = $ENV{"extraPrefix"};
 my $nrLinks = 0;
 foreach my $relName (sort keys %symlinks) {
     my ($target, $priority) = @{$symlinks{$relName}};
-    my $abs = "$out/$relName";
+    my $abs = "$out" . "$extraPrefix" . "/$relName";
     next unless isInPathsToLink $relName;
     if ($target eq "") {
         #print "creating directory $relName\n";

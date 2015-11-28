@@ -212,14 +212,14 @@ in
 
   android-studio = buildAndroidStudio rec {
     name = "android-studio-${version}";
-    version = "1.2.2.0";
-    build = "141.1980579";
+    version = "1.5.0.4";
+    build = "141.2422023";
     description = "Android development environment based on IntelliJ IDEA";
     license = stdenv.lib.licenses.asl20;
     src = fetchurl {
       url = "https://dl.google.com/dl/android/studio/ide-zips/${version}" +
             "/android-studio-ide-${build}-linux.zip";
-      sha256 = "08bayp2kxxg0zdmd1rcfg89g80wmwxf56fzmk5xkz1qg6s9b98a6";
+      sha256 = "1sjxs9cq7mdalxmzp6v2gwbg1w8p43c2cp5j4v212w66h5rqv11z";
     };
   };
 
@@ -237,25 +237,25 @@ in
 
   idea-community = buildIdea rec {
     name = "idea-community-${version}";
-    version = "14.1.4";
-    build = "IC-141.1532.4";
+    version = "15.0.1";
+    build = "IC-143.382";
     description = "Integrated Development Environment (IDE) by Jetbrains, community edition";
     license = stdenv.lib.licenses.asl20;
     src = fetchurl {
       url = "https://download.jetbrains.com/idea/ideaIC-${version}.tar.gz";
-      sha256 = "1yx93dfbajk2icm2jkfp5s5jnr1czyk179va3n5zndzzhzags4xx";
+      sha256 = "1dbwzj12xkv2xw5nrhr779ac24hag0rb96dlagzyxcvc44xigjps";
     };
   };
 
   idea-ultimate = buildIdea rec {
     name = "idea-ultimate-${version}";
-    version = "14.1.4";
-    build = "IU-141.1532.4";
+    version = "15.0.1";
+    build = "IU-143.382";
     description = "Integrated Development Environment (IDE) by Jetbrains, requires paid license";
     license = stdenv.lib.licenses.unfree;
     src = fetchurl {
       url = "https://download.jetbrains.com/idea/ideaIU-${version}.tar.gz";
-      sha256 = "1hxs0mh35r43iqd1i1s2g1ha91q2wnb6xs95w572khzjm5dznvaw";
+      sha256 = "0bw6qvsvhw0nabv01bgsbnl78vimnz2kb280jzv0ikmhxranyk0z";
     };
   };
 
@@ -273,25 +273,25 @@ in
 
   pycharm-community = buildPycharm rec {
     name = "pycharm-community-${version}";
-    version = "4.5.4";
-    build = "141.2569";
+    version = "5.0.1";
+    build = "143.595";
     description = "PyCharm Community Edition";
     license = stdenv.lib.licenses.asl20;
     src = fetchurl {
-      url = "https://download-cf.jetbrains.com/python/${name}.tar.gz";
-      sha256 = "0a2208rjcvcm9dww317clwiil3ddza3qq9wqkvr0rrcfp1739pbb";
+      url = "https://download.jetbrains.com/python/${name}.tar.gz";
+      sha256 = "14m3imy64cp2l9pnmknxbjzj3z30rx88r4brz9d5xk5qailjg2wf";
     };
   };
 
   pycharm-professional = buildPycharm rec {
     name = "pycharm-professional-${version}";
-    version = "4.5.4";
-    build = "141.2569";
+    version = "5.0.1";
+    build = "143.595";
     description = "PyCharm Professional Edition";
     license = stdenv.lib.licenses.unfree;
     src = fetchurl {
-      url = "https://download-cf.jetbrains.com/python/${name}.tar.gz";
-      sha256 = "1dy64myih92kxmi6h9y142dbmmwwphs2n3vswyg53881g5i0lfhd";
+      url = "https://download.jetbrains.com/python/${name}.tar.gz";
+      sha256 = "102sfjvchk80911w3qpjsp30wvq73kgpwyqcqdgqxcgm2vqh3183";
     };
   };
 

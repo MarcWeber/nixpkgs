@@ -31,10 +31,8 @@ let
     else
       fn;
 
-  # Convert the list of options into an XML file.  The builtin
-  # unsafeDiscardStringContext is used to prevent the realisation of
-  # the store paths which are used in options definitions.
-  optionsXML = builtins.toFile "options.xml" (builtins.unsafeDiscardStringContext (builtins.toXML optionsList'));
+  # Convert the list of options into an XML file.
+  optionsXML = builtins.toFile "options.xml" (builtins.toXML optionsList');
 
   optionsDocBook = runCommand "options-db.xml" {} ''
     optionsXML=${optionsXML}
@@ -57,6 +55,7 @@ let
       cp -prd $sources/* . # */
       chmod -R u+w .
       cp ${../../modules/services/databases/postgresql.xml} configuration/postgresql.xml
+      cp ${../../modules/misc/nixos.xml} configuration/nixos.xml
       ln -s ${optionsDocBook} options-db.xml
       echo "${version}" > version
     '';
@@ -139,6 +138,8 @@ in rec {
     ''; # */
 
     meta.description = "The NixOS manual in HTML format";
+
+    allowedReferences = ["out"];
   };
 
   manualPDF = stdenv.mkDerivation {
@@ -146,12 +147,9 @@ in rec {
 
     inherit sources;
 
-    buildInputs = [ libxml2 libxslt dblatex tetex ];
+    buildInputs = [ libxml2 libxslt dblatex dblatex.tex ];
 
     buildCommand = ''
-      # TeX needs a writable font cache.
-      export VARTEXFONTS=$TMPDIR/texfonts
-
       ${copySources}
 
       dst=$out/share/doc/nixos
@@ -162,7 +160,7 @@ in rec {
 
       mkdir -p $out/nix-support
       echo "doc-pdf manual $dst/manual.pdf" >> $out/nix-support/hydra-build-products
-    ''; # */
+    '';
   };
 
   # Generate the NixOS manpages.
@@ -190,6 +188,8 @@ in rec {
         ${docbook5_xsl}/xml/xsl/docbook/manpages/docbook.xsl \
         ./man-pages.xml
     '';
+
+    allowedReferences = ["out"];
   };
 
 }

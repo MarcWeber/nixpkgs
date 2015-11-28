@@ -1,5 +1,5 @@
 { stdenv, fetchurl, fetchpatch, pkgconfig, libiconv, libintlOrEmpty
-, expat, zlib, libpng, pixman, fontconfig, freetype, xlibs
+, expat, zlib, libpng, pixman, fontconfig, freetype, xorg
 , gobjectSupport ? true, glib
 , xcbSupport ? true # no longer experimental since 1.12
 , glSupport ? true, mesa_noglu ? null # mesa is no longer a big dependency
@@ -11,17 +11,17 @@ assert glSupport -> mesa_noglu != null;
 with { inherit (stdenv.lib) optional optionals; };
 
 stdenv.mkDerivation rec {
-  name = "cairo-1.14.2";
+  name = "cairo-1.14.4";
 
   src = fetchurl {
     url = "http://cairographics.org/releases/${name}.tar.xz";
-    sha1 = "c8da68aa66ca0855b5d0ff552766d3e8679e1d24";
+    sha256 = "05p75r914d809711yg9rapgmmi4hymzbarhd3w0yrfadhiy9rv7n";
   };
 
   nativeBuildInputs = [ pkgconfig libiconv ] ++ libintlOrEmpty;
 
   propagatedBuildInputs =
-    with xlibs; [ xlibs.xlibs fontconfig expat freetype pixman zlib libpng ]
+    with xorg; [ xorg.xlibsWrapper fontconfig expat freetype pixman zlib libpng ]
     ++ optional (!stdenv.isDarwin) libXrender
     ++ optionals xcbSupport [ libxcb xcbutil ]
     ++ optional gobjectSupport glib

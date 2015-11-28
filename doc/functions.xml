@@ -127,7 +127,7 @@ in ...</programlisting>
   <title>lib.makeOverridable</title>
 
   <para>
-    The function <varname>lib.makeOverridable</varname> is used make the result
+    The function <varname>lib.makeOverridable</varname> is used to make the result
     of a function easily customizable. This utility only makes sense for functions
     that accept an argument set and return an attribute set.
   </para>
@@ -236,6 +236,20 @@ c = lib.makeOverridable f { a = 1; b = 2; }</programlisting>
     <literal>runScript</literal> parameter, which is a command that would be
     executed inside the sandbox and passed all the command line arguments. It
     default to <literal>bash</literal>.
+  </para>
+  <para>
+    It also uses <literal>CHROOTENV_EXTRA_BINDS</literal> environment variable
+    for binding extra directories in the sandbox to outside places. The format of
+    the variable is <literal>/mnt=test-mnt:/data</literal>, where
+    <literal>/mnt</literal> would be mounted as <literal>/test-mnt</literal>
+    and <literal>/data</literal> would be mounted as <literal>/data</literal>.
+    <literal>extraBindMounts</literal> array argument to
+    <function>buildFHSUserEnv</function> function is prepended to this variable.
+    Latter entries take priority if defined several times -- i.e. in case of
+    <literal>/data=data1:/data=data2</literal> the actual bind path would be
+    <literal>/data2</literal>.
+  </para>
+  <para>
     One can create a simple environment using a <literal>shell.nix</literal>
     like that:
   </para>
@@ -248,7 +262,7 @@ c = lib.makeOverridable f { a = 1; b = 2; }</programlisting>
   targetPkgs = pkgs: (with pkgs;
     [ udev
       alsaLib
-    ]) ++ (with pkgs.xlibs;
+    ]) ++ (with pkgs.xorg;
     [ libX11
       libXcursor
       libXrandr

@@ -93,6 +93,13 @@ in
     outputs = [ "out" "man" ];
   };
 
+  libAppleWM = attrs: attrs // {
+    buildInputs = attrs.buildInputs ++ [ args.apple_sdk.frameworks.ApplicationServices ];
+    preConfigure = ''
+      substituteInPlace src/Makefile.in --replace -F/System -F${args.apple_sdk.frameworks.ApplicationServices}
+    '';
+  };
+
   libXfont = attrs: attrs // {
     propagatedBuildInputs = [ args.freetype ]; # propagate link reqs. like bzip2
     # prevents "misaligned_stack_error_entering_dyld_stub_binder"
@@ -257,7 +264,8 @@ in
 
     buildInputs = attrs.buildInputs ++ [args.intltool];
 
-    #TODO: resurrect patches for US_intl or Esperanto?
+    #TODO: resurrect patches for US_intl?
+    patches = [ ./xkeyboard-config-eo.patch ];
 
     # 1: compatibility for X11/xkb location
     # 2: I think pkgconfig/ is supposed to be in /lib/
@@ -277,7 +285,7 @@ in
         compositeproto scrnsaverproto resourceproto
         xf86dgaproto
         dmxproto /*libdmx not used*/ xf86vidmodeproto
-        recordproto libXext pixman libXfont
+        recordproto libXext pixman libXfont libxshmfence args.libunwind
         damageproto xcmiscproto  bigreqsproto
         inputproto xextproto randrproto renderproto presentproto
         dri2proto dri3proto kbproto xineramaproto resourceproto scrnsaverproto videoproto
@@ -320,7 +328,12 @@ in
         '';
         passthru.version = version; # needed by virtualbox guest additions
       } else {
-        buildInputs = commonBuildInputs ++ [ args.bootstrap_cmds args.automake args.autoconf ];
+        buildInputs = commonBuildInputs ++ [
+          args.bootstrap_cmds args.automake args.autoconf
+          args.apple_sdk.libs.Xplugin
+          args.apple_sdk.frameworks.Carbon
+          args.apple_sdk.frameworks.Cocoa
+        ];
         propagatedBuildInputs = commonPropagatedBuildInputs ++ [
           libAppleWM applewmproto
         ];
@@ -347,9 +360,13 @@ in
           "--with-bundle-id-prefix=org.nixos.xquartz"
           "--with-sha1=CommonCrypto"
         ];
+        __impureHostDeps = ["/System/Library" "/usr"];
+        NIX_CFLAGS_COMPILE = "-F/System/Library/Frameworks -I/usr/include";
+        NIX_CFLAGS_LINK = "-L/usr/lib";
         preConfigure = ''
           ensureDir $out/Applications
           export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -Wno-error"
+          substituteInPlace hw/xquartz/pbproxy/Makefile.in --replace -F/System -F${args.apple_sdk.frameworks.ApplicationServices}
         '';
         postInstall = ''
           rm -fr $out/share/X11/xkb/compiled

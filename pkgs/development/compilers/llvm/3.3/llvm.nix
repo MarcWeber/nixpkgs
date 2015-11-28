@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, perl, groff, cmake, python, libffi, binutils }:
+{ stdenv, fetchurl, perl, groff, cmake, python, libffi, binutils, debugVersion ? false }:
 let
   version = "3.3";
 in stdenv.mkDerivation rec {
@@ -12,6 +12,19 @@ in stdenv.mkDerivation rec {
   patches = [
     ./more-memory-for-bugpoint.patch # The default rlimits in 3.3 are too low for shared libraries.
     ./no-rule-aarch64.patch          # http://llvm.org/bugs/show_bug.cgi?id=16625
+    # Patch needed for Julia, backports fixes from LLVM 3.5
+    (fetchurl {
+      url = "https://raw.githubusercontent.com/JuliaLang/julia/release-0.4/deps/llvm-3.3.patch";
+      sha256 = "0j6chyx4k8zr1qha5dks8lqlcraqrj4q1hwnk2kj3qi6cajsd8k3";
+    })
+    (fetchurl {
+      url = "https://raw.githubusercontent.com/JuliaLang/julia/release-0.4/deps/instcombine-llvm-3.3.patch";
+      sha256 = "161frq3wxrkxah78krb24hp4zkcnphzcgnvkwfq1abq2vjx3f8sn";
+    })
+    (fetchurl {
+      url = "https://raw.githubusercontent.com/JuliaLang/julia/release-0.4/deps/int128-vector.llvm-3.3.patch";
+      sha256 = "0lzkv6hvsdaalwsyf6sq0vdrf8x5nk58qg6nn5dlw7n3hxaxpm4m";
+    })
   ];
 
   buildInputs = [ perl groff cmake python libffi ];
@@ -21,7 +34,7 @@ in stdenv.mkDerivation rec {
     in "export ${LD}_LIBRARY_PATH='$$${LD}_LIBRARY_PATH:'`pwd`/lib";
 
   cmakeFlags = with stdenv; [
-    "-DCMAKE_BUILD_TYPE=Release"
+    "-DCMAKE_BUILD_TYPE=${if debugVersion then "Debug" else "Release"}"
     "-DLLVM_BUILD_TESTS=ON"
     "-DLLVM_ENABLE_FFI=ON"
     "-DLLVM_BINUTILS_INCDIR=${binutils}/include"

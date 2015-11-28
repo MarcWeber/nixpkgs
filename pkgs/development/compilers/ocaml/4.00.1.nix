@@ -1,19 +1,4 @@
-{ stdenv, fetchurl, ncurses, x11
-# while developping setting these to true may be easier helpful
-# I'm too lazy to patch the build process of ocaml to build ocaml with -annot
-# and -bin-annot
-, force_annot ? false # not copied to $out
-, force_bin_annot ? false # copied to $out/lib, some files collide, eg thread.cmt (TODO)
-
-/* alternative:
-  patch = [
-    (fetchurl {
-     url = https://bitbucket.org/camlspotter/spotinstall/raw/afbfd66abc15ec39e03457b26a43b9ec50e5b30f/ocaml-annot-4.00.1.patch;
-     sha256 = "0jsppl0z8pqfqap14j0did9dxwh2jkz0wrbryrbq5b3ck6c8m3si";
-     })
-  ];
-*/
-}:
+{ stdenv, fetchurl, ncurses, xlibsWrapper }:
 
 let
    useX11 = !stdenv.isArm && !stdenv.isMips;
@@ -22,48 +7,26 @@ let
 in
 
 stdenv.mkDerivation rec {
-
+  
   name = "ocaml-4.00.1";
-
-  # enableParallelBuilding = true; # fails
-
+  
   src = fetchurl {
     url = "http://caml.inria.fr/pub/distrib/ocaml-4.00/${name}.tar.bz2";
     sha256 = "33c3f4acff51685f5bfd7c260f066645e767d4e865877bf1613c176a77799951";
   };
 
-  postUnpack = stdenv.lib.optionalString (force_annot || force_bin_annot) ''
-    ensureDir $out
-    cp -a . $out/build
-    cd $out/build
-  '';
-
   prefixKey = "-prefix ";
-  configureFlags = ["-no-tk"] ++ optionals useX11 [ "-x11lib" x11 ];
+  configureFlags = ["-no-tk"] ++ optionals useX11 [ "-x11lib" xlibsWrapper ];
   buildFlags = "world" + optionalString useNativeCompilers " bootstrap world.opt";
-  buildInputs = [ncurses] ++ optionals useX11 [ x11 ];
+  buildInputs = [ncurses] ++ optionals useX11 [ xlibsWrapper ];
   installTargets = "install" + optionalString useNativeCompilers " installopt";
-
-  inherit force_annot force_bin_annot;
   preConfigure = ''
     CAT=$(type -tp cat)
     sed -e "s@/bin/cat@$CAT@" -i config/auto-aux/sharpbang
-
-    [ -z "$force_annot" ] || sed -e "s@let annotations = ref false@let annotations = ref true@" -i utils/clflags.ml
-    [ -z "$force_bin_annot" ] || sed -e "s@let binary_annotations = ref false@let binary_annotations = ref true@" -i utils/clflags.ml
   '';
-
   postBuild = ''
     mkdir -p $out/include
     ln -sv $out/lib/ocaml/caml $out/include/caml
-  '';
-  # TODO: instead patch makefiles
-  postInstall = stdenv.lib.optionalString (force_bin_annot) ''
-    # ocamlspot automatically looks in this directory, thus ensure it finds set.cmt etc.
-    # unfortunately some module names are used multiple names.
-    for ext in cmt cmti; do
-      find . -print0 -name "*.$ext" | xargs -0 cp --target-directory=$out/lib/ocaml || true
-    done
   '';
 
   passthru = {
@@ -102,3 +65,4 @@ stdenv.mkDerivation rec {
   };
 
 }
+

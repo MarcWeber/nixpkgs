@@ -4,11 +4,11 @@
 
 stdenv.mkDerivation rec {
   name = "urweb-${version}";
-  version = "20150819";
+  version = "20151018";
 
   src = fetchurl {
     url = "http://www.impredicative.com/ur/${name}.tgz";
-    sha256 = "0gpdlq3aazx121k3ia94qfa4dyv04q7478x2p6hvcjamn18vk56n";
+    sha256 = "08p52p5m1xl2gzdchnayky44mm2b0x8hv0f00iviyyv1gnx3lpy0";
   };
 
   buildInputs = [ openssl mlton mysql postgresql sqlite ];
@@ -16,6 +16,8 @@ stdenv.mkDerivation rec {
   prePatch = ''
     sed -e 's@/usr/bin/file@${file}/bin/file@g' -i configure
   '';
+
+  configureFlags = "--with-openssl=${openssl}";
 
   preConfigure = ''
     export PGHEADER="${postgresql}/include/libpq-fe.h";

@@ -1,6 +1,6 @@
 { stdenv, fetchurl, cmake
 , withQt4 ? false, qt4
-, withQt5 ? true, qt5
+, withQt5 ? true, qtbase, qtsvg, qttools, makeQtWrapper
 
 # I'm unable to make KDE work here, crashes at runtime so I simply
 # make Qt4 the default until someone who wants KDE can figure it out.
@@ -57,7 +57,7 @@ stdenv.mkDerivation rec {
   buildInputs =
     [ cmake ]
     ++ stdenv.lib.optional withQt4 qt4
-    ++ stdenv.lib.optionals withQt5 (with qt5; [ base svg tools ])
+    ++ stdenv.lib.optionals withQt5 [ qtbase qtsvg qttools ]
     ++ stdenv.lib.optional withKDE4 kde4.kdelibs
     ++ stdenv.lib.optionals withTaglib [ taglib taglib_extras ]
     ++ stdenv.lib.optionals withReplaygain [ ffmpeg speex mpg123 ]
@@ -67,6 +67,8 @@ stdenv.mkDerivation rec {
     ++ stdenv.lib.optional withMtp libmtp
     ++ stdenv.lib.optional withMusicbrainz libmusicbrainz5
     ++ stdenv.lib.optional (withTaglib && !withKDE4 && withDevices) udisks2;
+
+  nativeBuildInputs = stdenv.lib.optional withQt5 makeQtWrapper;
 
   unpackPhase = "tar -xvf $src";
   sourceRoot = "${name}";
@@ -90,6 +92,10 @@ stdenv.mkDerivation rec {
     "-DENABLE_HTTPS_SUPPORT=ON"
     "-DENABLE_UDISKS2=ON"
   ];
+
+  postInstall = stdenv.lib.optionalString withQt5 ''
+    wrapQtProgram "$out/bin/cantata"
+  '';
 
   meta = with stdenv.lib; {
     homepage = http://code.google.com/p/cantata/;

@@ -1,14 +1,15 @@
 { stdenv, fetchurl, perl, gnum4, ncurses, openssl
 , gnused, gawk, makeWrapper
+, Carbon, Cocoa
 , odbcSupport ? false, unixODBC ? null
-, wxSupport ? true, mesa ? null, wxGTK ? null, xlibs ? null, wxmac ? null
+, wxSupport ? true, mesa ? null, wxGTK ? null, xorg ? null, wxmac ? null
 , javacSupport ? false, openjdk ? null
 , enableHipe ? true
 }:
 
 assert wxSupport -> (if stdenv.isDarwin
   then wxmac != null
-  else mesa != null && wxGTK != null && xlibs != null);
+  else mesa != null && wxGTK != null && xorg != null);
 
 assert odbcSupport -> unixODBC != null;
 assert javacSupport ->  openjdk != null;
@@ -27,9 +28,10 @@ stdenv.mkDerivation rec {
 
   buildInputs =
     [ perl gnum4 ncurses openssl makeWrapper
-    ] ++ optional wxSupport (if stdenv.isDarwin then [ wxmac ] else [ mesa wxGTK xlibs.libX11 ])
-      ++ optional odbcSupport [ unixODBC ]
-      ++ optional javacSupport [ openjdk ];
+    ] ++ optionals wxSupport (if stdenv.isDarwin then [ wxmac ] else [ mesa wxGTK xorg.libX11 ])
+      ++ optional odbcSupport unixODBC
+      ++ optional javacSupport openjdk
+      ++ stdenv.lib.optionals stdenv.isDarwin [ Carbon Cocoa ];
 
   patchPhase = '' sed -i "s@/bin/rm@rm@" lib/odbc/configure erts/configure '';
 
@@ -66,6 +68,8 @@ stdenv.mkDerivation rec {
     wrapProgram $out/lib/erlang/bin/erl --prefix PATH ":" "${gnused}/bin/"
     wrapProgram $out/lib/erlang/bin/start_erl --prefix PATH ":" "${gnused}/bin/:${gawk}/bin"
   '';
+
+  setupHook = ./setup-hook.sh;
 
   meta = {
     homepage = "http://www.erlang.org/";

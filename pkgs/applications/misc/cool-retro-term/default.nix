@@ -1,4 +1,4 @@
-{ stdenv, fetchgit, makeWrapper, qt5, qmltermwidget }:
+{ stdenv, fetchgit, makeQtWrapper, qtbase, qtquick1, qmltermwidget }:
 
 stdenv.mkDerivation rec {
   version = "1.0.0";
@@ -15,7 +15,8 @@ stdenv.mkDerivation rec {
     sed -i -e '/qmltermwidget/d' cool-retro-term.pro
   '';
 
-  buildInputs = [ makeWrapper qt5.base qt5.quick1 qmltermwidget ];
+  buildInputs = [ qtbase qtquick1 qmltermwidget ];
+  nativeBuildInputs = [ makeQtWrapper ];
 
   configurePhase = "qmake PREFIX=$out";
 
@@ -26,8 +27,7 @@ stdenv.mkDerivation rec {
     mv $out/usr/bin $out/bin
     rmdir $out/usr
 
-    wrapProgram $out/bin/cool-retro-term \
-      --prefix QML2_IMPORT_PATH : "${qmltermwidget}/lib/qml/"
+    wrapQtProgram $out/bin/cool-retro-term
   '';
 
   enableParallelBuilding = true;

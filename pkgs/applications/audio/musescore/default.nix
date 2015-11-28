@@ -1,15 +1,16 @@
-{ stdenv, fetchurl, cmake, pkgconfig
+{ stdenv, fetchzip, cmake, pkgconfig
 , alsaLib, freetype, libjack2, lame, libogg, libpulseaudio, libsndfile, libvorbis
-, portaudio, qt5 #, tesseract
+, portaudio, qtbase, qtdeclarative, qtenginio, qtscript, qtsvg, qttools
+, qtwebkit, qtxmlpatterns
 }:
 
 stdenv.mkDerivation rec {
   name = "musescore-${version}";
-  version = "2.0.1";
+  version = "2.0.2";
 
-  src = fetchurl {
+  src = fetchzip {
     url = "https://github.com/musescore/MuseScore/archive/v${version}.tar.gz";
-    sha256 = "0n4xk35jggdq2dcizqjq1kdpclih4scpl93ymmxahvfa1vvwn5iw";
+    sha256 = "12a83v4i830gj76z5744034y1vvwzgy27mjbjp508yh9bd328yqw";
   };
 
   makeFlags = [
@@ -32,12 +33,18 @@ stdenv.mkDerivation rec {
     make lrelease
   '';
 
+  postBuild = ''
+    make manpages
+  '';
+
   nativeBuildInputs = [ cmake pkgconfig ];
+
+  enableParallelBuilding = true;
 
   buildInputs = [
     alsaLib libjack2 freetype lame libogg libpulseaudio libsndfile libvorbis
-    portaudio qt5.base qt5.declarative qt5.enginio qt5.script qt5.svg qt5.tools
-    qt5.webkit qt5.xmlpatterns #tesseract
+    portaudio qtbase qtdeclarative qtenginio qtscript qtsvg qttools
+    qtwebkit qtxmlpatterns #tesseract
   ];
 
   meta = with stdenv.lib; {

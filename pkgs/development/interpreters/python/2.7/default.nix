@@ -5,7 +5,7 @@
 
 , db, gdbm, ncurses, sqlite, readline
 
-, tcl ? null, tk ? null, x11 ? null, libX11 ? null, x11Support ? !stdenv.isCygwin
+, tcl ? null, tk ? null, xlibsWrapper ? null, libX11 ? null, x11Support ? !stdenv.isCygwin
 , zlib ? null, zlibSupport ? true
 , expat, libffi
 
@@ -15,7 +15,7 @@
 assert zlibSupport -> zlib != null;
 assert x11Support -> tcl != null
                   && tk != null
-                  && x11 != null
+                  && xlibsWrapper != null
                   && libX11 != null;
 
 with stdenv.lib;
@@ -68,6 +68,8 @@ let
       done
     '' + optionalString stdenv.isDarwin ''
       substituteInPlace configure --replace '`/usr/bin/arch`' '"i386"'
+      substituteInPlace Lib/multiprocessing/__init__.py \
+        --replace 'os.popen(comm)' 'os.popen("nproc")'
     '';
 
   configureFlags = [
@@ -92,14 +94,10 @@ let
     ++ optionals stdenv.isCygwin [ expat libffi ]
     ++ optionals includeModules (
         [ db gdbm ncurses sqlite readline
-        ] ++ optionals x11Support [ tcl tk x11 libX11 ]
+        ] ++ optionals x11Support [ tcl tk xlibsWrapper libX11 ]
     )
     ++ optional zlibSupport zlib
-
-    # depend on CF and configd only if purity is an issue
-    # the impure bootstrap compiler can't build CoreFoundation currently. it requires
-    # <mach-o/dyld.h> which is in our pure bootstrapTools, but not in the system headers.
-    ++ optionals (stdenv.isDarwin && !stdenv.cc.nativeLibc) [ CF configd ];
+    ++ optionals stdenv.isDarwin [ CF configd ];
 
   # Build the basic Python interpreter without modules that have
   # external dependencies.
@@ -249,7 +247,7 @@ let
 
     tkinter = if stdenv.isCygwin then null else (buildInternalPythonModule {
       moduleName = "tkinter";
-      deps = [ tcl tk x11 libX11 ];
+      deps = [ tcl tk xlibsWrapper libX11 ];
     });
 
   } // {

@@ -9,7 +9,7 @@
 
 # optional features with extra dependencies
 , ncursesSupport      ? true      , ncurses       ? null
-, x11Support          ? true      , x11           ? null
+, x11Support          ? true      , xlibsWrapper           ? null
 , xdamageSupport      ? x11Support, libXdamage    ? null
 , imlib2Support       ? x11Support, imlib2        ? null
 
@@ -29,7 +29,7 @@
 
 assert ncursesSupport      -> ncurses != null;
 
-assert x11Support          -> x11 != null;
+assert x11Support          -> xlibsWrapper != null;
 assert xdamageSupport      -> x11Support && libXdamage != null;
 assert imlib2Support       -> x11Support && imlib2     != null;
 assert luaSupport          -> lua != null;
@@ -60,11 +60,16 @@ stdenv.mkDerivation rec {
     sha256 = "00vyrf72l54j3majqmn6vykqvvb15vygsaby644nsb5vpma6b1cn";
   };
 
+  postPatch = ''
+    sed -i -e '/include.*CheckIncludeFile)/i include(CheckIncludeFiles)' \
+      cmake/ConkyPlatformChecks.cmake
+  '';
+
   NIX_LDFLAGS = "-lgcc_s";
 
   buildInputs = [ pkgconfig glib cmake ]
     ++ optional  ncursesSupport     ncurses
-    ++ optional  x11Support         x11
+    ++ optional  x11Support         xlibsWrapper
     ++ optional  xdamageSupport     libXdamage
     ++ optional  imlib2Support      imlib2
     ++ optional  luaSupport         lua

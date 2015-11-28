@@ -31,27 +31,20 @@ in
     socketActivation =
       mkOption {
         type = types.bool;
-        default = false;
+        default = true;
         description =
           ''
             This option enables docker with socket activation. I.e. docker will
             start when first called by client.
-
-            Note: This is false by default because systemd lower than 214 that
-            nixos uses so far, doesn't support SocketGroup option, so socket
-            created by docker has root group now. This will likely be changed
-            in future.  So set this option explicitly to false if you wish.
           '';
       };
     storageDriver =
       mkOption {
         type = types.enum ["aufs" "btrfs" "devicemapper" "overlay" "zfs"];
+        default = "devicemapper";
         description =
           ''
             This option determines which Docker storage driver to use.
-            It is required but lacks a default value as its most
-            suitable value will depend the filesystems available on the
-            host.
           '';
       };
     extraOptions =
@@ -67,7 +60,7 @@ in
 
     postStart =
       mkOption {
-        type = types.string;
+        type = types.lines;
         default = ''
           while ! [ -e /var/run/docker.sock ]; do
             sleep 0.1
@@ -129,7 +122,7 @@ in
           LimitNPROC = 1048576;
         } // proxy_env;
 
-        path = [ pkgs.kmod ];
+        path = [ pkgs.kmod ] ++ (optional (cfg.storageDriver == "zfs") pkgs.zfs);
         environment.MODULE_DIR = "/run/current-system/kernel-modules/lib/modules";
 
         postStart = cfg.postStart;

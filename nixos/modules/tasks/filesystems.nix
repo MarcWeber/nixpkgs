@@ -7,7 +7,7 @@ let
 
   fileSystems = attrValues config.fileSystems;
 
-  prioOption = prio: optionalString (prio !=null) " pri=${toString prio}";
+  prioOption = prio: optionalString (prio != null) " pri=${toString prio}";
 
   fileSystemOpts = { name, config, ... }: {
 
@@ -22,14 +22,14 @@ let
       device = mkOption {
         default = null;
         example = "/dev/sda";
-        type = types.uniq (types.nullOr types.string);
+        type = types.nullOr types.str;
         description = "Location of the device.";
       };
 
       label = mkOption {
         default = null;
         example = "root-partition";
-        type = types.uniq (types.nullOr types.string);
+        type = types.nullOr types.str;
         description = "Label of the device (if any).";
       };
 
@@ -41,9 +41,9 @@ let
       };
 
       options = mkOption {
-        default = "defaults,relatime";
+        default = "defaults";
         example = "data=journal";
-        type = types.commas;
+        type = types.commas; # FIXME: should be a list
         description = "Options used to mount the file system.";
       };
 
@@ -58,6 +58,26 @@ let
         '';
       };
 
+      formatOptions = mkOption {
+        default = "";
+        type = types.str;
+        description = ''
+          If <option>autoFormat</option> option is set specifies
+          extra options passed to mkfs.
+        '';
+      };
+
+      autoResize = mkOption {
+        default = false;
+        type = types.bool;
+        description = ''
+          If set, the filesystem is grown to its maximum size before
+          being mounted. (This is typically the size of the containing
+          partition.) This is currently only supported for ext2/3/4
+          filesystems that are mounted during early boot.
+        '';
+      };
+
       noCheck = mkOption {
         default = false;
         type = types.bool;
@@ -69,6 +89,10 @@ let
     config = {
       mountPoint = mkDefault name;
       device = mkIf (config.fsType == "tmpfs") (mkDefault config.fsType);
+      options = mkIf config.autoResize "x-nixos.autoresize";
+
+      # -F needed to allow bare block device without partitions
+      formatOptions = mkIf ((builtins.substring 0 3 config.fsType) == "ext") (mkDefault "-F");
     };
 
   };
@@ -141,7 +165,7 @@ in
 
     environment.etc.fstab.text =
       let
-        fsToSkipCheck = [ "none" "btrfs" "zfs" "tmpfs" "nfs" ];
+        fsToSkipCheck = [ "none" "btrfs" "zfs" "tmpfs" "nfs" "vboxsf" ];
         skipCheck = fs: fs.noCheck || fs.device == "none" || builtins.elem fs.fsType fsToSkipCheck;
       in ''
         # This is a generated file.  Do not edit!
@@ -162,7 +186,7 @@ in
 
         # Swap devices.
         ${flip concatMapStrings config.swapDevices (sw:
-            "${sw.device} none swap${prioOption sw.priority}\n"
+            "${sw.realDevice} none swap${prioOption sw.priority}\n"
         )}
       '';
 
@@ -180,8 +204,6 @@ in
           let
             mountPoint' = escapeSystemdPath fs.mountPoint;
             device' = escapeSystemdPath fs.device;
-            # -F needed to allow bare block device without partitions
-            mkfsOpts = optional ((builtins.substring 0 3 fs.fsType) == "ext") "-F";
           in nameValuePair "mkfs-${device'}"
           { description = "Initialisation of Filesystem ${fs.device}";
             wantedBy = [ "${mountPoint'}.mount" ];
@@ -196,7 +218,7 @@ in
                 type=$(blkid -p -s TYPE -o value "${fs.device}" || true)
                 if [ -z "$type" ]; then
                   echo "creating ${fs.fsType} filesystem on ${fs.device}..."
-                  mkfs.${fs.fsType} ${concatStringsSep " " mkfsOpts} "${fs.device}"
+                  mkfs.${fs.fsType} ${fs.formatOptions} "${fs.device}"
                 fi
               '';
             unitConfig.RequiresMountsFor = [ "${dirOf fs.device}" ];

@@ -1,10 +1,11 @@
-{ callPackage, runCommand, stdenv, fetchurl, qt4, cmake, automoc4
+{ callPackage, runCommand, stdenv, fetchurl, qt4, cmake-2_8, automoc4, perl, pkgconfig
 , release, branch, ignoreList, extraSubpkgs
 }:
 
 let
   inherit (stdenv.lib) filter fold;
   inherit (builtins) getAttr hasAttr remoteAttrs listToAttrs tail head;
+  cmake = cmake-2_8;
 in
 rec {
   manifest = import (./. + "/${release}.nix");
@@ -29,13 +30,14 @@ rec {
   # released as individual tarballs
   kdeMonoPkg = name:
     let n_ = name; v_ = getAttr name manifest.versions; in
-    a@{meta, name ? n_, version ? v_, ...}:
+    a@{meta, name ? n_, version ? v_, nativeBuildInputs ? [], ...}:
     stdenv.mkDerivation ({
       name = "${name}-${version}";
       src = kdesrc name version;
+      nativeBuildInputs = nativeBuildInputs ++ [ automoc4 cmake perl pkgconfig ];
       meta = defMeta // meta;
       enableParallelBuilding = true;
-    } // (removeAttrs a [ "meta" "name" ]));
+    } // (removeAttrs a [ "meta" "name" "nativeBuildInputs" ]));
 
   # kdeMonoPkg wrapper for modules splitted upstream compatible with combinePkgs
   # API.
@@ -45,10 +47,11 @@ rec {
   kdeSubdirPkg = module:
     {name, subdir ? name, sane ? name}:
     let name_ = name; version_ = getAttr module manifest.versions; in
-    a@{cmakeFlags ? [], name ? name_, version ? version_, meta ? {}, ...}:
+    a@{cmakeFlags ? [], name ? name_, version ? version_, meta ? {}, nativeBuildInputs ? [], ...}:
     stdenv.mkDerivation ({
       name = "${name}-${release}";
       src = kdesrc module version;
+      nativeBuildInputs = nativeBuildInputs ++ [ automoc4 cmake perl pkgconfig ];
       cmakeFlags =
         [ "-DDISABLE_ALL_OPTIONAL_SUBDIRECTORIES=TRUE"
           "-DBUILD_doc=TRUE"
@@ -56,7 +59,7 @@ rec {
         ] ++ cmakeFlags;
       meta = defMeta // meta;
       enableParallelBuilding = module.enableParallelBuilding or true;
-    } // (removeAttrs a [ "meta" "name" "cmakeFlags" ]));
+    } // (removeAttrs a [ "meta" "name" "cmakeFlags" "nativeBuildInputs" ]));
 
   # A KDE monolithic module
   kdeMonoModule = name: path: callPackage path { kde = kdeMonoPkg name; };

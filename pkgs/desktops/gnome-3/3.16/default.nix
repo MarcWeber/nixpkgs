@@ -31,7 +31,7 @@ let
     gnome_terminal gnome-user-docs bijiben evolution file-roller gedit
     gnome-clocks gnome-music gnome-tweak-tool gnome-photos
     nautilus-sendto dconf-editor vinagre gnome-weather gnome-logs
-    gnome-maps gnome-characters gnome-calendar accerciser gnome-nettool
+    gnome-characters gnome-calendar accerciser gnome-nettool
     gnome-getting-started-docs
   ];
 
@@ -176,6 +176,7 @@ let
   libcroco = callPackage ./core/libcroco {};
 
   libgee = callPackage ./core/libgee { };
+  libgee_1 = callPackage ./core/libgee/libgee-1.nix { };
 
   libgdata = callPackage ./core/libgdata { };
 
@@ -369,12 +370,13 @@ let
 
   gitg = callPackage ./misc/gitg { 
     webkitgtk = webkitgtk24x;
+    libgit2 = pkgs.libgit2_0_21;
   };
 
   libgda = callPackage ./misc/libgda { };
 
   libgit2-glib = callPackage ./misc/libgit2-glib {
-    libgit2 = pkgs.libgit2.override { libssh2 = null; };
+    libgit2 = pkgs.libgit2_0_21.override { libssh2 = null; };
   };
 
   libmediaart = callPackage ./misc/libmediaart { };

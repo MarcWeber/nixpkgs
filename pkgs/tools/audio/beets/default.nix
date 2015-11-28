@@ -2,6 +2,7 @@
 , buildPythonPackage, pythonPackages, python, imagemagick
 
 , enableAcoustid   ? true
+, enableBadfiles   ? true, flac ? null, mp3val ? null
 , enableDiscogs    ? true
 , enableEchonest   ? true
 , enableFetchart   ? true
@@ -15,6 +16,7 @@
 }:
 
 assert enableAcoustid    -> pythonPackages.pyacoustid     != null;
+assert enableBadfiles    -> flac != null && mp3val != null;
 assert enableDiscogs     -> pythonPackages.discogs_client != null;
 assert enableEchonest    -> pythonPackages.pyechonest     != null;
 assert enableFetchart    -> pythonPackages.responses      != null;
@@ -28,6 +30,7 @@ with stdenv.lib;
 
 let
   optionalPlugins = {
+    badfiles = enableBadfiles;
     chroma = enableAcoustid;
     discogs = enableDiscogs;
     echonest = enableEchonest;
@@ -60,14 +63,14 @@ let
 
 in buildPythonPackage rec {
   name = "beets-${version}";
-  version = "1.3.14";
+  version = "1.3.15";
   namePrefix = "";
 
   src = fetchFromGitHub {
     owner = "sampsyo";
     repo = "beets";
     rev = "v${version}";
-    sha256 = "0bha101x1wdrl2hj31fhixm3hp7ahdm2064b9k5gg0ywm651128g";
+    sha256 = "17mbkilqqkxxa8ra8b4zlsax712jb0nfkvcx9iyq9303rqwv5sx2";
   };
 
   propagatedBuildInputs = [
@@ -111,6 +114,11 @@ in buildPythonPackage rec {
     sed -i -e '/^BASH_COMPLETION_PATHS *=/,/^])$/ {
       /^])$/i u"${completion}"
     }' beets/ui/commands.py
+  '' + optionalString enableBadfiles ''
+    sed -i -e '/self\.run_command(\[/ {
+      s,"flac","${flac}/bin/flac",
+      s,"mp3val","${mp3val}/bin/mp3val",
+    }' beetsplug/badfiles.py
   '';
 
   doCheck = true;
@@ -136,7 +144,7 @@ in buildPythonPackage rec {
     runHook preCheck
 
     LANG=en_US.UTF-8 \
-    LOCALE_ARCHIVE=${glibcLocales}/lib/locale/locale-archive \
+    LOCALE_ARCHIVE=${assert stdenv.isLinux; glibcLocales}/lib/locale/locale-archive \
     BEETS_TEST_SHELL="${testShell}" \
     BASH_COMPLETION_SCRIPT="${completion}" \
     HOME="$(mktemp -d)" \
@@ -168,5 +176,6 @@ in buildPythonPackage rec {
     homepage = http://beets.radbox.org;
     license = licenses.mit;
     maintainers = with maintainers; [ aszlig iElectric pjones ];
+    platforms = platforms.linux;
   };
 }

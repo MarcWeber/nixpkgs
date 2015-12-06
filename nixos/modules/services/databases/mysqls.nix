@@ -183,20 +183,23 @@ let
       };
 
       uid = mkOption {
+        description = "uid for this mysql instance";
         default =
           if (!hasAttr name root_config.ids.uids) then
-            throw "please set a uid for mysql instance ${name}"
+            config.ids.uids.mysql
           else root_config.ids.uids.${name};
       };
 
       group = mkOption {
+        description = "group";
         default = name;
       };
 
       gid = mkOption {
+        description = "gid";
         default =
           if (!hasAttr name root_config.ids.gids) then
-            throw "please set a gid for mysql instance ${name}"
+            config.ids.gids.mysql
           else root_config.ids.gids.${name};
       };
 
@@ -211,6 +214,7 @@ let
       };
 
       socketFile = mkOption {
+        description = "socket file location for this mysql instance";
         default = "/tmp/${name}.sock";
       };
 
@@ -300,8 +304,10 @@ in
 
       // {
         systemPackage = mkOption {
-          default = (builtins.head enabled).m_config.package;
-          type = types.package;
+          default =
+            if enabled == [] then null
+            else (builtins.head enabled).m_config.package;
+          type = types.nullOr types.package;
           description = ''
             The mysql package to be added to <option>environment.systemPackages</option>
           '';
@@ -326,7 +332,7 @@ in
 
   config = {
     systemd.services = mkMerge (catAttrs "systemd_services" configs);
-    environment.systemPackages = lib.optional (cfg.systemPackage != null) [cfg.systemPackage];
+    environment.systemPackages = lib.optional (cfg.systemPackage != null) cfg.systemPackage;
     users.extraGroups = mkMerge (catAttrs "users_extraGroups" configs);
     users.extraUsers = mkMerge (catAttrs "users_extraUsers" configs);
 

@@ -86,7 +86,7 @@ in
                   you set sslCert and sslKey.
                   Use <option>defaultServer</option> to append <code>default_server</code>.
                 '';
-                type = types.string;
+                type = types.listOf types.string;
               };
               defaultServer = mkOption {
                 default = false;
@@ -178,7 +178,7 @@ in
                 ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
                 ssl_ciphers         HIGH:!aNULL:!MD5;
               '' else ''
-                listen ${server.listen} ${defaultServer};
+                ${listens ""}
               '';
         in ''
         server {

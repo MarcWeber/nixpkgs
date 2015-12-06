@@ -106,10 +106,12 @@ in
                 default = "";
               };
               errorLog = mkOption {
+                description = "Error log location. Defaults to empty which means use global nginx access log.";
                 type = types.string;
                 default = "";
               };
               accessLog = mkOption {
+                description = "Access log location. Defaults to empty which means use global nginx access log.";
                 type = types.string;
                 default = "";
               };
@@ -166,10 +168,11 @@ in
         let defaultServer = optionalString server.defaultServer "default_server";
             accessLog = optionalString (server.accessLog != "")  "error_log ${errorLog}";
             errorLog = optionalString (server.errorLog != "")    "access_log ${accessLog}";
+            listens = ssl: lib.concatMapStrings (x: "listen ${x} ${ssl} ${defaultServer};\n") server.listen;
             listen =
               if server.sslCert != "" && server.sslKey != ""
               then ''
-                listen ${server.listen} ssl ${defaultServer};
+                ${listens "ssl"}
                 ssl_certificate     ${server.sslCert};
                 ssl_certificate_key ${server.sslKey};
                 ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;

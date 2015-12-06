@@ -25,6 +25,7 @@ with lib;
   };
 
   listen = mkOption {
+     description = "list of ip to listen on";
      type = types.listOf (types.submodule (
           {
             options = {

@@ -47,10 +47,11 @@ let
       ) []
       (attrNames cfg);
 
-  t = {
+  t = description: {
     default = {};
     type = types.attrsOf types.optionSet;
     options = [ resourceOpt ];
+    inherit description;
   };
 
 in
@@ -59,23 +60,23 @@ in
 
   options = {
 
-    resources.tcp-ports = mkOption (t // {
+    resources.tcp-ports = mkOption (t "used tcp ports" // {
       example = {
         "80".required_by = "apache";
         "8080".required_by = "tomcat";
       };
     });
 
-    resources.udp-ports = mkOption t;
+    resources.udp-ports = mkOption (t "used udp ports");
 
-    resources.paths = mkOption (t // {
+    resources.paths = mkOption (t "used ptahs" // {
       example = {
         "/tmp/mysql.socket".required_by = "mysql";
       };
     });
 
-    resources.uids = mkOption t;
-    resources.gids = mkOption t;
+    resources.uids = mkOption (t "used uids");
+    resources.gids = mkOption (t "used gids");
   };
 
   config = {

@@ -235,7 +235,7 @@
   ./services/misc/synergy.nix
   ./services/misc/uhub.nix
   ./services/misc/zookeeper.nix
-  ./services/monitoring/apcupsd.nix
+  # ./services/monitoring/apcupsd.nix
   ./services/monitoring/bosun.nix
   ./services/monitoring/cadvisor.nix
   ./services/monitoring/collectd.nix
@@ -372,8 +372,8 @@
   ./services/networking/xinetd.nix
   ./services/networking/zerotierone.nix
   ./services/networking/znc.nix
-  ./services/printing/cupsd.nix
-  ./services/printing/cupsd-1.7.nix
+  # ./services/printing/cupsd.nix
+  # ./services/printing/cupsd-1.7.nix
   ./services/scheduling/atd.nix
   ./services/scheduling/chronos.nix
   ./services/scheduling/cron.nix
@@ -412,7 +412,7 @@
   ./services/web-servers/lighttpd/default.nix
   ./services/web-servers/lighttpd/gitweb.nix
   ./services/web-servers/nginx/default.nix
-  ./services/web-servers/nginx/reverse_proxy.nix
+  # ./services/web-servers/nginx/reverse_proxy.nix
   # ./services/web-servers/phpfpm.nix
   ./services/web-servers/shellinabox.nix
   ./services/web-servers/tomcat.nix
@@ -512,8 +512,8 @@
   ./virtualisation/openvswitch.nix
   ./virtualisation/parallels-guest.nix
   ./virtualisation/virtualbox-guest.nix
-  ./virtualisation/virtualbox-server.nix
-  # ./virtualisation/virtualbox-host.nix
+  # ./virtualisation/virtualbox-server.nix
+  ./virtualisation/virtualbox-host.nix
   ./virtualisation/vmware-guest.nix
   ./virtualisation/xen-dom0.nix
 ]

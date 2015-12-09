@@ -1,4 +1,4 @@
-args: with args; {
+args@{stdenv, unzip, lib, ctags, ...}: with args; {
   # optional srcDir
   annotatedWithSourceAndTagInfo = x : (x ? passthru && x.passthru ? sourceWithTags 
                                       || x ? meta && x.meta ? sourceWithTags );

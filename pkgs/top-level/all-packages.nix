@@ -1909,9 +1909,7 @@ let
 
   imapproxy = callPackage ../tools/networking/imapproxy { };
 
-  imapsync = callPackage ../tools/networking/imapsync {
-    inherit (perlPackages) MailIMAPClient;
-  };
+  imapsync = callPackage ../tools/networking/imapsync { };
 
   imgur-screenshot = callPackage ../tools/graphics/imgur-screenshot { };
 
@@ -4293,7 +4291,7 @@ let
 
   nim = callPackage ../development/compilers/nim { };
 
-  neko = callPackage ../development/compilers/neko { apache = apacheHttpd; };
+  neko = callPackage ../development/compilers/neko { };
 
   nasm = callPackage ../development/compilers/nasm { };
 

@@ -81,6 +81,8 @@ let
               chown -R ${m_config.user} ${m_config.pidDir} $socketDir
             '';
 
+          serviceConfig.Restart = "always";
+
           serviceConfig.ExecStart = "${mysqldDir}/mysqld --defaults-extra-file=${myCnf} ${mysqldOptions}";
 
           postStart =

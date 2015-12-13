@@ -15,12 +15,7 @@ let
 
   inherit (pkgs) postfix;
 
-  postfixEtcDir = pkgs.runCommand "postfix-etc-dir" {} ''
-    ensureDir $out
-    ln -s ${masterCfFile} $out/master.cf
-    ln -s ${postfix}/etc/postfix/bounce.cf.default $out/bounce.cf
-    ln -s ${mainCfFile} $out/main.cf
-  '';
+  postfixEtcDir = "/var/postfix/conf";
   # helper functions
 
   aliasFile = name: list: # list= [ [key value]  .. ]
@@ -453,9 +448,15 @@ in
                 + "See services.postfix.tables options. Ignore this by defining an empty map";
       };
 
-    environment.etc.postfix.source = postfixEtcDir;
-    # This makes comfortable for root to run 'postqueue' for example.
-    environment.systemPackages = [ postfix ];
+    environment = {
+      etc = singleton
+        { source = "/var/postfix/conf";
+          target = "postfix";
+        };
+
+      # This makes comfortable for root to run 'postqueue' for example.
+      systemPackages = [ pkgs.postfix ];
+    };
 
     services.mail.sendmailSetuidWrapper = mkIf config.services.postfix.setSendmail {
       program = "sendmail";
@@ -508,15 +509,20 @@ in
         # maybe some more chown / chomd commands must be run (TODO)
         preStartScript = pkgs.writeScript "postfix-pre-start" ''
         #!/bin/sh -e
-        if ! [ -d /var/spool/postfix ]; then
-          ${pkgs.coreutils}/bin/mkdir -p /var/spool/mail /etc/postfix /var/postfix/queue
-        fi
+        ${pkgs.coreutils}/bin/mkdir -p /var/spool/mail /var/postfix/conf /var/postfix/queue
+
 
         ${pkgs.coreutils}/bin/chown -R ${user}:${group} /var/postfix
         ${pkgs.coreutils}/bin/chown -R ${user}:${setgidGroup} /var/postfix/queue
         ${pkgs.coreutils}/bin/chmod -R ug+rwX /var/postfix/queue
         ${pkgs.coreutils}/bin/chown root:root /var/spool/mail
         ${pkgs.coreutils}/bin/chmod a+rwxt /var/spool/mail
+        ${pkgs.coreutils}/bin/ln -sf /var/spool/mail /var/
+
+        ln -sf ${pkgs.postfix}/etc/postfix/postfix-files /var/postfix/conf/
+        ln -s ${masterCfFile} /var/postfix/conf/master.cf
+        ln -s ${postfix}/etc/postfix/bounce.cf.default /var/postfix/conf/bounce.cf
+        ln -s ${mainCfFile} var/postfix/conf/main.cf
 
         ${cfg.preStartCommands}
 

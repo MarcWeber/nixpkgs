@@ -520,9 +520,9 @@ in
         ${pkgs.coreutils}/bin/ln -sf /var/spool/mail /var/
 
         ln -sf ${pkgs.postfix}/etc/postfix/postfix-files /var/postfix/conf/
-        ln -s ${masterCfFile} /var/postfix/conf/master.cf
-        ln -s ${postfix}/etc/postfix/bounce.cf.default /var/postfix/conf/bounce.cf
-        ln -s ${mainCfFile} var/postfix/conf/main.cf
+        ln -sf ${masterCfFile} /var/postfix/conf/master.cf
+        ln -sf ${postfix}/etc/postfix/bounce.cf.default /var/postfix/conf/bounce.cf
+        ln -sf ${mainCfFile} var/postfix/conf/main.cf
 
         ${cfg.preStartCommands}
 

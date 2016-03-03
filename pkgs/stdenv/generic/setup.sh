@@ -180,8 +180,27 @@ installBin() {
 }
 
 
+# Return success if the specified file is an ELF object.
+isELF() {
+    local fn="$1"
+    local magic
+    exec {fd}< "$fn"
+    read -n 4 -u $fd magic
+    exec {fd}<&-
+    if [[ "$magic" =~ ELF ]]; then return 0; else return 1; fi
+}
+
+
 ######################################################################
 # Initialisation.
+
+
+# Set a fallback default value for SOURCE_DATE_EPOCH, used by some
+# build tools to provide a deterministic substitute for the "current"
+# time. Note that 1 = 1970-01-01 00:00:01. We don't use 0 because it
+# confuses some applications.
+export SOURCE_DATE_EPOCH
+: ${SOURCE_DATE_EPOCH:=1}
 
 
 # Wildcard expansions that don't match should expand to an empty list.
@@ -363,6 +382,13 @@ export NIX_BUILD_CORES
 paxmark() { true; }
 
 
+# Prevent OpenSSL-based applications from using certificates in
+# /etc/ssl.
+if [ -z "$SSL_CERT_FILE" ]; then
+  export SSL_CERT_FILE=/no-cert-file.crt
+fi
+
+
 ######################################################################
 # Textual substitution functions.
 
@@ -472,9 +498,11 @@ _defaultUnpack() {
     if [ -d "$fn" ]; then
 
         stripHash "$fn"
-        # We can't preserve hardlinks because they may have been introduced by
-        # store optimization, which might break things in the build
-        cp -pr --reflink=auto --no-preserve=timestamps "$fn" $strippedName
+
+        # We can't preserve hardlinks because they may have been
+        # introduced by store optimization, which might break things
+        # in the build.
+        cp -pr --reflink=auto "$fn" $strippedName
 
     else
 
@@ -612,12 +640,8 @@ fixLibtool() {
 configurePhase() {
     runHook preConfigure
 
-    if [ -z "$configureScript" ]; then
+    if [ -z "$configureScript" -a -x ./configure ]; then
         configureScript=./configure
-        if ! [ -x $configureScript ]; then
-            echo "no configure script, doing nothing"
-            return
-        fi
     fi
 
     if [ -z "$dontFixLibtool" ]; then
@@ -633,20 +657,24 @@ configurePhase() {
 
     # Add --disable-dependency-tracking to speed up some builds.
     if [ -z "$dontAddDisableDepTrack" ]; then
-        if grep -q dependency-tracking $configureScript; then
+        if grep -q dependency-tracking "$configureScript"; then
             configureFlags="--disable-dependency-tracking $configureFlags"
         fi
     fi
 
     # By default, disable static builds.
     if [ -z "$dontDisableStatic" ]; then
-        if grep -q enable-static $configureScript; then
+        if grep -q enable-static "$configureScript"; then
             configureFlags="--disable-static $configureFlags"
         fi
     fi
 
-    echo "configure flags: $configureFlags ${configureFlagsArray[@]}"
-    $configureScript $configureFlags "${configureFlagsArray[@]}"
+    if [ -n "$configureScript" ]; then
+        echo "configure flags: $configureFlags ${configureFlagsArray[@]}"
+        $configureScript $configureFlags "${configureFlagsArray[@]}"
+    else
+        echo "no configure script, doing nothing"
+    fi
 
     runHook postConfigure
 }
@@ -657,17 +685,16 @@ buildPhase() {
 
     if [ -z "$makeFlags" ] && ! [ -n "$makefile" -o -e "Makefile" -o -e "makefile" -o -e "GNUmakefile" ]; then
         echo "no Makefile, doing nothing"
-        return
+    else
+        # See https://github.com/NixOS/nixpkgs/pull/1354#issuecomment-31260409
+        makeFlags="SHELL=$SHELL $makeFlags"
+
+        echo "make flags: $makeFlags ${makeFlagsArray[@]} $buildFlags ${buildFlagsArray[@]}"
+        make ${makefile:+-f $makefile} \
+            ${enableParallelBuilding:+-j${NIX_BUILD_CORES} -l${NIX_BUILD_CORES}} \
+            $makeFlags "${makeFlagsArray[@]}" \
+            $buildFlags "${buildFlagsArray[@]}"
     fi
-
-    # See https://github.com/NixOS/nixpkgs/pull/1354#issuecomment-31260409
-    makeFlags="SHELL=$SHELL $makeFlags"
-
-    echo "make flags: $makeFlags ${makeFlagsArray[@]} $buildFlags ${buildFlagsArray[@]}"
-    make ${makefile:+-f $makefile} \
-        ${enableParallelBuilding:+-j${NIX_BUILD_CORES} -l${NIX_BUILD_CORES}} \
-        $makeFlags "${makeFlagsArray[@]}" \
-        $buildFlags "${buildFlagsArray[@]}"
 
     runHook postBuild
 }

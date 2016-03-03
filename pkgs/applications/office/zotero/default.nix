@@ -1,13 +1,21 @@
-{ stdenv, fetchurl, bash, firefox, perl, unzipNLS, xorg }:
+{ stdenv, fetchurl, fetchpatch, bash, firefox, perl, unzipNLS, xorg }:
 
 let
 
   xpi = fetchurl {
     url = "https://download.zotero.org/extension/zotero-${version}.xpi";
-    sha256 = "15wdbwnaxs748psjnxw40wld45npjjmvwx70c0jx2p63y6ks2gcx";
+    sha256 = "02h2ja08v8as4fawj683rh5rmxsjf5d0qmvqa77i176nm20y5s7s";
   };
 
-  version = "4.0.26";
+  firefox' = stdenv.lib.overrideDerivation (firefox) (attrs: {
+    patches = [ (fetchpatch {
+      url = "https://hg.mozilla.org/releases/mozilla-beta/raw-rev/0558da46f20c";
+      sha256 = "08ibp7hny78x8ywfvrh56z90kf8fjpf04mibdlrwkw4f1vgm3fc3";
+      name = "fix-external-xpi-loader";
+    }) ];
+  });
+
+  version = "4.0.28";
 
 in
 stdenv.mkDerivation {
@@ -15,13 +23,15 @@ stdenv.mkDerivation {
   inherit version;
 
   src = fetchurl {
-    url = "https://github.com/zotero/zotero-standalone-build/archive/${version}.tar.gz";
-    sha256 = "11gbislxkhfycnii05v6d8h9qdp5rk5xag7kdnsih67gicnn467g";
+    url = "https://github.com/zotero/zotero-standalone-build/archive/4.0.28.8.tar.gz";
+    sha256 = "ab1fd5dde9bd2a6b6d31cc9a53183a04de3698f1273a943ef31ecc4c42808a68";
   };
 
   nativeBuildInputs = [ perl unzipNLS ];
 
-  inherit bash firefox;
+  inherit bash;
+
+  firefox = firefox';
 
   phases = "unpackPhase installPhase fixupPhase";
 

@@ -1,35 +1,35 @@
 { stdenv, fetchFromGitHub, autoreconfHook, docbook_xsl, gtk_doc, icu
-, libxslt, pkgconfig }:
+, libxslt, pkgconfig, python }:
 
 let
 
-  version = "${libVersion}-list-${listVersion}";
-
-  listVersion = "2015-11-13";
+  listVersion = "2016-02-25";
   listSources = fetchFromGitHub {
-    sha256 = "1l60mrrhrafpiga56h3j2x3vsx2607lih2vmjx1gx16g2j89gbmq";
-    rev = "edf1735751c24e736018dc51f1be7dea686b6304";
+    sha256 = "0i9aa0bl3x50z0ba4n06pajpfncw8n780hhql13b1vppgfc6s4i7";
+    rev = "84fd7e2a090f53ba4378f2a0e08cdaaa882ce3e5";
     repo = "list";
     owner = "publicsuffix";
   };
 
-  libVersion = "0.11.0";
+  libVersion = "0.12.0";
 
-in stdenv.mkDerivation {
+in stdenv.mkDerivation rec {
   name = "libpsl-${version}";
+  version = "${libVersion}-list-${listVersion}";
 
   src = fetchFromGitHub {
-    sha256 = "08k7prrr83lg6jmm5r5k4alpm2in4qlnx49ypb4bxv16lq8dcnmm";
+    sha256 = "13w3lc752az2swymg408f3w2lbqs0f2h5ri6d5jw1vv9z0ij9xlw";
     rev = "libpsl-${libVersion}";
     repo = "libpsl";
     owner = "rockdaboot";
   };
 
   buildInputs = [ icu libxslt ];
-  nativeBuildInputs = [ autoreconfHook docbook_xsl gtk_doc pkgconfig ];
+  nativeBuildInputs = [ autoreconfHook docbook_xsl gtk_doc pkgconfig python ];
 
   postPatch = ''
     substituteInPlace src/psl.c --replace bits/stat.h sys/stat.h
+    patchShebangs src/make_dafsa.py
   '';
 
   preAutoreconf = ''
@@ -41,14 +41,18 @@ in stdenv.mkDerivation {
     # The libpsl check phase requires the list's test scripts (tests/) as well
     cp -Rv "${listSources}"/* list
   '';
-  configureFlags = [ "--disable-static" "--enable-gtk-doc" "--enable-man" ];
+  configureFlags = [
+    "--disable-builtin"
+    "--disable-static"
+    "--enable-gtk-doc"
+    "--enable-man"
+  ];
 
   enableParallelBuilding = true;
 
   doCheck = true;
 
   meta = with stdenv.lib; {
-    inherit version;
     description = "C library for the Publix Suffix List";
     longDescription = ''
       libpsl is a C library for the Publix Suffix List (PSL). A "public suffix"

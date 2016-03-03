@@ -52,6 +52,10 @@ rec {
   # libraries for a set of packages, e.g. "${pkg1}/lib:${pkg2}/lib:...".
   makeLibraryPath = makeSearchPath "lib";
 
+  # Construct a binary search path (such as $PATH) containing the
+  # binaries for a set of packages, e.g. "${pkg1}/bin:${pkg2}/bin:...".
+  makeBinPath = makeSearchPath "bin";
+
 
   # Idem for Perl search paths.
   makePerlPath = makeSearchPath "lib/perl5/site_perl";
@@ -185,9 +189,13 @@ rec {
   versionAtLeast = v1: v2: !versionOlder v1 v2;
 
 
-  # Get the version of the specified derivation, as specified in its
-  # ‘name’ attribute.
-  getVersion = drv: (builtins.parseDrvName drv.name).version;
+  # This function takes an argument that's either a derivation or a
+  # derivation's "name" attribute and extracts the version part from that
+  # argument. For example:
+  #
+  #    lib.getVersion "youtube-dl-2016.01.01" ==> "2016.01.01"
+  #    lib.getVersion pkgs.youtube-dl         ==> "2016.01.01"
+  getVersion = x: (builtins.parseDrvName (x.name or x)).version;
 
 
   # Extract name with version from URL. Ask for separator which is
@@ -230,5 +238,20 @@ rec {
     if builtins.isInt may_be_int
     then may_be_int
     else throw "Could not convert ${str} to int.";
+
+  # Read a list of paths from `file', relative to the `rootPath'. Lines
+  # beginning with `#' are treated as comments and ignored. Whitespace
+  # is significant.
+  readPathsFromFile = rootPath: file:
+    let
+      root = toString rootPath;
+      lines =
+        builtins.map (lib.removeSuffix "\n")
+        (lib.splitString "\n" (builtins.readFile file));
+      removeComments = lib.filter (line: !(lib.hasPrefix "#" line));
+      relativePaths = removeComments lines;
+      absolutePaths = builtins.map (path: builtins.toPath (root + "/" + path)) relativePaths;
+    in
+      absolutePaths;
 
 }

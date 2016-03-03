@@ -6,9 +6,11 @@ let
   cfg = config.services.elasticsearch;
 
   esConfig = ''
-    network.host: ${cfg.host}
+    network.host: ${cfg.listenAddress}
     network.port: ${toString cfg.port}
     network.tcp.port: ${toString cfg.tcp_port}
+    # TODO: find a way to enable security manager
+    security.manager.enabled: false
     cluster.name: ${cfg.cluster_name}
     ${cfg.extraConf}
   '';
@@ -39,11 +41,12 @@ in {
 
     package = mkOption {
       description = "Elasticsearch package to use.";
-      default = pkgs.elasticsearch;
+      default = pkgs.elasticsearch2;
+      defaultText = "pkgs.elasticsearch2";
       type = types.package;
     };
 
-    host = mkOption {
+    listenAddress = mkOption {
       description = "Elasticsearch listen address.";
       default = "127.0.0.1";
       type = types.str;
@@ -127,7 +130,10 @@ in {
       description = "Elasticsearch Daemon";
       wantedBy = [ "multi-user.target" ];
       after = [ "network-interfaces.target" ];
-      environment = { ES_HOME = cfg.dataDir; };
+      path = [ pkgs.inetutils ];
+      environment = {
+        ES_HOME = cfg.dataDir;
+      };
       serviceConfig = {
         ExecStart = "${cfg.package}/bin/elasticsearch -Des.path.conf=${configDir} ${toString cfg.extraCmdLineOptions}";
         User = "elasticsearch";
@@ -135,14 +141,14 @@ in {
       };
       preStart = ''
         mkdir -m 0700 -p ${cfg.dataDir}
-        if [ "$(id -u)" = 0 ]; then chown -R elasticsearch ${cfg.dataDir}; fi
 
         # Install plugins
-        rm ${cfg.dataDir}/plugins || true
-        ln -s ${esPlugins}/plugins ${cfg.dataDir}/plugins
+        ln -sfT ${esPlugins}/plugins ${cfg.dataDir}/plugins
+        ln -sfT ${cfg.package}/lib ${cfg.dataDir}/lib
+        if [ "$(id -u)" = 0 ]; then chown -R elasticsearch ${cfg.dataDir}; fi
       '';
       postStart = mkBefore ''
-        until ${pkgs.curl}/bin/curl -s -o /dev/null ${cfg.host}:${toString cfg.port}; do
+        until ${pkgs.curl}/bin/curl -s -o /dev/null ${cfg.listenAddress}:${toString cfg.port}; do
           sleep 1
         done
       '';

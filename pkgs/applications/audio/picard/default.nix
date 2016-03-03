@@ -1,10 +1,10 @@
-{ stdenv, buildPythonPackage, fetchurl, gettext
+{ stdenv, buildPythonApplication, fetchurl, gettext
 , pkgconfig, libofa, ffmpeg, chromaprint
 , pyqt4, mutagen, python-libdiscid
 }:
 
 let version = "1.3.2"; in
-buildPythonPackage {
+buildPythonApplication {
   name = "picard-${version}";
   namePrefix = "";
 
@@ -35,7 +35,7 @@ buildPythonPackage {
   meta = with stdenv.lib; {
     homepage = "http://musicbrainz.org/doc/MusicBrainz_Picard";
     description = "The official MusicBrainz tagger";
-    maintainers = with maintainers; [ emery ];
+    maintainers = with maintainers; [ ehmry ];
     license = licenses.gpl2;
     platforms = platforms.all;
   };

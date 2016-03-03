@@ -173,7 +173,8 @@ let
     SSLRandomSeed connect builtin
 
     SSLProtocol All -SSLv2 -SSLv3
-    SSLCipherSuite HIGH:MEDIUM:!aNULL:!MD5:!EXP
+    SSLCipherSuite HIGH:!aNULL:!MD5:!EXP
+    SSLHonorCipherOrder on
   '';
 
 
@@ -429,6 +430,7 @@ in
       package = mkOption {
         type = types.package;
         default = pkgs.apacheHttpd;
+        defaultText = "pkgs.apacheHttpd";
         description = ''
           Overridable attribute of the Apache HTTP Server package to use.
         '';
@@ -437,7 +439,8 @@ in
       configFile = mkOption {
         type = types.path;
         default = confFile;
-        example = literalExample ''pkgs.writeText "httpd.conf" "# my custom config file ...";'';
+        defaultText = "confFile";
+        example = literalExample ''pkgs.writeText "httpd.conf" "# my custom config file ..."'';
         description = ''
           Override the configuration file used by Apache. By default,
           NixOS generates one automatically.

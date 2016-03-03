@@ -46,7 +46,7 @@ let
                   , grubIdentifier, preBootCommands, extraConfig
                   }:
     let
-      iface = if grubVersion == 1 then "scsi" else "virtio";
+      iface = if grubVersion == 1 then "ide" else "virtio";
       qemuFlags =
         (if system == "x86_64-linux" then "-m 768 " else "-m 512 ") +
         (optionalString (system == "x86_64-linux") "-cpu kvm64 ");
@@ -108,7 +108,7 @@ let
       $machine->waitUntilSucceeds("cat /proc/swaps | grep -q /dev");
 
       # Check whether the channel works.
-      $machine->succeed("nix-env -i coreutils >&2");
+      $machine->succeed("nix-env -iA nixos.coreutils >&2");
       $machine->succeed("type -tP ls | tee /dev/stderr") =~ /.nix-profile/
           or die "nix-env failed";
 
@@ -171,7 +171,7 @@ let
               ];
 
             virtualisation.diskSize = 8 * 1024;
-            virtualisation.memorySize = 768;
+            virtualisation.memorySize = 1024;
             virtualisation.writableStore = true;
 
             # Use a small /dev/vdb as the root disk for the

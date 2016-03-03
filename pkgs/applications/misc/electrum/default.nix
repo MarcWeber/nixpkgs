@@ -1,6 +1,6 @@
-{ stdenv, fetchurl, buildPythonPackage, pythonPackages, slowaes }:
+{ stdenv, fetchurl, buildPythonApplication, pythonPackages, slowaes }:
 
-buildPythonPackage rec {
+buildPythonApplication rec {
   name = "electrum-${version}";
   version = "2.5.4";
 
@@ -22,6 +22,14 @@ buildPythonPackage rec {
     requests
     slowaes
     tlslite
+
+    # plugins
+    trezor
+    keepkey
+    # TODO plugins
+    # matplotlib
+    # btchip
+    # amodem
   ];
 
   preInstall = ''
@@ -40,6 +48,6 @@ buildPythonPackage rec {
     '';
     homepage = https://electrum.org;
     license = licenses.gpl3;
-    maintainers = with maintainers; [ emery joachifm ];
+    maintainers = with maintainers; [ ehmry joachifm np ];
   };
 }

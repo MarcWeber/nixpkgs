@@ -28,17 +28,15 @@ stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
 
+  # [1]: If dependencies are missing calligra build tends to miss building executables silently.
+  #      Thus ensure all have been built
   postInstall = ''
     for i in $out/bin/*; do
       wrapProgram $i \
         --prefix PATH ':' "${pstoedit}/bin" \
         --prefix XDG_DATA_DIRS ':' "${oxygen_icons}/share"
     done
-  '';
-
-  # If any of the following progs fails the dependencies might be wrong or the
-  # executable might have been dropped.
-  postInstall = ''
+    # [1]
     for prog in braindump calligra calligraactive calligraauthor calligraconverter calligraflow calligraplan calligraplanwork calligrasheets calligrastage calligrawords cstester cstrunner karbon kexi kexi_sqlite3_dump krita; do
       [ -x $out/bin/$prog ] || {
         echo "$out/bin/$prog not found"

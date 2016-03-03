@@ -1,25 +1,29 @@
-{ stdenv, fetchgit, pkgconfig, libtoxcore-dev, qt5, openal, opencv,
+{ stdenv, fetchFromGitHub, pkgconfig, libtoxcore-dev, openal, opencv,
   libsodium, libXScrnSaver, glib, gdk_pixbuf, gtk2, cairo,
-  pango, atk, qrencode, ffmpeg, filter-audio, makeWrapper }:
+  pango, atk, qrencode, ffmpeg, filter-audio, makeWrapper,
+  qtbase, qtsvg, qttools, qttranslations, sqlcipher }:
 
 let
-  revision = "1673b43e26c853f6446f228fec083af166cbf446";
+  version = "1.2.4";
+  revision = "v${version}";
 in
 
 stdenv.mkDerivation rec {
-  name = "qtox-dev-20150925";
+  name = "qtox-${version}";
 
-  src = fetchgit {
-      url = "https://github.com/tux3/qTox.git";
-      rev = "${revision}";
-      md5 = "785f5b305cdcdf777d93ee823a5b9f49";
+  src = fetchFromGitHub {
+      owner = "tux3";
+      repo = "qTox";
+      rev = revision;
+      sha256 = "0iqnl00kmbpf3pn6z38n3cjzzsqpw2793j60c24kkrydapihknz9";
   };
 
   buildInputs =
     [
       libtoxcore-dev openal opencv libsodium filter-audio
-      qt5.base qt5.tools libXScrnSaver glib gtk2 cairo
-      pango atk qrencode ffmpeg qt5.translations makeWrapper
+      qtbase qttools qtsvg libXScrnSaver glib gtk2 cairo
+      pango atk qrencode ffmpeg qttranslations makeWrapper
+      sqlcipher
     ];
 
   nativeBuildInputs = [ pkgconfig ];
@@ -35,6 +39,7 @@ stdenv.mkDerivation rec {
     export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $(pkg-config --cflags cairo)"
     export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $(pkg-config --cflags pango)"
     export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $(pkg-config --cflags atk)"
+    export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $(pkg-config --cflags sqlcipher)"
   '';
 
   configurePhase = ''
@@ -46,7 +51,7 @@ stdenv.mkDerivation rec {
     mkdir -p $out/bin
     cp qtox $out/bin
     wrapProgram $out/bin/qtox \
-      --prefix QT_PLUGIN_PATH : ${qt5.svg}/lib/qt5/plugins
+      --prefix QT_PLUGIN_PATH : ${qtsvg}/lib/qt5/plugins
   '';
 
   enableParallelBuilding = true;

@@ -1,10 +1,9 @@
-{ stdenv, fetchurl, cmake, llvmPackages_36 }:
+{ stdenv, fetchurl, cmake, llvmPackages }:
 
-let
-  version = "0.4";
-  llvmPackages = llvmPackages_36;
-in stdenv.mkDerivation rec {
+stdenv.mkDerivation rec {
   name = "include-what-you-use-${version}";
+  # Also bump llvmPackages in all-packages.nix to the supported version!
+  version = "0.5";
 
   src = fetchurl {
     sha256 = "19pwhgwvfr86n8ks099p9r02v7zh8d3qs7g7snzkhpdgq1azww85";
@@ -19,7 +18,6 @@ in stdenv.mkDerivation rec {
   enableParallelBuilding = true;
 
   meta = with stdenv.lib; {
-    inherit version;
     description = "Analyze #includes in C/C++ source files with clang";
     longDescription = ''
       For every symbol (type, function variable, or macro) that you use in

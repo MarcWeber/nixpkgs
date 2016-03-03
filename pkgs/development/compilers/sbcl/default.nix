@@ -2,11 +2,11 @@
 
 stdenv.mkDerivation rec {
   name    = "sbcl-${version}";
-  version = "1.3.0";
+  version = "1.3.3";
 
   src = fetchurl {
     url    = "mirror://sourceforge/project/sbcl/sbcl/${version}/${name}-source.tar.bz2";
-    sha256 = "1cwrmvbx8m7n7wkcm16yz7qwx221giz7jskzkvy42pj919may36n";
+    sha256 = "0kzvwzz196ws9z20l8fm15m5gckhmkkc6lxvdib12mfvy80gcf6v";
   };
 
   patchPhase = ''
@@ -63,7 +63,7 @@ stdenv.mkDerivation rec {
   '';
 
   buildPhase = ''
-    sh make.sh --prefix=$out --xc-host="${sbclBootstrapHost} --disable-debugger --no-userinit --no-sysinit"
+    sh make.sh --prefix=$out --xc-host="${sbclBootstrapHost}"
   '';
 
   installPhase = ''

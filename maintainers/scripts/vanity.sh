@@ -12,7 +12,7 @@ git_data="$(echo "$raw_git_log" | grep 'Author:' |
 # Also there are a few manual entries
 maintainers="$(cat "$(dirname "$0")/../../lib/maintainers.nix" |
   grep '=' | sed -re 's/\\"/''/g;
-  s/ *([^ =]*) *= *" *(.*[^ ]) *[<](.*)[>] *".*/\1\t\2\t\3/')"
+  s/[ 	]*([^ 	=]*)[ 	]*=[ 	]*" *(.*[^ ]) *[<](.*)[>] *".*/\1\t\2\t\3/')"
 git_lines="$( ( echo "$git_data";
     cat "$(dirname "$0")/vanity-manual-equalities.txt") | sort |uniq)"
 
@@ -28,7 +28,7 @@ fetchGithubName () {
     )"
     userid="$(
         curl https://github.com/NixOS/nixpkgs/commit/"$commitid" 2>/dev/null |
-        grep authored -B10 | grep 'href="/' |
+        grep committed -B10 | grep 'href="/' |
         sed -re 's@.* href="/@@; s@".*@@' |
 	grep -v "/commit/"
     )";

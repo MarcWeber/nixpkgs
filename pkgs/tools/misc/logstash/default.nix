@@ -16,13 +16,12 @@ stdenv.mkDerivation rec {
 
   installPhase = ''
     mkdir -p $out
-    cp -r {Gemfile*,vendor,lib} $out
-    cp bin/logstash $out/logstash
-    cp bin/plugin $out/logstash-plugin
+    cp -r {Gemfile*,vendor,lib,bin} $out
+    mv $out/bin/plugin $out/bin/logstash-plugin
   '';
 
   meta = with stdenv.lib; {
-    description = "Logstash is a data pipeline that helps you process logs and other event data from a variety of systems.";
+    description = "Logstash is a data pipeline that helps you process logs and other event data from a variety of systems";
     homepage    = https://www.elastic.co/products/logstash;
     license     = licenses.asl20;
     platforms   = platforms.unix;

@@ -10,11 +10,11 @@ let
 in
 with stdenv.lib;
 stdenv.mkDerivation rec {
-  name = "pinentry-0.9.5";
+  name = "pinentry-0.9.7";
 
   src = fetchurl {
     url = "mirror://gnupg/pinentry/${name}.tar.bz2";
-    sha256 = "1338hj1h3sh34897120y30x12b64wyj3xjzzk5asm2hdzhxgsmva";
+    sha256 = "1cp7wjqr6nx31mdclr61s2h84ijqjl0ph99kgj4vyawpjj1j1633";
   };
 
   buildInputs = [ libgpgerror libassuan libcap gtk2 ncurses qt4 ];

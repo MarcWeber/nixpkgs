@@ -16,7 +16,6 @@ stdenv.mkDerivation {
   outputs = [ "out" "man" ];
 
   configureFlags =
-    # FIXME: perhaps use $SSL_CERT_FILE instead
     lib.optional stdenv.isLinux "--with-default-trust-store-file=/etc/ssl/certs/ca-certificates.crt"
   ++ [
     "--disable-dependency-tracking"
@@ -30,7 +29,7 @@ stdenv.mkDerivation {
   enableParallelBuilding = !guileBindings;
 
   buildInputs = [ lzo lzip nettle libtasn1 libidn p11_kit zlib gmp autogen ]
-    ++ lib.optional (stdenv.isDarwin) libiconv
+    ++ lib.optional (stdenv.isFreeBSD || stdenv.isDarwin) libiconv
     ++ lib.optional (tpmSupport && stdenv.isLinux) trousers
     ++ [ unbound ]
     ++ lib.optional guileBindings guile;

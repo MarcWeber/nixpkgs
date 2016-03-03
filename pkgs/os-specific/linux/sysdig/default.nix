@@ -1,15 +1,15 @@
-{stdenv, fetchurl, cmake, luajit, kernel, zlib, ncurses}:
+{stdenv, fetchurl, cmake, luajit, kernel, zlib, ncurses, perl, jsoncpp, libb64, openssl, curl}:
 let
   inherit (stdenv.lib) optional optionalString;
   s = rec {
     baseName="sysdig";
-    version = "0.1.102";
+    version = "0.8.0";
     name="${baseName}-${version}";
     url="https://github.com/draios/sysdig/archive/${version}.tar.gz";
-    sha256 = "0mrz14wvcb8m8idr4iqbr3jmxfs7dlmh06n0q9fcfph75wkc5fp0";
+    sha256 = "1939k3clwxg09m1bn0szqiy2nxg66srl72n7476jc58hgaraq3dr";
   };
   buildInputs = [
-    cmake zlib luajit ncurses
+    cmake zlib luajit ncurses perl jsoncpp libb64 openssl curl
   ];
 in
 stdenv.mkDerivation {
@@ -20,9 +20,7 @@ stdenv.mkDerivation {
   };
 
   cmakeFlags = [
-    "-DUSE_BUNDLED_LUAJIT=OFF"
-    "-DUSE_BUNDLED_ZLIB=OFF"
-    "-DUSE_BUNDLED_NCURSES=OFF"
+    "-DUSE_BUNDLED_DEPS=OFF"
   ] ++ optional (kernel == null) "-DBUILD_DRIVER=OFF";
   preConfigure = ''
     export INSTALL_MOD_PATH="$out"
@@ -34,7 +32,13 @@ stdenv.mkDerivation {
     kernel_dev=${kernel.dev}
     kernel_dev=''${kernel_dev#/nix/store/}
     kernel_dev=''${kernel_dev%%-linux*dev*}
-    sed -i "s#$kernel_dev#................................#g" $out/lib/modules/${kernel.modDirVersion}/extra/sysdig-probe.ko
+    if test -f "$out/lib/modules/${kernel.modDirVersion}/extra/sysdig-probe.ko"; then
+        sed -i "s#$kernel_dev#................................#g" $out/lib/modules/${kernel.modDirVersion}/extra/sysdig-probe.ko
+    else
+        xz -d $out/lib/modules/${kernel.modDirVersion}/extra/sysdig-probe.ko.xz
+        sed -i "s#$kernel_dev#................................#g" $out/lib/modules/${kernel.modDirVersion}/extra/sysdig-probe.ko
+        xz $out/lib/modules/${kernel.modDirVersion}/extra/sysdig-probe.ko
+    fi
   '';
 
   meta = with stdenv.lib; {

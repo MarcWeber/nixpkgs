@@ -6,9 +6,7 @@
 { pkgs, gimp }:
 let
   inherit (pkgs) stdenv fetchurl pkgconfig glib;
-  targetPluginDir = "$out/${gimp.name}-plugins";
-  targetScriptDir = "$out/${gimp.name}-scripts";
-  prefix = "plugin-gimp-";
+  inherit (gimp) targetPluginDir targetScriptDir;
 
   pluginDerivation = a: stdenv.mkDerivation ({
     prePhases = "extraLib";
@@ -152,7 +150,7 @@ rec {
     name = "gap-2.6.0";
     buildInputs = [ gimp pkgconfig glib pkgs.intltool gimp.gtk ] ++ gimp.nativeBuildInputs;
     src = fetchurl {
-      url = ftp://ftp.gimp.org/pub/gimp/plug-ins/v2.6/gap/gimp-gap-2.6.0.tar.bz2;
+      url = http://ftp.gimp.org/pub/gimp/plug-ins/v2.6/gap/gimp-gap-2.6.0.tar.bz2;
       sha256 = "1jic7ixcmsn4kx2cn32nc5087rk6g8xsrz022xy11yfmgvhzb0ql";
     };
     patchPhase = ''
@@ -396,6 +394,14 @@ rec {
     src = fetchurl {
       url = http://registry.gimp.org/files/Lightning.scm;
       sha256 = "c14a8f4f709695ede3f77348728a25b3f3ded420da60f3f8de3944b7eae98a49";
+    };
+  };
+
+  roys-max-local-contrast = scriptDerivation {
+    name = "roys-max-local-contrast";
+    src = fetchurl {
+      url = "http://registry.gimp.org/files/roys-max-local-contrast_0.scm";
+      sha256 = "00y1ag75sbhrhcd35mmbamh1hngdiqn2x0rrrx0mw2z0h7bknbm5";
     };
   };
 

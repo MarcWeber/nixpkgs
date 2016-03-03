@@ -4,12 +4,12 @@ ladspaH, liblrdf, liblo, libsigcxx
 
 stdenv.mkDerivation rec {
   name = "non-${version}";
-  version = "2015-10-6";
+  version = "2016-02-07";
   src = fetchFromGitHub {
     owner = "original-male";
     repo = "non";
-    rev = "88fe7e7b97c97b8733506685f043cbc71b196646";
-    sha256 = "15cffp6c14rlssc8g3mrw8zvb88wffb8k8g1vhd299qlcgv7di2h";
+    rev = "1ef382fbbea598fdb56b25244a703c64ecaf8446";
+    sha256 = "1mi3nm0nrrqlk36920irvqf5080lbnj1qc8vnxspgwkjjqgdc22g";
   };
 
     buildInputs = [ pkgconfig python2 cairo libjpeg ntk libjack2 libsndfile

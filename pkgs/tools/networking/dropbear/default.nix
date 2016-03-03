@@ -2,11 +2,11 @@
 sftpPath ? "/var/run/current-system/sw/libexec/sftp-server" }:
 
 stdenv.mkDerivation rec {
-  name = "dropbear-2015.70";
+  name = "dropbear-2015.71";
 
   src = fetchurl {
     url = "http://matt.ucc.asn.au/dropbear/releases/${name}.tar.bz2";
-    sha256 = "0mzj1gwamxmk8rab4xmcvldcxdvs5zczim2hdza3dwfhy4ywra32";
+    sha256 = "1bw3lzmisn6gs6zy9vcqbfnicl437ydskqcayklpw60fkhb18qip";
   };
 
   dontDisableStatic = enableStatic;
@@ -37,7 +37,7 @@ stdenv.mkDerivation rec {
 
   meta = with stdenv.lib; {
     homepage = http://matt.ucc.asn.au/dropbear/dropbear.html;
-    description = "An small footprint implementation of the SSH 2 protocol";
+    description = "A small footprint implementation of the SSH 2 protocol";
     license = licenses.mit;
     maintainers = with maintainers; [ abbradar ];
     platforms = platforms.unix;

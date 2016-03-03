@@ -291,7 +291,7 @@ in
         dri2proto dri3proto kbproto xineramaproto resourceproto scrnsaverproto videoproto
       ];
       # fix_segfault: https://bugs.freedesktop.org/show_bug.cgi?id=91316
-      commonPatches = [ ./xorgserver-xkbcomp-path.patch ./fix_segfault.patch ];
+      commonPatches = [ ./xorgserver-xkbcomp-path.patch ];
       # XQuartz requires two compilations: the first to get X / XQuartz,
       # and the second to get Xvfb, Xnest, etc.
       darwinOtherX = overrideDerivation xorgserver (oldAttrs: {
@@ -325,6 +325,10 @@ in
           wrapProgram $out/bin/Xephyr \
             --set XKB_BINDIR "${xorg.xkbcomp}/bin" \
             --add-flags "-xkbdir ${xorg.xkeyboardconfig}/share/X11/xkb"
+          wrapProgram $out/bin/Xvfb \
+            --set XKB_BINDIR "${xorg.xkbcomp}/bin" \
+            --set XORG_DRI_DRIVER_PATH ${args.mesa}/lib/dri \
+            --add-flags "-xkbdir ${xorg.xkeyboardconfig}/share/X11/xkb"
         '';
         passthru.version = version; # needed by virtualbox guest additions
       } else {
@@ -340,16 +344,12 @@ in
         # Patches can be pulled from the server-*-apple branches of:
         # http://cgit.freedesktop.org/~jeremyhu/xserver/
         patches = commonPatches ++ [
-          ./darwin/0001-XQuartz-GLX-Use-__glXEnableExtension-to-build-extens.patch
           ./darwin/0002-sdksyms.sh-Use-CPPFLAGS-not-CFLAGS.patch
-          ./darwin/0003-Workaround-the-GC-clipping-problem-in-miPaintWindow-.patch
           ./darwin/0004-Use-old-miTrapezoids-and-miTriangles-routines.patch
-          ./darwin/0005-fb-Revert-fb-changes-that-broke-XQuartz.patch
           ./darwin/0006-fb-Revert-fb-changes-that-broke-XQuartz.patch
           ./darwin/private-extern.patch
           ./darwin/bundle_main.patch
           ./darwin/stub.patch
-          ./darwin/function-pointer-test.patch
         ];
         configureFlags = [
           # note: --enable-xquartz is auto
@@ -360,9 +360,6 @@ in
           "--with-bundle-id-prefix=org.nixos.xquartz"
           "--with-sha1=CommonCrypto"
         ];
-        __impureHostDeps = ["/System/Library" "/usr"];
-        NIX_CFLAGS_COMPILE = "-F/System/Library/Frameworks -I/usr/include";
-        NIX_CFLAGS_LINK = "-L/usr/lib";
         preConfigure = ''
           ensureDir $out/Applications
           export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -Wno-error"

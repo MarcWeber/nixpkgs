@@ -1,13 +1,13 @@
 { stdenv, fetchurl, pythonPackages, pyqt4, cython, libvncserver, zlib, twisted
 , gnutls, libvpx }:
 
-pythonPackages.buildPythonPackage rec {
+pythonPackages.buildPythonApplication rec {
   name = "blink-${version}";
-  version = "1.4.1";
+  version = "1.4.2";
   
   src = fetchurl {
     url = "http://download.ag-projects.com/BlinkQt/${name}.tar.gz";
-    sha256 = "0lpc3gm0hk55m7i2hlmk2p76akcfvnqxg0hyamfhha90nv6fk7sf";
+    sha256 = "0ia5hgwyg6cm393ik4ggzhcmc957ncswycs07ilwj6vrrzraxfk7";
   };
 
   patches = [ ./pythonpath.patch ];

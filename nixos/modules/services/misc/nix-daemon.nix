@@ -66,6 +66,7 @@ in
       package = mkOption {
         type = types.package;
         default = pkgs.nix;
+        defaultText = "pkgs.nix";
         description = ''
           This option specifies the Nix package instance to use throughout the system.
         '';
@@ -363,8 +364,10 @@ in
           ++ optionals cfg.distributedBuilds [ pkgs.gzip ];
 
         environment = cfg.envVars
-          // { CURL_CA_BUNDLE = "/etc/ssl/certs/ca-bundle.crt"; }
+          // { CURL_CA_BUNDLE = "/etc/ssl/certs/ca-certificates.crt"; }
           // config.networking.proxy.envVars;
+
+        unitConfig.RequiresMountsFor = "/nix/store";
 
         serviceConfig =
           { Nice = cfg.daemonNiceLevel;

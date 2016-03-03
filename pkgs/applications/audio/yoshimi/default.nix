@@ -1,20 +1,20 @@
 { stdenv, fetchurl, alsaLib, boost, cairo, cmake, fftwSinglePrec, fltk
-, libjack2, libsndfile, lv2, mesa, minixml, pkgconfig, zlib, xorg
+, libjack2, libsndfile, libXdmcp, readline, lv2, mesa, minixml, pkgconfig, zlib, xorg
 }:
 
 assert stdenv ? glibc;
 
 stdenv.mkDerivation  rec {
   name = "yoshimi-${version}";
-  version = "1.3.6";
+  version = "1.3.8.2";
 
   src = fetchurl {
     url = "mirror://sourceforge/yoshimi/${name}.tar.bz2";
-    sha256 = "0c2y59m945rrspnwdxmixk92z9nfiayxdxh582gf15nj8bvkh1l6";
+    sha256 = "0wl4ln6v1nkkx56kfah23chyrhga2vi93i82g0s200c4s4184xr8";
   };
 
   buildInputs = [
-    alsaLib boost cairo fftwSinglePrec fltk libjack2 libsndfile lv2 mesa
+    alsaLib boost cairo fftwSinglePrec fltk libjack2 libsndfile libXdmcp readline lv2 mesa
     minixml zlib xorg.libpthreadstubs
   ];
 
@@ -22,7 +22,7 @@ stdenv.mkDerivation  rec {
 
   preConfigure = "cd src";
 
-  cmakeFlags = [ "-DFLTK_MATH_LIBRARY=${stdenv.glibc}/lib/libm.so" ];
+  cmakeFlags = [ "-DFLTK_MATH_LIBRARY=${stdenv.glibc}/lib/libm.so -DCMAKE_INSTALL_DATAROOTDIR=$out" ];
 
   meta = with stdenv.lib; {
     description = "high quality software synthesizer based on ZynAddSubFX";

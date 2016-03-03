@@ -8,10 +8,10 @@ stdenv, fetchurl
 let
   s =
   rec {
-    version = "1.2.6";
-    versionSuffix = "-0";
+    version = "1.6";
+    versionSuffix = ".0-0";
     url = "mirror://sourceforge/lazarus/Lazarus%20Zip%20_%20GZip/Lazarus%20${version}/lazarus-${version}${versionSuffix}.tar.gz";
-    sha256 = "1sjyc2l46hyd5ic5hr6vscy4qr9kazyhiyddy7bfs9vgf54fdiy0";
+    sha256 = "1a1w9yibi0rsr51bl7csnq6mr59x0934850kiabs80nr3sz05knb";
     name = "lazarus-${version}";
   };
   buildInputs = [
@@ -33,7 +33,7 @@ stdenv.mkDerivation {
     "bigide"
   ];
   preBuild = ''
-    export makeFlags="$makeFlags LAZARUS_INSTALL_DIR=$out/lazarus/ INSTALL_PREFIX=$out/"
+    export makeFlags="$makeFlags LAZARUS_INSTALL_DIR=$out/share/lazarus/ INSTALL_PREFIX=$out/"
     export NIX_LDFLAGS="$NIX_LDFLAGS -L${stdenv.cc.cc}/lib -lXi -lX11 -lglib-2.0 -lgtk-x11-2.0 -lgdk-x11-2.0 -lc -lXext -lpango-1.0 -latk-1.0 -lgdk_pixbuf-2.0 -lcairo -lgcc_s"
     export LCL_PLATFORM=gtk2
     mkdir -p $out/share "$out/lazarus"

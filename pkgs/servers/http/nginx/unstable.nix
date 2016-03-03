@@ -7,10 +7,10 @@
 with stdenv.lib;
 
 let
-  version = "1.9.4";
+  version = "1.9.11";
   mainSrc = fetchurl {
     url = "http://nginx.org/download/nginx-${version}.tar.gz";
-    sha256 = "1a1bixw2a4s5c3qzw3583s4a4y6i0sdzhihhlbab5rkyfh1hr6s7";
+    sha256 = "07x5d2ryf547xrj4wp8w90kz2d93sxjhkfjb0vdscmxgmzs74p3a";
   };
 
 in
@@ -25,7 +25,7 @@ stdenv.mkDerivation rec {
 
   configureFlags = [
     "--with-http_ssl_module"
-    "--with-http_spdy_module"
+    "--with-http_v2_module"
     "--with-http_realip_module"
     "--with-http_addition_module"
     "--with-http_xslt_module"

@@ -1,36 +1,36 @@
-{ stdenv, pythonPackages, fetchurl, dialog }:
+{ stdenv, pythonPackages, fetchFromGitHub, dialog }:
 
-let
-  src = fetchurl {
-    url = "https://github.com/letsencrypt/letsencrypt/archive/v${version}.tar.gz";
-    sha256 = "00p94pmli4lr5l3vqi11374p9jxiqir1ygx89zgfm4db47srx41z";
-  };
-  version = "0.0.0.dev20151123";
-  acme = pythonPackages.buildPythonPackage rec {
-    name = "acme-${version}";
-    inherit src version;
-
-    propagatedBuildInputs = with pythonPackages; [
-      cryptography pyasn1 pyopenssl pyRFC3339 pytz requests2 six werkzeug mock
-      ndg-httpsclient
-    ];
-
-    buildInputs = with pythonPackages; [ nose ];
-
-    sourceRoot = "letsencrypt-${version}/acme";
-  };
-in pythonPackages.buildPythonPackage rec {
+pythonPackages.buildPythonApplication rec {
   name = "letsencrypt-${version}";
-  inherit src version;
+  version = "0.4.0";
+
+  src = fetchFromGitHub {
+    owner = "letsencrypt";
+    repo = "letsencrypt";
+    rev = "v${version}";
+    sha256 = "0r2wis48w5nailzp2d5brkh2f40al6sbz816xx0akh3ll0rl1hbv";
+  };
 
   propagatedBuildInputs = with pythonPackages; [
-    zope_interface zope_component six requests2 pytz pyopenssl psutil mock acme
-    cryptography configobj pyRFC3339 python2-pythondialog parsedatetime ConfigArgParse
+    ConfigArgParse
+    acme
+    configobj
+    cryptography
+    parsedatetime
+    psutil
+    pyRFC3339
+    pyopenssl
+    python2-pythondialog
+    pytz
+    six
+    zope_component
+    zope_interface
   ];
   buildInputs = with pythonPackages; [ nose dialog ];
 
   patchPhase = ''
     substituteInPlace letsencrypt/notify.py --replace "/usr/sbin/sendmail" "/var/setuid-wrappers/sendmail"
+    substituteInPlace letsencrypt/le_util.py --replace "sw_vers" "/usr/bin/sw_vers"
   '';
 
   postInstall = ''

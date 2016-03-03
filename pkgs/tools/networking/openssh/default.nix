@@ -1,7 +1,8 @@
-{ stdenv, fetchurl, zlib, openssl, perl, libedit, pkgconfig, pam
+{ stdenv, fetchurl, fetchpatch, zlib, openssl, perl, libedit, pkgconfig, pam
 , etcDir ? null
 , hpnSupport ? false
 , withKerberos ? false
+, withGssapiPatches ? withKerberos
 , kerberos
 }:
 
@@ -14,14 +15,19 @@ let
     sha256 = "682b4a6880d224ee0b7447241b684330b731018585f1ba519f46660c10d63950";
   };
 
+  gssapiSrc = fetchpatch {
+    url = "http://anonscm.debian.org/cgit/pkg-ssh/openssh.git/plain/debian/patches/gssapi.patch?h=debian/7.1p2-2";
+    sha256 = "05nsch879nlpyyiwm240wlq9rasy71j9d03j1rfi8kp865zhjfbm";
+  };
+
 in
 with stdenv.lib;
 stdenv.mkDerivation rec {
-  name = "openssh-6.9p1";
+  name = "openssh-7.2p1";
 
   src = fetchurl {
     url = "mirror://openbsd/OpenSSH/portable/${name}.tar.gz";
-    sha256 = "1zkci5nbpb4frmzj2vr3kv9j47x2h72kvybcpr0d8mzk73sls1vf";
+    sha256 = "1hsa1f3641pdj57a55gmnvcya3wwww2fc2cvb77y95rm5xxw6g4p";
   };
 
   prePatch = optionalString hpnSupport
@@ -30,7 +36,9 @@ stdenv.mkDerivation rec {
       export NIX_LDFLAGS="$NIX_LDFLAGS -lgcc_s"
     '';
 
-  patches = [ ./locale_archive.patch ./openssh-6.9p1-security-7.0.patch];
+  patches =
+    [ ./locale_archive.patch ]
+    ++ optional withGssapiPatches gssapiSrc;
 
   buildInputs = [ zlib openssl libedit pkgconfig pam ]
     ++ optional withKerberos [ kerberos ];
@@ -39,6 +47,7 @@ stdenv.mkDerivation rec {
   # properly when cross building.
   configureFlags = [
     "--localstatedir=/var"
+    "--with-pid-dir=/run"
     "--with-mantype=man"
     "--with-libedit=yes"
     "--disable-strip"
@@ -61,6 +70,7 @@ stdenv.mkDerivation rec {
     cp contrib/ssh-copy-id.1 $out/share/man/man1/
   '';
 
+  installTargets = [ "install-nokeys" ];
   installFlags = [
     "sysconfdir=\${out}/etc/ssh"
   ];

@@ -1,6 +1,6 @@
-{ stdenv, fetchurl, buildPythonPackage, pygtk, pil, python27Packages }:
+{ stdenv, fetchurl, buildPythonApplication, python27Packages }:
 
-buildPythonPackage rec {
+buildPythonApplication rec {
     namePrefix = "";
     name = "mcomix-1.01";
 
@@ -9,7 +9,7 @@ buildPythonPackage rec {
       sha256 = "0k3pqbvk08kb1nr0qldaj9bc7ca6rvcycgfi2n7gqmsirq5kscys";
     };
 
-    pythonPath = [ pygtk pil python27Packages.sqlite3 ];
+    propagatedBuildInputs = with python27Packages; [ pygtk pillow sqlite3 ];
 
     meta = {
       description = "Image viewer designed to handle comic books";

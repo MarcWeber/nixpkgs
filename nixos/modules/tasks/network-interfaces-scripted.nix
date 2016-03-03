@@ -83,13 +83,13 @@ in
                   # FIXME: get rid of "|| true" (necessary to make it idempotent).
                   ip route add default via "${cfg.defaultGateway}" ${
                     optionalString (cfg.defaultGatewayWindowSize != null)
-                      "window ${cfg.defaultGatewayWindowSize}"} || true
+                      "window ${toString cfg.defaultGatewayWindowSize}"} || true
                 ''}
                 ${optionalString (cfg.defaultGateway6 != null && cfg.defaultGateway6 != "") ''
                   # FIXME: get rid of "|| true" (necessary to make it idempotent).
                   ip -6 route add ::/0 via "${cfg.defaultGateway6}" ${
                     optionalString (cfg.defaultGatewayWindowSize != null)
-                      "window ${cfg.defaultGatewayWindowSize}"} || true
+                      "window ${toString cfg.defaultGatewayWindowSize}"} || true
                 ''}
               '';
           };
@@ -144,15 +144,12 @@ in
                   fi
                   ${config.systemd.package}/bin/systemctl start ip-up.target
                 '';
-            preStop =
-              ''
-                echo "releasing configured ip's..."
-              '' + flip concatMapStrings (ips) (ip:
+            preStop = flip concatMapStrings (ips) (ip:
                 let
                   address = "${ip.address}/${toString ip.prefixLength}";
                 in
                 ''
-                  echo -n "Deleting ${address}..."
+                  echo -n "deleting ${address}..."
                   ip addr del "${address}" dev "${i.name}" >/dev/null 2>&1 || echo -n " Failed"
                   echo ""
                 '');

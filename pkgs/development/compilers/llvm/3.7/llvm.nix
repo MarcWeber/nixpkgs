@@ -14,10 +14,11 @@
 , compiler-rt_src
 , libcxxabi
 , debugVersion ? false
+, enableSharedLibraries ? !stdenv.isDarwin
 }:
 
 let
-  src = fetch "llvm" "0lrirklh4nrcb078qc2f6vbmmc34kxqgsy9s18a1xbfdkmgqjidb";
+  src = fetch "llvm" "1masakdp9g2dan1yrazg7md5am2vacbkb3nahb3dchpc1knr8xxy";
 in stdenv.mkDerivation rec {
   name = "llvm-${version}";
 
@@ -46,10 +47,11 @@ in stdenv.mkDerivation rec {
     "-DLLVM_BUILD_TESTS=ON"
     "-DLLVM_ENABLE_FFI=ON"
     "-DLLVM_ENABLE_RTTI=ON"
-  ] ++ stdenv.lib.optionals (!isDarwin) [
+  ] ++ stdenv.lib.optional enableSharedLibraries
     "-DBUILD_SHARED_LIBS=ON"
+    ++ stdenv.lib.optional (!isDarwin)
     "-DLLVM_BINUTILS_INCDIR=${binutils}/include"
-  ] ++ stdenv.lib.optionals ( isDarwin) [
+    ++ stdenv.lib.optionals ( isDarwin) [
     "-DLLVM_ENABLE_LIBCXX=ON"
     "-DCAN_TARGET_i386=false"
   ];

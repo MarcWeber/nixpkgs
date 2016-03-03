@@ -1,11 +1,11 @@
-{ stdenv, fetchurl, buildPythonPackage
+{ stdenv, fetchurl, buildPythonApplication
 , python, cython, pkgconfig
 , xorg, gtk3, glib, pango, cairo, gdk_pixbuf, atk, pygobject3, pycairo, gobjectIntrospection
 , makeWrapper, xkbcomp, xorgserver, getopt, xauth, utillinux, which, fontsConf, xkeyboard_config
 , ffmpeg, x264, libvpx, libwebp
 , libfakeXinerama }:
 
-buildPythonPackage rec {
+buildPythonApplication rec {
   name = "xpra-0.14.19";
   namePrefix = "";
 
@@ -32,10 +32,6 @@ buildPythonPackage rec {
   propagatedBuildInputs = [
     pygobject3 pycairo cython
   ];
-
-  postPatch = ''
-    sed -i 's|DEFAULT_XVFB_COMMAND = "Xvfb|DEFAULT_XVFB_COMMAND = "Xvfb -xkbdir ${xkeyboard_config}/etc/X11/xkb|' xpra/platform/features.py
-  '';
 
   preBuild = ''
     export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $(pkg-config --cflags gtk+-3.0) $(pkg-config --cflags xtst)"

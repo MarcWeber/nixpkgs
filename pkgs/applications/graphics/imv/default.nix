@@ -1,26 +1,23 @@
-{ stdenv, fetchFromGitHub,
-  SDL2, freeimage
-}:
+{ stdenv, fetchgit, SDL2, SDL2_ttf, freeimage }:
 
 stdenv.mkDerivation rec {
   name = "imv-${version}";
-  version = "1.0.0";
+  version = "2.0.0";
 
-  src = fetchFromGitHub {
-    owner = "eXeC64";
-    repo  = "imv";
-    rev = "f2ce793d628e88825eff3364b293104cb0bdb582";
-    sha256 = "1xqaqbfjgksbjmy1yy7q4sv5bak7w8va60xa426jzscy9cib2sgh";
+  src = fetchgit {
+    url = "https://github.com/eXeC64/imv.git";
+    rev = "bc90a0adcc5b22d2bf0158333eb6dfb34c402d48";
+    sha256 = "1bzx57d9mcxw9s72pdbdbwq9pns946jl6p2g881z43w68gimlpw7";
   };
 
-  buildInputs = [ SDL2 freeimage ];
+  buildInputs = [ SDL2 SDL2_ttf freeimage ];
 
   configurePhase = "substituteInPlace Makefile --replace /usr $out";
 
   meta = with stdenv.lib; {
     description = "A command line image viewer for tiling window managers";
     homepage    = https://github.com/eXeC64/imv; 
-    license     = licenses.mit;
+    license     = licenses.gpl2;
     maintainers = with maintainers; [ rnhmjoj ];
     platforms   = platforms.unix;
   };

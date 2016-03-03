@@ -21,14 +21,6 @@ buildPhase() {
         unset src # used by the nv makefile
         make SYSSRC=$sysSrc SYSOUT=$sysOut module
 
-        # nvidia no longer provides uvm kernel module for 32-bit archs
-        # http://www.nvidia.com/download/driverResults.aspx/79722/en-us
-        if [[ "$system" = "x86_64-linux" ]]; then
-            cd uvm
-            make SYSSRC=$sysSrc SYSOUT=$sysOut module
-            cd ..
-        fi
-
         cd ..
     fi
 }
@@ -73,8 +65,12 @@ installPhase() {
           ln -srnf "$libname" "$libname_short.2"
       fi
 
-      ln -srnf "$libname" "$libname_short"
-      ln -srnf "$libname" "$libname_short.1"
+      if [[ "$libname" != "$libname_short" ]]; then
+        ln -srnf "$libname" "$libname_short"
+      fi
+      if [[ "$libname" != "$libname_short.1" ]]; then
+        ln -srnf "$libname" "$libname_short.1"
+      fi
     done
 
     #patchelf --set-rpath $out/lib:$glPath $out/lib/libGL.so.*.*
@@ -123,8 +119,12 @@ installPhase() {
     # For simplicity and dependency reduction, don't support the gtk3 interface.
     rm $out/lib/libnvidia-gtk3.*
 
-    # we distribute these separately in `libvdpau`
+    # We distribute these separately in `libvdpau`
     rm "$out"/lib/libvdpau{.*,_trace.*}
+
+    # Move VDPAU libraries to their place
+    mkdir "$out"/lib/vdpau
+    mv "$out"/lib/libvdpau* "$out"/lib/vdpau
 }
 
 

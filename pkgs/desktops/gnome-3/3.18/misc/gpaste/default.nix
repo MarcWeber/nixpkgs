@@ -7,7 +7,7 @@ stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "https://github.com/Keruspe/GPaste/archive/v${version}.tar.gz";
-    sha256 = "1czc707y2ksb8lgq1la0qkj3wpi202hjfiyshsndhw0pqn3qjj4a";
+    sha256 = "1fyrdgsn4m3fh8450qcic243sl7llfs44cdbspwpn5zb4h2hk8rj";
   };
 
   buildInputs = [ intltool autoreconfHook pkgconfig vala glib

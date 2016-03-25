@@ -1,11 +1,11 @@
 { stdenv, fetchFromGitHub }:
 
-let version = "128"; in
-stdenv.mkDerivation {
+stdenv.mkDerivation rec {
   name = "mcelog-${version}";
+  version = "134";
 
   src = fetchFromGitHub {
-    sha256 = "0hm1dmqyh36dig158iyb9fckmvqnd5sgpy1qzj59nsg40pb1vbjs";
+    sha256 = "1kah9fcbc8m7sncylcd2n4xcbm5dwgyzplm3d7zwgkdg6xgxjlc7";
     rev = "v${version}";
     repo = "mcelog";
     owner = "andikleen";
@@ -25,7 +25,6 @@ stdenv.mkDerivation {
   installFlags = [ "DESTDIR=$(out)" "prefix=" "DOCDIR=/share/doc" ];
 
   meta = with stdenv.lib; {
-    inherit version;
     description = "Log x86 machine checks: memory, IO, and CPU hardware errors";
     longDescription = ''
       The mcelog daemon accounts memory and some other errors in various ways

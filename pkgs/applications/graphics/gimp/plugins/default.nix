@@ -397,6 +397,14 @@ rec {
     };
   };
 
+  roys-max-local-contrast = scriptDerivation {
+    name = "roys-max-local-contrast";
+    src = fetchurl {
+      url = "http://registry.gimp.org/files/roys-max-local-contrast_0.scm";
+      sha256 = "00y1ag75sbhrhcd35mmbamh1hngdiqn2x0rrrx0mw2z0h7bknbm5";
+    };
+  };
+
   /* space in name trouble ?
 
   rainbowPlasma = scriptDerivation {

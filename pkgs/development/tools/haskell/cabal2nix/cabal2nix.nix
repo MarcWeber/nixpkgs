@@ -6,12 +6,12 @@
 
 mkDerivation rec {
   pname = "cabal2nix";
-  version = "20150922";
+  version = "20160308";
   src = fetchFromGitHub {
     owner = "nixos";
     repo = "cabal2nix";
     rev = "v${version}";
-    sha256 = "17s800yd8mm48yjjqiayvycaf8z0y1giwp8jp271875wdrx3p75a";
+    sha256 = "02lj3x0rgpxvaimwbbjjgwm4ka0wkk4x5h35jjygz6bkr5lv3m52";
   };
   postUnpack = "sourceRoot+=/${pname}";
   isLibrary = false;

@@ -3,8 +3,10 @@ title: User's Guide for Haskell in Nixpkgs
 author: Peter Simons
 date: 2015-06-01
 ---
+# User's Guide to the Haskell Infrastructure
 
-# How to install Haskell packages
+
+## How to install Haskell packages
 
 Nixpkgs distributes build instructions for all Haskell packages registered on
 [Hackage](http://hackage.haskell.org/), but strangely enough normal Nix package
@@ -111,13 +113,14 @@ version of GHC listed above, there exists a package set based on that compiler.
 Also, the attributes `haskell.compiler.ghcXYC` and
 `haskell.packages.ghcXYC.ghc` are synonymous for the sake of convenience.
 
-# How to create a development environment
+## How to create a development environment
 
-## How to install a compiler
+### How to install a compiler
 
-A simple development environment consists of a Haskell compiler and the tool
-`cabal-install`, and we saw in section [How to install Haskell packages] how
-you can install those programs into your user profile:
+A simple development environment consists of a Haskell compiler and one or both
+of the tools `cabal-install` and `stack`. We saw in section
+[How to install Haskell packages] how you can install those programs into your
+user profile:
 
     $ nix-env -f "<nixpkgs>" -iA haskellPackages.ghc haskellPackages.cabal-install
 
@@ -146,10 +149,16 @@ version; just enter the Nix shell environment with the command
 
     $ nix-shell -p haskell.compiler.ghc784
 
-to bring GHC 7.8.4 into `$PATH`. Re-running `cabal configure` switches your
-build to use that compiler instead. If you're working on a project that doesn't
-depend on any additional system libraries outside of GHC, then it's sufficient
-even to run the `cabal configure` command inside of the shell:
+to bring GHC 7.8.4 into `$PATH`. Alternatively, you can use Stack instead of
+`nix-shell` directly to select compiler versions and other build tools
+per-project. It uses `nix-shell` under the hood when Nix support is turned on.
+See [How to build a Haskell project using Stack].
+
+If you're using `cabal-install`, re-running `cabal configure` inside the spawned
+shell switches your build to use that compiler instead. If you're working on
+a project that doesn't depend on any additional system libraries outside of GHC,
+then it's even sufficient to just run the `cabal configure` command inside of
+the shell:
 
     $ nix-shell -p haskell.compiler.ghc784 --command "cabal configure"
 
@@ -162,7 +171,7 @@ anymore once `nix-shell` has terminated. If you find that your Haskell builds
 no longer work after garbage collection, then you'll have to re-run `cabal
 configure` inside of a new `nix-shell` environment.
 
-## How to install a compiler with libraries
+### How to install a compiler with libraries
 
 GHC expects to find all installed libraries inside of its own `lib` directory.
 This approach works fine on traditional Unix systems, but it doesn't work for
@@ -232,7 +241,7 @@ library promises to give its users access to GHC's installation paths. Only,
 the library can't possible know that path when it's compiled, because the path
 GHC considers its own is determined only much later, when the user configures
 it through `ghcWithPackages`. So we [patched
-ghc-paths](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/haskell-modules/ghc-paths-nix.patch)
+ghc-paths](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/haskell-modules/patches/ghc-paths-nix.patch)
 to return the paths found in those environment variables at run-time rather
 than trying to guess them at compile-time.
 
@@ -257,7 +266,7 @@ environment in your profile:
       export NIX_GHC_LIBDIR="$HOME/.nix-profile/lib/ghc-$($NIX_GHC --numeric-version)"
     fi
 
-## How to install a compiler with libraries, hoogle and documentation indexes
+### How to install a compiler with libraries, hoogle and documentation indexes
 
 If you plan to use your environment for interactive programming, not just
 compiling random Haskell code, you might want to replace `ghcWithPackages` in
@@ -318,8 +327,60 @@ security reasons, which might be quite an inconvenience. See [this
 page](http://kb.mozillazine.org/Links_to_local_pages_do_not_work) for
 workarounds.
 
+### How to build a Haskell project using Stack
 
-## How to create ad hoc environments for `nix-shell`
+[Stack][http://haskellstack.org] is a popular build tool for Haskell projects.
+It has first-class support for Nix. Stack can optionally use Nix to
+automatically select the right version of GHC and other build tools to build,
+test and execute apps in an existing project downloaded from somewhere on the
+Internet. Pass the `--nix` flag to any `stack` command to do so, e.g.
+
+    $ git clone --recursive http://github.com/yesodweb/wai
+    $ cd wai
+    $ stack --nix build
+
+If you want `stack` to use Nix by default, you can add a `nix` section to the
+`stack.yaml` file, as explained in the [Stack documentation][stack-nix-doc]. For
+example:
+
+    nix:
+      enable: true
+      packages: [pkgconfig zeromq zlib]
+
+The example configuration snippet above tells Stack to create an ad hoc
+environment for `nix-shell` as in the below section, in which the `pkgconfig`,
+`zeromq` and `zlib` packages from Nixpkgs are available. All `stack` commands
+will implicitly be executed inside this ad hoc environment.
+
+Some projects have more sophisticated needs. For examples, some ad hoc
+environments might need to expose Nixpkgs packages compiled in a certain way, or
+with extra environment variables. In these cases, you'll need a `shell` field
+instead of `packages`:
+
+    nix:
+      enable: true
+      shell-file: shell.nix
+
+For more on how to write a `shell.nix` file see the below section. You'll need
+to express a derivation. Note that Nixpkgs ships with a convenience wrapper
+function around `mkDerivation` called `haskell.lib.buildStackProject` to help you
+create this derivation in exactly the way Stack expects. All of the same inputs
+as `mkDerivation` can be provided. For example, to build a Stack project that
+including packages that link against a version of the R library compiled with
+special options turned on:
+
+    with (import <nixpkgs> { });
+
+    let R = pkgs.R.override { enableStrictBarrier = true; };
+    in
+	haskell.lib.buildStackProject {
+      name = "HaskellR";
+	  buildInputs = [ R zeromq zlib ];
+    }
+
+[stack-nix-doc]: http://docs.haskellstack.org/en/stable/nix_integration.html
+
+### How to create ad hoc environments for `nix-shell`
 
 The easiest way to create an ad hoc development environment is to run
 `nix-shell` with the appropriate GHC environment given on the command-line:
@@ -369,14 +430,14 @@ development commands. Note that you need `cabal-install` installed in your
 `$PATH` already to use it here --- the `nix-shell` environment does not provide
 it.
 
-# How to create Nix builds for your own private Haskell packages
+## How to create Nix builds for your own private Haskell packages
 
 If your own Haskell packages have build instructions for Cabal, then you can
 convert those automatically into build instructions for Nix using the
 `cabal2nix` utility, which you can install into your profile by running
 `nix-env -i cabal2nix`.
 
-## How to build a stand-alone project
+### How to build a stand-alone project
 
 For example, let's assume that you're working on a private project called
 `foo`. To generate a Nix build expression for it, change into the project's
@@ -433,7 +494,7 @@ You can even use that generated file to run `nix-build`, too:
 
     $ nix-build shell.nix
 
-## How to build projects that depend on each other
+### How to build projects that depend on each other
 
 If you have multiple private Haskell packages that depend on each other, then
 you'll have to register those packages in the Nixpkgs set to make them visible
@@ -468,9 +529,9 @@ or enter an interactive shell environment suitable for building them:
 
     $ nix-shell "<nixpkgs>" -A haskellPackages.bar.env
 
-# Miscellaneous Topics
+## Miscellaneous Topics
 
-## How to build with profiling enabled
+### How to build with profiling enabled
 
 Every Haskell package set takes a function called `overrides` that you can use
 to manipulate the package as much as you please. One useful application of this
@@ -494,7 +555,7 @@ following snippet in your `~/.nixpkgs/config.nix` file:
 Then, replace instances of `haskellPackages` in the `cabal2nix`-generated
 `default.nix` or `shell.nix` files with `profiledHaskellPackages`.
 
-## How to override package versions in a compiler-specific package set
+### How to override package versions in a compiler-specific package set
 
 Nixpkgs provides the latest version of
 [`ghc-events`](http://hackage.haskell.org/package/ghc-events), which is 0.4.4.0
@@ -560,7 +621,7 @@ prefer one built with GHC 7.8.x in the first place. However, for users who
 cannot use GHC 7.10.x at all for some reason, the approach of downgrading to an
 older version might be useful.
 
-## How to recover from GHC's infamous non-deterministic library ID bug
+### How to recover from GHC's infamous non-deterministic library ID bug
 
 GHC and distributed build farms don't get along well:
 
@@ -586,7 +647,7 @@ command, i.e. by running:
     rm /nix/var/nix/manifests/*
     rm /nix/var/nix/channel-cache/*
 
-## Builds on Darwin fail with `math.h` not found
+### Builds on Darwin fail with `math.h` not found
 
 Users of GHC on Darwin have occasionally reported that builds fail, because the
 compiler complains about a missing include file:
@@ -603,7 +664,7 @@ can configure the environment variables
 
 in their `~/.bashrc` file to avoid the compiler error.
 
-## Using Stack together with Nix
+### Builds using Stack complain about missing system libraries
 
     --  While building package zlib-0.5.4.2 using:
       runhaskell -package=Cabal-1.22.4.0 -clear-package-db [... lots of flags ...]
@@ -631,13 +692,16 @@ means specific to Stack: you'll have that problem with any other
 Haskell package that's built inside of nix-shell but run outside of that
 environment.
 
-I suppose we could try to remedy the issue by wrapping `stack` or
-`cabal` with a script that tries to find those kind of implicit search
-paths and makes them explicit on the "cabal configure" command line. I
-don't think anyone is working on that subject yet, though, because the
-problem doesn't seem so bad in practice.
+You can remedy this issue in several ways. The easiest is to add a `nix` section
+to the `stack.yaml` like the following:
 
-You can remedy that issue in several ways. First of all, run
+    nix:
+      enable: true
+	  packages: [ zlib ]
+
+Stack's Nix support knows to add `${zlib}/lib` and `${zlib}/include` as an
+`--extra-lib-dirs` and `extra-include-dirs`, respectively. Alternatively, you
+can achieve the same effect by hand. First of all, run
 
     $ nix-build --no-out-link "<nixpkgs>" -A zlib
     /nix/store/alsvwzkiw4b7ip38l4nlfjijdvg3fvzn-zlib-1.2.8
@@ -661,12 +725,13 @@ to find out the store path of the system's zlib library. Now, you can
    Typically, you'll need --extra-include-dirs as well. It's possible
    to add those flag to the project's "stack.yaml" or your user's
    global "~/.stack/global/stack.yaml" file so that you don't have to
-   specify them manually every time.
+   specify them manually every time. But again, you're likely better off using
+   Stack's Nix support instead.
 
    The same thing applies to `cabal configure`, of course, if you're
    building with `cabal-install` instead of Stack.
 
-## Creating statically linked binaries
+### Creating statically linked binaries
 
 There are two levels of static linking. The first option is to configure the
 build with the Cabal flag `--disable-executable-dynamic`. In Nix expressions,
@@ -688,7 +753,7 @@ as shared libraries only, i.e. there is just no static library available that
 Cabal could link!
 
 
-# Other resources
+## Other resources
 
 - The Youtube video [Nix Loves Haskell](https://www.youtube.com/watch?v=BsBhi_r-OeE)
   provides an introduction into Haskell NG aimed at beginners. The slides are

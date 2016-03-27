@@ -1,195 +1,51 @@
 # this package was called gimp-print in the past
-# nixos usage: 
-# 1) cups.bindirCmds : ln -s ${pkgs.gutenprint}/lib/cups/filter/* $out/lib/cups/filter/
-#    or add to cups.driver 
-# 2) generate the PPD for you printer 
-# 3) add it by uploading the PPD in the cups admin interface (worked for me)
-{ fetchurl, stdenv, pkgconfig, cups
-, libtiff, libpng, openssl, gimp
-, makeWrapper
-
-# for cvs version
-, automake, autoconf
-, libtool, gettext, imagemagick
-, flex, bison, docbook2x
-, docbook_sgml_utils
-, openjade
-, docbook_xml_dtd_42
-, docbook_dsssl
-
-
-, gimp2Support ? true
-, cupsSupport ? true
-
-# for ppds
-, runCommand
-
-, version ? "5.2.10"
+{ stdenv, lib, fetchurl, pkgconfig
+, ijs, makeWrapper
+, gimp2Support ? false, gimp
+, cupsSupport ? true, cups, libusb, perl
 }:
-let
 
-   inherit (stdenv) lib;
+stdenv.mkDerivation rec {
+  name = "gutenprint-5.2.11";
 
-   # tell docbook2html where to find catalogs (TODO: there should be a better
-   # solution generating catalog files or by env var or such)
-   db2X = 
-   let catalogs = "${docbook_xml_dtd_42}/xml/dtd/docbook/docbook.cat:${openjade}/xml/dtd/dsssl/catalog:${docbook_dsssl}/catalog"; in
-   runCommand "db2X" {} ''
-    ensureDir $out/bin
-    for p in ${docbook_sgml_utils}/bin/docbook2*; do
-      np=$out/bin/$(basename $p)
-    cat >> $np << EOF
-      #!/bin/sh
-      $p -c ${catalogs} "\$@"
-    EOF
-      chmod +x $np
-    done
+  src = fetchurl {
+    url = "mirror://sourceforge/gimp-print/${name}.tar.bz2";
+    sha256 = "1yadw96rgp1z0jv1wxrz6cds36nb693w3xlv596xw9r5w394r8y1";
+  };
 
-    cp ${./db2html} $out/bin/db2html
-    chmod +x $out/bin/db2html
-    sed -i 's@CATALOGS@${catalogs}@' $out/bin/db2html
-   '';
+  nativeBuildInputs = [ makeWrapper pkgconfig ];
+  buildInputs =
+    [ ijs ]
+    ++ lib.optionals gimp2Support [ gimp.gtk gimp ]
+    ++ lib.optionals cupsSupport [ cups libusb perl ];
 
-in
+  configureFlags = lib.optionals cupsSupport [
+    "--disable-static-genppd" # should be harmless on NixOS
+  ];
 
-let gutenprint = (stdenv.mkDerivation (lib.mergeAttrsByVersion "gutenprint" version {
-    # TODO: check whether this can be removed?
-    # "5.2.7" = {
-    #   name = "gutenprint-${version}";
-
-    #   NIX_CFLAGS_COMPILE="-include stdio.h";
-
-    #   src = fetchurl {
-    #     url = "mirror://sourceforge/gimp-print/gutenprint-${version}.tar.bz2";
-    #     sha256 = "114c899227e3ebb0753c1db503e6a5c1afaa4b1f1235fdfe02fb6bbd533beed1";
-    #   };
-    # };
-
-    "5.2.10" = {
-      name = "gutenprint-${version}";
-
-      NIX_CFLAGS_COMPILE="-include stdio.h";
-
-      src = fetchurl {
-        url = "mirror://sourceforge/gimp-print/gutenprint-${version}.tar.bz2";
-        sha256 = "0n8f6vpadnagrp6yib3mca1c3lgwl4vmma16s44riyrd84mka7s3";
-      };
-    };
-
-    cvs = {
-      # REGION AUTO UPDATE: { name="gutenprint"; type = "cvs"; cvsRoot = ":pserver:anonymous@gimp-print.cvs.sourceforge.net:/cvsroot/gimp-print"; module="print"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gutenprint-cvs-F_11-34-54.tar.bz2"; sha256 = "71c90a9eeabb1203287516fa1efe19964492f54e0d46fcf069579c50ebed648a"; });
-      name = "gutenprint-cvs-F_11-34-54";
-      # END
-      buildInputs = [ automake autoconf libtool gettext imagemagick flex bison docbook2x docbook_sgml_utils db2X openjade docbook_xml_dtd_42];
-
-      preConfigure = ''
-      ./autogen.sh
-      # openjade does not honor SGML_CATALOG_FILES, thus replace PUBLIC identifier with absolute path
-      export SGML_CATALOG_FILES=${docbook_xml_dtd_42}/xml/dtd/docbook/docbook.cat
-      sed -i \
-        -e 's@<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"@<!DOCTYPE book SYSTEM "${docbook_xml_dtd_42}/xml/dtd/docbook/docbookx.dtd" [@' \
-        -e 's@"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" \[@@' \
-        doc/developer/gutenprint.xml
-      '';
-    };
-  } {
+  # FIXME: hacky because we modify generated configure, but I haven't found a better way.
+  # makeFlags doesn't change this everywhere (e.g. in cups-genppdupdate).
+  preConfigure = lib.optionalString cupsSupport ''
+    sed -i \
+      -e "s,cups_conf_datadir=.*,cups_conf_datadir=\"$out/share/cups\",g" \
+      -e "s,cups_conf_serverbin=.*,cups_conf_serverbin=\"$out/lib/cups\",g" \
+      -e "s,cups_conf_serverroot=.*,cups_conf_serverroot=\"$out/etc/cups\",g" \
+      configure
+  '' + lib.optionalString gimp2Support ''
+    sed -i \
+      -e "s,gimp2_plug_indir=.*,gimp2_plug_indir=\"$out/lib/gimp/${gimp.majorVersion}\",g" \
+      configure
+  '';
 
   enableParallelBuilding = true;
 
-  # gimp, gui is still not working (TODO)
-  buildInputs = [ openssl pkgconfig makeWrapper ]
-    ++ lib.optionals cupsSupport [cups libtiff libpng ]
-    ++ lib.optionals gimp2Support [gimp gimp.gtk]
-  ;
+  # Testing is very, very long.
+  # doCheck = true;
 
-
-  configureFlags = ["--enable-static-genppd" ]
-    ++ (if gimp2Support then ["--with-gimp2"] else ["--without-gimp2"])
-  ;
-
-  installArgs = 
-    lib.optionals cupsSupport  [ "cups_conf_datadir=$out cups_conf_serverbin=$out cups_conf_serverroot=$out"]
-    ++ lib.optionals gimp2Support [ "gimp2_plug_indir=$out/${gimp.name}-plugins" ]
-  ;
-
-  preConfigure = ''
-    export NIX_LDFLAGS="$NIX_LDFLAGS -rpath $out/lib"
-  '';
-
-
-    # ensureDir $out/usr-cups
-    # # configureFlags="--with-cups=$out/usr-cups $configureFlags"
-  
-  /*
-     is this recommended? without it this warning is printed:
-
-            ***WARNING: Use of --disable-static-genppd or --disable-static
-                        when building CUPS is very dangerous.  The build may
-                        fail when building the PPD files, or may *SILENTLY*
-                        build incorrect PPD files or cause other problems.
-                        Please review the README and release notes carefully!
-  */
-
-  dontPatchELF=1;
-
-  installPhase = ''
-    eval "make install $installArgs"
-    # without this the xml data is not found:
-    cd $out
-    mkdir -p share/cups/model/gutenprint/
-    ln -s ../../../../share/gutenprint/5.2 share/cups/model/gutenprint/
-
-    # move filter to standard location so that it can be used as driver item for nixos
-    mkdir -p $out/lib/cups/filter
-    for i in filter/*; do
-      ln -s ../../../$i $out/lib/cups/$i
-    done
-
-    # usptream changes: TODO, merge
-    mkdir -p $out/lib/cups
-    # ln -s $out/filter $out/lib/cups/
-    wrapProgram $out/filter/rastertogutenprint.5.2 --prefix LD_LIBRARY_PATH : $out/lib
-    wrapProgram $out/sbin/cups-genppd.5.2 --prefix LD_LIBRARY_PATH : $out/lib
-  '';
-
-  meta = { 
+  meta = with stdenv.lib; {
     description = "Ghostscript and cups printer drivers";
     homepage = http://sourceforge.net/projects/gimp-print/;
-    license = "GPL";
+    license = licenses.gpl2;
+    platforms = platforms.linux;
   };
-
-})
-);
-
-in gutenprint // {
-
-  # ppds:  helper generating .ppd files. Looks like gutenprint could also do this
-  #
-  # usage like this:
-  # printing = {
-  #   enable = true;
-  #
-  #   bindirCmds = ''
-  #     echo START
-  #     PATH=$PATH:${pkgs.coreutils}/bin:${pkgs.gnused}/bin
-  #     # find canon (cupsBjnp)
-  #     ln -s ${pkgs.gutenprintCVS}/lib/cups/backend/* $out/lib/cups/backend/
-  #     ln -s ${pkgs.gutenprintCVS}/lib/cups/filter/* $out/lib/cups/filter/
-  #     mkdir -p $out/lib/cups/model
-  #
-  #     cp -a ${pkgs.gutenprintCVS.ppds { names = ["bjc-MULTIPASS-MP800" /* "stp-bjc-MULTIPASS-MP980"*/]; }}/ppds/*.ppd.gz $out/lib/cups/model/
-  #     for x in $out/lib/cups/model/*.ppd.gz; do gunzip $x; done
-  #
-  #     cat ${pkgs.gutenprintCVS.ppds { names = /*["stp-bjc-MULTIPASS-MP980.5.2"]*/ null; }}/ppds/stp-bjc-MULTIPASS-MP980.5.2.ppd.gz | gunzip > $out/lib/cups/model/stp-bjc-MULTIPASS-MP980.4.2.ppd
-  #   '';
-  # }
-  ppds = { names ?  null }:
-
-    # see man. You can generate some ppd files only
-    runCommand  "${gutenprint.name}-ppds" {} ''
-      ensureDir $out/ppds
-      export LANG=en_EN
-      ${gutenprint}/sbin/cups-genppd.5.2 -p $out/ppds ${if names == null then "" else "-v ${stdenv.lib.concatStringsSep " " names}" }
-    '';
-  }
+}

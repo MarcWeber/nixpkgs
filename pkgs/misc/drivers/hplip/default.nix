@@ -1,6 +1,6 @@
 { stdenv, fetchurl, substituteAll
 , pkgconfig
-, cups, zlib, libjpeg, libusb1, pythonPackages, saneBackends, dbus, usbutils
+, cups, zlib, libjpeg, libusb1, pythonPackages, sane-backends, dbus, usbutils
 , net_snmp, polkit
 , qtSupport ? true, qt4, pyqt4
 , withPlugin ? false
@@ -8,9 +8,8 @@
 
 let
 
-  version = "3.15.11";
-
   name = "hplip-${version}";
+  version = "3.15.11";
 
   src = fetchurl {
     url = "mirror://sourceforge/hplip/${name}.tar.gz";
@@ -56,7 +55,7 @@ stdenv.mkDerivation {
     libusb1
     pythonPackages.python
     pythonPackages.wrapPython
-    saneBackends
+    sane-backends
     dbus
     net_snmp
   ] ++ stdenv.lib.optionals qtSupport [
@@ -179,7 +178,6 @@ stdenv.mkDerivation {
   '';
 
   meta = with stdenv.lib; {
-    inherit version;
     description = "Print, scan and fax HP drivers for Linux";
     homepage = http://hplipopensource.com/;
     license = if withPlugin

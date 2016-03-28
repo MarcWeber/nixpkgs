@@ -21,7 +21,7 @@ in
         description = ''
           Whether to enable the Syncthing, self-hosted open-source alternative
           to Dropbox and BittorrentSync. Initial interface will be
-          available on http://127.0.0.1:8080/.
+          available on http://127.0.0.1:8384/.
         '';
       };
 
@@ -33,12 +33,34 @@ in
         '';
       };
 
+      all_proxy = mkOption {
+        type = types.string;
+        default = "";
+        example = "socks5://address.com:1234";
+        description = ''
+          Overwrites all_proxy environment variable for the syncthing process to
+          the given value. This is normaly used to let relay client connect
+          through SOCKS5 proxy server.
+        '';
+      };
+
       dataDir = mkOption {
         default = "/var/lib/syncthing";
         description = ''
           Path where the settings and keys will exist.
         '';
       };
+
+      package = mkOption {
+        type = types.package;
+        default = pkgs.syncthing;
+        defaultText = "pkgs.syncthing";
+        example = literalExample "pkgs.syncthing";
+        description = ''
+          Syncthing package to use.
+        '';
+      };
+
 
     };
 
@@ -54,8 +76,13 @@ in
         description = "Syncthing service";
         after = [ "network.target" ];
         wantedBy = [ "multi-user.target" ];
-        environment.STNORESTART = "yes";  # do not self-restart
-        environment.STNOUPGRADE = "yes";
+        environment = {
+          STNORESTART = "yes";  # do not self-restart
+          STNOUPGRADE = "yes";
+        } //
+        (config.networking.proxy.envVars) //
+        (if cfg.all_proxy != "" then { all_proxy = cfg.all_proxy; } else {});
+
         serviceConfig = {
           User = "${cfg.user}";
           PermissionsStartOnly = true;
@@ -66,7 +93,7 @@ in
         };
       };
 
-    environment.systemPackages = [ pkgs.syncthing ];
+    environment.systemPackages = [ cfg.package ];
 
   };
 

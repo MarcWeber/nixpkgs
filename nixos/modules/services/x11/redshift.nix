@@ -76,6 +76,7 @@ in {
     package = mkOption {
       type = types.package;
       default = pkgs.redshift;
+      defaultText = "pkgs.redshift";
       description = ''
         redshift derivation to use.
       '';
@@ -98,13 +99,16 @@ in {
       requires = [ "display-manager.service" ];
       after = [ "display-manager.service" ];
       wantedBy = [ "graphical.target" ];
-      serviceConfig.ExecStart = ''
-        ${cfg.package}/bin/redshift \
-          -l ${cfg.latitude}:${cfg.longitude} \
-          -t ${toString cfg.temperature.day}:${toString cfg.temperature.night} \
-          -b ${toString cfg.brightness.day}:${toString cfg.brightness.night} \
-          ${lib.strings.concatStringsSep " " cfg.extraOptions}
-      '';
+      serviceConfig = {
+        ExecStart = ''
+          ${cfg.package}/bin/redshift \
+            -l ${cfg.latitude}:${cfg.longitude} \
+            -t ${toString cfg.temperature.day}:${toString cfg.temperature.night} \
+            -b ${toString cfg.brightness.day}:${toString cfg.brightness.night} \
+            ${lib.strings.concatStringsSep " " cfg.extraOptions}
+        '';
+	RestartSec = 3;
+      };
       environment = { DISPLAY = ":0"; };
       serviceConfig.Restart = "always";
     };

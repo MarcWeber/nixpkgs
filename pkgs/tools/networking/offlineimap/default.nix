@@ -1,13 +1,15 @@
-{ pkgs, fetchurl, buildPythonPackage, sqlite3 }:
+{ stdenv, fetchFromGitHub, buildPythonApplication, sqlite3 }:
 
-buildPythonPackage rec {
-  version = "6.5.7";
+buildPythonApplication rec {
+  version = "6.7.0";
   name = "offlineimap-${version}";
   namePrefix = "";
 
-  src = fetchurl {
-    url = "https://github.com/OfflineIMAP/offlineimap/archive/v${version}.tar.gz";
-    sha256 = "18whwc4f8nk8gi3mjw9153c9cvwd3i9i7njmpdbhcplrv33m5pmp";
+  src = fetchFromGitHub {
+    owner = "OfflineIMAP";
+    repo = "offlineimap";
+    rev = "v${version}";
+    sha256 = "127d7zy8h2h67bvrc4x98wcfskmkxislsv9qnvpgxlc56vnsrg54";
   };
 
   doCheck = false;
@@ -19,7 +21,7 @@ buildPythonPackage rec {
   meta = {
     description = "Synchronize emails between two repositories, so that you can read the same mailbox from multiple computers";
     homepage = "http://offlineimap.org";
-    license = pkgs.lib.licenses.gpl2Plus;
-    maintainers = [ pkgs.lib.maintainers.garbas ];
+    license = stdenv.lib.licenses.gpl2Plus;
+    maintainers = [ stdenv.lib.maintainers.garbas ];
   };
 }

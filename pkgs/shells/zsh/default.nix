@@ -1,12 +1,12 @@
-{ stdenv, fetchurl, ncurses, coreutils, pcre }:
+{ stdenv, fetchurl, ncurses, pcre }:
 
 let
 
-  version = "5.1.1";
+  version = "5.2";
 
   documentation = fetchurl {
     url = "mirror://sourceforge/zsh/zsh-${version}-doc.tar.gz";
-    sha256 = "0p99dr7kck0a6im1w9qiiz2ai78mgy53gbbn87bam9ya2885gf05";
+    sha256 = "1r9r91gmrrflzl0yq10bib9gxbqyhycb09hcx28m2g3vv9skmccj";
   };
 
 in
@@ -16,10 +16,10 @@ stdenv.mkDerivation {
 
   src = fetchurl {
     url = "mirror://sourceforge/zsh/zsh-${version}.tar.gz";
-    sha256 = "11shllzhq53fg8ngy3bgbmpf09fn2czifg7hsb41nxi3410mpvcl";
+    sha256 = "0dsr450v8nydvpk8ry276fvbznlrjgddgp7zvhcw4cv69i9lr4ps";
   };
 
-  buildInputs = [ ncurses coreutils pcre ];
+  buildInputs = [ ncurses pcre ];
 
   configureFlags = [
     "--enable-maildir-support"
@@ -37,8 +37,10 @@ stdenv.mkDerivation {
 
   # XXX: think/discuss about this, also with respect to nixos vs nix-on-X
   postInstall = ''
-    mkdir -p $out/share/
+    mkdir -p $out/share/info
     tar xf ${documentation} -C $out/share
+    ln -s $out/share/zsh-*/Doc/zsh.info* $out/share/info/
+
     mkdir -p $out/etc/
     cat > $out/etc/zprofile <<EOF
 if test -e /etc/NIXOS; then

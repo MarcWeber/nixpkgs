@@ -2,7 +2,7 @@
 
 with lib;
 let
-  diskSize = "4096";
+  diskSize = "30720";
 in
 {
   system.build.azureImage =
@@ -16,17 +16,17 @@ in
               cyl=$(((${diskSize}*1024*1024)/(512*63*255)))
               size=$(($cyl*255*63*512))              
               roundedsize=$((($size/(1024*1024)+1)*(1024*1024)))
-              ${pkgs.vmTools.qemu}/bin/qemu-img create -f raw $diskImage $roundedsize
+              ${pkgs.vmTools.qemu-220}/bin/qemu-img create -f raw $diskImage $roundedsize
               mv closure xchg/
             '';
 
           postVM =
             ''
               mkdir -p $out
-              ${pkgs.vmTools.qemu}/bin/qemu-img convert -f raw -O vpc $diskImage $out/disk.vhd
+              ${pkgs.vmTools.qemu-220}/bin/qemu-img convert -f raw -O vpc $diskImage $out/disk.vhd
               rm $diskImage
             '';
-          diskImageBase = "nixos-image-${config.system.nixosVersion}-${pkgs.stdenv.system}.raw";
+          diskImageBase = "nixos-image-${config.system.nixosLabel}-${pkgs.stdenv.system}.raw";
           buildInputs = [ pkgs.utillinux pkgs.perl ];
           exportReferencesGraph =
             [ "closure" config.system.build.toplevel ];
@@ -78,7 +78,7 @@ in
 
           echo Install a configuration.nix.
           mkdir -p /mnt/etc/nixos /mnt/boot/grub
-          cp ${./azure-config.nix} /mnt/etc/nixos/configuration.nix
+          cp ${./azure-config-user.nix} /mnt/etc/nixos/configuration.nix
 
           echo Generate the GRUB menu.
           ln -s vda /dev/sda
@@ -98,24 +98,24 @@ in
   systemd.services.fetch-ssh-keys =
     { description = "Fetch host keys and authorized_keys for root user";
 
-      wantedBy = [ "sshd.service" ];
-      before = [ "sshd.service" ];
+      wantedBy = [ "sshd.service" "waagent.service" ];
+      before = [ "sshd.service" "waagent.service" ];
       after = [ "local-fs.target" ];
 
       path  = [ pkgs.coreutils ];
       script =
         ''
-          eval "$(base64 --decode /metadata/CustomData.bin)"
+          eval "$(cat /metadata/CustomData.bin)"
           if ! [ -z "$ssh_host_ecdsa_key" ]; then
             echo "downloaded ssh_host_ecdsa_key"
-            echo "$ssh_host_ecdsa_key" > /etc/ssh/ssh_host_ecdsa_key
-            chmod 600 /etc/ssh/ssh_host_ecdsa_key
+            echo "$ssh_host_ecdsa_key" > /etc/ssh/ssh_host_ed25519_key
+            chmod 600 /etc/ssh/ssh_host_ed25519_key
           fi
 
           if ! [ -z "$ssh_host_ecdsa_key_pub" ]; then
             echo "downloaded ssh_host_ecdsa_key_pub"
-            echo "$ssh_host_ecdsa_key_pub" > /etc/ssh/ssh_host_ecdsa_key.pub
-            chmod 644 /etc/ssh/ssh_host_ecdsa_key.pub
+            echo "$ssh_host_ecdsa_key_pub" > /etc/ssh/ssh_host_ed25519_key.pub
+            chmod 644 /etc/ssh/ssh_host_ed25519_key.pub
           fi
 
           if ! [ -z "$ssh_root_auth_key" ]; then

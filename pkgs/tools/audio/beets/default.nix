@@ -1,16 +1,21 @@
 { stdenv, fetchFromGitHub, writeScript, glibcLocales
-, buildPythonPackage, pythonPackages, python, imagemagick
+, buildPythonApplication, pythonPackages, python, imagemagick
 
-, enableAcoustid   ? true
-, enableBadfiles   ? true, flac ? null, mp3val ? null
-, enableDiscogs    ? true
-, enableEchonest   ? true
-, enableFetchart   ? true
-, enableLastfm     ? true
-, enableMpd        ? true
-, enableReplaygain ? true
-, enableThumbnails ? true
-, enableWeb        ? true
+, enableAcousticbrainz ? true
+, enableAcoustid       ? true
+, enableBadfiles       ? true, flac ? null, mp3val ? null
+, enableDiscogs        ? true
+, enableEchonest       ? true
+, enableEmbyupdate     ? true
+, enableFetchart       ? true
+, enableLastfm         ? true
+, enableMpd            ? true
+, enableReplaygain     ? true, bs1770gain ? null
+, enableThumbnails     ? true
+, enableWeb            ? true
+
+# External plugins
+, enableAlternatives ? false
 
 , bashInteractive, bashCompletion
 }:
@@ -22,7 +27,7 @@ assert enableEchonest    -> pythonPackages.pyechonest     != null;
 assert enableFetchart    -> pythonPackages.responses      != null;
 assert enableLastfm      -> pythonPackages.pylast         != null;
 assert enableMpd         -> pythonPackages.mpd            != null;
-assert enableReplaygain  -> pythonPackages.audiotools     != null;
+assert enableReplaygain  -> bs1770gain                    != null;
 assert enableThumbnails  -> pythonPackages.pyxdg          != null;
 assert enableWeb         -> pythonPackages.flask          != null;
 
@@ -30,10 +35,12 @@ with stdenv.lib;
 
 let
   optionalPlugins = {
+    acousticbrainz = enableAcousticbrainz;
     badfiles = enableBadfiles;
     chroma = enableAcoustid;
     discogs = enableDiscogs;
     echonest = enableEchonest;
+    embyupdate = enableEmbyupdate;
     fetchart = enableFetchart;
     lastgenre = enableLastfm;
     lastimport = enableLastfm;
@@ -45,10 +52,10 @@ let
   };
 
   pluginsWithoutDeps = [
-    "bench" "bpd" "bpm" "bucket" "convert" "cue" "duplicates" "embedart"
+    "bench" "bpd" "bpm" "bucket" "convert" "cue" "duplicates" "edit" "embedart"
     "filefilter" "freedesktop" "fromfilename" "ftintitle" "fuzzy" "ihate"
     "importadded" "importfeeds" "info" "inline" "ipfs" "keyfinder" "lyrics"
-    "mbcollection" "mbsync" "metasync" "missing" "permissions" "play"
+    "mbcollection" "mbsubmit" "mbsync" "metasync" "missing" "permissions" "play"
     "plexupdate" "random" "rewrite" "scrub" "smartplaylist" "spotify" "the"
     "types" "zero"
   ];
@@ -61,16 +68,16 @@ let
   testShell = "${bashInteractive}/bin/bash --norc";
   completion = "${bashCompletion}/share/bash-completion/bash_completion";
 
-in buildPythonPackage rec {
+in buildPythonApplication rec {
   name = "beets-${version}";
-  version = "1.3.15";
+  version = "1.3.17";
   namePrefix = "";
 
   src = fetchFromGitHub {
     owner = "sampsyo";
     repo = "beets";
     rev = "v${version}";
-    sha256 = "17mbkilqqkxxa8ra8b4zlsax712jb0nfkvcx9iyq9303rqwv5sx2";
+    sha256 = "1fskxx5xxjqf4xmfjrinh7idjiq6qncb24hiyccv09l47fr1yipc";
   };
 
   propagatedBuildInputs = [
@@ -84,15 +91,20 @@ in buildPythonPackage rec {
     pythonPackages.unidecode
     python.modules.sqlite3
     python.modules.readline
-  ] ++ optional enableAcoustid   pythonPackages.pyacoustid
-    ++ optional enableFetchart   pythonPackages.requests2
-    ++ optional enableDiscogs    pythonPackages.discogs_client
-    ++ optional enableEchonest   pythonPackages.pyechonest
-    ++ optional enableLastfm     pythonPackages.pylast
-    ++ optional enableMpd        pythonPackages.mpd
-    ++ optional enableReplaygain pythonPackages.audiotools
-    ++ optional enableThumbnails pythonPackages.pyxdg
-    ++ optional enableWeb        pythonPackages.flask;
+  ] ++ optional enableAcoustid     pythonPackages.pyacoustid
+    ++ optional (enableFetchart
+              || enableEmbyupdate
+              || enableAcousticbrainz)
+                                   pythonPackages.requests2
+    ++ optional enableDiscogs      pythonPackages.discogs_client
+    ++ optional enableEchonest     pythonPackages.pyechonest
+    ++ optional enableLastfm       pythonPackages.pylast
+    ++ optional enableMpd          pythonPackages.mpd
+    ++ optional enableThumbnails   pythonPackages.pyxdg
+    ++ optional enableWeb          pythonPackages.flask
+    ++ optional enableAlternatives (import ./alternatives-plugin.nix {
+      inherit stdenv buildPythonApplication pythonPackages fetchFromGitHub;
+    });
 
   buildInputs = with pythonPackages; [
     beautifulsoup4
@@ -104,12 +116,12 @@ in buildPythonPackage rec {
   ];
 
   patches = [
-    ./replaygain-default-audiotools.patch
+    ./replaygain-default-bs1770gain.patch
   ];
 
   postPatch = ''
     sed -i -e '/assertIn.*item.*path/d' test/test_info.py
-    echo echo completion tests passed > test/test_completion.sh
+    echo echo completion tests passed > test/rsrc/test_completion.sh
 
     sed -i -e '/^BASH_COMPLETION_PATHS *=/,/^])$/ {
       /^])$/i u"${completion}"
@@ -119,6 +131,12 @@ in buildPythonPackage rec {
       s,"flac","${flac}/bin/flac",
       s,"mp3val","${mp3val}/bin/mp3val",
     }' beetsplug/badfiles.py
+  '' + optionalString enableReplaygain ''
+    sed -i -re '
+      s!^( *cmd *= *b?['\'''"])(bs1770gain['\'''"])!\1${bs1770gain}/bin/\2!
+    ' beetsplug/replaygain.py
+    sed -i -e 's/if has_program.*bs1770gain.*:/if True:/' \
+      test/test_replaygain.py
   '';
 
   doCheck = true;
@@ -175,7 +193,7 @@ in buildPythonPackage rec {
     description = "Music tagger and library organizer";
     homepage = http://beets.radbox.org;
     license = licenses.mit;
-    maintainers = with maintainers; [ aszlig iElectric pjones ];
+    maintainers = with maintainers; [ aszlig iElectric pjones profpatsch ];
     platforms = platforms.linux;
   };
 }

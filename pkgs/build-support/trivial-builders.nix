@@ -28,11 +28,13 @@ rec {
       ''
         n=$out${destination}
         mkdir -p "$(dirname "$n")"
+
         if [ -e "$textPath" ]; then
           mv "$textPath" "$n"
         else
           echo -n "$text" > "$n"
         fi
+
         (test -n "$executable" && chmod +x "$n") || true
       '';
 
@@ -46,7 +48,10 @@ rec {
 
   # Create a forest of symlinks to the files in `paths'.
   symlinkJoin = name: paths:
-    runCommand name { inherit paths; }
+    runCommand name
+      { inherit paths;
+        preferLocalBuild = true; allowSubstitutes = false;
+      }
       ''
         mkdir -p $out
         for i in $paths; do
@@ -102,11 +107,11 @@ rec {
       if message != null then message
       else ''
         Unfortunately, we may not download file ${name_} automatically.
-        Please, go to ${url}, download it yourself, and add it to the Nix store
+        Please, go to ${url} to download it yourself, and add it to the Nix store
         using either
           nix-store --add-fixed ${hashAlgo} ${name_}
         or
-          nix-prefetch-url --type ${hashAlgo} file://path/to/${name_}
+          nix-prefetch-url --type ${hashAlgo} file:///path/to/${name_}
       '';
       hashAlgo = if sha256 != null then "sha256" else "sha1";
       hash = if sha256 != null then sha256 else sha1;
@@ -116,15 +121,16 @@ rec {
       name = name_;
       outputHashAlgo = hashAlgo;
       outputHash = hash;
+      preferLocalBuild = true;
       builder = writeScript "restrict-message" ''
-source ${stdenv}/setup
-cat <<_EOF_
+        source ${stdenv}/setup
+        cat <<_EOF_
 
-***
-${msg}
-***
+        ***
+        ${msg}
+        ***
 
-_EOF_
+        _EOF_
       '';
     };
 
@@ -152,5 +158,14 @@ _EOF_
         done
         exec ${bin} "$@"
       '';
+
+  # Copy a path to the Nix store.
+  # Nix automatically copies files to the store before stringifying paths.
+  # If you need the store path of a file, ${copyPathToStore <path>} can be
+  # shortened to ${<path>}.
+  copyPathToStore = builtins.filterSource (p: t: true);
+
+  # Copy a list of paths to the Nix store.
+  copyPathsToStore = builtins.map copyPathToStore;
 
 }

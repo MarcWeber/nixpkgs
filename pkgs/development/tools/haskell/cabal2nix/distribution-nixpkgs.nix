@@ -7,12 +7,12 @@
 
 mkDerivation rec {
   pname = "distribution-nixpkgs";
-  version = "20150922";
+  version = "1";
   src = fetchFromGitHub {
     owner = "nixos";
     repo = "cabal2nix";
-    rev = "v${version}";
-    sha256 = "17s800yd8mm48yjjqiayvycaf8z0y1giwp8jp271875wdrx3p75a";
+    rev = "v20160308";
+    sha256 = "02lj3x0rgpxvaimwbbjjgwm4ka0wkk4x5h35jjygz6bkr5lv3m52";
   };
   postUnpack = "sourceRoot+=/${pname}";
   libraryHaskellDepends = [

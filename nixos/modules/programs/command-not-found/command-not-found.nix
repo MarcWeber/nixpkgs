@@ -18,7 +18,7 @@ let
     isExecutable = true;
     inherit (pkgs) perl;
     perlFlags = concatStrings (map (path: "-I ${path}/lib/perl5/site_perl ")
-      [ pkgs.perlPackages.DBI pkgs.perlPackages.DBDSQLite ]);
+      [ pkgs.perlPackages.DBI pkgs.perlPackages.DBDSQLite pkgs.perlPackages.StringShellQuote ]);
   };
 
 in
@@ -31,7 +31,7 @@ in
         local p=/run/current-system/sw/bin/command-not-found
         if [ -x $p -a -f /nix/var/nix/profiles/per-user/root/channels/nixos/programs.sqlite ]; then
           # Run the helper program.
-          $p "$1"
+          $p "$@"
           # Retry the command if we just installed it.
           if [ $? = 126 ]; then
             "$@"

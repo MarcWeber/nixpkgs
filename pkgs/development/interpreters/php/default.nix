@@ -10,7 +10,7 @@
 let
 
   generic =
-    { version, sha256, url ? "http://www.php.net/distributions/php-${version}.tar.bz2" }:
+    { version, sha256 }:
 
     let php7 = lib.versionAtLeast version "7.0"; in
 
@@ -93,6 +93,7 @@ let
       mergeAttrBy = {
         preConfigure = a: b: "${a}\n${b}";
       };
+      configureFlags = ["EXTENSION_DIR=$(out)/lib/php/extensions"];
 
       flags = {
 
@@ -356,7 +357,8 @@ let
       '';
 
       src = fetchurl {
-        inherit url sha256;
+        url = "http://www.php.net/distributions/php-${version}.tar.bz2";
+        inherit sha256;
       };
 
       meta = with stdenv.lib; {
@@ -375,25 +377,19 @@ in {
 
   # Example usage: php56.merge { fpmSupport = true; sendmail = ".."; .... }
 
-  php54 = generic {
-    version = "5.4.45";
-    sha256 = "10k59j7zjx2mrldmgfvjrrcg2cslr2m68azslspcz5acanqjh3af";
-  };
-
   php55 = generic {
-    version = "5.5.30";
-    sha256 = "0a9v7jq8mr15dcim23rzcfgpijc5k1rkc4qv9as1rpgc7iqjlcz7";
+    version = "5.5.33";
+    sha256 = "1a8ac1zcq68irvdffh08cpi4aaaira4hsqwgns7b95pm9pnv3464";
   };
 
   php56 = generic {
-    version = "5.6.15";
-    sha256 = "0f0wplfnclr6ji6r2g5q0rdnp26xi7gxdq51dljrwx2b9mf6980i";
+    version = "5.6.19";
+    sha256 = "0s61fncsdgr1mqgh8jma6pi6xxz4gl350467lk00ls3i97wa691a";
   };
 
-  php70 = lib.lowPrio (generic {
-    version = "7.0.0RC6";
-    url = "https://downloads.php.net/~ab/php-7.0.0RC6.tar.bz2";
-    sha256 = "0q8km0711chwj94d4mjrzdn999yw1vv4k695gj68pk791a6pcsyk";
-  });
+  php70 = generic {
+    version = "7.0.2";
+    sha256 = "0di2vallv5kry85l67za25nq4f2hjr8fad5j0c06nb69v7xpa6wv";
+  };
 
 }

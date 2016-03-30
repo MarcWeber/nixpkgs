@@ -1,4 +1,4 @@
-{ config, lib, pkgs, options, modulesPath }:
+{ config, lib, pkgs, options, modulesPath, ... }:
 
 with lib;
 
@@ -14,7 +14,7 @@ in
       default = pkgs.wmii_hg;
       example = literalExample "pkgs.wmii_hg";
       description = ''
-        wmii packgae to use
+        wmii package to use
       '';
     };
 

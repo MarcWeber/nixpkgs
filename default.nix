@@ -1,4 +1,4 @@
-let requiredVersion = "1.10"; in
+let requiredVersion = import ./lib/minver.nix; in
 
 if ! builtins ? nixVersion || builtins.compareVersions requiredVersion builtins.nixVersion == 1 then
 
@@ -6,4 +6,4 @@ if ! builtins ? nixVersion || builtins.compareVersions requiredVersion builtins.
 
 else
 
-  import ./pkgs/top-level/all-packages.nix
+  import ./pkgs/top-level

@@ -1,14 +1,12 @@
 { stdenv, fetchurl, pkgconfig, perl, perlXMLParser, gtk, libXft
 , libpng, zlib, popt, boehmgc, libxml2, libxslt, glib, gtkmm
 , glibmm, libsigcxx, lcms, boost, gettext, makeWrapper, intltool
-, gsl, python, pyxml, lxml, poppler, imagemagick, libwpg, librevenge
-, libvisio, libcdr, libexif
-, fetchbzr, automake, autoconf, libtool, which, unzip
+, gsl, python, numpy, pyxml, lxml, poppler, imagemagick, libwpg, librevenge
+, libvisio, libcdr, libexif, unzip
 , boxMakerPlugin ? false # boxmaker plugin
-, versionedDerivation, version ? "0.91.x"
 }:
 
-let
+let 
 
 boxmaker = fetchurl {
   # http://www.inkscapeforum.com/viewtopic.php?f=11&t=10403
@@ -18,29 +16,14 @@ boxmaker = fetchurl {
 
 in
 
-versionedDerivation "inkscape" version {
-  "0.91.x" = rec {
-    name = "inkscape-0.91";
+stdenv.mkDerivation rec {
+  name = "inkscape-0.91";
 
-    src = fetchurl {
-      url = "https://inkscape.global.ssl.fastly.net/media/resources/file/"
-          + "${name}.tar.bz2";
-      sha256 = "06ql3x732x2rlnanv0a8aharsnj91j5kplksg574090rks51z42d";
-    };
-
+  src = fetchurl {
+    url = "https://inkscape.global.ssl.fastly.net/media/resources/file/"
+        + "${name}.tar.bz2";
+    sha256 = "06ql3x732x2rlnanv0a8aharsnj91j5kplksg574090rks51z42d";
   };
-  "dev" = {
-    src = fetchbzr {
-      url = "https://code.launchpad.net/~inkscape.dev/inkscape/trunk";
-      rev = 12339;
-      sha256 = "1k6fnq6xh4h4wd5bnfnyc9v0kvqrjvv58r75qj1b132mpzl9vlqi";
-    };
-    buildInputs = [ automake autoconf libtool which];
-    preConfigure = ''
-      sh autogen.sh
-    '';
-  };
-} rec {
 
   postPatch = ''
     patchShebangs share/extensions
@@ -54,7 +37,7 @@ versionedDerivation "inkscape" version {
   propagatedBuildInputs = [
     # Python is used at run-time to execute scripts, e.g., those from
     # the "Effects" menu.
-    python pyxml lxml
+    python pyxml numpy lxml
   ];
 
   buildInputs = [
@@ -83,7 +66,7 @@ versionedDerivation "inkscape" version {
     for i in "$out/bin/"*
     do
       wrapProgram "$i" --prefix PYTHONPATH :      \
-       "$(toPythonPath ${pyxml}):$(toPythonPath ${lxml})"  \
+       "$(toPythonPath ${pyxml}):$(toPythonPath ${lxml}):$(toPythonPath ${numpy})"  \
        --prefix PATH : ${python}/bin ||  \
         exit 2
     done

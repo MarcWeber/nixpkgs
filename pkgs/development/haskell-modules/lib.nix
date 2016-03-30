@@ -33,7 +33,7 @@ rec {
   addBuildDepends = drv: xs: overrideCabal drv (drv: { buildDepends = (drv.buildDepends or []) ++ xs; });
 
   addPkgconfigDepend = drv: x: addPkgconfigDepends drv [x];
-  addPkgconfigDepends = drv: xs: overrideCabal drv (drv: { buildDepends = (drv.pkgconfigDepends or []) ++ xs; });
+  addPkgconfigDepends = drv: xs: overrideCabal drv (drv: { pkgconfigDepends = (drv.pkgconfigDepends or []) ++ xs; });
 
   enableCabalFlag = drv: x: appendConfigureFlag (removeConfigureFlag drv "-f-${x}") "-f${x}";
   disableCabalFlag = drv: x: appendConfigureFlag (removeConfigureFlag drv "-f${x}") "-f-${x}";
@@ -80,6 +80,8 @@ rec {
   });
 
   buildStrictly = pkg: buildFromSdist (appendConfigureFlag pkg "--ghc-option=-Wall --ghc-option=-Werror");
+
+  buildStackProject = pkgs.callPackage ./generic-stack-builder.nix { };
 
   triggerRebuild = drv: i: overrideCabal drv (drv: { postUnpack = ": trigger rebuild ${toString i}"; });
 

@@ -2,13 +2,13 @@
 
 stdenv.mkDerivation rec {
   name = "zsh-navigation-tools-${version}";
-  version = "1.3.1";
+  version = "1.4";
 
   src = fetchFromGitHub {
     owner = "psprint";
     repo = "zsh-navigation-tools";
     rev = "v${version}";
-    sha256 = "1akkmjxv04rfqpx49hdwfwjp2842xpk0q7w5ymywzl0w4ldm2lmc";
+    sha256 = "1r24mpx57jyn201mdhd793rlhlr5r83n9137aafkgf86282ghr7y";
   };
 
   dontBuild = true;
@@ -16,6 +16,7 @@ stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out/share/zsh/site-functions/
     cp n-* $out/share/zsh/site-functions/
+    cp znt-* $out/share/zsh/site-functions/
   '';
 
   meta = with stdenv.lib; {

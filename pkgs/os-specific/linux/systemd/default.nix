@@ -1,38 +1,35 @@
 { stdenv, fetchFromGitHub, pkgconfig, intltool, gperf, libcap, dbus, kmod
-, xz, pam, acl, cryptsetup, libuuid, m4, utillinux
-, glib, kbd, libxslt, coreutils, libgcrypt
+, xz, pam, acl, cryptsetup, libuuid, m4, utillinuxMinimal
+, glib, kbd, libxslt, coreutils, libgcrypt, libgpgerror, libapparmor, audit, lz4
 , kexectools, libmicrohttpd, linuxHeaders, libseccomp
 , autoreconfHook, gettext, docbook_xsl, docbook_xml_dtd_42, docbook_xml_dtd_45
-, pythonPackages ? null, pythonSupport ? false
 , enableKDbus ? false
 }:
 
 assert stdenv.isLinux;
 
-assert pythonSupport -> pythonPackages != null;
-
 stdenv.mkDerivation rec {
-  version = "227";
+  version = "229";
   name = "systemd-${version}";
 
   src = fetchFromGitHub {
     owner = "NixOS";
     repo = "systemd";
-    rev = "7d94d27801d20278103d8c146633fe81e06697d6";
-    sha256 = "0cvzsrazqgbia3zajb0z4ik8myfil4bdy2c29qs6w93d6yvrjfkj";
+    rev = "4936f6e6c05162516a685ebd227b55816cf2b670";
+    sha256 = "1q0pyrljmq73qcan9rfqsiw66l1g159m5in5qgb8zwlwhl928670";
   };
 
   outputs = [ "out" "man" "doc" ];
 
   buildInputs =
     [ linuxHeaders pkgconfig intltool gperf libcap kmod xz pam acl
-      /* cryptsetup */ libuuid m4 glib libxslt libgcrypt
-      libmicrohttpd kexectools libseccomp
+      /* cryptsetup */ libuuid m4 glib libxslt libgcrypt libgpgerror
+      libmicrohttpd kexectools libseccomp audit lz4 libapparmor
       /* FIXME: we may be able to prevent the following dependencies
          by generating an autoconf'd tarball, but that's probably not
          worth it. */
       autoreconfHook gettext docbook_xsl docbook_xml_dtd_42 docbook_xml_dtd_45
-    ] ++ stdenv.lib.optionals pythonSupport [pythonPackages.python pythonPackages.lxml];
+    ];
 
   configureFlags =
     [ "--localstatedir=/var"
@@ -48,13 +45,14 @@ stdenv.mkDerivation rec {
       "--enable-compat-libs" # get rid of this eventually
       "--disable-tests"
 
-      "--disable-hostnamed"
+      "--enable-lz4"
+      "--enable-hostnamed"
       "--enable-networkd"
       "--disable-sysusers"
-      "--disable-timedated"
+      "--enable-timedated"
       "--enable-timesyncd"
       "--disable-firstboot"
-      "--disable-localed"
+      "--enable-localed"
       "--enable-resolved"
       "--disable-split-usr"
       "--disable-libcurl"
@@ -66,7 +64,7 @@ stdenv.mkDerivation rec {
       "--with-sysvinit-path="
       "--with-sysvrcnd-path="
       "--with-rc-local-script-path-stop=/etc/halt.local"
-    ] ++ stdenv.lib.optional enableKDbus "--enable-kdbus";
+    ] ++ (if enableKDbus then [ "--enable-kdbus" ] else [ "--disable-kdbus" ]);
 
   preConfigure =
     ''
@@ -77,13 +75,13 @@ stdenv.mkDerivation rec {
         test -e $i
         substituteInPlace $i \
           --replace /usr/bin/getent ${stdenv.glibc}/bin/getent \
-          --replace /bin/mount ${utillinux}/bin/mount \
-          --replace /bin/umount ${utillinux}/bin/umount \
-          --replace /sbin/swapon ${utillinux}/sbin/swapon \
-          --replace /sbin/swapoff ${utillinux}/sbin/swapoff \
+          --replace /bin/mount ${utillinuxMinimal}/bin/mount \
+          --replace /bin/umount ${utillinuxMinimal}/bin/umount \
+          --replace /sbin/swapon ${utillinuxMinimal}/sbin/swapon \
+          --replace /sbin/swapoff ${utillinuxMinimal}/sbin/swapoff \
           --replace /bin/echo ${coreutils}/bin/echo \
           --replace /bin/cat ${coreutils}/bin/cat \
-          --replace /sbin/sulogin ${utillinux}/sbin/sulogin \
+          --replace /sbin/sulogin ${utillinuxMinimal}/sbin/sulogin \
           --replace /usr/lib/systemd/systemd-fsck $out/lib/systemd/systemd-fsck
       done
 
@@ -108,13 +106,6 @@ stdenv.mkDerivation rec {
 
       "-USYSTEMD_BINARY_PATH" "-DSYSTEMD_BINARY_PATH=\"/run/current-system/systemd/lib/systemd/systemd\""
     ];
-
-  # Use /var/lib/udev rather than /etc/udev for the generated hardware
-  # database.  Upstream doesn't want this (see commit
-  # 1e1954f53386cb773e2a152748dd31c4d36aa2d8) because using /var is
-  # forbidden in early boot, but in NixOS the initrd guarantees that
-  # /var is mounted.
-  makeFlags = "hwdb_bin=/var/lib/udev/hwdb.bin";
 
   installFlags =
     [ "localstatedir=$(TMPDIR)/var"

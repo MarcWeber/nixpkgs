@@ -11,6 +11,15 @@ rec {
 
   qemu = pkgs.qemu_kvm;
 
+  qemu-220 = lib.overrideDerivation pkgs.qemu_kvm (attrs: rec {
+    version = "2.2.0";
+    src = fetchurl {
+      url = "http://wiki.qemu.org/download/qemu-${version}.tar.bz2";
+      sha256 = "1703c3scl5n07gmpilg7g2xzyxnr7jczxgx6nn4m8kv9gin9p35n";
+    };
+    patches = [ ../../../nixos/modules/virtualisation/azure-qemu-220-no-etc-install.patch ];
+  });
+
   qemuProg = "${qemu}/bin/qemu-kvm";
 
 
@@ -118,7 +127,7 @@ rec {
 
     echo "mounting Nix store..."
     mkdir -p /fs/nix/store
-    mount -t 9p store /fs/nix/store -o trans=virtio,version=9p2000.L,msize=262144,cache=loose
+    mount -t 9p store /fs/nix/store -o trans=virtio,version=9p2000.L,cache=loose
 
     mkdir -p /fs/tmp /fs/run /fs/var
     mount -t tmpfs -o "mode=1777" none /fs/tmp
@@ -127,7 +136,7 @@ rec {
 
     echo "mounting host's temporary directory..."
     mkdir -p /fs/tmp/xchg
-    mount -t 9p xchg /fs/tmp/xchg -o trans=virtio,version=9p2000.L,msize=262144,cache=loose
+    mount -t 9p xchg /fs/tmp/xchg -o trans=virtio,version=9p2000.L,cache=loose
 
     mkdir -p /fs/proc
     mount -t proc none /fs/proc
@@ -1770,22 +1779,22 @@ rec {
     };
 
     debian8i386 = {
-      name = "debian-8.2-jessie-i386";
-      fullName = "Debian 8.2 Jessie (i386)";
+      name = "debian-8.3-jessie-i386";
+      fullName = "Debian 8.3 Jessie (i386)";
       packagesList = fetchurl {
         url = mirror://debian/dists/jessie/main/binary-i386/Packages.xz;
-        sha256 = "f7eda33a296d792d467b84ba608a33f00ff249cb9a385c005586925645d83778";
+        sha256 = "1240d404bd99afbeec042c08fdab049f0b5a984a393cac7c221553ab08f637f5";
       };
       urlPrefix = mirror://debian;
       packages = commonDebianPackages;
     };
 
     debian8x86_64 = {
-      name = "debian-8.2-jessie-amd64";
-      fullName = "Debian 8.2 Jessie (amd64)";
+      name = "debian-8.3-jessie-amd64";
+      fullName = "Debian 8.3 Jessie (amd64)";
       packagesList = fetchurl {
         url = mirror://debian/dists/jessie/main/binary-amd64/Packages.xz;
-        sha256 = "ff1b82b4c767769e594fd482de4ef8f70bce8e9f01fa8ef2d6952def0b071ba0";
+        sha256 = "ec937c1b3bbfe4803f0fa43681b19d089eb6b355455ac7caa17ec8e9ff604e56";
       };
       urlPrefix = mirror://debian;
       packages = commonDebianPackages;

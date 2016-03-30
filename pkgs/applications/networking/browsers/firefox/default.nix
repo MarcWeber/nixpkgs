@@ -19,7 +19,7 @@ assert stdenv.cc ? libc && stdenv.cc.libc != null;
 let
 
 common = { pname, version, sha256 }: stdenv.mkDerivation rec {
-  name = "${pname}-${version}";
+  name = "${pname}-unwrapped-${version}";
 
   src = fetchurl {
     url =
@@ -73,7 +73,7 @@ common = { pname, version, sha256 }: stdenv.mkDerivation rec {
     ++ lib.optional enableGTK3 "--enable-default-toolkit=cairo-gtk3"
     ++ (if debugBuild then [ "--enable-debug" "--enable-profiling" ]
                       else [ "--disable-debug" "--enable-release"
-                             "--enable-optimize${lib.optionalString (stdenv.system == "i686-linux") "=-O1"}"
+                             "--enable-optimize"
                              "--enable-strip" ])
     ++ lib.optional enableOfficialBranding "--enable-official-branding";
 
@@ -83,8 +83,8 @@ common = { pname, version, sha256 }: stdenv.mkDerivation rec {
     ''
       mkdir ../objdir
       cd ../objdir
-      if [ -e ../${name} ]; then
-        configureScript=../${name}/configure
+      if [ -e ../${pname}-${version} ]; then
+        configureScript=../${pname}-${version}/configure
       else
         configureScript=../mozilla-*/configure
       fi
@@ -99,7 +99,7 @@ common = { pname, version, sha256 }: stdenv.mkDerivation rec {
   postInstall =
     ''
       # For grsecurity kernels
-      paxmark m $out/lib/${name}/{firefox,firefox-bin,plugin-container}
+      paxmark m $out/lib/${pname}-${version}/{firefox,firefox-bin,plugin-container}
 
       # Remove SDK cruft. FIXME: move to a separate output?
       rm -rf $out/share/idl $out/include $out/lib/firefox-devel-*
@@ -131,16 +131,16 @@ common = { pname, version, sha256 }: stdenv.mkDerivation rec {
 
 in {
 
-  firefox = common {
+  firefox-unwrapped = common {
     pname = "firefox";
-    version = "42.0";
-    sha256 = "1bm37p1ydxvnflh7kb52g6wfblxqc0kbgjn09sv7g0i9k5k38jlr";
+    version = "45.0";
+    sha256 = "1wbrygxj285vs5qbpv3cq26w36bd533779mgi8d0gpxin44hzarn";
   };
 
-  firefox-esr = common {
+  firefox-esr-unwrapped = common {
     pname = "firefox-esr";
-    version = "38.4.0esr";
-    sha256 = "1izj0zi4dhp3957ya1nlh0mp6gyb7gvmwnlfv6q1cc3bw5y1z2h2";
+    version = "38.6.1esr";
+    sha256 = "1zyhzczhknplxfmk2r7cczavbsml8ckyimibj2sphwdc300ls5wi";
   };
 
 }

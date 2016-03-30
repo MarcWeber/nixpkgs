@@ -46,7 +46,7 @@ in
   forceSystem = system: kernel: (import ./../..) {
     inherit system;
     inherit bootStdenv noSysDirs gccWithCC gccWithProfiling config
-      crossSystem platform;
+      crossSystem;
   };
 
   # Used by wine, firefox with debugging version of Flash, ...

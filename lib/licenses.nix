@@ -85,6 +85,26 @@ lib.mapAttrs (n: v: v // { shortName = n; }) rec {
     fullName = "Creative Commons Zero v1.0 Universal";
   };
 
+  cc-by-nc-sa-20 = spdx {
+    spdxId = "CC-BY-NC-SA-2.0";
+    fullName = "Creative Commons Attribution Non Commercial Share Alike 2.0";
+  };
+
+  cc-by-nc-sa-25 = spdx {
+    spdxId = "CC-BY-NC-SA-2.5";
+    fullName = "Creative Commons Attribution Non Commercial Share Alike 2.5";
+  };
+
+  cc-by-nc-sa-30 = spdx {
+    spdxId = "CC-BY-NC-SA-3.0";
+    fullName = "Creative Commons Attribution Non Commercial Share Alike 3.0";
+  };
+
+  cc-by-nc-sa-40 = spdx {
+    spdxId = "CC-BY-NC-SA-4.0";
+    fullName = "Creative Commons Attribution Non Commercial Share Alike 4.0";
+  };
+
   cc-by-sa-25 = spdx {
     spdxId = "CC-BY-SA-2.5";
     fullName = "Creative Commons Attribution Share Alike 2.5";
@@ -135,6 +155,11 @@ lib.mapAttrs (n: v: v // { shortName = n; }) rec {
     fullName = "Common Public License 1.0";
   };
 
+  doc = spdx {
+    spdxId = "DOC";
+    fullName = "DOC License";
+  };
+
   efl10 = spdx {
     spdxId = "EFL-1.0";
     fullName = "Eiffel Forum License v1.0";
@@ -148,6 +173,12 @@ lib.mapAttrs (n: v: v // { shortName = n; }) rec {
   epl10 = spdx {
     spdxId = "EPL-1.0";
     fullName = "Eclipse Public License 1.0";
+  };
+
+  epson = {
+    fullName = "Seiko Epson Corporation Software License Agreement for Linux";
+    url = https://download.ebz.epson.net/dsc/du/02/eula/global/LINUX_EN.html;
+    free = false;
   };
 
   fdl12 = spdx {

@@ -1,11 +1,17 @@
-{ stdenv, fetchurl, linkStatic ? false }:
+{ stdenv, fetchurl, libtool, autoconf, automake, gnum4, linkStatic ? false }:
 
-let version = "1.0.6"; in
+let
+  version = "1.0.6";
 
-stdenv.mkDerivation {
+  sharedLibrary = !(stdenv ? isStatic)
+               && stdenv.system != "i686-cygwin" && !linkStatic;
+
+  darwinMakefile = fetchurl {
+    url    = "https://gitweb.gentoo.org/repo/proj/prefix.git/plain/app-arch/bzip2/files/bzip2-1.0.6-Makefile-libbz2_dylib";
+    sha256 = "1lq6g98kfpwv2f7wn4sk8hzcf87dwf92gviq0b4691f5bvc9mawz";
+  };
+in stdenv.mkDerivation {
   name = "bzip2-${version}";
-
-  builder = ./builder.sh;
 
   src = fetchurl {
     url = "http://www.bzip.org/${version}/bzip2-${version}.tar.gz";
@@ -13,24 +19,71 @@ stdenv.mkDerivation {
   };
 
   crossAttrs = {
-    patchPhase = ''
+    buildInputs = [ libtool autoconf automake gnum4 ];
+    patches = [
+      # original upstream for the autoconf patch is here:
+      # http://ftp.suse.com/pub/people/sbrabec/bzip2/for_downstream/bzip2-1.0.6-autoconfiscated.patch
+      # but we get the mingw-builds version of the patch, which fixes
+      # a few more issues
+      (fetchurl {
+        url = "https://raw.githubusercontent.com/niXman/mingw-builds/17ae841dcf6e72badad7941a06d631edaf687436/patches/bzip2/bzip2-1.0.6-autoconfiscated.patch";
+        sha256 = "1flbd3i8vg9kzq0a712qcg9j2c4ymnqvgd0ldyafpzvbqj1iicnp";
+      })
+    ];
+    patchFlags = "-p0";
+    postPatch = ''
       sed -i -e '/<sys\\stat\.h>/s|\\|/|' bzip2.c
-      sed -i -e 's/CC=gcc/CC=${stdenv.cross.config}-gcc/' \
-        -e 's/AR=ar/AR=${stdenv.cross.config}-ar/' \
-        -e 's/RANLIB=ranlib/RANLIB=${stdenv.cross.config}-ranlib/' \
-        -e 's/bzip2recover test/bzip2recover/' \
-        Makefile*
     '';
+    preConfigure = "sh ./autogen.sh";
+    # clear native hooks that are not needed with autoconf
+    preBuild = "";
+    preInstall = "";
+    postInstall = "";
   };
 
-  sharedLibrary =
-    !stdenv.isDarwin && !(stdenv ? isStatic) && stdenv.system != "i686-cygwin" && !linkStatic;
+  preBuild = stdenv.lib.optionalString sharedLibrary ''
+    make -f ${if stdenv.isDarwin then "Makefile-libbz2_dylib" else "Makefile-libbz2_so"}
+  '';
 
-  patchPhase = stdenv.lib.optionalString stdenv.isDarwin "substituteInPlace Makefile --replace 'CC=gcc' 'CC=clang'";
+  preInstall = stdenv.lib.optionalString sharedLibrary (if !stdenv.isDarwin then ''
+    mkdir -p $out/lib
+    mv libbz2.so* $out/lib
+    ( cd $out/lib &&
+      ln -s libbz2.so.1.0.? libbz2.so &&
+      ln -s libbz2.so.1.0.? libbz2.so.1
+    )
+  '' else ''
+    mkdir -p $out/lib
+    mv libbz2.*.dylib $out/lib
+    ( cd $out/lib &&
+      ln -s libbz2.1.0.?.dylib libbz2.dylib &&
+      ln -s libbz2.1.0.?.dylib libbz2.1.dylib
+    )
+  '');
 
-  preConfigure = "substituteInPlace Makefile --replace '$(PREFIX)/man' '$(PREFIX)/share/man'";
+  installFlags = [ "PREFIX=$(out)" ];
 
-  makeFlags = if linkStatic then "LDFLAGS=-static" else "";
+  postInstall = ''
+    rm $out/bin/bunzip2* $out/bin/bzcat*
+    ln -s bzip2 $out/bin/bunzip2
+    ln -s bzip2 $out/bin/bzcat
+  '';
+
+  postPatch = ''
+    substituteInPlace Makefile --replace CC=gcc CC=cc
+    substituteInPlace Makefile-libbz2_so --replace CC=gcc CC=cc
+  '' + stdenv.lib.optionalString stdenv.isDarwin ''
+    cp ${darwinMakefile} Makefile-libbz2_dylib
+    substituteInPlace Makefile-libbz2_dylib \
+      --replace "CC=gcc" "CC=cc" \
+      --replace "PREFIX=/usr" "PREFIX=$out"
+  '';
+
+  preConfigure = ''
+    substituteInPlace Makefile --replace '$(PREFIX)/man' '$(PREFIX)/share/man'
+  '';
+
+  makeFlags = stdenv.lib.optional linkStatic "LDFLAGS=-static";
 
   inherit linkStatic;
 

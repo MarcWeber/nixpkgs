@@ -1,5 +1,6 @@
 { stdenv, fetchurl
 , ncurses
+, texinfo
 , gettext ? null
 , enableNls ? true
 , enableTiny ? false
@@ -11,12 +12,14 @@ with stdenv.lib;
 
 stdenv.mkDerivation rec {
   name = "nano-${version}";
-  version = "2.4.2";
+  version = "2.5.3";
   src = fetchurl {
     url = "mirror://gnu/nano/${name}.tar.gz";
-    sha256 = "1fb5gzdm3jdx1f2vyanjvdmppaz082lf4kinyffnssgmzhc7zkf8";
+    sha256 = "1vhjrcydcfxqq1719vcsvqqnbjbq2523m00dhzag5vwzkc961c5j";
   };
-  buildInputs = [ ncurses ] ++ optional enableNls gettext;
+  nativeBuildInputs = [ texinfo ] ++ optional enableNls gettext;
+  buildInputs = [ ncurses ];
+  outputs = [ "out" "info" ];
   configureFlags = ''
     --sysconfdir=/etc
     ${optionalString (!enableNls) "--disable-nls"}

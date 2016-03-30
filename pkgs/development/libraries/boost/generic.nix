@@ -1,5 +1,5 @@
 { stdenv, icu, expat, zlib, bzip2, python, fixDarwinDylibNames
-, toolset ? if stdenv.isDarwin then "clang" else null
+, toolset ? if stdenv.cc.isClang then "clang" else null
 , enableRelease ? true
 , enableDebug ? false
 , enableSingleThreaded ? false
@@ -58,7 +58,7 @@ let
     "--layout=${layout}"
     "variant=${variant}"
     "threading=${threading}"
-    "runtime-link=${runtime-link}"
+  ] ++ optional (link != "static") "runtime-link=${runtime-link}" ++ [
     "link=${link}"
     "${cflags}"
   ] ++ optional (variant == "release") "debug-symbols=off";

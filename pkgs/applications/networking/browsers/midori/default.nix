@@ -14,7 +14,7 @@ stdenv.mkDerivation rec {
     homepage = "http://midori-browser.org";
     license = stdenv.lib.licenses.lgpl21Plus;
     platforms = stdenv.lib.platforms.linux;
-    maintainers = with stdenv.lib.maintainers; [ raskin iyzsong ];
+    maintainers = with stdenv.lib.maintainers; [ raskin ];
   };
 
   src = fetchurl {
@@ -30,7 +30,7 @@ stdenv.mkDerivation rec {
 
   buildInputs = [
     cmake pkgconfig intltool vala makeWrapper
-    webkitgtk librsvg libnotify sqlite
+    webkitgtk librsvg libnotify sqlite gsettings_desktop_schemas
     (libsoup.override {gnomeSupport = true;})
   ];
 

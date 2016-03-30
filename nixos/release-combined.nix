@@ -44,11 +44,11 @@ in rec {
         (all nixos.manual)
 
         (all nixos.iso_minimal)
-        (all nixos.iso_graphical)
-        (all nixos.ova)
+        nixos.iso_graphical.x86_64-linux
+        nixos.ova.x86_64-linux
 
         #(all nixos.tests.containers)
-        (all nixos.tests.chromium)
+        #(all nixos.tests.chromium.stable)
         (all nixos.tests.firefox)
         (all nixos.tests.firewall)
         nixos.tests.gnome3.x86_64-linux # FIXME: i686-linux
@@ -63,7 +63,7 @@ in rec {
         (all nixos.tests.installer.btrfsSimple)
         (all nixos.tests.installer.btrfsSubvols)
         (all nixos.tests.installer.btrfsSubvolDefault)
-        (all nixos.tests.bootBiosCdrom)
+        (all nixos.tests.boot.biosCdrom)
         (all nixos.tests.ipv6)
         (all nixos.tests.kde4)
         #(all nixos.tests.lightdm)
@@ -71,6 +71,7 @@ in rec {
         (all nixos.tests.misc)
         (all nixos.tests.nat.firewall)
         (all nixos.tests.nat.standalone)
+        (all nixos.tests.networking.scripted.loopback)
         (all nixos.tests.networking.scripted.static)
         (all nixos.tests.networking.scripted.dhcpSimple)
         (all nixos.tests.networking.scripted.dhcpOneIf)
@@ -83,6 +84,7 @@ in rec {
         (all nixos.tests.openssh)
         (all nixos.tests.printing)
         (all nixos.tests.proxy)
+        (all nixos.tests.sddm)
         (all nixos.tests.simple)
         (all nixos.tests.udisks2)
         (all nixos.tests.xfce)

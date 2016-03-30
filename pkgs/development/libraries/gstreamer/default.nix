@@ -3,6 +3,8 @@
 rec {
   gstreamer = callPackage ./core { };
 
+  gstreamermm = callPackage ./gstreamermm { };
+
   gst-plugins-base = callPackage ./base { inherit gstreamer; };
 
   gst-plugins-good = callPackage ./good { inherit gst-plugins-base; };
@@ -15,7 +17,11 @@ rec {
 
   gnonlin = callPackage ./gnonlin { inherit gst-plugins-base; };
 
+  # TODO: gnonlin is deprecated in gst-editing-services, better switch to nle
+  # (Non Linear Engine).
   gst-editing-services = callPackage ./ges { inherit gnonlin; };
 
   gst-vaapi = callPackage ./vaapi { inherit gst-plugins-base gstreamer gst-plugins-bad; };
+
+  gst-validate = callPackage ./validate { inherit gst-plugins-base; };
 }

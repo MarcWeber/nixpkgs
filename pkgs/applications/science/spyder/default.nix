@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, unzip, buildPythonPackage, makeDesktopItem
+{ stdenv, fetchurl, unzip, buildPythonApplication, makeDesktopItem
 # mandatory
 , pyside
 # recommended
@@ -7,14 +7,14 @@
 , ipython ? null, pylint ? null, pep8 ? null
 }:
 
-buildPythonPackage rec {
+buildPythonApplication rec {
   name = "spyder-${version}";
-  version = "2.3.7";
+  version = "2.3.8";
   namePrefix = "";
 
   src = fetchurl {
     url = "https://pypi.python.org/packages/source/s/spyder/${name}.zip";
-    sha256 = "0ywgvgcp9s64ys25nfscd2648f7di8544a21b5lb59d4f48z028h";
+    sha256 = "99fdae2cea325c0f2842c77bd67dd22db19fef3d9c0dde1545b1a2650eae517e";
   };
 
   # NOTE: sphinx makes the build fail with: ValueError: ZIP does not support timestamps before 1980

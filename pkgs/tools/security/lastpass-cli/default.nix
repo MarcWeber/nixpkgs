@@ -3,13 +3,13 @@
 stdenv.mkDerivation rec {
   name = "lastpass-cli-${version}";
 
-  version = "0.5.1";
+  version = "0.9.0";
 
   src = fetchFromGitHub {
     owner = "lastpass";
     repo = "lastpass-cli";
     rev = "v${version}";
-    sha256 = "0k2dbfizd6gwd4s8badm50qg2djrh22szd932l1a96mn79q8zb70";
+    sha256 = "1iaz36bcyss2kahhlm92l7yh26rxvs12wnkkh1289yarl5wi0yld";
   };
 
   buildInputs = [

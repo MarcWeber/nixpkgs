@@ -1,15 +1,15 @@
-{ stdenv, fetchurl, pkgs, pythonPackages }:
+{ stdenv, fetchurl, pkgs, python3Packages }:
 
-pythonPackages.buildPythonPackage rec {
-  version = "0.6.0";
+python3Packages.buildPythonApplication rec {
+  version = "0.7.0";
   name = "khal-${version}";
 
   src = fetchurl {
     url = "https://pypi.python.org/packages/source/k/khal/khal-${version}.tar.gz";
-    sha256 = "16nsib70rczln0hrh93bas58lr8crvq8yipj7qnfs4hbs9b8sbhs";
+    sha256 = "00llxj7cv31mjsx0j6zxmyi9s1q20yvfkn025xcy8cv1ylfwic66";
   };
 
-  propagatedBuildInputs = with pythonPackages; [
+  propagatedBuildInputs = with python3Packages; [
     atomicwrites
     click
     configobj
@@ -22,9 +22,9 @@ pythonPackages.buildPythonPackage rec {
     requests_toolbelt
     tzlocal
     urwid
-    python.modules.sqlite3
     pkginfo
   ];
+  buildInputs = with python3Packages; [ setuptools_scm ];
 
   meta = with stdenv.lib; {
     homepage = http://lostpackets.de/khal/;

@@ -56,7 +56,12 @@ let
     export PS1='${name}-chrootenv:\u@\h:\w\$ '
     export LOCALE_ARCHIVE='/usr/lib/locale/locale-archive'
     export LD_LIBRARY_PATH='/run/opengl-driver/lib:/run/opengl-driver-32/lib:/usr/lib:/usr/lib32'
-    export PATH='/usr/bin:/usr/sbin'
+    export PATH='/var/setuid-wrappers:/usr/bin:/usr/sbin'
+
+    # Force compilers to look in default search paths
+    export NIX_CFLAGS_COMPILE='-idirafter /usr/include'
+    export NIX_LDFLAGS_BEFORE='-L/usr/lib -L/usr/lib32'
+
     ${profile}
   '';
 
@@ -80,6 +85,11 @@ let
       ln -s /host-etc/hosts hosts
       ln -s /host-etc/resolv.conf resolv.conf
       ln -s /host-etc/nsswitch.conf nsswitch.conf
+
+      # symlink sudo and su stuff
+      ln -s /host-etc/login.defs login.defs
+      ln -s /host-etc/sudoers sudoers
+      ln -s /host-etc/sudoers.d sudoers.d
 
       # symlink other core stuff
       ln -s /host-etc/localtime localtime

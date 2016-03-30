@@ -13,7 +13,7 @@
 #         python requires python
 , enableLdap ? false
 , enableNetworkManager ? false
-, enablePgp ? false
+, enablePgp ? true
 , enablePluginArchive ? false
 , enablePluginFancy ? false
 , enablePluginNotificationDialogs ? true
@@ -30,10 +30,9 @@
 
 with stdenv.lib;
 
-let version = "3.13.0"; in
-
-stdenv.mkDerivation {
+stdenv.mkDerivation rec {
   name = "claws-mail-${version}";
+  version = "3.13.2";
 
   meta = {
     description = "The user-friendly, lightweight, and fast email client";
@@ -45,7 +44,7 @@ stdenv.mkDerivation {
 
   src = fetchurl {
     url = "http://www.claws-mail.org/download.php?file=releases/claws-mail-${version}.tar.xz";
-    sha256 = "0fpr9gdgrs5yggm61a6135ca06x0cflddsh8dwfqmpb3dj07cl1n";
+    sha256 = "1l8ankx0qpq1ix1an8viphcf11ksh53jsrm1xjmq8cjbh5910wva";
   };
 
   patches = [ ./mime.patch ];
@@ -57,7 +56,7 @@ stdenv.mkDerivation {
 
   buildInputs =
     [ curl dbus dbus_glib gtk gnutls gsettings_desktop_schemas hicolor_icon_theme
-      libetpan perl pkgconfig python wrapGAppsHook
+      libetpan perl pkgconfig python wrapGAppsHook glib_networking
     ]
     ++ optional enableSpellcheck enchant
     ++ optionals (enablePgp || enablePluginSmime) [ gnupg gpgme ]
@@ -92,8 +91,9 @@ stdenv.mkDerivation {
 
   enableParallelBuilding = true;
 
-  wrapPrefixVariables = [ "GIO_EXTRA_MODULES" ];
-  GIO_EXTRA_MODULES = "${glib_networking}/lib/gio/modules";
+  preFixup = ''
+    gappsWrapperArgs+=(--prefix XDG_DATA_DIRS : "${shared_mime_info}/share")
+  '';
 
   postInstall = ''
     mkdir -p $out/share/applications

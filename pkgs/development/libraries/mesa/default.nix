@@ -22,7 +22,7 @@ else
 */
 
 let
-  version = "11.0.5";
+  version = "11.1.1";
   # this is the default search path for DRI drivers
   driverLink = "/run/opengl-driver" + stdenv.lib.optionalString stdenv.isi686 "-32";
 in
@@ -33,10 +33,12 @@ stdenv.mkDerivation {
 
   src =  fetchurl {
     urls = [
-      "https://launchpad.net/mesa/trunk/${version}/+download/mesa-${version}.tar.xz"
       "ftp://ftp.freedesktop.org/pub/mesa/${version}/mesa-${version}.tar.xz"
+      (with stdenv.lib; ''ftp://ftp.freedesktop.org/pub/mesa/older-versions/''
+        + head (splitString "." version) + ''.x/${version}/mesa-${version}.tar.xz'')
+      "https://launchpad.net/mesa/trunk/${version}/+download/mesa-${version}.tar.xz"
     ];
-    sha256 = "9c255a2a6695fcc6ef4a279e1df0aeaf417dc142f39ee59dfb533d80494bb67a";
+    sha256 = "087xlxl8dzmhzjilpsdiy19dn106spq120c9ndgnn4qlqm7hgnv4";
   };
 
   prePatch = "patchShebangs .";
@@ -84,12 +86,16 @@ stdenv.mkDerivation {
     # TODO: Figure out how to enable opencl without having a runtime dependency on clang
     "--disable-opencl"
 
-    "--with-gallium-drivers=svga,i915,ilo,r300,r600,radeonsi,nouveau,freedreno,swrast"
+    (if "armv7l-linux" == stdenv.system
+      then null
+      else "--with-gallium-drivers=svga,i915,ilo,r300,r600,radeonsi,nouveau,freedreno,swrast")
     "--enable-shared-glapi"
     "--enable-sysfs"
     "--enable-driglx-direct" # seems enabled anyway
     "--enable-glx-tls"
-    "--with-dri-drivers=i915,i965,nouveau,radeon,r200,swrast"
+    (if "armv7l-linux" == stdenv.system
+      then "--with-dri-drivers="
+      else "--with-dri-drivers=i915,i965,nouveau,radeon,r200,swrast")
     "--with-egl-platforms=x11,wayland,drm"
 
     "--enable-gallium-llvm"
@@ -152,8 +158,6 @@ stdenv.mkDerivation {
     done
   '' + /* set the default search path for DRI drivers; used e.g. by X server */ ''
     substituteInPlace "$out/lib/pkgconfig/dri.pc" --replace '$(drivers)' "${driverLink}"
-  '' + /* move vdpau drivers to $drivers/lib, so they are found */ ''
-    mv "$drivers"/lib/vdpau/* "$drivers"/lib/ && rmdir "$drivers"/lib/vdpau
   '';
   #ToDo: @vcunat isn't sure if drirc will be found when in $out/etc/, but it doesn't seem important ATM
 

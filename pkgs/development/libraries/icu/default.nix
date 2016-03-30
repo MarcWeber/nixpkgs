@@ -4,7 +4,7 @@ let
   pname = "icu4c";
   version = "56.1";
 in
-stdenv.mkDerivation {
+stdenv.mkDerivation ({
   name = pname + "-" + version;
 
   src = fetchurl {
@@ -30,7 +30,7 @@ stdenv.mkDerivation {
   '';
 
   configureFlags = "--disable-debug" +
-    stdenv.lib.optionalString stdenv.isDarwin " --enable-rpath";
+    stdenv.lib.optionalString (stdenv.isFreeBSD || stdenv.isDarwin) " --enable-rpath";
 
   # remove dependency on bootstrap-tools in early stdenv build
   postInstall = stdenv.lib.optionalString stdenv.isDarwin ''
@@ -45,4 +45,6 @@ stdenv.mkDerivation {
     maintainers = with maintainers; [ raskin urkud ];
     platforms = platforms.all;
   };
-}
+} // (if stdenv.isArm then {
+  patches = [ ./0001-Disable-LDFLAGSICUDT-for-Linux.patch ];
+} else {}))

@@ -1,15 +1,11 @@
-{ stdenv, lib, bundler, fetchgit, bundlerEnv, defaultGemConfig, libiconv, ruby
-, tzdata, git
+{ stdenv, lib, bundler, fetchFromGitHub, bundlerEnv, libiconv, ruby
+, tzdata, git, nodejs, procps
 }:
 
-let
-  gitlab = fetchgit {
-    url = "https://github.com/gitlabhq/gitlabhq.git";
-    rev = "477743a154e85c411e8a533980abce460b5669fc";
-    fetchSubmodules = false;
-    sha256 = "1gk77j886w6zvw5cawpgja6f87qirmjx7y4g5i3psxm4j67llxdp";
-  };
+/* When updating the Gemfile add `gem "activerecord-nulldb-adapter"`
+   to allow building the assets without a database */
 
+let
   env = bundlerEnv {
     name = "gitlab";
     inherit ruby;
@@ -28,19 +24,23 @@ in
 
 stdenv.mkDerivation rec {
   name = "gitlab-${version}";
-  version = "7.4.2";
-  buildInputs = [ ruby bundler tzdata git ];
-  unpackPhase = ''
-    runHook preUnpack
-    cp -r ${gitlab}/* .
-    chmod -R +w .
-    cp ${./Gemfile} Gemfile
-    cp ${./Gemfile.lock} Gemfile.lock
-    runHook postUnpack
-  '';
+  version = "8.5.7";
+
+  buildInputs = [ ruby bundler tzdata git nodejs procps ];
+
+  src = fetchFromGitHub {
+    owner = "gitlabhq";
+    repo = "gitlabhq";
+    rev = "v${version}";
+    sha256 = "0n76dafndhp0rwnnvf12zby9xap5fhcplld86pq2wyvqabg4s9yj";
+  };
+
   patches = [
     ./remove-hardcoded-locations.patch
+    ./disable-dump-schema-after-migration.patch
+    ./nulladapter.patch
   ];
+
   postPatch = ''
     # For reasons I don't understand "bundle exec" ignores the
     # RAILS_ENV causing tests to be executed that fail because we're
@@ -48,12 +48,15 @@ stdenv.mkDerivation rec {
     # tests works though.:
     rm lib/tasks/test.rake
 
-    mv config/gitlab.yml.example config/gitlab.yml
+    rm config/initializers/gitlab_shell_secret_token.rb
+
+    substituteInPlace app/controllers/admin/background_jobs_controller.rb \
+        --replace "ps -U" "${procps}/bin/ps -U"
 
     # required for some gems:
     cat > config/database.yml <<EOF
       production:
-        adapter: postgresql
+        adapter: <%= ENV["GITLAB_DATABASE_ADAPTER"] || sqlite %>
         database: gitlab
         host: <%= ENV["GITLAB_DATABASE_HOST"] || "127.0.0.1" %>
         password: <%= ENV["GITLAB_DATABASE_PASSWORD"] || "blerg" %>
@@ -61,14 +64,22 @@ stdenv.mkDerivation rec {
         encoding: utf8
     EOF
   '';
+
   buildPhase = ''
     export GEM_HOME=${env}/${ruby.gemPath}
-    bundle exec rake assets:precompile RAILS_ENV=production
+    mv config/gitlab.yml.example config/gitlab.yml
+    GITLAB_DATABASE_ADAPTER=nulldb bundle exec rake assets:precompile RAILS_ENV=production
+    mv config/gitlab.yml config/gitlab.yml.example
+    mv config config.dist
   '';
+
   installPhase = ''
     mkdir -p $out/share
     cp -r . $out/share/gitlab
+    ln -sf /run/gitlab/uploads $out/share/gitlab/public/uploads
+    ln -sf /run/gitlab/config $out/share/gitlab/config
   '';
+
   passthru = {
     inherit env;
     inherit ruby;

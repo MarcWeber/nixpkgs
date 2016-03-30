@@ -1,12 +1,12 @@
 { stdenv, fetchurl, pythonPackages, mopidy }:
 
-pythonPackages.buildPythonPackage rec {
+pythonPackages.buildPythonApplication rec {
   name = "mopidy-spotify-${version}";
-  version = "1.4.0";
+  version = "2.3.1";
 
   src = fetchurl {
     url = "https://github.com/mopidy/mopidy-spotify/archive/v${version}.tar.gz";
-    sha256 = "0cf97z9vnnp5l77xhwvmkbkqgpj5gwnm1pipiy66lbk4gn6va4z4";
+    sha256 = "0g105kb27q1p8ssrbxkxcjgx9jkqnd9kk5smw8sjcx6f3b23wrwx";
   };
 
   propagatedBuildInputs = [ mopidy pythonPackages.pyspotify ];

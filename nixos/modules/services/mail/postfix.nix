@@ -93,7 +93,6 @@ let
       queue_directory = /var/postfix/queue
       command_directory = ${commandDir}
       daemon_directory = ${postfix}/libexec/postfix
-      compatibility_level = 9999
 
       mail_owner = ${user}
       default_privs = nobody

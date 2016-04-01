@@ -120,7 +120,6 @@ let
       gajim = linux;
       gawk = all;
       gcc = linux;
-      gcc44 = linux;
       gcj = linux;
       ghostscript = linux;
       ghostscriptX = linux;
@@ -168,7 +167,6 @@ let
       mupen64plus = linux;
       mutt = linux;
       nano = allBut cygwin;
-      ncat = linux;
       netcat = all;
       nss_ldap = linux;
       nssmdns = linux;

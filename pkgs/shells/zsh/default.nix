@@ -49,13 +49,9 @@ stdenv.mkDerivation {
 
   buildInputs = [ ncurses pcre ];
 
-  configureFlags = [
-    "--enable-maildir-support"
-    "--enable-multibyte"
-    "--enable-zprofile=$out/etc/zprofile"
-    "--with-tcsetpgrp"
-    "--enable-pcre"
-  ];
+  preConfigure = ''
+    configureFlags="--enable-maildir-support --enable-multibyte --enable-zprofile=$out/etc/zprofile --with-tcsetpgrp --enable-pcre"
+  '';
 
   # the zsh/zpty module is not available on hydra
   # so skip groups Y Z

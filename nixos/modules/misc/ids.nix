@@ -258,6 +258,7 @@
       hydra-queue-runner = 235;
       hydra-www = 236;
       syncthing = 237;
+      mfi = 238;
 
       # When adding a uid, make sure it doesn't match an existing gid. And don't use uids above 399!
 

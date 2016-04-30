@@ -21,9 +21,9 @@ let
 
       mysql = m_config.package;
 
-      is55 = m_config.package.mysqlVersion == "5.5";
+      is55 = m_config.package.mysqlVersion == "5.6";
 
-      mysqldDir = if is55 then "${mysql}/bin" else "${mysql}/libexec";
+      mysqldDir = if mysql ? mysqld_path then "${mysql}/${mysql.mysqld_path}" else "${mysql}/bin";
 
       pidFile = "${m_config.pidDir}/mysqld.pid";
 

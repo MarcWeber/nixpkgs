@@ -2,7 +2,7 @@
 
 # Note: zlib is not required; MySQL can use an internal zlib.
 
-stdenv.mkDerivation rec {
+let x = stdenv.mkDerivation rec {
   name = "mysql-${version}";
   version = "5.6.23";
 
@@ -32,10 +32,12 @@ stdenv.mkDerivation rec {
     rm -rf $out/mysql-test $out/sql-bench
   '';
 
-  passthru.mysqlVersion = "5.5";
+  passthru.mysqlVersion = "5.6";
+  passthru.mysqld_path = "libexec";
 
   meta = {
     homepage = http://www.mysql.com/;
-    description = "The world's most popular open source database";
-  };
-}
+    description = "The world's most popular open source database"; };
+};
+
+in x // { lib = x; }

@@ -5428,7 +5428,9 @@ in
     php = php70;
   });
 
-  inherit (callPackages ../development/interpreters/php { })
+  inherit (callPackages ../development/interpreters/php {
+      mysql = mysql56;
+   })
     php55
     php56
     php70;
@@ -9806,6 +9808,8 @@ in
   };
 
   mysql56 = callPackage ../servers/sql/mysql/5.6.x.nix { };
+
+  mysql57 = callPackage ../servers/sql/mysql/5.7.x.nix { };
 
   mysql = mariadb;
   libmysql = mysql.lib;

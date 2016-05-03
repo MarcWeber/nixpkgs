@@ -44,7 +44,7 @@ let
       echo "for hints about the offending path)."
       exit 1
     fi
-    ${libxslt}/bin/xsltproc \
+    ${libxslt.bin}/bin/xsltproc \
       --stringparam revision '${revision}' \
       -o $out ${./options-to-docbook.xsl} $optionsXML
   '';
@@ -57,7 +57,9 @@ let
       chmod -R u+w .
       cp ${../../modules/services/databases/postgresql.xml} configuration/postgresql.xml
       cp ${../../modules/services/misc/gitlab.xml} configuration/gitlab.xml
+      cp ${../../modules/services/misc/taskserver/doc.xml} configuration/taskserver.xml
       cp ${../../modules/security/acme.xml} configuration/acme.xml
+      cp ${../../modules/i18n/input-method/default.xml} configuration/input-methods.xml
       ln -s ${optionsDocBook} options-db.xml
       echo "${version}" > version
     '';
@@ -71,6 +73,63 @@ let
         </d:tocentry>
       </toc>
     '';
+
+  manualXsltprocOptions = toString [
+    "--param section.autolabel 1"
+    "--param section.label.includes.component.label 1"
+    "--stringparam html.stylesheet style.css"
+    "--param xref.with.number.and.title 1"
+    "--param toc.section.depth 3"
+    "--stringparam admon.style ''"
+    "--stringparam callout.graphics.extension .gif"
+    "--stringparam current.docid manual"
+    "--param chunk.section.depth 0"
+    "--param chunk.first.sections 1"
+    "--param use.id.as.filename 1"
+    "--stringparam generate.toc 'book toc appendix toc'"
+    "--stringparam chunk.toc ${toc}"
+  ];
+
+  olinkDB = stdenv.mkDerivation {
+    name = "manual-olinkdb";
+
+    inherit sources;
+
+    buildInputs = [ libxml2 libxslt ];
+
+    buildCommand = ''
+      ${copySources}
+
+      xsltproc \
+        ${manualXsltprocOptions} \
+        --stringparam collect.xref.targets only \
+        --stringparam targets.filename "$out/manual.db" \
+        --nonet --xinclude \
+        ${docbook5_xsl}/xml/xsl/docbook/xhtml/chunktoc.xsl \
+        ./manual.xml
+
+      # Check the validity of the man pages sources.
+      xmllint --noout --nonet --xinclude --noxincludenode \
+        --relaxng ${docbook5}/xml/rng/docbook/docbook.rng \
+        ./man-pages.xml
+
+      cat > "$out/olinkdb.xml" <<EOF
+      <?xml version="1.0" encoding="utf-8"?>
+      <!DOCTYPE targetset SYSTEM
+        "file://${docbook5_xsl}/xml/xsl/docbook/common/targetdatabase.dtd" [
+        <!ENTITY manualtargets SYSTEM "file://$out/manual.db">
+      ]>
+      <targetset>
+        <targetsetinfo>
+            Allows for cross-referencing olinks between the manpages
+            and the HTML/PDF manuals.
+        </targetsetinfo>
+
+        <document targetdoc="manual">&manualtargets;</document>
+      </targetset>
+      EOF
+    '';
+  };
 
 in rec {
 
@@ -114,18 +173,8 @@ in rec {
       dst=$out/share/doc/nixos
       mkdir -p $dst
       xsltproc \
-        --param section.autolabel 1 \
-        --param section.label.includes.component.label 1 \
-        --stringparam html.stylesheet style.css \
-        --param xref.with.number.and.title 1 \
-        --param toc.section.depth 3 \
-        --stringparam admon.style "" \
-        --stringparam callout.graphics.extension .gif \
-        --param chunk.section.depth 0 \
-        --param chunk.first.sections 1 \
-        --param use.id.as.filename 1 \
-        --stringparam generate.toc "book toc appendix toc" \
-        --stringparam chunk.toc ${toc} \
+        ${manualXsltprocOptions} \
+        --stringparam target.database.document "${olinkDB}/olinkdb.xml" \
         --nonet --xinclude --output $dst/ \
         ${docbook5_xsl}/xml/xsl/docbook/xhtml/chunktoc.xsl ./manual.xml
 
@@ -157,6 +206,7 @@ in rec {
       dst=$out/share/doc/nixos
       mkdir -p $dst
       xmllint --xinclude manual.xml | dblatex -o $dst/manual.pdf - \
+        -P target.database.document="${olinkDB}/olinkdb.xml" \
         -P doc.collab.show=0 \
         -P latex.output.revhistory=0
 
@@ -176,7 +226,7 @@ in rec {
     buildCommand = ''
       ${copySources}
 
-      # Check the validity of the manual sources.
+      # Check the validity of the man pages sources.
       xmllint --noout --nonet --xinclude --noxincludenode \
         --relaxng ${docbook5}/xml/rng/docbook/docbook.rng \
         ./man-pages.xml
@@ -188,6 +238,7 @@ in rec {
         --param man.output.base.dir "'$out/share/man/'" \
         --param man.endnotes.are.numbered 0 \
         --param man.break.after.slash 1 \
+        --stringparam target.database.document "${olinkDB}/olinkdb.xml" \
         ${docbook5_xsl}/xml/xsl/docbook/manpages/docbook.xsl \
         ./man-pages.xml
     '';

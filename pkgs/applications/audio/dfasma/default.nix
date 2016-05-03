@@ -1,4 +1,4 @@
-{ stdenv, fetchFromGitHub, fftw, libsndfile, qtbase, qtmultimedia, makeQtWrapper }:
+{ stdenv, fetchFromGitHub, fftw, libsndfile, qtbase, qtmultimedia, qmakeHook, makeQtWrapper }:
 
 let
 
@@ -37,7 +37,7 @@ in stdenv.mkDerivation rec {
     owner = "gillesdegottex";
   };
 
-  buildInputs = [ fftw libsndfile qtbase qtmultimedia ];
+  buildInputs = [ fftw libsndfile qtbase qtmultimedia qmakeHook ];
 
   nativeBuildInputs = [ makeQtWrapper ];
 
@@ -47,8 +47,8 @@ in stdenv.mkDerivation rec {
     cp -Rv "${libqaudioextra.src}"/* external/libqaudioextra
   '';
 
-  configurePhase = ''
-    qmake PREFIX=$out PREFIXSHORTCUT=$out dfasma.pro
+  preConfigure = ''
+    qmakeFlags="$qmakeFlags PREFIXSHORTCUT=$out"
   '';
 
   enableParallelBuilding = true;

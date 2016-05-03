@@ -1,5 +1,5 @@
 { stdenv, fetchurl, fetchpatch, pkgconfig, audiofile, libcap
-, openglSupport ? false, mesa ? null
+, openglSupport ? false, mesa_noglu ? null
 , alsaSupport ? true, alsaLib ? null
 , x11Support ? true, xlibsWrapper ? null, libXrandr ? null
 , pulseaudioSupport ? true, libpulseaudio ? null
@@ -10,7 +10,7 @@
 # PulseAudio.
 assert (stdenv.isLinux && !(stdenv ? cross)) -> alsaSupport || pulseaudioSupport;
 
-assert openglSupport -> (mesa != null && x11Support);
+assert openglSupport -> (mesa_noglu != null && x11Support);
 assert x11Support -> (xlibsWrapper != null && libXrandr != null);
 assert alsaSupport -> alsaLib != null;
 assert pulseaudioSupport -> libpulseaudio != null;
@@ -27,7 +27,8 @@ stdenv.mkDerivation rec {
     sha256 = "005d993xcac8236fpvd1iawkz4wqjybkpn8dbwaliqz5jfkidlyn";
   };
 
-  outputs = [ "out" "man" ];
+  outputs = [ "dev" "out" ];
+  outputBin = "dev"; # sdl-config
 
   nativeBuildInputs = [ pkgconfig ];
 
@@ -36,7 +37,7 @@ stdenv.mkDerivation rec {
     optionals x11Support [ xlibsWrapper libXrandr ] ++
     optional alsaSupport alsaLib ++
     optional stdenv.isLinux libcap ++
-    optional openglSupport mesa ++
+    optional openglSupport mesa_noglu ++
     optional pulseaudioSupport libpulseaudio ++
     optional stdenv.isDarwin Cocoa;
 
@@ -58,7 +59,7 @@ stdenv.mkDerivation rec {
     "--disable-osmesa-shared"
   ] ++ stdenv.lib.optionals (stdenv ? cross) ([
     "--without-x"
-  ] ++ stdenv.lib.optional alsaSupport "--with-alsa-prefix=${alsaLib}/lib");
+  ] ++ stdenv.lib.optional alsaSupport "--with-alsa-prefix=${alsaLib.out}/lib");
 
   patches = [
     # Fix window resizing issues, e.g. for xmonad
@@ -95,6 +96,8 @@ stdenv.mkDerivation rec {
       sha256 = "1336g7waaf1c8yhkz11xbs500h8bmvabh4h437ax8l1xdwcppfxv";
     })
   ];
+
+  postFixup = ''moveToOutput share/aclocal "$dev" '';
 
   passthru = { inherit openglSupport; };
 

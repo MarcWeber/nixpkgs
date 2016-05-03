@@ -55,10 +55,10 @@ let
         version extraConfig extraPerEntryConfig extraEntries
         extraEntriesBeforeNixOS extraPrepareConfig configurationLimit copyKernels timeout
         default fsIdentifier efiSupport gfxmodeEfi gfxmodeBios;
-      path = (makeSearchPath "bin" ([
+      path = (makeBinPath ([
         pkgs.coreutils pkgs.gnused pkgs.gnugrep pkgs.findutils pkgs.diffutils pkgs.btrfs-progs
         pkgs.utillinux ] ++ (if cfg.efiSupport && (cfg.version == 2) then [pkgs.efibootmgr ] else [])
-      )) + ":" + (makeSearchPath "sbin" [
+      )) + ":" + (makeSearchPathOutputs "sbin" ["bin"] [
         pkgs.mdadm pkgs.utillinux
       ]);
     });
@@ -499,7 +499,7 @@ in
         }
       ] ++ flip map args.devices (device: {
         assertion = device == "nodev" || hasPrefix "/" device;
-        message = "GRUB devices must be absolute paths, not ${dev} in ${args.path}";
+        message = "GRUB devices must be absolute paths, not ${device} in ${args.path}";
       }));
     })
 

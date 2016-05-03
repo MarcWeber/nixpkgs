@@ -6,7 +6,7 @@ let
 
   version = "4.0.1631";
 
-  rpath = stdenv.lib.makeSearchPath "lib" [
+  rpath = stdenv.lib.makeLibraryPath [
     xorg.libXext
     xorg.libSM
     xorg.libICE
@@ -36,7 +36,7 @@ let
     xcbutilkeysyms
     systemd
     mesa_noglu
-  ] + ":${stdenv.cc.cc}/lib64";
+  ] + ":${stdenv.cc.cc.lib}/lib64";
 
   src =
     if stdenv.system == "x86_64-linux" then
@@ -69,6 +69,8 @@ stdenv.mkDerivation {
         patchelf --set-interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" $file || true
         patchelf --set-rpath ${rpath}:$out/libexec/hipchat/lib:\$ORIGIN $file || true
     done
+
+    patchShebangs $d/linuxbrowserlaunch.sh
 
     substituteInPlace $out/share/applications/hipchat4.desktop \
       --replace /opt/HipChat4/bin/HipChat4 $out/bin/hipchat

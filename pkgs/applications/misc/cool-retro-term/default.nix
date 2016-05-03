@@ -1,5 +1,5 @@
 { stdenv, fetchgit, makeQtWrapper, qtbase, qtquick1, qmltermwidget,
-qtquickcontrols, qtgraphicaleffects }:
+qtquickcontrols, qtgraphicaleffects, qmakeHook }:
 
 stdenv.mkDerivation rec {
   version = "1.0.0";
@@ -17,11 +17,9 @@ stdenv.mkDerivation rec {
   '';
 
   buildInputs = [ qtbase qtquick1 qmltermwidget qtquickcontrols qtgraphicaleffects ];
-  nativeBuildInputs = [ makeQtWrapper ];
+  nativeBuildInputs = [ makeQtWrapper qmakeHook ];
 
-  configurePhase = "qmake PREFIX=$out";
-
-  installPhase = "make -j $NIX_BUILD_CORES INSTALL_ROOT=$out install";
+  installFlags = [ "INSTALL_ROOT=$(out)" ];
 
   preFixup = ''
     mv $out/usr/share $out/share

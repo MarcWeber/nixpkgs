@@ -62,17 +62,25 @@ in
           ${config.hardware.pulseaudio.package}/bin/pactl load-module module-device-manager "do_routing=1"
         ''}
 
-        exec ${kde5.plasma-workspace}/bin/startkde
+        exec "${kde5.startkde}"
+
       '';
     };
 
-    security.setuidOwners = singleton {
-      program = "kcheckpass";
-      source = "${kde5.plasma-workspace}/lib/libexec/kcheckpass";
-      owner = "root";
-      group = "root";
-      setuid = true;
-    };
+    security.setuidOwners = [
+      {
+        program = "kcheckpass";
+        source = "${kde5.plasma-workspace}/lib/libexec/kcheckpass";
+        owner = "root";
+        setuid = true;
+      }
+      {
+        program = "start_kdeinit_wrapper";
+        source = "${kde5.plasma-workspace}/lib/libexec/kf5/start_kdeinit_wrapper";
+        owner = "root";
+        setuid = true;
+      }
+    ];
 
     environment.systemPackages =
       [
@@ -171,19 +179,22 @@ in
 
     # Enable GTK applications to load SVG icons
     environment.variables = mkIf (lib.hasAttr "breeze-icons" kde5) {
-      GDK_PIXBUF_MODULE_FILE = "${pkgs.librsvg}/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache";
+      GDK_PIXBUF_MODULE_FILE = "${pkgs.librsvg.out}/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache";
     };
 
     fonts.fonts = [ (kde5.oxygen-fonts or pkgs.noto-fonts) ];
 
-    programs.ssh.askPassword = "${kde5.ksshaskpass}/bin/ksshaskpass";
+    programs.ssh.askPassword = "${kde5.ksshaskpass.out}/bin/ksshaskpass";
 
     # Enable helpful DBus services.
     services.udisks2.enable = true;
     services.upower.enable = config.powerManagement.enable;
 
     # Extra UDEV rules used by Solid
-    services.udev.packages = [ pkgs.media-player-info ];
+    services.udev.packages = [
+      pkgs.libmtp
+      pkgs.media-player-info
+    ];
 
     services.xserver.displayManager.sddm = {
       theme = "breeze";

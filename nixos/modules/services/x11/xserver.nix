@@ -219,11 +219,26 @@ in
         '';
       };
 
+      dpi = mkOption {
+        type = types.nullOr types.int;
+        default = null;
+        description = "DPI resolution to use for X server.";
+      };
+
       startDbusSession = mkOption {
         type = types.bool;
         default = true;
         description = ''
           Whether to start a new DBus session when you log in with dbus-launch.
+        '';
+      };
+
+      updateDbusEnvironment = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Whether to update the DBus activation environment after launching the
+          desktop manager.
         '';
       };
 
@@ -450,7 +465,7 @@ in
         ]);
 
     environment.systemPackages =
-      [ xorg.xorgserver
+      [ xorg.xorgserver.out
         xorg.xrandr
         xorg.xrdb
         xorg.setxkbmap
@@ -460,6 +475,7 @@ in
         xorg.xsetroot
         xorg.xinput
         xorg.xprop
+        xorg.xauth
         pkgs.xterm
         pkgs.xdg_utils
       ]
@@ -487,7 +503,7 @@ in
             XKB_BINDIR = "${xorg.xkbcomp}/bin"; # Needed for the Xkb extension.
             XORG_DRI_DRIVER_PATH = "/run/opengl-driver/lib/dri"; # !!! Depends on the driver selected at runtime.
             LD_LIBRARY_PATH = concatStringsSep ":" (
-              [ "${xorg.libX11}/lib" "${xorg.libXext}/lib" ]
+              [ "${xorg.libX11.out}/lib" "${xorg.libXext.out}/lib" ]
               ++ concatLists (catAttrs "libPath" cfg.drivers));
           } // cfg.displayManager.job.environment;
 
@@ -507,18 +523,18 @@ in
       };
 
     services.xserver.displayManager.xserverArgs =
-      [ "-ac"
-        "-terminate"
+      [ "-terminate"
         "-config ${configFile}"
         "-xkbdir" "${cfg.xkbDir}"
       ] ++ optional (cfg.display != null) ":${toString cfg.display}"
         ++ optional (cfg.tty     != null) "vt${toString cfg.tty}"
+        ++ optional (cfg.dpi     != null) "-dpi ${toString cfg.dpi}"
         ++ optionals (cfg.display != null) [ "-logfile" "/var/log/X.${toString cfg.display}.log" ]
         ++ optional (!cfg.enableTCP) "-nolisten tcp";
 
     services.xserver.modules =
       concatLists (catAttrs "modules" cfg.drivers) ++
-      [ xorg.xorgserver
+      [ xorg.xorgserver.out
         xorg.xf86inputevdev
       ];
 

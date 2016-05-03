@@ -1,4 +1,4 @@
-{ fetchgit, qt5, stdenv
+{ fetchgit, qtbase, qmakeHook, stdenv
 }:
 
 stdenv.mkDerivation rec {
@@ -11,13 +11,14 @@ stdenv.mkDerivation rec {
     sha256 = "15sb7vinaaz1v5nclxpnp5p9a0kmfmlgiqibkipnyydizclidpfx";
   };
 
-  buildInputs = [ qt5.qtbase ];
+  buildInputs = [ qtbase ];
+  nativeBuildInputs = [ qmakeHook ];
 
   enableParallelBuild = true;
 
   configurePhase = ''
     sed -i -e 's|/bin/pwd|pwd|g' configure
-    ./configure -config release -prefix $out -qmake ${qt5.qtbase}/bin/qmake
+    ./configure -config release -prefix $out -qmake $QMAKE
   '';
 
   meta = with stdenv.lib; {

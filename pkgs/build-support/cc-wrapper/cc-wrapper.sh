@@ -1,7 +1,7 @@
 #! @shell@ -e
 path_backup="$PATH"
-if [ -n "@coreutils@" ]; then
-  PATH="@coreutils@/bin:@gnugrep@/bin"
+if [ -n "@coreutils_bin@" ]; then
+  PATH="@coreutils_bin@/bin:@gnugrep_bin@/bin"
 fi
 
 if [ -n "$NIX_CC_WRAPPER_START_HOOK" ]; then
@@ -46,9 +46,9 @@ while [ $n -lt ${#params[*]} ]; do
         isCpp=1
     elif [ "$p" = -nostdlib ]; then
         isCpp=-1
-    elif [ "${i:0:1}" != - ]; then
+    elif [ "${p:0:1}" != - ]; then
         nonFlagArgs=1
-    elif [ "$i" = -m32 ]; then
+    elif [ "$p" = -m32 ]; then
         if [ -e @out@/nix-support/dynamic-linker-m32 ]; then
             NIX_LDFLAGS="$NIX_LDFLAGS -dynamic-linker $(cat @out@/nix-support/dynamic-linker-m32)"
         fi

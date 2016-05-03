@@ -22,10 +22,10 @@ let
     src = ./nixos-install.sh;
 
     inherit (pkgs) perl pathsFromGraph;
-    nix = config.nix.package;
+    nix = config.nix.package.out;
 
     nixClosure = pkgs.runCommand "closure"
-      { exportReferencesGraph = ["refs" config.nix.package]; }
+      { exportReferencesGraph = ["refs" config.nix.package.out]; }
       "cp refs $out";
   };
 
@@ -79,7 +79,7 @@ let
   nixos-rebuild = makeProg {
     name = "nixos-rebuild";
     src = ./nixos-rebuild.sh;
-    nix = config.nix.package;
+    nix = config.nix.package.out;
   };
 
   nixos-generate-config = makeProg {

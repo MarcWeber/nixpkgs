@@ -1,5 +1,5 @@
 { fetchurl, stdenv, pkgconfig, libpulseaudio, gtkmm, libglademm
-, dbus_glib, gconfmm, intltool }:
+, dbus_glib, GConf, gconfmm, intltool }:
 
 stdenv.mkDerivation rec {
   name = "paprefs-0.9.10";
@@ -13,6 +13,8 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [ pkgconfig intltool ];
 
+  propagatedUserEnvPkgs = [ GConf ];
+
   configureFlags = [ "--disable-lynx" ];
 
   meta = with stdenv.lib; {
@@ -23,7 +25,7 @@ stdenv.mkDerivation rec {
       dialog for the PulseAudio sound server.
     '';
 
-    homepage = http://freedesktop.org/software/pulseaudio/paprefs/;
+    homepage = "http://freedesktop.org/software/pulseaudio/paprefs/";
 
     license = licenses.gpl2Plus;
 

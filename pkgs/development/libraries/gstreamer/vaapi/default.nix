@@ -1,21 +1,23 @@
-{ stdenv, fetchurl, pkgconfig, gst-plugins-base, bzip2, libva
+{ stdenv, fetchurl, pkgconfig, gst-plugins-base, bzip2, libva, wayland
 , libdrm, udev, xorg, mesa, yasm, gstreamer, gst-plugins-bad, nasm
 , libvpx
 }:
 
 stdenv.mkDerivation rec {
   name = "gst-vaapi-${version}";
-  version = "0.6.1";
+  version = "0.7.0";
 
   src = fetchurl {
     url = "${meta.homepage}/software/vaapi/releases/gstreamer-vaapi/gstreamer-vaapi-${version}.tar.bz2";
-    sha256 = "1cv7zlz5wj6b3acv0pr5cq5wqzd5vcs1lrrlvyl9wrzcnzz8mz1n";
+    sha256 = "14jal2g5mf8r59w8420ixl3kg50vcmy56446ncwd0xrizd6yms5b";
   };
 
   nativeBuildInputs = with stdenv.lib; [ pkgconfig bzip2 ];
 
-  buildInputs = with stdenv.lib; [ gstreamer gst-plugins-base gst-plugins-bad libva libdrm udev
-    xorg.libX11 xorg.libXext xorg.libXv xorg.libXrandr xorg.libSM xorg.libICE mesa nasm libvpx ];
+  buildInputs = [
+    gstreamer gst-plugins-base gst-plugins-bad libva wayland libdrm udev
+    xorg.libX11 xorg.libXext xorg.libXv xorg.libXrandr xorg.libSM xorg.libICE mesa nasm libvpx
+  ];
 
   preConfigure = "
     export GST_PLUGIN_PATH_1_0=$out/lib/gstreamer-1.0

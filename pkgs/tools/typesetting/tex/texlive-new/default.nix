@@ -104,6 +104,7 @@ let
   mkUrlName = { pname, tlType, ... }:
     pname + lib.optionalString (tlType != "run") ".${tlType}";
 
+  # command to unpack a single TL package
   unpackPkg =
     { # url ? null, urlPrefix ? null
       md5, pname, tlType, postUnpack ? "", stripPrefix ? 1, ...
@@ -113,12 +114,17 @@ let
         ("${mirror}/pub/tex/historic/systems/texlive/${bin.texliveYear}/tlnet-final/archive");
       # beware: standard mirrors http://mirror.ctan.org/ don't have releases
       mirror = "http://ftp.math.utah.edu"; # ftp://tug.ctan.org no longer works, although same IP
-    in  ''
-          tar -xf '${ fetchurl { inherit url md5; } }' \
+    in
+      rec {
+        src = fetchurl { inherit url md5; };
+        unpackCmd =  ''
+          tar -xf '${src}' \
             '--strip-components=${toString stripPrefix}' \
             -C "$out" --anchored --exclude=tlpkg --keep-old-files
         '' + postUnpack;
+      };
 
+  # create a derivation that contains unpacked upstream TL packages
   mkPkgs = { pname, tlType, version, pkgList }@args:
       /* TODOs:
           - "historic" isn't mirrored; posted a question at #287
@@ -127,10 +133,14 @@ let
     let
       tlName = "${mkUrlName args}-${version}";
       fixedHash = fixedHashes.${tlName} or null; # be graceful about missing hashes
+      pkgs = map unpackPkg (fastUnique (a: b: a.md5 < b.md5) pkgList);
     in runCommand "texlive-${tlName}"
       ( { # lots of derivations, not meant to be cached
           preferLocalBuild = true; allowSubstitutes = false;
-          passthru = { inherit pname tlType version; };
+          passthru = {
+            inherit pname tlType version;
+            srcs = map (pkg: pkg.src) pkgs;
+          };
         } // lib.optionalAttrs (fixedHash != null) {
           outputHash = fixedHash;
           outputHashAlgo = "sha1";
@@ -139,7 +149,7 @@ let
       )
       ( ''
           mkdir "$out"
-        '' + lib.concatMapStrings unpackPkg (fastUnique (a: b: a.md5 < b.md5) pkgList)
+        '' + lib.concatMapStrings (pkg: pkg.unpackCmd) pkgs
       );
 
   # combine a set of TL packages into a single TL meta-package

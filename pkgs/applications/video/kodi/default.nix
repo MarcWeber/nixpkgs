@@ -1,7 +1,7 @@
 { stdenv, lib, fetchurl, makeWrapper
 , pkgconfig, cmake, gnumake, yasm, pythonFull
 , boost, avahi, libdvdcss, lame, autoreconfHook
-, gettext, pcre, yajl, fribidi, which
+, gettext, pcre-cpp, yajl, fribidi, which
 , openssl, gperf, tinyxml2, taglib, libssh, swig, jre
 , libX11, xproto, inputproto, libxml2
 , libXt, libXmu, libXext, xextproto
@@ -40,23 +40,23 @@ assert rtmpSupport  -> rtmpdump != null;
 let
   rel = "Jarvis";
   ffmpeg_2_8_6 = fetchurl {
-    url = "https://github.com/xbmc/FFmpeg/archive/2.8.6-${rel}-16.0.tar.gz";
-    sha256 = "00cvjwfpz6ladmln4yny4d4viwflrbgrid1na412g5pif70qv3dh";
+    url = "https://github.com/xbmc/FFmpeg/archive/2.8.6-${rel}-16.1.tar.gz";
+    sha256 = "1qp8b97298l2pnhhcp7xczdfwr7q7ibxlk4vp8pfmxli2h272wan";
   };
 in stdenv.mkDerivation rec {
     name = "kodi-" + version;
-    version = "16.0";
+    version = "16.1";
 
     src = fetchurl {
       url = "https://github.com/xbmc/xbmc/archive/${version}-${rel}.tar.gz";
-      sha256 = "0iirspvv7czf785l2lqf232dvdaj87srbn9ni97ngvnd6w9yl884";
+      sha256 = "047xpmz78k3d6nhk1x9s8z0bw1b1w9kca46zxkg86p3iyapwi0kx";
     };
 
     buildInputs = [
       makeWrapper libxml2 gnutls
       pkgconfig cmake gnumake yasm pythonFull
       boost libmicrohttpd autoreconfHook
-      gettext pcre yajl fribidi libva
+      gettext pcre-cpp yajl fribidi libva
       openssl gperf tinyxml2 taglib libssh swig jre
       libX11 xproto inputproto which
       libXt libXmu libXext xextproto
@@ -110,15 +110,9 @@ in stdenv.mkDerivation rec {
           --prefix PATH ":" "${pythonFull}/bin" \
           --prefix PATH ":" "${glxinfo}/bin" \
           --prefix PATH ":" "${xdpyinfo}/bin" \
-          --prefix LD_LIBRARY_PATH ":" "${curl}/lib" \
-          --prefix LD_LIBRARY_PATH ":" "${systemd}/lib" \
-          --prefix LD_LIBRARY_PATH ":" "${libmad}/lib" \
-          --prefix LD_LIBRARY_PATH ":" "${libvdpau}/lib" \
-          --prefix LD_LIBRARY_PATH ":" "${libcec}/lib" \
-          --prefix LD_LIBRARY_PATH ":" "${libcec_platform}/lib" \
-          --prefix LD_LIBRARY_PATH ":" "${libass}/lib" \
-          --prefix LD_LIBRARY_PATH ":" "${rtmpdump}/lib" \
-          --prefix LD_LIBRARY_PATH ":" "${SDL2}/lib"
+          --prefix LD_LIBRARY_PATH ":" "${lib.makeLibraryPath
+              [ curl systemd libmad libvdpau libcec libcec_platform rtmpdump libass SDL2 ]
+            }"
       done
     '';
 

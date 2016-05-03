@@ -118,6 +118,10 @@ with stdenv.lib;
   ${optionalString (stdenv.system == "x86_64-linux") ''
     BPF_JIT y
   ''}
+  ${optionalString (versionAtLeast version "4.4") ''
+    NET_CLS_BPF m
+    NET_ACT_BPF m
+  ''}
 
   # Wireless networking.
   CFG80211_WEXT? y # Without it, ipw2200 drivers don't build
@@ -398,6 +402,10 @@ with stdenv.lib;
   ${optionalString (versionAtLeast version "3.10") ''
     UPROBE_EVENT y
   ''}
+  ${optionalString (versionAtLeast version "4.4") ''
+    BPF_SYSCALL y
+    BPF_EVENTS y
+  ''}
   FUNCTION_PROFILER y
   RING_BUFFER_BENCHMARK n
 
@@ -487,6 +495,9 @@ with stdenv.lib;
   ${optionalString (versionAtLeast version "3.10") ''
     BINFMT_SCRIPT y
   ''}
+
+  # For systemd-binfmt
+  BINFMT_MISC? y
 
   # Enable the 9P cache to speed up NixOS VM tests.
   9P_FSCACHE? y

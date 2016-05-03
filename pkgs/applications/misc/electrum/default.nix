@@ -5,7 +5,7 @@ let
     version = "0.1.7";
     name = "jsonrpclib-${version}";
     src = fetchurl {
-      url = "https://pypi.python.org/packages/source/j/jsonrpclib/${name}.tar.gz";
+      url = "mirror://pypi/j/jsonrpclib/${name}.tar.gz";
       sha256 = "02vgirw2bcgvpcxhv5hf3yvvb4h5wzd1lpjx8na5psdmaffj6l3z";
     };
     propagatedBuildInputs = [ pythonPackages.cjson ];
@@ -18,11 +18,11 @@ in
 
 pythonPackages.buildPythonApplication rec {
   name = "electrum-${version}";
-  version = "2.6.3";
+  version = "2.6.4";
 
   src = fetchurl {
     url = "https://download.electrum.org/${version}/Electrum-${version}.tar.gz";
-    sha256 = "0lj3a8zg6dznpnnxyza8a05c13py52j62rqlad1zcgksm5g63vic";
+    sha256 = "0rpqpspmrmgm0bhsnlnhlwhag6zg8hnv5bcw5vkqmv86891kpd9a";
   };
 
   propagatedBuildInputs = with pythonPackages; [

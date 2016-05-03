@@ -1,5 +1,5 @@
 { stdenv, fetchurl, python, pkgconfig, qtbase, qtsvg, qtwebkit, sip, pythonDBus
-, lndir, makeWrapper }:
+, lndir, makeWrapper, qmakeHook }:
 
 let
   version = "5.5.1";
@@ -21,7 +21,7 @@ in stdenv.mkDerivation {
 
   buildInputs = [
     python pkgconfig makeWrapper lndir
-    qtbase qtsvg qtwebkit
+    qtbase qtsvg qtwebkit qmakeHook
   ];
 
   propagatedBuildInputs = [ sip ];

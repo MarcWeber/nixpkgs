@@ -1,4 +1,4 @@
-{ stdenv, fetchFromGitHub, fftw, qtbase }:
+{ stdenv, fetchFromGitHub, fftw, qtbase, qmakeHook }:
 
 stdenv.mkDerivation rec {
   name = "libkeyfinder-${version}";
@@ -11,16 +11,12 @@ stdenv.mkDerivation rec {
     owner = "ibsh";
   };
 
-  buildInputs = [ fftw qtbase ];
+  buildInputs = [ fftw qtbase qmakeHook ];
 
   postPatch = ''
     substituteInPlace LibKeyFinder.pro \
       --replace "/usr/local" "$out" \
       --replace "-stdlib=libc++" ""
-  '';
-
-  configurePhase = ''
-    qmake
   '';
 
   enableParallelBuilding = true;

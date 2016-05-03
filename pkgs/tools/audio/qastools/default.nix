@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, cmake, alsaLib, udev, qt }:
+{ stdenv, fetchurl, cmake, alsaLib, udev, qt4 }:
 
 let
   version = "0.18.1";
@@ -13,12 +13,12 @@ stdenv.mkDerivation {
   };
 
   buildInputs = [
-    cmake alsaLib udev qt
+    cmake alsaLib udev qt4
   ];
 
   cmakeFlags = [
     "-DCMAKE_INSALL_PREFIX=$out"
-    "-DALSA_INCLUDE=${alsaLib}/include/alsa/version.h"
+    "-DALSA_INCLUDE=${alsaLib.dev}/include/alsa/version.h"
   ];
 
   meta = with stdenv.lib; {

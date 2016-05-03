@@ -1,90 +1,57 @@
-{ callPackage, stdenv, fetchurl, makeWrapper
-, jq, xlibs, gtk, python, nodejs
-, ...
-} @ args:
+{ stdenv, lib, callPackage, fetchurl, unzip, atomEnv, makeDesktopItem }:
 
 let
-  electron = callPackage ../../../development/tools/electron/default.nix (args // rec {
-    version = "0.35.6";
-    sha256 = "1bwn14769nby04zkza9jphsya2p6fjnkm1k2y4h5y2l4gnqdvmx0";
-  });
+  version = "1.0.0";
+  rev = "fa6d0f03813dfb9df4589c30121e9fcffa8a8ec8";
+
+  sha256 = if stdenv.system == "i686-linux"    then "1nnsvr51k8cmq8rccksylam4ww40pdn9dnhnp9096z5ccrf4qa1b"
+      else if stdenv.system == "x86_64-linux"  then "0p408pp2il6kawfsql8n5dvl75kmf2n2p0r266mjnww6vprmq4gw"
+      else if stdenv.system == "x86_64-darwin" then "06k41ljfvgyxbl364jlkdjk8lkwr6bpq2r051vin93cnqfxridkq"
+      else throw "Unsupported system: ${stdenv.system}";
+
+  urlMod = if stdenv.system == "i686-linux" then "linux-ia32"
+      else if stdenv.system == "x86_64-linux" then "linux-x64"
+      else if stdenv.system == "x86_64-darwin" then "darwin"
+      else throw "Unsupported system: ${stdenv.system}";
 in
   stdenv.mkDerivation rec {
     name = "vscode-${version}";
-    version = "0.10.10";
+    inherit version;
 
     src = fetchurl {
-      url = "https://github.com/Microsoft/vscode/archive/${version}.tar.gz";
-      sha256 = "1mzkip6621111xwwksqjad1kgpbhna4dhpkf6cnj2r18dkk2jmcw";
+      url = "https://az764295.vo.msecnd.net/stable/${rev}/VSCode-${urlMod}-stable.zip";
+      inherit sha256;
     };
 
-    buildInputs = [ makeWrapper jq xlibs.libX11 xlibs.xproto gtk python nodejs electron ];
+    desktopItem = makeDesktopItem {
+      name = "code";
+      exec = "code";
+      icon = "code";
+      comment = "Visual Studio Code is a code editor redefined and optimized for building and debugging modern web and cloud applications";
+      desktopName = "Visual Studio Code";
+      genericName = "Text Editor";
+      categories = "GNOME;GTK;Utility;TextEditor;Development;";
+    };
 
-    extensionGalleryJSON = ''
-      {
-        \"extensionsGallery\": {
-          \"serviceUrl\": \"https://marketplace.visualstudio.com/_apis/public/gallery\",
-          \"cacheUrl\": \"https://vscode.blob.core.windows.net/gallery/index\",
-          \"itemUrl\": \"https://marketplace.visualstudio.com/items\"
-        }
-      }
-    '';
-
-    configurePhase = ''
-      # PATCH SCRIPT SHEBANGS
-      echo "PATCH SCRIPT SHEBANGS"
-      patchShebangs ./scripts
-
-      # ADD EXTENSION GALLERY URLS TO APPLICATION CONFIGURATION
-      echo "AUGMENT APPLICATION CONFIGURATION"
-      echo "$(cat ./product.json) ${extensionGalleryJSON}" | jq -s add  > tmpFile && \
-        mv tmpFile ./product.json
-    '';
-
-    buildPhase  = ''
-      # BUILD COMPILE- & RUN-TIME DEPENDENCIES
-      echo "BUILD COMPILE- & RUN-TIME DEPENDENCIES"
-      mkdir -p ./tmp
-      HOME=./tmp ./scripts/npm.sh install
-
-      # COMPILE SOURCES
-      echo "COMPILE SOURCES"
-      ./node_modules/.bin/gulp
-    '';
-
-    doCheck = true;
-    checkPhase = ''
-      # CHECK APPLICATION
-      echo "CHECK APPLICATION"
-      ATOM_SHELL_INTERNAL_RUN_AS_NODE=1 ${electron}/bin/electron ./node_modules/.bin/_mocha
-    '';
+    buildInputs = [ unzip ];
 
     installPhase = ''
-      # PRUNE COMPILE-TIME DEPENDENCIES
-      echo "PRUNE COMPILE-TIME DEPENDENCIES"
-      npm prune --production
+      mkdir -p $out/lib/vscode $out/bin
+      cp -r ./* $out/lib/vscode
+      ln -s $out/lib/vscode/code $out/bin
 
-      # COPY FILES NEEDED FOR RUNNING APPLICATION TO OUT DIRECTORY
-      echo "COPY FILES NEEDED FOR RUNNING APPLICATION TO OUT DIRECTORY"
-      mkdir -p "$out"
-      cp -R ./.vscode "$out"/.vscode
-      cp -R ./extensions "$out"/extensions
-      cp -R ./out "$out"/out
-      cp -R ./node_modules "$out"/node_modules
-      cp ./package.json "$out"/package.json
-      cp ./product.json "$out"/product.json
-      cp ./tslint.json "$out"/tslint.json
-      # COPY LEGAL STUFF
-      cp ./LICENSE.txt "$out"/LICENSE.txt
-      cp ./OSSREADME.json "$out"/OSSREADME.json
-      cp ./ThirdPartyNotices.txt "$out"/ThirdPartyNotices.txt
+      mkdir -p $out/share/applications
+      cp $desktopItem/share/applications/* $out/share/applications
 
-      # CREATE RUNNER SCRIPT
-      echo "CREATE RUNNER SCRIPT"
-      mkdir -p "$out"/bin
-      makeWrapper "${electron}/bin/electron" "$out/bin/vscode" \
-      --set VSCODE_DEV 1 \
-      --add-flags "$out"
+      mkdir -p $out/share/pixmaps
+      cp $out/lib/vscode/resources/app/resources/linux/code.png $out/share/pixmaps/code.png
+    '';
+
+    postFixup = lib.optionalString (stdenv.system == "i686-linux" || stdenv.system == "x86_64-linux") ''
+      patchelf \
+        --set-interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" \
+        --set-rpath "${atomEnv.libPath}:$out/lib/vscode" \
+        $out/lib/vscode/code
     '';
 
     meta = with stdenv.lib; {
@@ -95,7 +62,8 @@ in
         It is also customizable, so users can change the editor's theme, keyboard shortcuts, and preferences.
       '';
       homepage = http://code.visualstudio.com/;
-      license = licenses.mit;
-      platforms = [ "x86_64-linux" ];
+      downloadPage = https://code.visualstudio.com/Updates;
+      license = licenses.unfree;
+      platforms = [ "i686-linux" "x86_64-linux" "x86_64-darwin" ];
     };
   }

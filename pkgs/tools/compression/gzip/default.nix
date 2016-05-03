@@ -1,14 +1,19 @@
-{ stdenv, fetchurl }:
+{ stdenv, fetchurl, xz }:
 
 stdenv.mkDerivation rec {
-  name = "gzip-1.6";
+  name = "gzip-${version}";
+  version = "1.7";
 
   src = fetchurl {
     url = "mirror://gnu/gzip/${name}.tar.xz";
-    sha256 = "0ivqnbhiwd12q8hp3qw6rpsrpw2jg5y2mymk8cn22lsx90dfvprp";
+    sha256 = "1as1ddq58spflzz5kxm0ni0xfpswrkkrncjpxyb3aw77gizcacgv";
   };
 
+  outputs = [ "out" "man" "info" ];
+
   enableParallelBuilding = true;
+
+  buildInputs = [ xz.bin ];
 
   preConfigure = if stdenv.isCygwin then ''
     sed -i lib/fpending.h -e 's,include <stdio_ext.h>,,'
@@ -18,7 +23,7 @@ stdenv.mkDerivation rec {
   makeFlags = "SHELL=/bin/sh GREP=grep";
 
   meta = {
-    homepage = http://www.gnu.org/software/gzip/;
+    homepage = https://www.gnu.org/software/gzip/;
     description = "GNU zip compression program";
 
     longDescription =

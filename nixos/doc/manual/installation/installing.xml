@@ -157,10 +157,6 @@ $ nano /mnt/etc/nixos/configuration.nix
     <command>nixos-generate-config</command> will figure out the
     required modules.</para></note>
 
-    <para>Examples of real-world NixOS configuration files can be
-    found at <link
-    xlink:href="https://nixos.org/repos/nix/configurations/trunk/"/>.</para>
-
   </listitem>
 
   <listitem><para>Do the installation:
@@ -274,5 +270,6 @@ $ reboot</screen>
 
 <xi:include href="installing-uefi.xml" />
 <xi:include href="installing-usb.xml" />
+<xi:include href="installing-pxe.xml" />
 
 </chapter>

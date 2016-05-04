@@ -42,7 +42,7 @@ self: super: {
   xhtml = self.xhtml_3000_2_1;
 
   # https://github.com/haskell/cabal/issues/2322
-  Cabal_1_22_4_0 = super.Cabal_1_22_4_0.override { binary = self.binary_0_8_2_1; process = self.process_1_2_3_0; };
+  Cabal_1_22_4_0 = super.Cabal_1_22_4_0.override { binary = self.binary_0_8_3_0; process = self.process_1_2_3_0; };
 
   # Newer versions don't compile.
   Cabal_1_18_1_7 = dontJailbreak super.Cabal_1_18_1_7;
@@ -77,5 +77,11 @@ self: super: {
 
   # Needs void on pre 7.10.x compilers.
   conduit = addBuildDepend super.conduit self.void;
+
+  # Needs tagged on pre 7.6.x compilers.
+  reflection = addBuildDepend super.reflection self.tagged;
+
+  # Needs nats on pre 7.6.x compilers.
+  semigroups = addBuildDepend super.semigroups self.nats;
 
 }

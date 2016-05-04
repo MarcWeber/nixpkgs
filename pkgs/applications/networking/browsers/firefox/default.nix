@@ -18,14 +18,14 @@ assert stdenv.cc ? libc && stdenv.cc.libc != null;
 
 let
 
-common = { pname, version, sha256 }: stdenv.mkDerivation rec {
+common = { pname, version, sha512 }: stdenv.mkDerivation rec {
   name = "${pname}-unwrapped-${version}";
 
   src = fetchurl {
     url =
       let ext = if lib.versionAtLeast version "41.0" then "xz" else "bz2";
       in "http://ftp.mozilla.org/pub/mozilla.org/firefox/releases/${version}/source/firefox-${version}.source.tar.${ext}";
-    inherit sha256;
+    inherit sha512;
   };
 
   buildInputs =
@@ -35,7 +35,7 @@ common = { pname, version, sha256 }: stdenv.mkDerivation rec {
       alsaLib nspr nss libnotify xorg.pixman yasm mesa
       xorg.libXScrnSaver xorg.scrnsaverproto pysqlite
       xorg.libXext xorg.xextproto sqlite unzip makeWrapper
-      hunspell libevent libstartup_notification libvpx /* cairo */
+      hunspell libevent libstartup_notification /* libvpx */ /* cairo */
       gstreamer gst_plugins_base icu libpng jemalloc
       libpulseaudio # only headers are needed
     ]
@@ -50,7 +50,7 @@ common = { pname, version, sha256 }: stdenv.mkDerivation rec {
       "--with-system-nspr"
       "--with-system-nss"
       "--with-system-libevent"
-      "--with-system-libvpx"
+      #"--with-system-libvpx" # needs 1.5.0
       "--with-system-png" # needs APNG support
       "--with-system-icu"
       "--enable-system-ffi"
@@ -69,6 +69,7 @@ common = { pname, version, sha256 }: stdenv.mkDerivation rec {
       "--disable-updater"
       "--enable-jemalloc"
       "--disable-gconf"
+      "--enable-default-toolkit=cairo-gtk2"
     ]
     ++ lib.optional enableGTK3 "--enable-default-toolkit=cairo-gtk3"
     ++ (if debugBuild then [ "--enable-debug" "--enable-profiling" ]
@@ -130,14 +131,14 @@ in {
 
   firefox-unwrapped = common {
     pname = "firefox";
-    version = "45.0.1";
-    sha256 = "1j6raz51zcj2hxk0spk5zq8xzxi5nlxxm60dpnb7cs6dv334m0fi";
+    version = "46.0";
+    sha512 = "f5a652e25fa74e3cb271af04d50cc7b63ca73fde9d2ff350e84b3dda55352bac2b28b567aed12164285d992414ad475da9d2555ab972e5c5d7b8f5226591036b";
   };
 
   firefox-esr-unwrapped = common {
     pname = "firefox-esr";
-    version = "45.0.1esr";
-    sha256 = "0rkk3cr3r7v5xzbcqhyx8b633v4a16ika0wk46p0ichh9n5mci0s";
+    version = "45.0.2esr";
+    sha512 = "a1e9e9371ee47181b01252d60166c405a7835063dffb4928dfb8abb9f151edd8db1dd2b59f35d7898f1660a0fcd8e41f91a3e799c25b6dd43b6ab056bc5ad6bf";
   };
 
 }

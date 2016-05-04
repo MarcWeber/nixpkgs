@@ -13066,8 +13066,6 @@ in
 
   caps = callPackage ../applications/audio/caps { };
 
-  claws-mail = callPackage ../applications/networking/mailreaders/claws-mail { };
-
   LazyLimiter = callPackage ../applications/audio/LazyLimiter { };
 
   lastwatch = callPackage ../applications/audio/lastwatch { };

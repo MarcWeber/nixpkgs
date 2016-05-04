@@ -8,7 +8,13 @@ stdenv.mkDerivation rec {
     sha256 = "1f5dfxjnil2glfwxnqr14d2cjfbkghsbsn8n04js2c2icr7iv2pv";
   };
 
-  outputs = [ "out" "doc" ];
+  outputs = [ "out" "docdev" ];
+
+  patches = [
+    # Fix warning spam
+    ./pygobject-2.28.6-set_qdata.patch
+    ./pygobject-2.28.6-gio-types-2.32.patch
+  ];
 
   configureFlags = "--disable-introspection";
 

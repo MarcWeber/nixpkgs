@@ -1,6 +1,9 @@
-###### Things done:
+###### Things done
 
-- [ ] Tested using sandboxing (`nix-build --option build-use-chroot true` or [nix.useChroot](http://nixos.org/nixos/manual/options.html#opt-nix.useChroot) on NixOS)
+- [ ] Tested using sandboxing
+  ([nix.useSandbox](http://nixos.org/nixos/manual/options.html#opt-nix.useSandbox) on NixOS,
+    or option `build-use-sandbox` in [`nix.conf`](http://nixos.org/nix/manual/#sec-conf-file)
+    on non-NixOS)
 - Built on platform(s)
    - [ ] NixOS
    - [ ] OS X
@@ -9,13 +12,5 @@
 - [ ] Tested execution of all binary files (usually in `./result/bin/`)
 - [ ] Fits [CONTRIBUTING.md](https://github.com/NixOS/nixpkgs/blob/master/.github/CONTRIBUTING.md).
 
-###### More
-
-Fixes issue #<insert id>
-
-cc @<maintainer>
-
-
 ---
 
-_Please note, that points are not mandatory, but rather desired._

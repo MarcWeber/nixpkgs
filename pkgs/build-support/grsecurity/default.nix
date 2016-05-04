@@ -90,6 +90,10 @@ let
         GRKERNSEC y
         ${grsecMainConfig}
 
+        # The paxmarks mechanism relies on ELF header markings, but the default
+        # grsecurity configuration only enables xattr markings
+        PAX_PT_PAX_FLAGS y
+
         ${if cfg.config.restrictProc then
             "GRKERNSEC_PROC_USER y"
           else
@@ -114,17 +118,10 @@ let
          "-${grkern.grversion}-${grkern.revision}";
 
     grsecurityOverrider = args: grkern: {
-      # Apparently as of gcc 4.6, gcc-plugin headers (which are needed by PaX plugins)
-      # include libgmp headers, so we need these extra tweaks
-      # As of gcc5 we also need libmpc
-      buildInputs = args.buildInputs ++ [ pkgs.gmp pkgs.libmpc pkgs.mpfr ];
-      preConfigure = ''
-        extraIncludes="-I${pkgs.gmp}/include -I${pkgs.libmpc}/include -I${pkgs.mpfr}/include"
-        ${args.preConfigure or ""}
-        sed -i "s|-I|$extraIncludes -I|" scripts/gcc-plugin.sh
-        sed -i "s|HOST_EXTRACFLAGS +=|HOST_EXTRACFLAGS += $extraIncludes|" tools/gcc/Makefile
-        sed -i "s|HOST_EXTRACXXFLAGS +=|HOST_EXTRACXXFLAGS += $extraIncludes|" tools/gcc/Makefile
-        rm localversion-grsec
+      # additional build inputs for gcc plugins, required by some PaX/grsec features
+      nativeBuildInputs = args.nativeBuildInputs ++ (with pkgs; [ gmp libmpc mpfr ]);
+
+      preConfigure = (args.preConfigure or "") + ''
         echo ${localver grkern} > localversion-grsec
       '';
     };

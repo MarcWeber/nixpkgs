@@ -35,6 +35,10 @@ let x = stdenv.mkDerivation rec {
   passthru.mysqlVersion = "5.6";
   passthru.mysqld_path = "libexec";
 
+  passthru.mysql_initialize_datadir_cmd = {mysql, user, dataDir, ...}: ''
+    ${mysql}/bin/mysql_install_db "--user=${user} --datadir=${dataDir} --basedir=${mysql} ";
+  '';
+
   meta = {
     homepage = http://www.mysql.com/;
     description = "The world's most popular open source database";

@@ -85,10 +85,14 @@ in
   };
 
   config = mkIf (config.boot.initrd.network.enable && cfg.enable) {
+    assertions = [ {
+      assertion = cfg.hostRSAKey != null || cfg.hostDSSKey != null || cfg.hostECDSAKey != null;
+      message = "You should specify at least one host key for initrd SSH";
+    } ];
 
     boot.initrd.extraUtilsCommands = ''
       copy_bin_and_libs ${pkgs.dropbear}/bin/dropbear
-      cp -pv ${pkgs.glibc}/lib/libnss_files.so.* $out/lib
+      cp -pv ${pkgs.glibc.out}/lib/libnss_files.so.* $out/lib
     '';
 
     boot.initrd.extraUtilsCommandsTest = ''

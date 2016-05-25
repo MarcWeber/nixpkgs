@@ -259,11 +259,18 @@ let
 
       perlPackages = { };
 
-      pythonPackages = { };
+      pythonPackages = {
+        pandas = unix;
+        scikitlearn = unix;
+      };
       python2Packages = { };
       python27Packages = { };
       python3Packages = { };
-      python35Packages = { };
+      python35Packages = {
+        blaze = unix;
+        pandas = unix;
+        scikitlearn = unix;
+      };
 
       xorg = {
         fontadobe100dpi = linux ++ darwin;
@@ -291,7 +298,6 @@ let
         xf86videonv = linux;
         xf86videovesa = linux;
         xf86videovmware = linux;
-        xf86videomodesetting = linux;
         xfs = linux ++ darwin;
         xinput = linux ++ darwin;
         xkbcomp = linux ++ darwin;
@@ -323,9 +329,6 @@ let
       };
 
       linuxPackages_testing = { };
-      linuxPackages_grsec_stable_desktop = { };
-      linuxPackages_grsec_stable_server = { };
-      linuxPackages_grsec_stable_server_xen = { };
       linuxPackages_grsec_testing_desktop = { };
       linuxPackages_grsec_testing_server = { };
       linuxPackages_grsec_testing_server_xen = { };

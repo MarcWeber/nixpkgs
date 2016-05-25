@@ -34,6 +34,8 @@ with lib;
     # Old Grub-related options.
     (mkRenamedOptionModule [ "boot" "initrd" "extraKernelModules" ] [ "boot" "initrd" "kernelModules" ])
     (mkRenamedOptionModule [ "boot" "extraKernelParams" ] [ "boot" "kernelParams" ])
+    (mkRenamedOptionModule [ "boot" "loader" "grub" "timeout" ] [ "boot" "loader" "timeout" ])
+    (mkRenamedOptionModule [ "boot" "loader" "gummiboot" "timeout" ] [ "boot" "loader" "timeout" ])
 
     # smartd
     (mkRenamedOptionModule [ "services" "smartd" "deviceOpts" ] [ "services" "smartd" "defaults" "monitored" ])
@@ -123,6 +125,8 @@ with lib;
     (mkRemovedOptionModule [ "services" "printing" "cupsFilesConf" ])
     (mkRemovedOptionModule [ "services" "printing" "cupsdConf" ])
     (mkRemovedOptionModule [ "services" "xserver" "startGnuPGAgent" ])
+    (mkRemovedOptionModule [ "services" "phpfpm" "phpIni" ])
+    (mkRemovedOptionModule [ "services" "dovecot2" "package" ])
 
   ];
 }

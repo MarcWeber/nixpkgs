@@ -64,7 +64,8 @@
   ./programs/zsh/zsh.nix
   ./programs/blcr.nix
   ./programs/cdemu.nix
-  ./programs/command-not-found/command-not-found.nix
+  # see https://github.com/NixOS/nixos-channel-scripts/issues/4
+  #./programs/command-not-found/command-not-found.nix
   ./programs/dconf.nix
   ./programs/environment.nix
   ./programs/freetds.nix
@@ -241,6 +242,7 @@
   ./services/misc/nix-gc.nix
   ./services/misc/nixos-manual.nix
   ./services/misc/nix-ssh-serve.nix
+  ./services/misc/nzbget.nix
   ./services/misc/octoprint.nix
   ./services/misc/parsoid.nix
   ./services/misc/phd.nix
@@ -348,6 +350,7 @@
   ./services/networking/mjpg-streamer.nix
   ./services/networking/minidlna.nix
   ./services/networking/miniupnpd.nix
+  ./services/networking/mosquitto.nix
   ./services/networking/mstpd.nix
   ./services/networking/murmur.nix
   ./services/networking/namecoind.nix
@@ -382,6 +385,7 @@
   ./services/networking/skydns.nix
   ./services/networking/shairport-sync.nix
   ./services/networking/shout.nix
+  ./services/networking/sniproxy.nix
   ./services/networking/softether.nix
   ./services/networking/spiped.nix
   ./services/networking/sslh.nix

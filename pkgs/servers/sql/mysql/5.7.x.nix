@@ -34,6 +34,10 @@ let x = stdenv.mkDerivation rec {
 
   passthru.mysqlVersion = "5.7";
 
+  passthru.mysql_initialize_datadir_cmd = {mysql, user, dataDir, ...}: ''
+    [ -d ${dataDir}/mysql ] || ${mysql}/bin/mysqld --user=${user} --initialize --initialize-insecure --basedir=${mysql} --datadir=${dataDir}
+  '';
+
   meta = {
     homepage = http://www.mysql.com/;
     description = "The world's most popular open source database";

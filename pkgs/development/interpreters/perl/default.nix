@@ -17,8 +17,8 @@ assert enableThreading -> (stdenv ? glibc);
 let
 
   libc = if stdenv.cc.libc or null != null then stdenv.cc.libc else "/usr";
-  libcInc = libc.dev or libc;
-  libcLib = libc.out or libc;
+  libcInc = lib.getDev libc;
+  libcLib = lib.getLib libc;
   common = { version, sha256 }: stdenv.mkDerivation rec {
     name = "perl-${version}";
 
@@ -102,7 +102,9 @@ let
       # TODO: removing those paths would be cleaner than overwriting with nonsense.
       substituteInPlace "$out"/lib/perl5/*/*/Config_heavy.pl \
         --replace "${libcInc}" /no-such-path \
-        --replace "${stdenv.cc.cc or "/no-such-path"}" /no-such-path \
+        --replace "${
+            if stdenv.cc.cc or null != null then stdenv.cc.cc else "/no-such-path"
+          }" /no-such-path \
         --replace "$man" /no-such-path
     ''; # */
 
@@ -125,8 +127,8 @@ in rec {
   };
 
   perl522 = common {
-    version = "5.22.1";
-    sha256 = "09wg24w5syyafyv87l6z8pxwz4bjgcdj996bx5844k6m9445sirb";
+    version = "5.22.2";
+    sha256 = "1hl3v85ggm027v9h2ycas4z5i3401s2k2l3qpnw8q5mahmiikbc1";
   };
 
 }

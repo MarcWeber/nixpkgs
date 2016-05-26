@@ -689,6 +689,8 @@ in
       "systemd/system-generators" = { source = generators; };
     });
 
+    services.dbus.enable = true;
+
     system.activationScripts.systemd = stringAfter [ "groups" ]
       ''
         mkdir -m 0755 -p /var/lib/udev
@@ -750,13 +752,6 @@ in
         "SYSFS" "PROC_FS" "FHANDLE" "DMIID" "AUTOFS4_FS" "TMPFS_POSIX_ACL"
         "TMPFS_XATTR" "SECCOMP"
       ];
-
-    environment.shellAliases =
-      { start = "systemctl start";
-        stop = "systemctl stop";
-        restart = "systemctl restart";
-        status = "systemctl status";
-      };
 
     users.extraGroups.systemd-journal.gid = config.ids.gids.systemd-journal;
     users.extraUsers.systemd-journal-gateway.uid = config.ids.uids.systemd-journal-gateway;

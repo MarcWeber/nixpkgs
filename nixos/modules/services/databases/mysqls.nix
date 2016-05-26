@@ -27,9 +27,12 @@ let
 
       pidFile = "${m_config.pidDir}/mysqld.pid";
 
+      mysql_initOptions =
+        "--user=${m_config.user} --datadir=${m_config.dataDir} --basedir=${mysql} ";
+
       mysqldOptions =
-        "--user=${m_config.user} --datadir=${m_config.dataDir} --basedir=${mysql} " +
-        "--pid-file=${pidFile} --socket=${m_config.socketFile}";
+        mysql_initOptions
+        + "--pid-file=${pidFile} --socket=${m_config.socketFile}";
 
       myCnf = pkgs.writeText "my.cnf"
       ''
@@ -72,7 +75,7 @@ let
               if ! test -e ${m_config.dataDir}/${name}; then
                   mkdir -m 0700 -p ${m_config.dataDir}
                   chown -R ${m_config.user} ${m_config.dataDir}
-                  ${mysql}/bin/mysql_install_db ${mysqldOptions}
+                  ${ mysql.mysql_initialize_datadir_cmd (m_config // { inherit mysql; }) }
                   touch /tmp/mysql_init
               fi
               socketDir=$(dirname "${m_config.socketFile}")

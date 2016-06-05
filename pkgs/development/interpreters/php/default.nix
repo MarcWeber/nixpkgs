@@ -353,7 +353,7 @@ let
       '';
 
       preBuild = ''
-        sed -i 's@#define PHP_PROG_SENDMAIL	""@#define PHP_PROG_SENDMAIL	"${fixed.sendmail or "/var/setuid-wrappers/sendmail"}"@' main/build-defs.h
+        sed -i 's@#define PHP_PROG_SENDMAIL	.*@#define PHP_PROG_SENDMAIL	"${fixed.sendmail or "/var/setuid-wrappers/sendmail"}"@' main/build-defs.h
       '';
 
       postInstall = ''

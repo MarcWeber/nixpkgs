@@ -133,7 +133,14 @@ let
   phpIniFile =
     {item, phpIniLines ? "", name}:
       pkgs.runCommand name { inherit phpIniLines; }
-        "cat ${item.daemonCfg.php}/etc/php-recommended.ini > $out; echo \"$phpIniLines\" >> $out"
+        "
+        for p in ${item.daemonCfg.php}/etc/php{,-recommended}.ini; do
+          if [ -e $p ]; then
+            cat $p > $out; echo \"$phpIniLines\" >> $out
+          fi
+        done
+        [ -e $out ] || { echo \"no ini file found in php ${item.daemonCfg.php}\"; exit 1; }
+        "
       ;
 
   preparePool = item: # item = item of phpfpm.pools

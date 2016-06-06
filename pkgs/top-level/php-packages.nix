@@ -18,10 +18,16 @@ let
   };
 
   apcu51 = assert isPhp7; buildPecl {
-    name = "apcu-5.1.2";
+    name = "apcu-5.1.4";
 
-    sha256 = "0r5pfbjbmdj46h20jm3iqmy969qd27ajyf0phjhgykv6j0cqjlgd";
+    sha256 = "0118iay9ggvdvyva74bzsl67apknnv8pp0fcz8f9cwlmwxx7mq0x";
   };
+
+#   igbinary = igbinary12;
+#   igbinary12 = buildPecl {
+#     name = "igbinary-1.2.1";
+#     sha256 = "1f7x7p879f7ka6lqkx1l817mk4zgf6dwpqx0dpzbnys13ba533hn";
+#   };
 
   imagick = if isPhp7 then imagick34 else imagick31;
 

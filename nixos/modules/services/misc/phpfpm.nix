@@ -191,7 +191,9 @@ let
         then {
           idAppend = "-opcache";
           phpIniLines = ''
-          zend_extension=opcache.so
+          [opcache]
+          zend_extension = ${item.daemonCfg.php}/lib/php/extensions/opcache.so
+          opcache.enable = 1
           ''
           + formatIni "opcache" (builtins.removeAttrs  (opCacheDefaults // item.daemonCfg.opcache) ["enable"]);
         }

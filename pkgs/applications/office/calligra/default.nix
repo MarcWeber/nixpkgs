@@ -45,7 +45,7 @@ stdenv.mkDerivation rec {
     done
   '';
 
-  meta = {
+  meta = with stdenv.lib; {
     description = "A suite of productivity applications";
     longDescription = ''
       Calligra Suite is a set of applications written to help
@@ -57,7 +57,8 @@ stdenv.mkDerivation rec {
       vector graphics.
     '';
     homepage = http://calligra.org;
-    maintainers = with stdenv.lib.maintainers; [ urkud phreedom ebzzry ];
+    maintainers = with maintainers; [ urkud phreedom ebzzry ];
     inherit (kdelibs.meta) platforms;
+    license = licenses.gpl2;
   };
 }

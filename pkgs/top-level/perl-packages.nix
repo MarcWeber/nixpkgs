@@ -2038,7 +2038,7 @@ let self = _self // overrides; _self = with self; {
     # Don't build a private copy of bzip2.
     BUILD_BZIP2 = false;
     BZIP2_LIB = "${pkgs.bzip2.out}/lib";
-    BZIP2_INCLUDE = "${pkgs.bzip2}/include";
+    BZIP2_INCLUDE = "${pkgs.bzip2.dev}/include";
 
     meta = {
       homepage = http://search.cpan.org/perldoc?CPAN::Meta::Spec;
@@ -2590,7 +2590,7 @@ let self = _self // overrides; _self = with self; {
       url = "mirror://cpan/authors/id/T/TT/TTAR/${name}.tar.gz";
       sha256 = "b66fab514edf97fc32f58da257582704a210c2b35e297d5c31b7fa2ffd08e908";
     };
-    NIX_CFLAGS_COMPILE = "-I${pkgs.openssl}/include";
+    NIX_CFLAGS_COMPILE = "-I${pkgs.openssl.dev}/include";
     NIX_CFLAGS_LINK = "-L${pkgs.openssl.out}/lib -lcrypto";
     meta = with stdenv.lib; {
       homepage = https://metacpan.org/release/Crypt-OpenSSL-AES;
@@ -2607,7 +2607,7 @@ let self = _self // overrides; _self = with self; {
       url    = "mirror://cpan/authors/id/I/IR/IROBERTS/${name}.tar.gz";
       sha256 = "18vg2bqyhc0ahfdh5dkbgph5nh92qcz5vi99jq8aam4h86if78bk";
     };
-    NIX_CFLAGS_COMPILE = "-I${pkgs.openssl}/include";
+    NIX_CFLAGS_COMPILE = "-I${pkgs.openssl.dev}/include";
     NIX_CFLAGS_LINK = "-L${pkgs.openssl.out}/lib -lcrypto";
   };
 
@@ -2617,7 +2617,7 @@ let self = _self // overrides; _self = with self; {
       url = "mirror://cpan/authors/id/R/RU/RURBAN/${name}.tar.gz";
       sha256 = "12pirh1pj8lpvzcwj2if9i6dbr6a7s9g1zc7gzbd3v87d6mx0rdf";
     };
-    NIX_CFLAGS_COMPILE = "-I${pkgs.openssl}/include";
+    NIX_CFLAGS_COMPILE = "-I${pkgs.openssl.dev}/include";
     NIX_CFLAGS_LINK = "-L${pkgs.openssl.out}/lib -lcrypto";
   };
 
@@ -2628,7 +2628,7 @@ let self = _self // overrides; _self = with self; {
       sha256 = "5357f977464bb3a8184cf2d3341851a10d5515b4b2b0dfb88bf78995c0ded7be";
     };
     propagatedBuildInputs = [ CryptOpenSSLRandom ];
-    NIX_CFLAGS_COMPILE = "-I${pkgs.openssl}/include";
+    NIX_CFLAGS_COMPILE = "-I${pkgs.openssl.dev}/include";
     NIX_CFLAGS_LINK = "-L${pkgs.openssl.out}/lib -lcrypto";
   };
 
@@ -2638,7 +2638,7 @@ let self = _self // overrides; _self = with self; {
       url = "mirror://cpan/authors/id/N/NA/NANIS/${name}.tar.gz";
       sha256 = "1s7zm6ph37kg8jzaxnhi4ff4snxl7mi5h14arxbri0kp6s0lzlzm";
     };
-    makeMakerFlags = "--libpath=${pkgs.openssl.out}/lib --incpath=${pkgs.openssl}/include";
+    makeMakerFlags = "--libpath=${pkgs.openssl.out}/lib --incpath=${pkgs.openssl.dev}/include";
     buildInputs = [ PathClass TryTiny ];
   };
 
@@ -5513,6 +5513,60 @@ let self = _self // overrides; _self = with self; {
     };
   };
 
+  Gnome2 = buildPerlPackage rec {
+    name = "Gnome2-1.046";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/X/XA/XAOC/${name}.tar.gz";
+      sha256 = "a6c787232ab7e82a423a9ff5a49cec6bf586c1bb3c04c2052a91cdda5b66ae40";
+    };
+    buildInputs = [ ExtUtilsDepends ExtUtilsPkgConfig Glib Gnome2Canvas Gnome2VFS Gtk2 ];
+    propagatedBuildInputs = [ ExtUtilsDepends ExtUtilsPkgConfig Glib Gnome2Canvas Gnome2VFS Gtk2 Pango pkgs.gnome2.libgnomeui ];
+    meta = {
+      homepage = http://gtk2-perl.sourceforge.net;
+      description = "Perl interface to the 2.x series of the GNOME libraries";
+      license = stdenv.lib.licenses.lgpl21Plus;
+    };
+  };
+
+  Gnome2Canvas = buildPerlPackage rec {
+    name = "Gnome2-Canvas-1.002";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/T/TS/TSCH/${name}.tar.gz";
+      sha256 = "47a34204cd5f3a0ef5c8b9e1c9c96f41740edab7e9abf1d0560fa8666ba1916e";
+    };
+    buildInputs = [ ExtUtilsDepends ExtUtilsPkgConfig Glib Gtk2 Pango pkgs.gnome2.libgnomecanvas ];
+    meta = {
+      license = stdenv.lib.licenses.lgpl2Plus;
+    };
+  };
+
+  Gnome2VFS = buildPerlPackage rec {
+    name = "Gnome2-VFS-1.082";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/X/XA/XAOC/${name}.tar.gz";
+      sha256 = "19dacfedef8770300861cb75f98ca5402e6e56501a888af3c18266a0790911b7";
+    };
+    propagatedBuildInputs = [ ExtUtilsDepends ExtUtilsPkgConfig Glib pkgs.gnome2.gnome_vfs ];
+    meta = {
+      description = "Perl interface to the 2.x series of the GNOME VFS library";
+      license = stdenv.lib.licenses.lgpl21Plus;
+    };
+  };
+
+  Gnome2Wnck = buildPerlPackage rec {
+    name = "Gnome2-Wnck-0.16";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/T/TS/TSCH/${name}.tar.gz";
+      sha256 = "604a8ece88ac29f132d59b0caac27657ec31371c1606a4698a2160e88ac586e5";
+    };
+    buildInputs = [ ExtUtilsDepends ExtUtilsPkgConfig Glib Gtk2 Pango pkgs.libwnck pkgs.glib pkgs.gtk2 ];
+    propagatedBuildInputs = [ ExtUtilsDepends ExtUtilsPkgConfig Glib Gtk2 ];
+    meta = {
+      description = "Perl interface to the Window Navigator Construction Kit";
+      license = stdenv.lib.licenses.lgpl21Plus;
+    };
+  };
+
   GnuPG = buildPerlPackage {
     name = "GnuPG-0.19";
     src = fetchurl {
@@ -5536,6 +5590,19 @@ let self = _self // overrides; _self = with self; {
     doCheck = false; # no make target 'test'
     meta = {
       description = "HTTP transport for DBI stateless proxy driver DBD::Gofer";
+    };
+  };
+
+  GooCanvas = buildPerlPackage rec {
+    name = "Goo-Canvas-0.06";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/Y/YE/YEWENBIN/${name}.tar.gz";
+      sha256 = "0c588c507eed5e62d12ed1cc1e491c6ff3a1f59c4fb3d435e14214b37ab39251";
+    };
+    propagatedBuildInputs = [ Cairo ExtUtilsDepends ExtUtilsPkgConfig Glib Gtk2 Pango pkgs.goocanvas pkgs.gtk2 ];
+    meta = {
+      description = "Perl interface to the GooCanvas";
+      license = with stdenv.lib.licenses; [ artistic1 gpl1Plus ];
     };
   };
 
@@ -5620,6 +5687,53 @@ let self = _self // overrides; _self = with self; {
       description = "Perl interface to the 2.x series of the Gimp Toolkit library";
       maintainers = with maintainers; [ nckx ];
       license = stdenv.lib.licenses.lgpl21Plus;
+    };
+  };
+
+  Gtk2AppIndicator = buildPerlPackage rec {
+    name = "Gtk2-AppIndicator-0.15";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/O/OE/OESTERHOL/${name}.tar.gz";
+      sha256 = "a25cb071e214fb89b4450aa4605031eae89b7961e149b0d6e8f491c19c14a90a";
+    };
+    propagatedBuildInputs = [ Gtk2 pkgs.libappindicator-gtk2 pkgs.libdbusmenu-gtk2 pkgs.gtk2 pkgs.pkgconfig Glib Pango ];
+    # Tests fail due to no display:
+    #   Gtk-WARNING **: cannot open display:  at /nix/store/HASH-perl-Gtk2-1.2498/lib/perl5/site_perl/5.22.2/x86_64-linux-thread-multi/Gtk2.pm line 126.
+    doCheck = false;
+    meta = {
+      description = "Perl extension for libappindicator";
+      license = stdenv.lib.licenses.artistic1;
+    };
+  };
+
+  Gtk2ImageView = buildPerlPackage rec {
+    name = "Gtk2-ImageView-0.05";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/R/RA/RATCLIFFE/${name}.tar.gz";
+      sha256 = "087186c3693acf196451cf59cc8b7f5cf9a7b05abe20d32dcbcba0822953fb80";
+    };
+    buildInputs = [ ExtUtilsDepends ExtUtilsPkgConfig Glib Gtk2 Pango pkgs.gtkimageview pkgs.gtk2 ];
+    propagatedBuildInputs = [ ExtUtilsDepends ExtUtilsPkgConfig Glib Gtk2 ];
+    # Tests fail due to no display server:
+    #   Gtk-WARNING **: cannot open display:  at /nix/store/HASH-perl-Gtk2-1.2498/lib/perl5/site_perl/5.22.2/x86_64-linux-thread-multi/Gtk2.pm line 126.
+    #   t/animview.t ...........
+    doCheck = false;
+    meta = {
+      description = "Perl bindings for the GtkImageView widget";
+      license = stdenv.lib.licenses.free;
+    };
+  };
+
+  Gtk2Unique = buildPerlPackage rec {
+    name = "Gtk2-Unique-0.05";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/P/PO/POTYL/${name}.tar.gz";
+      sha256 = "ae8dfb0f6844ddaa2ce7b5b44553419490c8e83c24fd35c431406a58f6be0f4f";
+    };
+    propagatedBuildInputs = [ Gtk2 Glib ExtUtilsDepends ExtUtilsPkgConfig pkgs.libunique pkgs.gtk2 Cairo Pango ];
+    meta = {
+      description = "Use single instance applications";
+      license = with stdenv.lib.licenses; [ artistic1 gpl1Plus ];
     };
   };
 
@@ -5730,6 +5844,18 @@ let self = _self // overrides; _self = with self; {
     meta = {
       homepage = https://github.com/chorny/Hook-LexWrap;
       description = "Lexically scoped subroutine wrappers";
+      license = with stdenv.lib.licenses; [ artistic1 gpl1Plus ];
+    };
+  };
+
+  HTMLClean = buildPerlPackage rec {
+    name = "HTML-Clean-0.8";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/L/LI/LINDNER/${name}.tar.gz";
+      sha256 = "1h0dzxx034hpshxlpsxhxh051d1p79cjgp4q5kg68kgx7aian85c";
+    };
+    meta = {
+      description = "Cleans up HTML code for web browsers, not humans";
       license = with stdenv.lib.licenses; [ artistic1 gpl1Plus ];
     };
   };
@@ -6220,6 +6346,19 @@ let self = _self // overrides; _self = with self; {
 
   # For backwards compatibility.
   if_ = self."if";
+
+  ImageInfo = buildPerlPackage rec {
+    name = "Image-Info-1.38";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/S/SR/SREZIC/${name}.tar.gz";
+      sha256 = "b8a68b5661555feaf767956fe9ff14c917a63bedb3e30454d5598d992eb7e919";
+    };
+    propagatedBuildInputs = [ IOstringy ];
+    meta = {
+      description = "Extract meta information from image files";
+      license = with stdenv.lib.licenses; [ artistic1 gpl1Plus ];
+    };
+  };
 
   ImageSize = buildPerlPackage rec {
     name = "Image-Size-3.232";
@@ -6763,7 +6902,7 @@ let self = _self // overrides; _self = with self; {
     };
     buildInputs = [ ApacheTest ExtUtilsXSBuilder mod_perl2 pkgs.apacheHttpd pkgs.apr pkgs.aprutil ];
     propagatedBuildInputs = [ mod_perl2 ];
-    makeMakerFlags = "--with-apache2-src=${pkgs.apacheHttpd} --with-apache2-apxs=${pkgs.apacheHttpd}/bin/apxs --with-apache2-httpd=${pkgs.apacheHttpd.out}/bin/httpd --with-apr-config=${pkgs.apr}/bin/apr-1-config --with-apu-config=${pkgs.aprutil}/bin/apu-1-config";
+    makeMakerFlags = "--with-apache2-src=${pkgs.apacheHttpd.dev} --with-apache2-apxs=${pkgs.apacheHttpd.dev}/bin/apxs --with-apache2-httpd=${pkgs.apacheHttpd.out}/bin/httpd --with-apr-config=${pkgs.apr.dev}/bin/apr-1-config --with-apu-config=${pkgs.aprutil.dev}/bin/apu-1-config";
     preConfigure = ''
       # override broken prereq check
       substituteInPlace configure --replace "prereq_check=\"\$PERL \$PERL_OPTS build/version_check.pl\"" "prereq_check=\"echo\""
@@ -6774,7 +6913,7 @@ let self = _self // overrides; _self = with self; {
     installPhase = ''
       mkdir $out
       make install DESTDIR=$out
-      cp -r $out/${pkgs.apacheHttpd}/. $out/.
+      cp -r $out/${pkgs.apacheHttpd.dev}/. $out/.
       cp -r $out/$out/. $out/.
       rm -r $out/nix
       '';
@@ -9305,6 +9444,18 @@ let self = _self // overrides; _self = with self; {
     };
   };
 
+  NetStatsd = buildPerlPackage {
+    name = "Net-Statsd-0.11";
+    src = fetchurl {
+      url = mirror://cpan/authors/id/C/CO/COSIMO/Net-Statsd-0.11.tar.gz;
+      sha256 = "0f56c95846c7e65e6d32cec13ab9df65716429141f106d2dc587f1de1e09e163";
+    };
+    meta = {
+      description = "Sends statistics to the stats daemon over UDP";
+      license = "perl";
+    };
+  };
+
   NetTwitterLite = buildPerlPackage {
     name = "Net-Twitter-Lite-0.11002";
     src = fetchurl {
@@ -9808,7 +9959,7 @@ let self = _self // overrides; _self = with self; {
     buildInputs = [ pkgs.imagemagick ];
     preConfigure =
       ''
-        sed -i -e 's|my \$INC_magick = .*|my $INC_magick = "-I${pkgs.imagemagick}/include/ImageMagick";|' Makefile.PL
+        sed -i -e 's|my \$INC_magick = .*|my $INC_magick = "-I${pkgs.imagemagick.dev}/include/ImageMagick";|' Makefile.PL
       '';
     doCheck = false;
   };
@@ -10012,6 +10163,17 @@ let self = _self // overrides; _self = with self; {
     src = fetchurl {
       url = mirror://cpan/authors/id/B/BI/BILBO/Proc-SafeExec-1.5.tar.gz;
       sha256 = "1b4d0908bcac563d34a7e5be61c5da3eee98e4a6c7fa68c2670cc5844b5a2d78";
+    };
+  };
+
+  ProcSimple = buildPerlPackage rec {
+    name = "Proc-Simple-1.32";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/M/MS/MSCHILLI/${name}.tar.gz";
+      sha256 = "4c8f0a924b19ad78a13da73fe0fb306d32a7b9d10a332c523087fc83a209a8c4";
+    };
+    meta = {
+      license = with stdenv.lib.licenses; [ artistic1 gpl1Plus ];
     };
   };
 
@@ -11893,6 +12055,19 @@ let self = _self // overrides; _self = with self; {
       homepage = https://github.com/karenetheridge/Test-CleanNamespaces;
       description = "Check for uncleaned imports";
       license = with stdenv.lib.licenses; [ artistic1 gpl1Plus ];
+    };
+  };
+
+  TestCommand = buildPerlPackage {
+    name = "Test-Command-0.11";
+    src = fetchurl {
+      url = mirror://cpan/authors/id/D/DA/DANBOO/Test-Command-0.11.tar.gz;
+      sha256 = "0cwm3c4d49mdrbm6vgh78b3x8mk730l0zg8i7xb9z8bkx9pzr8r8";
+    };
+    meta = {
+      homepage = https://github.com/danboo/perl-test-command;
+      description = "Test routines for external commands ";
+      license = with stdenv.lib.licenses; [ artistic1 gpl1 ];
     };
   };
 
@@ -13856,10 +14031,10 @@ let self = _self // overrides; _self = with self; {
   };
 
   X11XCB = buildPerlPackage rec {
-    name = "X11-XCB-0.14";
+    name = "X11-XCB-0.16";
     src = fetchurl {
       url = "mirror://cpan/authors/id/M/MS/MSTPLBG/${name}.tar.gz";
-      sha256 = "11ff0a4nqbdj68mxdvyqdqvi573ha10vy67wpi7mklpxvlm011bn";
+      sha256 = "14mnvr1001py2z1n43l18yaw0plwvjg5pcsyc7k81sa0amw8ahzw";
     };
     AUTOMATED_TESTING = false;
     buildInputs = [
@@ -13915,6 +14090,34 @@ let self = _self // overrides; _self = with self; {
       sha256 = "98746f3c1f6f049491fec203d455bb8f8c9c6e250f041904dda5d78e21187f93";
     };
     doCheck = false;
+  };
+
+  XMLGrove = buildPerlPackage rec {
+    name = "XML-Grove-0.46alpha";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/K/KM/KMACLEOD/${name}.tar.gz";
+      sha256 = "05yis1ms7cgwjh57k57whrmalb3ha0bjr9hyvh7cnadcyiynvdpw";
+    };
+    buildInputs = [ pkgs.libxml2 ];
+    propagatedBuildInputs = [ libxml_perl ];
+
+    #patch from https://bugzilla.redhat.com/show_bug.cgi?id=226285
+    patches = [ ../development/perl-modules/xml-grove-utf8.patch ];
+    meta = {
+      description = "Perl-style XML objects";
+    };
+  };
+
+  XMLHandlerYAWriter = buildPerlPackage rec {
+    name = "XML-Handler-YAWriter-0.23";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/K/KR/KRAEHE/${name}.tar.gz";
+      sha256 = "11d45a1sz862va9rry3p2m77pwvq3kpsvgwhc5ramh9mbszbnk77";
+    };
+    propagatedBuildInputs = [ libxml_perl ];
+    meta = {
+      description = "Yet another Perl SAX XML Writer";
+    };
   };
 
   XMLLibXML = buildPerlPackage rec {

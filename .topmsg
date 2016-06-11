@@ -1,12 +1,17 @@
 From: Marc Weber <marco-oweber@gmx.de>
 Subject: [PATCH] experimental/nixos-module-resource-tracking
 
-Adding a nixos module resource-tracking.nix which is used to track which
-modules require what resources. A resource could be anything which should be
-prevented from being used multiple times such as
-  - paths
-  - sockets
-  - memory
-  - ports
-  - mysql instance ids
-  ..
+Prevent using resources such as tcp/udp ports or socket files multiple times by
+accident.
+
+Example usage:
+
+  config.resources.tcp-ports.80.required_by = "httpd Apache";
+  config.resources.tcp-ports.443.required_by = "httpd Apache SSL";
+
+  config.resources.uids.2000.required_by = "mysql user";
+  config.resources.gids.2000.required_by = "mysql user";
+
+  # you might have two mysql instances running using the same gid/uids:
+  config.resources.uids.2000.allowCollisions = true;
+  config.resources.gids.2000.allowCollisions = true;

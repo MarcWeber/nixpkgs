@@ -5,13 +5,15 @@ Allow instantiating multiple mysql instances.
 
 Usage example:
 
-  services.mysql.enable = true; // traditional
+  # traditional:
+  services.mysql.enable = true;
+  services.mysql.package = pkgs.mysql57;
 
-  // add another instance:
+  // add additional instance, eg on tmpfs mounted /tmp for developping:
   service.mysql.services.mysql_on_tmp = {
     enable = true;
     port = 3307;
-    package = pkgs.mysql55;
+    package = pkgs.mysql57;
     dataDir = "/tmp/mysql";
     socketDir = "/tmp/mysql_tmpfs.socket";
     uid = 20000;

@@ -122,7 +122,7 @@ let
                             then
                                 cat ${database.schema}/mysql-databases/*.sql
                             fi
-                          ) | ${mysql}/bin/mysql -u root -N
+                          ) | ${mysql}/bin/mysql -u root -N -S ${m_config.socketFile}
                       fi
                     '') m_config.initialDatabases}
 
@@ -133,13 +133,13 @@ let
                       ( echo "stop slave;"
                         echo "change master to master_host='${m_config.replication.masterHost}', master_user='${m_config.replication.masterUser}', master_password='${m_config.replication.masterPassword}';"
                         echo "start slave;"
-                      ) | ${mysql}/bin/mysql -u root -N
+                      ) | ${mysql}/bin/mysql -u root -N -S ${m_config.socketFile}
                     ''}
 
                   ${optionalString (m_config.initialScript != null)
                     ''
                       # Execute initial script
-                      cat ${m_config.initialScript} | ${mysql}/bin/mysql -u root -N
+                      cat ${m_config.initialScript} | ${mysql}/bin/mysql -u root -N -S ${m_config.socketFile}
                     ''}
 
                   ${optionalString (m_config.rootPassword != null)
@@ -149,7 +149,7 @@ let
                       ( echo "use mysql;"
                         echo "update user set Password=password('$(cat ${m_config.rootPassword})') where User='root';"
                         echo "flush privileges;"
-                      ) | ${mysql}/bin/mysql -u root -N
+                      ) | ${mysql}/bin/mysql -u root -N -S ${m_config.socketFile} || true
                     ''}
 
                 rm ${tmp_init_file}

@@ -158,11 +158,11 @@ let
     #               (yes)   (yes)   (yes)   (never) (100)
     # ==========================================================================
     smtp      inet  n       -       n       -       -       smtpd
-    #submission inet n       -       n       -       -       smtpd
-    #  -o smtpd_tls_security_level=encrypt
-    #  -o smtpd_sasl_auth_enable=yes
-    #  -o smtpd_client_restrictions=permit_sasl_authenticated,reject
-    #  -o milter_macro_daemon_name=ORIGINATING
+  '' + optionalString cfg.enableSubmission ''
+    submission inet n       -       n       -       -       smtpd
+      ${concatStringsSep "\n  " (mapAttrsToList (x: y: "-o " + x + "=" + y) cfg.submissionOptions)}
+  ''
+  + ''
     pickup    unix  n       -       n       60      1       pickup
     cleanup   unix  n       -       n       -       0       cleanup
     qmgr      unix  n       -       n       300     1       qmgr
@@ -208,6 +208,33 @@ in
       enable = mkOption {
         default = false;
         description = "Whether to run the Postfix mail server.";
+      };
+
+      enableSmtp = mkOption {
+        default = true;
+        description = "Whether to enable smtp in master.cf.";
+      };
+      
+      enableSubmission = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Whether to enable smtp submission";
+      };
+
+      submissionOptions = mkOption {
+        type = types.attrs;
+        default = { "smtpd_tls_security_level" = "encrypt";
+                    "smtpd_sasl_auth_enable" = "yes";
+                    "smtpd_client_restrictions" = "permit_sasl_authenticated,reject";
+                    "milter_macro_daemon_name" = "ORIGINATING";
+                  };
+        description = "Options for the submission config in master.cf";
+        example = { "smtpd_tls_security_level" = "encrypt";
+                    "smtpd_sasl_auth_enable" = "yes";
+                    "smtpd_sasl_type" = "dovecot";
+                    "smtpd_client_restrictions" = "permit_sasl_authenticated,reject";
+                    "milter_macro_daemon_name" = "ORIGINATING";
+                  };
       };
 
       setSendmail = mkOption {

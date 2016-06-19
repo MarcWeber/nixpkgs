@@ -349,6 +349,7 @@ let
         allModules =
           concatMap (svc: svc.extraModulesPre) allSubservices
           ++ map (name: {inherit name; path = "${httpd}/modules/mod_${name}.so";}) apacheModules
+          ++ optional mainCfg.enableMellon { name = "auth_mellon"; path = "${pkgs.apacheHttpdPackages.mod_auth_mellon}/modules/mod_auth_mellon.so"; }
           ++ optional enablePHP { name = "php5"; path = "${php}/modules/libphp5.so"; }
           ++ concatMap (svc: svc.extraModules) allSubservices
           ++ extraForeignModules;
@@ -553,6 +554,12 @@ in
         '';
       };
 
+      enableMellon = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Whether to enable the mod_auth_mellon module.";
+      };
+
       enablePHP = mkOption {
         type = types.bool;
         default = false;
@@ -662,6 +669,7 @@ in
 
         environment =
           optionalAttrs enablePHP { PHPRC = phpIni; }
+          // optionalAttrs mainCfg.enableMellon { LD_LIBRARY_PATH  = "${pkgs.xmlsec}/lib"; }
           // (listToAttrs (concatMap (svc: svc.globalEnvVars) allSubservices));
 
         preStart =

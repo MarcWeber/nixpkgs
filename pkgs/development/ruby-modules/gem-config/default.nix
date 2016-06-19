@@ -115,7 +115,7 @@ in
   };
 
   rmagick = attrs: {
-    buildInputs = [ imagemagick pkgconfig ];
+    buildInputs = [ imagemagick pkgconfig which ];
   };
 
   rugged = attrs: {
@@ -151,6 +151,10 @@ in
       "--with-v8-include=${v8}/include"
       "--with-v8-lib=${v8}/lib"
     ];
+  };
+
+  typhoeus = attrs: {
+    buildInputs = [ curl ];
   };
 
   tzinfo = attrs: {

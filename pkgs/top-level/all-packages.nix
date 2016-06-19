@@ -1,4 +1,4 @@
-{ system, bootStdenv, noSysDirs, gccWithCC, gccWithProfiling
+mainArgs@{ system, bootStdenv, noSysDirs, gccWithCC, gccWithProfiling
 , config, crossSystem, platform, lib
 , pkgsWithOverrides
 , ... }:

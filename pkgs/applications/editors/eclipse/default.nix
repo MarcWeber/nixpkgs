@@ -346,7 +346,6 @@ rec {
 
   eclipse-platform-452 = buildEclipse {
     name = "eclipse-platform-4.5.2";
-    description = "Eclipse platform";
     sources = {
       "x86_64-linux" = fetchurl {
           url = https://www.eclipse.org/downloads/download.php?r=1&nf=1&file=/eclipse/downloads/drops4/R-4.5.2-201602121500/eclipse-SDK-4.5.2-linux-gtk-x86_64.tar.gz;

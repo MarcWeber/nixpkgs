@@ -2,7 +2,7 @@
 , mysql, libxml2, readline, zlib, curl, postgresql, gettext
 , openssl, pkgconfig, sqlite, config, libjpeg, libpng, freetype
 , libxslt, libmcrypt, bzip2, icu, openldap, cyrus_sasl, libmhash, freetds
-, uwimap, pam, gmp, apacheHttpd
+, uwimap, pam, gmp, apacheHttpd, libiconv
 , callPackage, fetchgit, pkgs, writeText
 , idByConfig ? true # if true the php.id value will only depend on php configuration, not on the store path, eg dependencies
 
@@ -63,7 +63,9 @@ let
 
       buildInputs = [ flex bison pkgconfig ];
 
-      configureFlags = ["EXTENSION_DIR=$(out)/lib/php/extensions"];
+      configureFlags = [
+        "EXTENSION_DIR=$(out)/lib/php/extensions"
+      ] ++ lib.optional stdenv.isDarwin "--with-iconv=${libiconv}";
 
       flags = {
 
@@ -91,9 +93,9 @@ let
             "LDAP_DIR=${openldap.dev}"
             "LDAP_INCDIR=${openldap.dev}/include"
             "LDAP_LIBDIR=${openldap.out}/lib"
-            "--with-ldap-sasl=${cyrus_sasl.dev}"
+            (lib.optional stdenv.isLinux "--with-ldap-sasl=${cyrus_sasl.dev}")
             ];
-          buildInputs = [openldap cyrus_sasl openssl];
+          buildInputs = [openldap openssl] ++ lib.optional stdenv.isLinux cyrus_sasl;
         };
 
         mhash = {
@@ -260,14 +262,14 @@ let
       };
 
       cfg = {
-        imapSupport = config.php.imap or true;
+        imapSupport = config.php.imap or (!stdenv.isDarwin);
         ldapSupport = config.php.ldap or true;
         mhashSupport = config.php.mhash or true;
         mysqlSupport = (!php7) && (config.php.mysql or true);
         mysqliSupport = config.php.mysqli or true;
         pdo_mysqlSupport = config.php.pdo_mysql or true;
         libxml2Support = config.php.libxml2 or true;
-        apxs2Support = config.php.apxs2 or true;
+        apxs2Support = config.php.apxs2 or (!stdenv.isDarwin);
         bcmathSupport = config.php.bcmath or true;
         socketsSupport = config.php.sockets or true;
         curlSupport = config.php.curl or true;
@@ -329,6 +331,10 @@ let
 
       patches = if !php7 then [ ./fix-paths.patch ] else [ ./fix-paths-php7.patch ];
 
+      postPatch = lib.optional stdenv.isDarwin ''
+        substituteInPlace configure --replace "-lstdc++" "-lc++"
+      '';
+
     });
 
     php_with_id = php // {
@@ -366,8 +372,8 @@ in {
   };
 
   php56 = generic {
-    version = "5.6.21";
-    sha256 = "144m8xzpqv3pimxh2pjhbk4fy1kch9afkzclcinzv2dnfjspmvdl";
+    version = "5.6.22";
+    sha256 = "1il8kwg3pak06i4fz09br7vjsxvwfgxcd95zyaf6kyjjrj08mnlh";
   };
 
   php70 = generic {

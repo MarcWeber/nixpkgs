@@ -5,19 +5,19 @@
 
 { pkgs, gimp }:
 let
-  inherit (pkgs) stdenv fetchurl pkgconfig glib;
+  inherit (pkgs) stdenv fetchurl fetchgit pkgconfig glib;
   inherit (gimp) targetPluginDir targetScriptDir;
 
   pluginDerivation = a: stdenv.mkDerivation ({
     prePhases = "extraLib";
     extraLib = ''
       installScripts(){
-        mkdir -p ${targetScriptDir};
-        for p in "$@"; do cp "$p" ${targetScriptDir}; done
+        mkdir -p $out/${gimp.scriptDir};
+        for p in "$@"; do cp "$p" $out/${gimp.scriptDir}; done
       }
       installPlugins(){
-        mkdir -p ${targetPluginDir};
-        for p in "$@"; do cp "$p" ${targetPluginDir}; done
+        mkdir -p $out/${gimp.pluginDir};
+        for p in "$@"; do cp "$p" $out/${gimp.pluginDir}; done
       }
     '';
   }
@@ -46,7 +46,7 @@ let
   ${pkgs.qt4}/bin/qmake
   '';
 
-  gmicDerivation = {zart ? false, src, name, runQmake ? false}: # zart builds but segfaults for some reason.
+  gmicDerivation = {preConfigure ? "", zart ? false, src, name, runQmake ? false}: # zart builds but segfaults for some reason.
   let imagemagick = pkgs.imagemagickBig; # maybe the non big version is enough?
       zart = false;
       # pkgs.fftwSinglePrec
@@ -59,7 +59,7 @@ let
             pkgs.opencv pkgs.perl
           ] 
           ++ gimp.nativeBuildInputs
-          ++ (pkgs.lib.optionals zart [
+          ++ (pkgs.lib.optionals (zart || runQmake) [
             pkgs.qt4
             fftw
           ]);
@@ -67,6 +67,7 @@ let
       inherit src name;
       postUnpack = "sourceRoot=$sourceRoot/src";
       preConfigure = ''
+        ${preConfigure}
         NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags opencv ImageMagick OpenEXR)"
         NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l opencv ImageMagick OpenEXR)"
       ''
@@ -314,12 +315,34 @@ rec {
       };
   };
 
-  gmicCVS = gmicDerivation {
+  gmicGIT =
+    let gmic_stdlib = fetchurl {
+        url = "http://gmic.eu/gmic_stdlib.h";
+        sha256 = "0agylw6qvq39x97s6rijs0j5mmnv87s2qm6sc2fh8k3hv3j8rdfw";
+      };
+
+      CImg_h = fetchurl {
+        url = "https://github.com/dtschump/CImg/blob/master/CImg.h?raw=true";
+        sha256 = "1kmb0l0nn3a7cd0dh679x5dg5mik6xkm46mqikid1q1wxsk1z59q";
+      };
+
+    in gmicDerivation {
+
       runQmake = true;
-      # REGION AUTO UPDATE: { name="gmic"; type = "cvs"; cvsRoot = ":pserver:anonymous@gmic.cvs.sourceforge.net:/cvsroot/gmic"; module="gmic"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gmic-cvs-F_13-43-56.tar.bz2"; sha256 = "a69f3fa828d8892645db8534310243c472fc98cd2b9c0acbf61d3fbeba626407"; });
-      name = "gmic-cvs-F_13-43-56";
-      # END
+
+      name = "gmic-git";
+
+      preConfigure = ''
+        cp ${gmic_stdlib} gmic_stdlib.h
+        cp ${CImg_h} CImg.h
+      '';
+
+      src = fetchgit {
+        "url" = "https://github.com/dtschump/gmic-minimal.git";
+        "rev" = "87729ac9945a4cbb92a3cd04f654de10711f3e72";
+        "sha256" = "1z82ibx4y1l5p17x044gbxs6841yb79v0p78y1bdm6i53hwyvwfw";
+      };
+
   };
   # this is more than a gimp plugin !
   # either load the raw image with gimp (and the import dialog will popup)

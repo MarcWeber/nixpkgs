@@ -11,7 +11,7 @@ index ad46717..51d7987 100644
 +  AC_MSG_CHECKING([for systemd])
 +
 +    SAVED_LIBS="$LIBS"
-+    LIBS="$LIBS -lsystemd-journal -lsystemd-daemon"
++    LIBS="$LIBS -lsystemd-journal -lsystemd"
 +
 +    AC_TRY_LINK([ #include <systemd/sd-journal.h> ], [sd_journal_send("Testing linking to sd-journal.h.");], [
 +      AC_DEFINE([HAVE_SYSTEMD], 1, [do we have systemd?])

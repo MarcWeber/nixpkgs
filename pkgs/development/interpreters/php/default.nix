@@ -294,8 +294,8 @@ let
           patches = [ ./systemd-socket-activation.patch  ];
           buildInputs = [ systemd ];
           preConfigure = ''
-            pkg-config --libs libsystemd-daemon
-            export NIX_LDFLAGS="$NIX_LDFLAGS `pkg-config --libs libsystemd-daemon`"
+            pkg-config --libs libsystemd
+            export NIX_LDFLAGS="$NIX_LDFLAGS `pkg-config --libs libsystemd`"
           '';
         };
       };

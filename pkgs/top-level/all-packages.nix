@@ -6653,7 +6653,6 @@ in
   aws-sdk-cpp = callPackage ../development/libraries/aws-sdk-cpp { };
 
   babl = callPackage ../development/libraries/babl { };
-  babl_0_1_4 = babl.override { version = "0.1.4"; };
   bablGit = babl.override { version = "git"; };
 
   beecrypt = callPackage ../development/libraries/beecrypt { };
@@ -7051,7 +7050,9 @@ in
 
   gegl = callPackage ../development/libraries/gegl { };
   gegl_0_1_6 = gegl.override { version = "0.1.6"; };
-  geglGit = gegl.override { version = "git"; };
+
+  geglVersioned = callPackage ../development/libraries/gegl/versioned.nix { };
+  geglGit = geglVersioned.override { version = "git"; };
 
   gegl_0_3 = callPackage ../development/libraries/gegl/3.0.nix { };
 
@@ -7932,6 +7933,11 @@ in
 
   libmsgpack = callPackage ../development/libraries/libmsgpack { };
   libmsgpack_0_5 = callPackage ../development/libraries/libmsgpack/0.5.nix { };
+
+  libmypaint = callPackage ../development/libraries {
+    babl = babl.override { version = "git"; };
+    gegl = geglVersioned.override { version = "git"; };
+  };
 
   libnatspec = callPackage ../development/libraries/libnatspec (
     stdenv.lib.optionalAttrs stdenv.isDarwin {

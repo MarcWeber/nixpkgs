@@ -1,5 +1,5 @@
 { stdenv, fetchurl, pkgconfig, glib, babl, libpng, cairo, libjpeg
-, librsvg, pango, gtk, bzip2, intltool }:
+, librsvg, pango, gtk, bzip2, intltool, version ? null }:
 
 stdenv.mkDerivation rec {
   name = "gegl-0.2.0";

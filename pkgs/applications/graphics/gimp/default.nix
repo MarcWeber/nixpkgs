@@ -112,6 +112,7 @@ let
         url = "ftp://ftp.gimp.org/pub/gimp/v2.8/gimp-2.8.8.tar.bz2";
         md5 = "ef2547c3514a1096931637bd6250635a";
       };
+
       buildInputs =
         commonBuildInputs
         ++ commonBuildInputs28
@@ -122,7 +123,6 @@ let
         scriptDir = "share/gimp/2.0/scripts";
       };
     };
-    
 
     "latest" = {
       src = fetchurl {
@@ -140,13 +140,17 @@ let
       };
     };
 
-    "git" = {
+    "git" = 
+      let gegl = ( p.geglVersioned.override { version ="git"; } ); # > 0.3.8
+          babl = ( p.babl.override { version = "git"; } );
+      in {
       buildInputs =
         commonBuildInputs
         ++ commonBuildInputs28
         ++ [
-        ( p.babl.override { version = "git"; } )
-        ( p.gegl.override { version = "git"; } )
+        babl gegl
+        (p.libmypaint.override { inherit gegl babl; })
+        p.json_glib
         p.autoconf p.automake111x p.libxslt p.libtool
         p.gnome.gtkdoc
         p.gnome3.gexiv2
@@ -161,8 +165,8 @@ let
       sed -i 's@gegl >= 0.1.6@gegl-2.0 >= 0.1.6@' configure
       '';
       # REGION AUTO UPDATE: { name="gimp"; type="git"; url="git://git.gnome.org/gimp"; groups = "gimp_group"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-11e49.tar.bz2"; sha256 = "89de538a9337bade27646a0bae6f273713acd443391079d5482dc64dff6008ec"; });
-      name = "gimp-git-11e49";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-56848.tar.bz2"; sha256 = "7cadb87e7776093fc53861923ba7c7d65527b6bab83db634731916086e55abe9"; });
+      name = "gimp-git-56848";
       # END
 
       passthru = {

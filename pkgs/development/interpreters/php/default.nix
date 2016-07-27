@@ -325,8 +325,9 @@ let
       meta = with stdenv.lib; {
         description = "An HTML-embedded scripting language";
         homepage = http://www.php.net/;
-        license = stdenv.lib.licenses.php301;
+        license = licenses.php301;
         maintainers = with maintainers; [ globin ];
+        platforms = platforms.all;
       };
 
       patches = if !php7 then [ ./fix-paths.patch ] else [ ./fix-paths-php7.patch ];
@@ -367,18 +368,18 @@ let
 in {
 
   php55 = generic {
-    version = "5.5.36";
-    sha256 = "1fvipg3p8m61kym2ir589vi1l6zm0r95rd97z5s6sq6ylgxfv114";
+    version = "5.5.37";
+    sha256 = "122xj115fjl6rqlxqqjzvh16fbm801yqcmfh9hn7zwfa8sz0wf6j";
   };
 
   php56 = generic {
-    version = "5.6.22";
-    sha256 = "1il8kwg3pak06i4fz09br7vjsxvwfgxcd95zyaf6kyjjrj08mnlh";
+    version = "5.6.23";
+    sha256 = "1isq6pym20nwsf2j1jdz321vck9xd6g86q2b13vycxyjjq42ikgs";
   };
 
   php70 = generic {
-    version = "7.0.7";
-    sha256 = "06ixiaqqndvancqy5xmnzpscd77z2ixv3yrsdq0r8avqqhjjjks7";
+    version = "7.0.9";
+    sha256 = "0yrv5ijw6bgc0ahplczwhl5nm6l5mnd1i2n5023z7wkmb25rdrif";
   };
 
 }

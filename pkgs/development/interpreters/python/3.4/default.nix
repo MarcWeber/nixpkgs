@@ -2,6 +2,7 @@
 , bzip2
 , db
 , gdbm
+, less
 , libX11, xproto
 , lzma
 , ncurses
@@ -24,7 +25,7 @@ with stdenv.lib;
 let
   majorVersion = "3.4";
   pythonVersion = majorVersion;
-  version = "${majorVersion}.4";
+  version = "${majorVersion}.5";
   fullVersion = "${version}";
 
   buildInputs = filter (p: p != null) [
@@ -42,6 +43,11 @@ let
     libX11
     xproto
   ] ++ optionals stdenv.isDarwin [ CF configd ];
+
+  propagatedBuildInputs = [
+    less
+  ];
+
 in
 stdenv.mkDerivation {
   name = "python3-${fullVersion}";
@@ -49,10 +55,11 @@ stdenv.mkDerivation {
   inherit majorVersion version;
 
   inherit buildInputs;
+  inherit propagatedBuildInputs;
 
   src = fetchurl {
     url = "http://www.python.org/ftp/python/${version}/Python-${fullVersion}.tar.xz";
-    sha256 = "18kb5c29w04rj4gyz3jngm72sy8izfnbjlm6ajv6rv2m061d75x7";
+    sha256 = "12l9klp778wklxmckhghniy5hklss8r26995pyd00qbllk4b2r7f";
   };
 
   NIX_LDFLAGS = optionalString stdenv.isLinux "-lgcc_s";

@@ -9,6 +9,7 @@ let
 
   header = {
     description = "Syncthing service";
+    after = [ "network.target" ];
     environment = {
       STNORESTART = "yes";
       STNOUPGRADE = "yes";
@@ -115,7 +116,6 @@ in
 
     systemd.services = mkIf cfg.systemService {
       syncthing = header // {
-        after = [ "network.target" ];
         wantedBy = [ "multi-user.target" ];
         serviceConfig = service // {
           User = cfg.user;
@@ -126,12 +126,13 @@ in
       };
     };
 
-    systemd.user.services =  {
-      syncthing = header // {
+    systemd.user.services.syncthing =
+      header // {
+        wantedBy = [ "default.target" ];
         serviceConfig = service // {
           ExecStart = "${cfg.package}/bin/syncthing -no-browser";
         };
       };
-    };
+
   };
 }

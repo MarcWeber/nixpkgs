@@ -85,4 +85,8 @@ stdenv.mkDerivation {
     maintainers = with stdenv.lib.maintainers; [ chaoflow pSub ];
     platforms = stdenv.lib.platforms.unix;
   };
+
+  passthru = {
+    shellPath = "/bin/zsh";
+  };
 }

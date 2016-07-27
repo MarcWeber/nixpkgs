@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, pkgs }:
+{ stdenv, fetchurl, fetchpatch, pkgs }:
 
 let
 
@@ -93,9 +93,9 @@ rec {
   grsecurity_4_4 = throw "grsecurity stable is no longer supported";
 
   grsecurity_testing = grsecPatch
-    { kver   = "4.5.7";
-      grrev  = "201606142010";
-      sha256 = "00lg4zlxxcl9a27vxl4c4cv6adsdvl00kkbl6s97523vsvsvy1q0";
+    { kver   = "4.6.4";
+      grrev  = "201607242014";
+      sha256 = "1imzz4m1a6i7199plwj264izj8xvvx7r09v3s50rrb17jcsrfiss";
     };
 
   # This patch relaxes grsec constraints on the location of usermode helpers,
@@ -139,5 +139,17 @@ rec {
   qat_common_Makefile =
     { name = "qat_common_Makefile";
       patch = ./qat_common_Makefile.patch;
+    };
+
+  hiddev_CVE_2016_5829 =
+    { name = "hiddev_CVE_2016_5829";
+      patch = fetchpatch {
+        url = "https://sources.debian.net/data/main/l/linux/4.6.3-1/debian/patches/bugfix/all/HID-hiddev-validate-num_values-for-HIDIOCGUSAGES-HID.patch";
+        sha256 = "14rm1qr87p7a5prz8g5fwbpxzdp3ighj095x8rvhm8csm20wspyy";
+      };
+    };
+  ecryptfs_fix_mmap_bug =
+    { name = "ecryptfs_fix_mmap_bug";
+      patch = ./ecryptfs-fix-mmap-bug.patch;
     };
 }

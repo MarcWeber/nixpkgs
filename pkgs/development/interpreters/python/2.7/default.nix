@@ -1,5 +1,6 @@
 { stdenv, fetchurl, self, callPackage, python27Packages
 , bzip2, openssl, gettext
+, less
 
 , includeModules ? false
 
@@ -22,11 +23,11 @@ with stdenv.lib;
 
 let
   majorVersion = "2.7";
-  version = "${majorVersion}.11";
+  version = "${majorVersion}.12";
 
   src = fetchurl {
     url = "http://www.python.org/ftp/python/${version}/Python-${version}.tar.xz";
-    sha256 = "0iiz844riiznsyhhyy962710pz228gmhv8qi3yk4w4jhmx2lqawn";
+    sha256 = "0y7rl603vmwlxm6ilkhc51rx2mfj14ckcz40xxgs0ljnvlhp30yp";
   };
 
   patches =
@@ -44,6 +45,15 @@ let
       ./deterministic-build.patch
 
       ./properly-detect-curses.patch
+    ] ++ optionals stdenv.isLinux [
+
+      # Disable the use of ldconfig in ctypes.util.find_library (since
+      # ldconfig doesn't work on NixOS), and don't use
+      # ctypes.util.find_library during the loading of the uuid module
+      # (since it will do a futile invocation of gcc (!) to find
+      # libuuid, slowing down program startup a lot).
+      ./no-ldconfig.patch
+
     ] ++ optionals stdenv.isCygwin [
       ./2.5.2-ctypes-util-find_library.patch
       ./2.5.2-tkinter-x11.patch
@@ -99,7 +109,7 @@ let
     ++ optional zlibSupport zlib
     ++ optional stdenv.isDarwin CF;
 
-  propagatedBuildInputs = optional stdenv.isDarwin configd;
+  propagatedBuildInputs = [ less ] ++ optional stdenv.isDarwin configd;
 
   mkPaths = paths: {
     C_INCLUDE_PATH = makeSearchPathOutput "dev" "include" paths;
@@ -162,7 +172,7 @@ let
 
     meta = {
       homepage = "http://python.org";
-      description = "a high-level dynamically-typed programming language";
+      description = "A high-level dynamically-typed programming language";
       longDescription = ''
         Python is a remarkably powerful dynamic programming language that
         is used in a wide variety of application domains. Some of its key
@@ -192,6 +202,9 @@ let
       inherit src patches preConfigure postConfigure configureFlags;
 
       buildInputs = [ python ] ++ deps;
+
+      # We need to set this for python.buildEnv
+      pythonPath = [];
 
       inherit (mkPaths buildInputs) C_INCLUDE_PATH LIBRARY_PATH;
 

@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 /*
 
@@ -167,28 +167,22 @@ let
 
       enableOpcache = item.daemonCfg.opcache.enable or false;
       enableXdebug = item.daemonCfg.xdebug.enable or false;
+      enableIoncube = item.daemonCfg.ioncube.enable or false;
       enableApcu = item.daemonCfg.apcu.enable or false;
       profileDir = item.daemonCfg.xdebug.profileDir or (id: "/tmp/xdebug-profiler-dir-${id}");
 
       formatIni = prefix: opts: concatStrings (mapAttrsFlatten (n: v: "${prefix}.${n}=${builtins.toString v}\n") opts);
 
-      apcu = if enableApcu
-        then {
+      apcu = lib.optionalAttrs enableApcu {
           idAppend = "-apcu";
           phpIniLines = ''
           extension="${item.daemonCfg.php.apcu}/lib/php/extensions/apcu.so"
           ''
           + formatIni "apc" (builtins.removeAttrs  (apcuDefaults // item.daemonCfg.apcu) ["enable"]);
-        }
-        else {
-          idAppend = "";
-          phpIniLines = "";
         };
 
-
       # op must be before xdebug otherwise xdebug doesn't work
-      op = if enableOpcache
-        then {
+      op = lib.optionalAttrs enableOpcache {
           idAppend = "-opcache";
           phpIniLines = ''
           [opcache]
@@ -196,14 +190,10 @@ let
           opcache.enable = 1
           ''
           + formatIni "opcache" (builtins.removeAttrs  (opCacheDefaults // item.daemonCfg.opcache) ["enable"]);
-        }
-        else {
-          idAppend = "";
-          phpIniLines = "";
         };
 
-      xd = if enableXdebug
-        then
+      xd = lib.optionalAttrs enableXdebug
+        (
           let remote_host = item.daemonCfg.xdebug.remote_host or "127.0.0.1";
               remote_port = builtins.toString item.daemonCfg.xdebug.remote_port or 9000;
            in {
@@ -219,23 +209,22 @@ let
               xdebug.profiler_enable=0
               xdebug.remote_mode=req
              '';
-           }
-        else {
-          idAppend = "";
-          phpIniLines = "";
-        };
-      phpIniLines =
-          op.phpIniLines
-          + xd.phpIniLines
-          + apcu.phpIniLines
-          + (item.daemonCfg.phpIniLines or "");
+           });
 
+
+      ic = lib.optionalAttrs enableIoncube
+           {
+             idAppend = "-ioncube";
+             phpIniLines = ''
+              zend_extension="${item.daemonCfg.php.ioncube_so}"
+             '';
+           };
+
+      phpIniLines = lib.concatMapStrings (x: x.phpIniLines or "") [ic op xd apcu item.daemonCfg];
 
       # using phpIniLines create a cfg-id
-      iniId = builtins.substring 0 5 (builtins.hashString "sha256" (unsafeDiscardStringContext phpIniLines))
-              +op.idAppend
-              +xd.idAppend
-              +apcu.idAppend;
+      iniId = (builtins.substring 0 5 (builtins.hashString "sha256" (unsafeDiscardStringContext phpIniLines)))
+            + (lib.concatMapStrings (x: x.idAppend or "") [ic op xd apcu item.daemonCfg]);
 
       phpIni = (item.daemonCfg.phpIniFile or phpIniFile) {
         inherit item;

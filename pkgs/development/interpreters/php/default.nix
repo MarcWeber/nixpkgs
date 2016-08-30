@@ -71,6 +71,26 @@ let
             };
 
             in php_with_id // (callPackage ../../../top-level/php-packages.nix { php = php_with_id; inherit fetchgit; }) // rec {
+              ioncube_so =
+                let name = "ioncube_loader_lin_${builtins.substring 0 3 version}_ts.so";
+                in "${(stdenv.mkDerivation {
+                  # requires php compiled with --disable-maintainer-zts
+                  # php ini: zend_extension = ${php56fpm.ioncube}/ioncube_loader_lin_5.6.so
+                  # not all php versions are supported
+                  name = "ioncube-x86_64";
+                  src = fetchurl {
+                    url = "http://downloads3.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz";
+                    sha256 = "1figdjkm3cmi9m2786rrs9rcmlm8ay07s5n8b6d9j3kmrd8p7kys";
+                  };
+                  installPhase = ''
+                    mkdir -p $out
+                    cp ${name} $out/${name}; 
+                    cp LICENSE.txt $out
+                  '';
+                  # LICENSE: See LICENSE.txt
+                  # 1.1 The Loader is provided without charge.
+                  # 2.1 The Loader may be freely distributed to third parties alone or as· part of a distribution containing other items provided that this license is also included
+                })}/${name}";
               xcache = callPackage ../../libraries/php-xcache { php = php_with_id; };
               koellner_phonetik = callPackage ../../interpreters/koellner-phonetik { php = php_with_id; };
 

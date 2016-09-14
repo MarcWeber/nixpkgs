@@ -50,7 +50,8 @@ in
     environment.extraInit =
       ''
          # reset TERM with new TERMINFO available (if any)
-         export TERM=$TERM
+         # only for bash
+         [ -n "$ZSH_VERSION" ] || export TERM=$TERM
          export FONTCONFIG_FILE=/etc/fonts/fonts.conf
 
          unset ASPELL_CONF

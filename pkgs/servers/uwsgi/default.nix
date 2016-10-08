@@ -25,6 +25,10 @@ let pythonPlugin = pkg : lib.nameValuePair "python${if pkg ? isPy2 then "2" else
                     path = "plugins/rack";
                     inputs = [ ruby ];
                   })
+                  (lib.nameValuePair "cgi" {
+                    path = "plugins/cgi";
+                    inputs = [ ];
+                  })
                 ];
 
     getPlugin = name:
@@ -81,7 +85,7 @@ stdenv.mkDerivation rec {
   NIX_CFLAGS_LINK = [ "-lsystemd" ];
 
   meta = with stdenv.lib; {
-    homepage = http://uwsgi-docs.readthedocs.org/en/latest/;
+    homepage = "http://uwsgi-docs.readthedocs.org/en/latest/";
     description = "A fast, self-healing and developer/sysadmin-friendly application container server coded in pure C";
     license = licenses.gpl2;
     maintainers = with maintainers; [ abbradar ];

@@ -16,6 +16,7 @@ _assignFirst() {
     echo "Error: _assignFirst found no valid variant!"
     return 1 # none found
 }
+
 # Same as _assignFirst, but only if "$1" = ""
 _overrideFirst() {
     if [ -z "${!1}" ]; then
@@ -37,9 +38,10 @@ _overrideFirst outputInclude "$outputDev"
 _overrideFirst outputLib "lib" "out"
 
 _overrideFirst outputDoc "doc" "out"
-_overrideFirst outputDocdev "docdev" REMOVE # documentation for developers
+_overrideFirst outputDevdoc "devdoc" REMOVE # documentation for developers
 # man and info pages are small and often useful to distribute with binaries
 _overrideFirst outputMan "man" "doc" "$outputBin"
+_overrideFirst outputDevman "devman" "devdoc" "$outputMan"
 _overrideFirst outputInfo "info" "doc" "$outputMan"
 
 
@@ -136,11 +138,11 @@ _multioutDocs() {
 
     moveToOutput share/info "${!outputInfo}"
     moveToOutput share/doc "${!outputDoc}"
-    moveToOutput share/gtk-doc "${!outputDocdev}"
+    moveToOutput share/gtk-doc "${!outputDevdoc}"
 
     # the default outputMan is in $bin
     moveToOutput share/man "${!outputMan}"
-    moveToOutput share/man/man3 "${!outputDocdev}"
+    moveToOutput share/man/man3 "${!outputDevman}"
 }
 
 # Move development-only stuff to the desired outputs.
@@ -160,8 +162,7 @@ _multioutDevs() {
     done
 }
 
-# Make the first output (typically "dev") propagate other outputs needed for development.
-# Take the first, because that's what one gets when putting the package into buildInputs.
+# Make the "dev" propagate other outputs needed for development.
 # Note: with current cross-building setup, all packages are "native" if not cross-building;
 # however, if cross-building, the outputs are non-native. We have to choose the right file.
 _multioutPropagateDev() {
@@ -171,13 +172,17 @@ _multioutPropagateDev() {
     for outputFirst in $outputs; do
         break
     done
+    local propagaterOutput="$outputDev"
+    if [ -z "$propagaterOutput" ]; then
+        propagaterOutput="$outputFirst"
+    fi
 
     # Default value: propagate binaries, includes and libraries
     if [ -z "${propagatedBuildOutputs+1}" ]; then
         local po_dirty="$outputBin $outputInclude $outputLib"
         set +o pipefail
         propagatedBuildOutputs=`echo "$po_dirty" \
-            | tr -s ' ' '\n' | grep -v -F "$outputFirst" \
+            | tr -s ' ' '\n' | grep -v -F "$propagaterOutput" \
             | sort -u | tr '\n' ' ' `
         set -o pipefail
     fi
@@ -187,7 +192,6 @@ _multioutPropagateDev() {
         return
     fi
 
-    mkdir -p "${!outputFirst}"/nix-support
     local propagatedBuildInputsFile
     if [ -z "$crossConfig" ]; then
         propagatedBuildInputsFile=propagated-native-build-inputs
@@ -195,8 +199,9 @@ _multioutPropagateDev() {
         propagatedBuildInputsFile=propagated-build-inputs
     fi
 
+    mkdir -p "${!propagaterOutput}"/nix-support
     for output in $propagatedBuildOutputs; do
-        echo -n " ${!output}" >> "${!outputFirst}"/nix-support/$propagatedBuildInputsFile
+        echo -n " ${!output}" >> "${!propagaterOutput}"/nix-support/$propagatedBuildInputsFile
     done
 }
 

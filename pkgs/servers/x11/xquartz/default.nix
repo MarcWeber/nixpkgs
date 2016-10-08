@@ -60,7 +60,6 @@ let
     sudo launchctl load -w /Library/LaunchDaemons/$daemonName
   '';
   fontDirs = [
-    xorg.fontbhttf
     xorg.fontbhlucidatypewriter100dpi
     xorg.fontbhlucidatypewriter75dpi
     ttf_bitstream_vera
@@ -131,8 +130,7 @@ in stdenv.mkDerivation {
       --replace "@FONTCONFIG_FILE@"   "$fontsConfPath"
 
     wrapProgram $out/bin/Xquartz \
-      --set XQUARTZ_X11 $out/Applications/XQuartz.app/Contents/MacOS/X11 \
-      --set XKB_BINDIR "${xorg.xkbcomp}/bin"
+      --set XQUARTZ_X11 $out/Applications/XQuartz.app/Contents/MacOS/X11
 
     defaultStartX="$out/bin/startx -- $out/bin/Xquartz"
 
@@ -142,7 +140,6 @@ in stdenv.mkDerivation {
         XQUARTZ_DEFAULT_SHELL  = "${shell}";
         XQUARTZ_DEFAULT_STARTX = "@STARTX@";
         FONTCONFIG_FILE        = "@FONTCONFIG_FILE@";
-        XKB_BINDIR             = "${xorg.xkbcomp}/bin";
       })} \
       $out/Applications/XQuartz.app/Contents/Info.plist
     substituteInPlace $out/Applications/XQuartz.app/Contents/Info.plist \

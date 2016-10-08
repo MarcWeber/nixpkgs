@@ -10,7 +10,7 @@ let
   soext = if stdenv.system == "x86_64-darwin" then "dylib" else "so";
 
 in stdenv.mkDerivation rec {
-  version = "0.28.0";
+  version = "0.28.2";
   name = "mesos-${version}";
 
   enableParallelBuilding = true;
@@ -18,12 +18,17 @@ in stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "mirror://apache/mesos/${version}/${name}.tar.gz";
-    sha256 = "05dnj6r5pspizna0fk7yayn38a4w9hlcswgg8l9qmb35m6nq6hby";
+    sha256 = "0wh4h11w5qvqa66fiz0qbm9q48d3jz48mw6mm22bcy9q9wmzrxcn";
   };
 
   patches = [
     # https://reviews.apache.org/r/36610/
     ./rb36610.patch
+
+    # https://issues.apache.org/jira/browse/MESOS-6013
+    ./rb51324.patch
+    ./rb51325.patch
+
     ./maven_repo.patch
   ];
 
@@ -41,7 +46,7 @@ in stdenv.mkDerivation rec {
 
   preConfigure = ''
     substituteInPlace src/Makefile.am --subst-var-by mavenRepo ${mavenRepo}
-    
+
     substituteInPlace 3rdparty/libprocess/include/process/subprocess.hpp \
       --replace '"sh"' '"${bash}/bin/bash"'
 
@@ -59,7 +64,7 @@ in stdenv.mkDerivation rec {
 
     substituteInPlace src/launcher/executor.cpp \
       --replace '"sh"' '"${bash}/bin/bash"'
-    
+
     substituteInPlace src/launcher/fetcher.cpp \
       --replace '"gzip' '"${gzip}/bin/gzip'    \
       --replace '"tar' '"${gnutar}/bin/tar'    \
@@ -67,7 +72,7 @@ in stdenv.mkDerivation rec {
 
     substituteInPlace src/python/cli/src/mesos/cli.py \
      --replace "['mesos-resolve'" "['$out/bin/mesos-resolve'"
-    
+
     substituteInPlace src/slave/containerizer/mesos/launch.cpp \
       --replace '"sh"' '"${bash}/bin/bash"'
 
@@ -78,7 +83,7 @@ in stdenv.mkDerivation rec {
 
     substituteInPlace src/linux/perf.cpp       \
       --replace '"perf ' '"${perf}/bin/perf '
-    
+
     substituteInPlace src/linux/systemd.cpp \
       --replace 'os::realpath("/sbin/init")' '"${systemd}/lib/systemd/systemd"'
 
@@ -175,5 +180,8 @@ in stdenv.mkDerivation rec {
     description = "A cluster manager that provides efficient resource isolation and sharing across distributed applications, or frameworks";
     maintainers = with maintainers; [ cstrahan kevincox offline rushmorem ];
     platforms   = platforms.linux;
+    # Marked as broken due to needing an update for security issues.
+    # See: https://github.com/NixOS/nixpkgs/issues/18856
+    broken = true;
   };
 }

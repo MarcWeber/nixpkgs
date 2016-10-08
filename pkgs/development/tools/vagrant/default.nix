@@ -1,10 +1,10 @@
-{ stdenv, fetchurl, dpkg, curl, libarchive, openssl, ruby, buildRubyGem, libiconv
+{ stdenv, fetchurl, fetchpatch, dpkg, curl, libarchive, openssl, ruby, buildRubyGem, libiconv
 , libxml2, libxslt, makeWrapper }:
 
 assert stdenv.system == "x86_64-linux" || stdenv.system == "i686-linux";
 
 let
-  version = "1.8.4";
+  version = "1.8.6";
   rake = buildRubyGem {
     inherit ruby;
     gemName = "rake";
@@ -12,37 +12,37 @@ let
     sha256 = "1rn03rqlf1iv6n87a78hkda2yqparhhaivfjpizblmxvlw2hk5r8";
   };
 
-in
-stdenv.mkDerivation rec {
-  name = "vagrant-${version}";
+  sha256 = {
+    "x86_64-linux" = "1nkhf160hcl02yvafj6hq53j204qqxyvxjngnmf4f5md8dmkpn76";
+    "i686-linux"   = "0mr4pn7nggjdsqyxh1z2mflvvmpzhbxh5gax501d2hi8xr0y68df";
+  }."${stdenv.system}" or (throw "system ${stdenv.system} not supported");
 
-  src =
-    if stdenv.system == "x86_64-linux" then
-      fetchurl {
-        url    = "https://releases.hashicorp.com/vagrant/${version}/vagrant_${version}_x86_64.deb";
-        sha256 = "fd38d8e00e494a617201facb42fc2cac627e5021db15e91c2a041eac6a2d8208";
-      }
-    else
-      fetchurl {
-        url    = "https://releases.hashicorp.com/vagrant/${version}/vagrant_${version}_i686.deb";
-        sha256 = "555351717cacaa8660821df8988cc40a39923b06b698fca6bb90621008aab06f";
-      };
+  arch = builtins.replaceStrings ["-linux"] [""] stdenv.system;
+
+in stdenv.mkDerivation rec {
+  name = "vagrant-${version}";
+  inherit version;
+
+  src = fetchurl {
+    url = "https://releases.hashicorp.com/vagrant/${version}/vagrant_${version}_${arch}.deb";
+    inherit sha256;
+  };
 
   meta = with stdenv.lib; {
     description = "A tool for building complete development environments";
     homepage    = http://vagrantup.com;
     license     = licenses.mit;
-    maintainers = with maintainers; [ lovek323 globin jgeerds ];
+    maintainers = with maintainers; [ lovek323 globin jgeerds kamilchm ];
     platforms   = platforms.linux;
   };
 
   buildInputs = [ makeWrapper ];
 
   unpackPhase = ''
-    ${dpkg}/bin/dpkg-deb -x ${src} .
+    ${dpkg}/bin/dpkg-deb -x "$src" .
   '';
 
-  buildPhase = false;
+  buildPhase = "";
 
   installPhase = ''
     sed -i "s|/opt|$out/opt|" usr/bin/vagrant
@@ -55,6 +55,8 @@ stdenv.mkDerivation rec {
     ln -s ${curl.dev}/bin/curl-config opt/vagrant/embedded/bin
 
     # libarchive: bsdtar, bsdcpio
+    rm opt/vagrant/embedded/lib/libarchive*
+    ln -s ${libarchive}/lib/libarchive.so opt/vagrant/embedded/lib/libarchive.so
     rm opt/vagrant/embedded/bin/{bsdtar,bsdcpio}
     ln -s ${libarchive}/bin/bsdtar opt/vagrant/embedded/bin
     ln -s ${libarchive}/bin/bsdcpio opt/vagrant/embedded/bin
@@ -74,6 +76,10 @@ stdenv.mkDerivation rec {
     ln -s ${ruby}/bin/ri opt/vagrant/embedded/bin
     ln -s ${ruby}/bin/ruby opt/vagrant/embedded/bin
 
+    # ruby libs
+    rm -rf opt/vagrant/embedded/lib
+    ln -s ${ruby}/lib opt/vagrant/embedded/lib
+
     # libiconv: iconv
     rm opt/vagrant/embedded/bin/iconv
     ln -s ${libiconv}/bin/iconv opt/vagrant/embedded/bin
@@ -92,17 +98,17 @@ stdenv.mkDerivation rec {
     mkdir -p "$out"
     cp -r opt "$out"
     cp -r usr/bin "$out"
-    wrapProgram $out/bin/vagrant --prefix LD_LIBRARY_PATH : $out/opt/vagrant/embedded/lib
+    wrapProgram "$out/bin/vagrant" --prefix LD_LIBRARY_PATH : "$out/opt/vagrant/embedded/lib"
   '';
 
   preFixup = ''
     # 'hide' the template file from shebang-patching
-    chmod -x $out/opt/vagrant/embedded/gems/gems/bundler-1.12.5/lib/bundler/templates/Executable
-    chmod -x $out/opt/vagrant/embedded/gems/gems/vagrant-${version}/plugins/provisioners/salt/bootstrap-salt.sh
+    chmod -x "$out/opt/vagrant/embedded/gems/gems/bundler-1.12.5/lib/bundler/templates/Executable"
+    chmod -x "$out/opt/vagrant/embedded/gems/gems/vagrant-$version/plugins/provisioners/salt/bootstrap-salt.sh"
   '';
 
   postFixup = ''
-    chmod +x $out/opt/vagrant/embedded/gems/gems/bundler-1.12.5/lib/bundler/templates/Executable
-    chmod +x $out/opt/vagrant/embedded/gems/gems/vagrant-${version}/plugins/provisioners/salt/bootstrap-salt.sh
+    chmod +x "$out/opt/vagrant/embedded/gems/gems/bundler-1.12.5/lib/bundler/templates/Executable"
+    chmod +x "$out/opt/vagrant/embedded/gems/gems/vagrant-$version/plugins/provisioners/salt/bootstrap-salt.sh"
   '';
 }

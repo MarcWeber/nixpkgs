@@ -1,5 +1,5 @@
 { stdenv, fetchurl, intltool, pkgconfig
-, gnome3, ncurses, gobjectIntrospection, vala, libxml2, gnutls
+, gnome3, ncurses, gobjectIntrospection, vala_0_32, libxml2, gnutls
 
 , selectTextPatch ? false
 , fetchFromGitHub, autoconf, automake, libtool, gtk_doc, gperf
@@ -9,7 +9,7 @@ let baseAttrs = rec {
   inherit (import ./src.nix fetchurl) name src;
 
   buildInputs = [ gobjectIntrospection intltool pkgconfig gnome3.glib
-                  gnome3.gtk3 ncurses vala libxml2 ];
+                  gnome3.gtk3 ncurses vala_0_32 libxml2 ];
 
   propagatedBuildInputs = [ gnutls ];
 
@@ -18,10 +18,6 @@ let baseAttrs = rec {
   configureFlags = [ "--enable-introspection" ];
 
   enableParallelBuilding = true;
-
-  postInstall = ''
-    substituteInPlace $out/lib/libvte2_90.la --replace "-lncurses" "-L${ncurses.out}/lib -lncurses"
-  '';
 
   meta = with stdenv.lib; {
     homepage = http://www.gnome.org/;
@@ -43,12 +39,12 @@ let baseAttrs = rec {
 in stdenv.mkDerivation ( baseAttrs
   // stdenv.lib.optionalAttrs selectTextPatch rec {
       name = "vte-ng-${version}";
-      version = "0.42.4.a";
+      version = "0.44.1b-ng";
       src = fetchFromGitHub {
         owner = "thestinger";
         repo = "vte-ng";
         rev = version;
-        sha256 = "1w91lz30j5lrskp9ds5j3nn27m5mpdpn7nlcvf5y1w63mpmjg8k1";
+        sha256 = "0p61znma9742fd3c6b44rq7j6mhpr6gx2b9rldm3jhb62ss4vsyy";
       };
       # slightly hacky; I couldn't make it work with autoreconfHook
       configureScript = "./autogen.sh";

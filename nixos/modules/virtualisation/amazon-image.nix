@@ -11,9 +11,11 @@ with lib;
 let cfg = config.ec2; in
 
 {
-  imports = [ ../profiles/headless.nix ./ec2-data.nix ./amazon-grow-partition.nix ./amazon-init.nix ];
+  imports = [ ../profiles/headless.nix ./ec2-data.nix ./grow-partition.nix ./amazon-init.nix ];
 
   config = {
+
+    virtualisation.growPartition = cfg.hvm;
 
     fileSystems."/" = {
       device = "/dev/disk/by-label/nixos";
@@ -136,7 +138,7 @@ let cfg = config.ec2; in
     # Allow root logins only using the SSH key that the user specified
     # at instance creation time.
     services.openssh.enable = true;
-    services.openssh.permitRootLogin = "without-password";
+    services.openssh.permitRootLogin = "prohibit-password";
 
     # Force getting the hostname from EC2.
     networking.hostName = mkDefault "";

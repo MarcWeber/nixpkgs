@@ -1,6 +1,6 @@
-{ stdenv, fetchurl, python, zlib, pkgconfig, glib, ncurses, perl, pixman
-, vde2, alsaLib, texinfo, libuuid, flex, bison, lzo, snappy
-, libaio, gnutls, nettle
+{ stdenv, fetchurl, fetchpatch, python, zlib, pkgconfig, glib
+, ncurses, perl, pixman, vde2, alsaLib, texinfo, libuuid, flex
+, bison, lzo, snappy, libaio, gnutls, nettle
 , makeWrapper
 , attr, libcap, libcap_ng
 , CoreServices, Cocoa, rez, setfile
@@ -15,7 +15,7 @@
 
 with stdenv.lib;
 let
-  version = "2.6.0";
+  version = "2.7.0";
   audio = optionalString (hasSuffix "linux" stdenv.system) "alsa,"
     + optionalString pulseSupport "pa,"
     + optionalString sdlSupport "sdl,";
@@ -26,7 +26,7 @@ stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "http://wiki.qemu.org/download/qemu-${version}.tar.bz2";
-    sha256 = "1v1lhhd6m59hqgmiz100g779rjq70pik5v4b3g936ci73djlmb69";
+    sha256 = "0lqyz01z90nvxpc3nx4djbci7hx62cwvs5zwd6phssds0sap6vij";
   };
 
   buildInputs =
@@ -45,7 +45,10 @@ stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
 
-  patches = [ ./no-etc-install.patch ];
+  patches = [
+    ./no-etc-install.patch
+  ];
+  hardeningDisable = [ "stackprotector" ];
 
   configureFlags =
     [ "--smbd=smbd" # use `smbd' from $PATH

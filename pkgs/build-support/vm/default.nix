@@ -2,7 +2,7 @@
 , kernel ? pkgs.linux
 , img ? "bzImage"
 , rootModules ?
-    [ "virtio_pci" "virtio_blk" "virtio_balloon" "ext4" "unix" "9p" "9pnet_virtio" "rtc_cmos" ]
+    [ "virtio_pci" "virtio_blk" "virtio_balloon" "virtio_rng" "ext4" "unix" "9p" "9pnet_virtio" "rtc_cmos" ]
 }:
 
 with pkgs;
@@ -123,8 +123,9 @@ rec {
     mkdir -p /fs/dev
     mount -o bind /dev /fs/dev
 
-    mkdir -p /fs/dev /fs/dev/shm
+    mkdir -p /fs/dev/shm /fs/dev/pts
     mount -t tmpfs -o "mode=1777" none /fs/dev/shm
+    mount -t devpts none /fs/dev/pts
 
     echo "mounting Nix store..."
     mkdir -p /fs/nix/store
@@ -218,6 +219,7 @@ rec {
     ${qemuProg} \
       ${lib.optionalString (pkgs.stdenv.system == "x86_64-linux") "-cpu kvm64"} \
       -nographic -no-reboot \
+      -device virtio-rng-pci \
       -virtfs local,path=/nix/store,security_model=none,mount_tag=store \
       -virtfs local,path=$TMPDIR/xchg,security_model=none,mount_tag=xchg \
       -drive file=$diskImage,if=virtio,cache=unsafe,werror=report \
@@ -260,9 +262,12 @@ rec {
       exit 1
     fi
 
-    eval "$postVM"
+    exitCode="$(cat xchg/in-vm-exit)"
+    if [ "$exitCode" != "0" ]; then
+      exit "$exitCode"
+    fi
 
-    exit $(cat xchg/in-vm-exit)
+    eval "$postVM"
   '';
 
 
@@ -586,7 +591,7 @@ rec {
       buildCommand = ''
         ${createRootFS}
 
-        PATH=$PATH:${dpkg}/bin:${dpkg}/bin:${glibc.bin}/bin:${lzma.bin}/bin
+        PATH=$PATH:${stdenv.lib.makeBinPath [ dpkg dpkg glibc lzma ]}
 
         # Unpack the .debs.  We do this to prevent pre-install scripts
         # (which have lots of circular dependencies) from barfing.
@@ -1118,6 +1123,32 @@ rec {
         sha256 = "0fa09bb5f82e4a04890b91255f4b34360e38ede964fe8328f7377e36f06bad27";
       };
       urlPrefix = mirror://fedora/linux/releases/23/Everything/x86_64/os;
+      archs = ["noarch" "x86_64"];
+      packages = commonFedoraPackages ++ [ "cronie" "util-linux" ];
+      unifiedSystemDir = true;
+    };
+
+    fedora24i386 = {
+      name = "fedora-24-i386";
+      fullName = "Fedora 24 (i386)";
+      packagesList = fetchurl rec {
+        url = "mirror://fedora/linux/releases/24/Everything/i386/os/repodata/${sha256}-primary.xml.gz";
+        sha256 = "6928e251628da7a74b79180739a43784e534eaa744ba4bcb18c847dff541f344";
+      };
+      urlPrefix = mirror://fedora/linux/releases/24/Everything/i386/os;
+      archs = ["noarch" "i386" "i586" "i686"];
+      packages = commonFedoraPackages ++ [ "cronie" "util-linux" ];
+      unifiedSystemDir = true;
+    };
+
+    fedora24x86_64 = {
+      name = "fedora-24-x86_64";
+      fullName = "Fedora 24 (x86_64)";
+      packagesList = fetchurl rec {
+        url = "mirror://fedora/linux/releases/24/Everything/x86_64/os/repodata/${sha256}-primary.xml.gz";
+        sha256 = "8dcc989396ed27fadd252ba9b655019934bc3d9915f186f1f2f27e71eba7b42f";
+      };
+      urlPrefix = mirror://fedora/linux/releases/24/Everything/x86_64/os;
       archs = ["noarch" "x86_64"];
       packages = commonFedoraPackages ++ [ "cronie" "util-linux" ];
       unifiedSystemDir = true;
@@ -1855,22 +1886,22 @@ rec {
     };
 
     debian8i386 = {
-      name = "debian-8.5-jessie-i386";
-      fullName = "Debian 8.5 Jessie (i386)";
+      name = "debian-8.6-jessie-i386";
+      fullName = "Debian 8.6 Jessie (i386)";
       packagesList = fetchurl {
         url = mirror://debian/dists/jessie/main/binary-i386/Packages.xz;
-        sha256 = "f87a1ee673b335c28cb6ac87be61d6ef20f32dd847835c2bb7d400a00a464c7f";
+        sha256 = "b915c936233609af3ecf9272cd53fbdb2144d463e8472a30507aa112ef5e6a6b";
       };
       urlPrefix = mirror://debian;
       packages = commonDebianPackages;
     };
 
     debian8x86_64 = {
-      name = "debian-8.5-jessie-amd64";
-      fullName = "Debian 8.5 Jessie (amd64)";
+      name = "debian-8.6-jessie-amd64";
+      fullName = "Debian 8.6 Jessie (amd64)";
       packagesList = fetchurl {
         url = mirror://debian/dists/jessie/main/binary-amd64/Packages.xz;
-        sha256 = "df6aea15d5547ae8dc6d7ceadc8bf6499bc5a3907d13231f811bf3c1c22474ef";
+        sha256 = "8b80b6608a8fc72509b949efe1730077f0e8383b29c6aed5f86d9f9b51a631d8";
       };
       urlPrefix = mirror://debian;
       packages = commonDebianPackages;

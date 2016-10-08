@@ -11,7 +11,7 @@ stdenv.mkDerivation rec {
 
   enableParallelBuilding = true; # let's try it
 
-  patches = [ ./fix-7.2.2-clang.patch ];
+  patches = [ ./fix-7.2.2-clang.patch ./relocation.patch ];
 
   buildInputs = [ ghc perl gmp ncurses ];
 

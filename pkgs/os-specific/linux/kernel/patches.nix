@@ -31,20 +31,12 @@ let
       url = "https://raw.githubusercontent.com/slashbeast/grsecurity-scrape/master/${grbranch}/${name}.patch";
       inherit sha256;
     };
+
+    features.grsecurity = true;
   };
 in
 
 rec {
-
-  link_lguest =
-    { name = "gcc5-link-lguest";
-      patch = ./gcc5-link-lguest.patch;
-    };
-
-  link_apm =
-    { name = "gcc5-link-apm";
-      patch = ./gcc5-link-apm.patch;
-    };
 
   bridge_stp_helper =
     { name = "bridge-stp-helper";
@@ -72,6 +64,11 @@ rec {
       patch = ./mips-ext3-n32.patch;
     };
 
+  modinst_arg_list_too_long =
+    { name = "modinst-arglist-too-long";
+      patch = ./modinst-arg-list-too-long.patch;
+    };
+
   ubuntu_fan_4_4 =
     { name = "ubuntu-fan";
       patch = ./ubuntu-fan-4.4.patch;
@@ -88,14 +85,10 @@ rec {
     sha256 = "00b1rqgd4yr206dxp4mcymr56ymbjcjfa4m82pxw73khj032qw3j";
   };
 
-  grsecurity_3_14 = throw "grsecurity stable is no longer supported";
-
-  grsecurity_4_4 = throw "grsecurity stable is no longer supported";
-
   grsecurity_testing = grsecPatch
-    { kver   = "4.6.4";
-      grrev  = "201607242014";
-      sha256 = "1imzz4m1a6i7199plwj264izj8xvvx7r09v3s50rrb17jcsrfiss";
+    { kver   = "4.7.6";
+      grrev  = "201609301918";
+      sha256 = "153x97vvd3jl2i7fs6d5ilqnmz2v2iyzsf3pg3frrackv6xaisa5";
     };
 
   # This patch relaxes grsec constraints on the location of usermode helpers,
@@ -136,10 +129,6 @@ rec {
     { name = "mfd_fix_dependency";
       patch = ./chromiumos-patches/mfd-fix-dependency.patch;
     };
-  qat_common_Makefile =
-    { name = "qat_common_Makefile";
-      patch = ./qat_common_Makefile.patch;
-    };
 
   hiddev_CVE_2016_5829 =
     { name = "hiddev_CVE_2016_5829";
@@ -148,8 +137,15 @@ rec {
         sha256 = "14rm1qr87p7a5prz8g5fwbpxzdp3ighj095x8rvhm8csm20wspyy";
       };
     };
-  ecryptfs_fix_mmap_bug =
-    { name = "ecryptfs_fix_mmap_bug";
-      patch = ./ecryptfs-fix-mmap-bug.patch;
+
+  cpu-cgroup-v2 = import ./cpu-cgroup-v2-patches;
+
+  lguest_entry-linkage =
+    { name = "lguest-asmlinkage.patch";
+      patch = fetchpatch {
+        url = "https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git"
+            + "/patch/drivers/lguest/x86/core.c?id=cdd77e87eae52";
+        sha256 = "04xlx6al10cw039av6jkby7gx64zayj8m1k9iza40sw0fydcfqhc";
     };
+  };
 }

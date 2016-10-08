@@ -1,30 +1,33 @@
-{stdenv, fetchurl, ncurses, boost}:
+{ stdenv, fetchFromGitHub, ncurses, boost, asciidoc, docbook_xsl, libxslt }:
 
-stdenv.mkDerivation {
-  enableParallelBuilding = true;
+with stdenv.lib;
 
-  # REGION AUTO UPDATE: { name="kakoune"; type="git"; url="git@github.com:mawww/kakoune.git"; }
-  src = (fetchurl { url = "http://mawercer.de/~nix/repos/kakoune-git-cccb0.tar.bz2"; sha256 = "630619f9352d5b19342d954eff5ab28d4f1a2035901436bc62411bc9876d49d1"; });
-  name = "kakoune-git-cccb0";
-  # END
+stdenv.mkDerivation rec {
+  name = "kakoune-nightly-${version}";
+  version = "2016-07-26";
+  src = fetchFromGitHub {
+    repo = "kakoune";
+    owner = "mawww";
+    rev = "0d2c5072b083a893843e4fa87f9f702979069e14";
+    sha256 = "01qqs5yr9xvvklg3gg45lgnyh6gji28m854mi1snzvjd7fksf50n";
+  };
+  buildInputs = [ ncurses boost asciidoc docbook_xsl libxslt ];
 
-  preConfigure = ''
-    cd src;
+  buildPhase = ''
+    sed -ie 's#--no-xmllint#--no-xmllint --xsltproc-opts="--nonet"#g' src/Makefile
+    export PREFIX=$out
+    (cd src && make )
   '';
 
   installPhase = ''
-    ensureDir $out/kak-home
-    HOME=$out/kak-home
-    make PREFIX= DESTDIR=$out install
+    (cd src && make install)
   '';
 
-  buildInputs = [ncurses boost];
-
   meta = {
-    description = "alternative editor";
-    homepage = https://github.com/mawww/kakoune;
-    # license = stdenv.lib.licenses.pub; public domain
-    maintainers = [stdenv.lib.maintainers.marcweber];
-    platforms = stdenv.lib.platforms.linux;
+    homepage = http://kakoune.org/;
+    description = "A vim inspired text editor";
+    license = licenses.publicDomain;
+    maintainers = with maintainers; [ vrthra ];
+    platforms = platforms.linux;
   };
 }

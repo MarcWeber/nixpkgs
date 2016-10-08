@@ -181,8 +181,10 @@ stdenv.mkDerivation (attrs // {
       --force \
       --http-proxy 'http://nodtd.invalid' \
       --ignore-dependencies \
+      --install-dir "$GEM_HOME" \
       --build-root '/' \
       --backtrace \
+      --no-env-shebang \
       ${documentFlag} \
       $gempkg $gemFlags -- $buildFlags
 

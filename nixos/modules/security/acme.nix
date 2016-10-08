@@ -129,11 +129,10 @@ in
 
       certs = mkOption {
         default = { };
-        type = types.loaOf types.optionSet;
+        type = with types; loaOf (submodule certOpts);
         description = ''
           Attribute set of certificates to get signed and renewed.
         '';
-        options = [ certOpts ];
         example = {
           "example.com" = {
             webroot = "/var/www/challenges/";
@@ -166,7 +165,8 @@ in
                           ++ concatLists (mapAttrsToList (name: root: [ "-d" (if root == null then name else "${name}:${root}")]) data.extraDomains);
                 acmeService = {
                   description = "Renew ACME Certificate for ${cert}";
-                  after = [ "network.target" ];
+                  after = [ "network.target" "network-online.target" ];
+                  wants = [ "network-online.target" ];
                   serviceConfig = {
                     Type = "oneshot";
                     SuccessExitStatus = [ "0" "1" ];
@@ -282,6 +282,7 @@ in
           timerConfig = {
             OnCalendar = cfg.renewInterval;
             Unit = "acme-${cert}.service";
+            Persistent = "yes";
           };
         })
       );
@@ -290,9 +291,10 @@ in
       systemd.targets."acme-certificates" = {};
     })
 
-    { meta.maintainers = with lib.maintainers; [ abbradar fpletz globin ];
-      meta.doc = ./acme.xml;
-    }
   ];
 
+  meta = {
+    maintainers = with lib.maintainers; [ abbradar fpletz globin ];
+    doc = ./acme.xml;
+  };
 }

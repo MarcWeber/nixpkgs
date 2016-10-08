@@ -2,38 +2,38 @@
 }:
 
 let
-  deps = import ./deps.nix { inherit fetchurl; };
-  version = "1.3.0";
+
+  version = "1.5.0";
+
   src = fetchurl {
     url = "https://github.com/garbas/pypi2nix/archive/v${version}.tar.gz";
-    sha256 = "0mk9v4s51jdrrcs78v3cm131pz3fdhjkd4cmmfn1kkcfcpqzw6j8";
-    
+    sha256 = "0s79pp7gkgyk7discnv94m6z81fd67p66rdbd4cwk1ma0qljlh2k";
   };
+
+  click = fetchurl {
+    url = "https://pypi.python.org/packages/7a/00/c14926d8232b36b08218067bcd5853caefb4737cda3f0a47437151344792/click-6.6.tar.gz";
+    sha256 = "1sggipyz52crrybwbr9xvwxd4aqigvplf53k9w3ygxmzivd1jsnc";
+  };
+
+  requests = fetchurl {
+    url = "https://pypi.python.org/packages/2e/ad/e627446492cc374c284e82381215dcd9a0a87c4f6e90e9789afefe6da0ad/requests-2.11.1.tar.gz";
+    sha256 = "0cx1w7m4cpslxz9jljxv0l9892ygrrckkiwpp2hangr8b01rikss";
+  };
+
 in stdenv.mkDerivation rec {
   name = "pypi2nix-${version}";
-  srcs = with deps; [
+  srcs = [
     src
-    pip
     click
-    setuptools
-    zcbuildout
-    zcrecipeegg
     requests
-  ];  # six attrs effect ];
+  ];
   buildInputs = [ python zip makeWrapper ];
   sourceRoot = ".";
 
   postUnpack = ''
     mkdir -p $out/pkgs
 
-    mv pip-*/pip                        $out/pkgs/pip
     mv click-*/click                    $out/pkgs/click
-    mv setuptools-*/setuptools          $out/pkgs/setuptools
-    mv zc.buildout-*/src/zc             $out/pkgs/zc
-    mv zc.recipe.egg-*/src/zc/recipe    $out/pkgs/zc/recipe
-    # mv six-*/six.py                    $out/pkgs/
-    # mv attrs-*/src/attr                $out/pkgs/attrs
-    # mv effect-*/effect                 $out/pkgs/effect
     mv requests-*/requests              $out/pkgs/
 
     if [ "$IN_NIX_SHELL" != "1" ]; then
@@ -48,9 +48,9 @@ in stdenv.mkDerivation rec {
   commonPhase = ''
     mkdir -p $out/bin
 
-    echo "#!${python}/bin/python3"       >  $out/bin/pypi2nix
-    echo "import pypi2nix.cli"          >> $out/bin/pypi2nix
-    echo "pypi2nix.cli.main()"          >> $out/bin/pypi2nix
+    echo "#!${python.interpreter}" >  $out/bin/pypi2nix
+    echo "import pypi2nix.cli" >> $out/bin/pypi2nix
+    echo "pypi2nix.cli.main()" >> $out/bin/pypi2nix
 
     chmod +x $out/bin/pypi2nix
 

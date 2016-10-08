@@ -16,7 +16,7 @@
 , isl ? null # optional, for the Graphite optimization framework.
 , zlib ? null, boehmgc ? null
 , zip ? null, unzip ? null, pkgconfig ? null
-, gtk ? null, libart_lgpl ? null
+, gtk2 ? null, libart_lgpl ? null
 , libX11 ? null, libXt ? null, libSM ? null, libICE ? null, libXtst ? null
 , libXrender ? null, xproto ? null, renderproto ? null, xextproto ? null
 , libXrandr ? null, libXi ? null, inputproto ? null, randrproto ? null
@@ -35,6 +35,7 @@
 , gnused ? null
 , binutils ? null
 , cloog # unused; just for compat with gcc4, as we override the parameter on some places
+, darwin ? null
 }:
 
 assert langJava     -> zip != null && unzip != null
@@ -58,7 +59,7 @@ assert langGo -> langCC;
 with stdenv.lib;
 with builtins;
 
-let version = "6.1.0";
+let version = "6.2.0";
 
     # Whether building a cross-compiler for GNU/Hurd.
     crossGNU = cross != null && cross.config == "i586-pc-gnu";
@@ -165,8 +166,8 @@ let version = "6.1.0";
           " --disable-libatomic " +  # libatomic requires libc
           " --disable-decimal-float" # libdecnumber requires libc
           else
-          (if crossDarwin then " --with-sysroot=${libcCross.out}/share/sysroot"
-           else                " --with-headers=${libcCross.dev}/include") +
+          (if crossDarwin then " --with-sysroot=${getLib libcCross}/share/sysroot"
+           else                " --with-headers=${getDev libcCross}/include") +
           # Ensure that -print-prog-name is able to find the correct programs.
           (stdenv.lib.optionalString (crossMingw || crossDarwin) (
             " --with-as=${binutilsCross}/bin/${cross.config}-as" +
@@ -188,6 +189,9 @@ let version = "6.1.0";
             # To keep ABI compatibility with upstream mingw-w64
             " --enable-fully-dynamic-string"
             else (if cross.libc == "uclibc" then
+              # libsanitizer requires netrom/netrom.h which is not
+              # available in uclibc.
+              " --disable-libsanitizer" +
               # In uclibc cases, libgomp needs an additional '-ldl'
               # and as I don't know how to pass it, I disable libgomp.
               " --disable-libgomp" else "") +
@@ -198,12 +202,12 @@ let version = "6.1.0";
     stageNameAddon = if crossStageStatic then "-stage-static" else "-stage-final";
     crossNameAddon = if cross != null then "-${cross.config}" + stageNameAddon else "";
 
-  bootstrap = cross == null && !stdenv.isDarwin;
+  bootstrap = cross == null;
 
 in
 
 # We need all these X libraries when building AWT with GTK+.
-assert x11Support -> (filter (x: x == null) ([ gtk libart_lgpl ] ++ xlibs)) == [];
+assert x11Support -> (filter (x: x == null) ([ gtk2 libart_lgpl ] ++ xlibs)) == [];
 
 stdenv.mkDerivation ({
   name = "${name}${if stripped then "" else "-debug"}-${version}" + crossNameAddon;
@@ -212,7 +216,7 @@ stdenv.mkDerivation ({
 
   src = fetchurl {
     url = "mirror://gnu/gcc/gcc-${version}/gcc-${version}.tar.bz2";
-    sha256 = "0ld3y4rgimyqgx1nwvzqyl5gr4wzc0ch4akkvsqp3fgbmdfcii09";
+    sha256 = "1idpf43988v1a6i8lw9ak1r7igcfg1bm5kn011iydlr2qygmhi4r";
   };
 
   inherit patches;
@@ -222,6 +226,8 @@ stdenv.mkDerivation ({
   NIX_NO_SELF_RPATH = true;
 
   libc_dev = stdenv.cc.libc_dev;
+
+  hardeningDisable = [ "format" ];
 
   postPatch =
     if (stdenv.isGNU
@@ -242,7 +248,7 @@ stdenv.mkDerivation ({
           ++ stdenv.lib.optional (libpthread != null) libpthread;
         extraCPPSpec =
           concatStrings (intersperse " "
-                          (map (x: "-I${x}/include") extraCPPDeps));
+                          (map (x: "-I${x.dev or x}/include") extraCPPDeps));
         extraLibSpec =
           if libpthreadCross != null
           then "-L${libpthreadCross}/lib ${libpthreadCross.TARGET_LDFLAGS}"
@@ -288,7 +294,7 @@ stdenv.mkDerivation ({
     ++ (optional (isl != null) isl)
     ++ (optional (zlib != null) zlib)
     ++ (optionals langJava [ boehmgc zip unzip ])
-    ++ (optionals javaAwtGtk ([ gtk libart_lgpl ] ++ xlibs))
+    ++ (optionals javaAwtGtk ([ gtk2 libart_lgpl ] ++ xlibs))
     ++ (optionals (cross != null) [binutilsCross])
     ++ (optionals langAda [gnatboot])
     ++ (optionals langVhdl [gnat])
@@ -330,8 +336,10 @@ stdenv.mkDerivation ({
       else ""}
     ${if javaAwtGtk then "--enable-java-awt=gtk" else ""}
     ${if langJava && javaAntlr != null then "--with-antlr-jar=${javaAntlr}" else ""}
-    --with-gmp=${gmp}
-    --with-mpfr=${mpfr}
+    --with-gmp-include=${gmp.dev}/include
+    --with-gmp-lib=${gmp.out}/lib
+    --with-mpfr-include=${mpfr.dev}/include
+    --with-mpfr-lib=${mpfr.out}/lib
     --with-mpc=${libmpc}
     ${if libelf != null then "--with-libelf=${libelf}" else ""}
     --disable-libstdcxx-pch
@@ -353,8 +361,10 @@ stdenv.mkDerivation ({
         )
       )
     }
-    ${if (stdenv ? glibc && cross == null)
-      then " --with-native-system-header-dir=${stdenv.glibc.dev}/include"
+    ${if cross == null
+      then if stdenv.isDarwin
+        then " --with-native-system-header-dir=${darwin.usr-include}"
+        else " --with-native-system-header-dir=${getDev stdenv.cc.libc}/include"
       else ""}
     ${if langAda then " --enable-libada" else ""}
     ${if cross == null && stdenv.isi686 then "--with-arch=i686" else ""}
@@ -406,6 +416,7 @@ stdenv.mkDerivation ({
       ${if langJava && javaAntlr != null then "--with-antlr-jar=${javaAntlr.crossDrv}" else ""}
       --with-gmp=${gmp.crossDrv}
       --with-mpfr=${mpfr.crossDrv}
+      --with-mpc=${libmpc.crossDrv}
       --disable-libstdcxx-pch
       --without-included-gettext
       --with-system-zlib
@@ -450,31 +461,29 @@ stdenv.mkDerivation ({
   #
   # Likewise, the LTO code doesn't find zlib.
 
-  CPATH = concatStrings
-            (intersperse ":" (map (x: x + "/include")
-                                  (optionals (zlib != null) [ zlib ]
-                                   ++ optionals langJava [ boehmgc ]
-                                   ++ optionals javaAwtGtk xlibs
-                                   ++ optionals javaAwtGtk [ gmp mpfr ]
-                                   ++ optional (libpthread != null) libpthread
-                                   ++ optional (libpthreadCross != null) libpthreadCross
+  CPATH = makeSearchPathOutput "dev" "include" ([]
+    ++ optional (zlib != null) zlib
+    ++ optional langJava boehmgc
+    ++ optionals javaAwtGtk xlibs
+    ++ optionals javaAwtGtk [ gmp mpfr ]
+    ++ optional (libpthread != null) libpthread
+    ++ optional (libpthreadCross != null) libpthreadCross
 
-                                   # On GNU/Hurd glibc refers to Mach & Hurd
-                                   # headers.
-                                   ++ optionals (libcCross != null && libcCross ? "propagatedBuildInputs" )
-                                        libcCross.propagatedBuildInputs)));
+    # On GNU/Hurd glibc refers to Mach & Hurd
+    # headers.
+    ++ optionals (libcCross != null && libcCross ? "propagatedBuildInputs")
+                 libcCross.propagatedBuildInputs);
 
-  LIBRARY_PATH = concatStrings
-                   (intersperse ":" (map (x: x + "/lib")
-                                         (optionals (zlib != null) [ zlib ]
-                                          ++ optionals langJava [ boehmgc ]
-                                          ++ optionals javaAwtGtk xlibs
-                                          ++ optionals javaAwtGtk [ gmp mpfr ]
-                                          ++ optional (libpthread != null) libpthread)));
+  LIBRARY_PATH = makeLibraryPath ([]
+    ++ optional (zlib != null) zlib
+    ++ optional langJava boehmgc
+    ++ optionals javaAwtGtk xlibs
+    ++ optionals javaAwtGtk [ gmp mpfr ]
+    ++ optional (libpthread != null) libpthread);
 
   EXTRA_TARGET_CFLAGS =
     if cross != null && libcCross != null then [
-        "-idirafter ${libcCross.dev}/include"
+        "-idirafter ${getDev libcCross}/include"
       ]
       ++ optionals (! crossStageStatic) [
         "-B${libcCross.out}/lib"

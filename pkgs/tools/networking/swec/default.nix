@@ -10,7 +10,7 @@ stdenv.mkDerivation rec {
   };
 
   buildInputs = [ makeWrapper perl LWP URI HTMLParser ]
-   ++ stdenv.lib.optional doCheck [ HTTPServerSimple Parent ];
+   ++ stdenv.lib.optionals doCheck [ HTTPServerSimple Parent ];
 
   configurePhase = ''
     for i in swec tests/{runTests,testServer}
@@ -70,5 +70,6 @@ stdenv.mkDerivation rec {
     license = stdenv.lib.licenses.gpl3Plus;
 
     maintainers = [ ];
+    platforms = stdenv.lib.platforms.linux;
   };
 }

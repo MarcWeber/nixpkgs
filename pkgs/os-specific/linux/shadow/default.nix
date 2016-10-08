@@ -38,7 +38,7 @@ stdenv.mkDerivation rec {
     ./etc-copy-etc-satic-target.patch
     ];
 
-  outputs = [ "out" "su" ];
+  outputs = [ "out" "su" "man" ];
 
   # Assume System V `setpgrp (void)', which is the default on GNU variants
   # (`AC_FUNC_SETPGRP' is not cross-compilation capable.)
@@ -65,6 +65,7 @@ stdenv.mkDerivation rec {
   meta = {
     homepage = http://pkg-shadow.alioth.debian.org/;
     description = "Suite containing authentication-related tools such as passwd and su";
+    platforms = stdenv.lib.platforms.linux;
   };
 
   passthru = {

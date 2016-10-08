@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, pkgconfig, gtk, glibmm, cairomm, pangomm, atkmm }:
+{ stdenv, fetchurl, pkgconfig, gtk2, glibmm, cairomm, pangomm, atkmm }:
 
 stdenv.mkDerivation rec {
   name = "gtkmm-${minVer}.4";
@@ -9,9 +9,11 @@ stdenv.mkDerivation rec {
     sha256 = "1vpmjqv0aqb1ds0xi6nigxnhlr0c74090xzi15b92amlzkrjyfj4";
   };
 
+  patches = [ ./gtkmm-2.24.4-missing-operator.patch ];
+
   nativeBuildInputs = [pkgconfig];
 
-  propagatedBuildInputs = [ glibmm gtk atkmm cairomm pangomm ];
+  propagatedBuildInputs = [ glibmm gtk2 atkmm cairomm pangomm ];
 
   doCheck = true;
 

@@ -6,9 +6,7 @@ use File::Path;
 use File::Slurp;
 use Fcntl ':flock';
 use Getopt::Long qw(:config gnu_getopt);
-
-my $nsenter = "@utillinux@/bin/nsenter";
-my $su = "@su@";
+use Cwd 'abs_path';
 
 # Ensure a consistent umask.
 umask 0022;
@@ -18,13 +16,13 @@ umask 0022;
 sub showHelp {
     print <<EOF;
 Usage: nixos-container list
-       nixos-container create <container-name> [--system-path <path>] [--config <string>] [--ensure-unique-name] [--auto-start]
+       nixos-container create <container-name> [--nixos-path <path>] [--system-path <path>] [--config-file <path>] [--config <string>] [--ensure-unique-name] [--auto-start]
        nixos-container destroy <container-name>
        nixos-container start <container-name>
        nixos-container stop <container-name>
-       nixos-container kill <container-name> [--signal <signal-specifier>]
+       nixos-container terminate <container-name>
        nixos-container status <container-name>
-       nixos-container update <container-name> [--config <string>]
+       nixos-container update <container-name> [--config <string>] [--config-file <path>]
        nixos-container login <container-name>
        nixos-container root-login <container-name>
        nixos-container run <container-name> -- args...
@@ -35,22 +33,30 @@ EOF
 }
 
 my $systemPath;
+my $nixosPath;
 my $ensureUniqueName = 0;
 my $autoStart = 0;
 my $extraConfig;
 my $signal;
+my $configFile;
 
 GetOptions(
     "help" => sub { showHelp() },
     "ensure-unique-name" => \$ensureUniqueName,
     "auto-start" => \$autoStart,
     "system-path=s" => \$systemPath,
+    "signal=s" => \$signal,
+    "nixos-path=s" => \$nixosPath,
     "config=s" => \$extraConfig,
-    "signal=s" => \$signal
+    "config-file=s" => \$configFile
     ) or exit 1;
 
 my $action = $ARGV[0] or die "$0: no action specified\n";
 
+if (defined $configFile and defined $extraConfig) {
+    die "--config and --config-file are mutually incompatible. " .
+        "Please define on or the other, but not both";
+}
 
 # Execute the selected action.
 
@@ -71,6 +77,17 @@ $containerName =~ /^[a-zA-Z0-9\-]+$/ or die "$0: invalid container name\n";
 sub writeNixOSConfig {
     my ($nixosConfigFile) = @_;
 
+    my $localExtraConfig = "";
+
+
+
+    if ($extraConfig) {
+        $localExtraConfig = $extraConfig
+    } elsif ($configFile) {
+        my $resolvedFile = abs_path($configFile);
+        $localExtraConfig = "imports = [ $resolvedFile ];"
+    }
+
     my $nixosConfig = <<EOF;
 { config, lib, pkgs, ... }:
 
@@ -79,7 +96,7 @@ with lib;
 { boot.isContainer = true;
   networking.hostName = mkDefault "$containerName";
   networking.useDHCP = false;
-  $extraConfig
+  $localExtraConfig
 }
 EOF
 
@@ -158,11 +175,12 @@ if ($action eq "create") {
     } else {
         mkpath("$root/etc/nixos", 0, 0755);
 
+        my $nixenvF = $nixosPath // "<nixpkgs/nixos>";
         my $nixosConfigFile = "$root/etc/nixos/configuration.nix";
         writeNixOSConfig $nixosConfigFile;
 
         system("nix-env", "-p", "$profileDir/system",
-               "-I", "nixos-config=$nixosConfigFile", "-f", "<nixpkgs/nixos>",
+               "-I", "nixos-config=$nixosConfigFile", "-f", "$nixenvF",
                "--set", "-A", "system") == 0
             or die "$0: failed to build initial container configuration\n";
     }
@@ -189,33 +207,14 @@ sub isContainerRunning {
     return $status =~ /ActiveState=active/;
 }
 
-sub killContainer {
-    my @args = ();
-    push(@args, ("--signal", $signal)) if ($signal ne "");
-
-    system("machinectl", "kill", $containerName, @args) == 0
-        or die "$0: failed to kill container\n";
+sub terminateContainer {
+    system("machinectl", "terminate", $containerName) == 0
+        or die "$0: failed to terminate container\n";
 }
 
 sub stopContainer {
     system("systemctl", "stop", "container\@$containerName") == 0
         or die "$0: failed to stop container\n";
-}
-
-# Return the PID of the init process of the container.
-sub getLeader {
-    my $s = `machinectl show "$containerName" -p Leader`;
-    chomp $s;
-    $s =~ /^Leader=(\d+)$/ or die "unable to get container's main PID\n";
-    return int($1);
-}
-
-# Run a command in the container.
-sub runInContainer {
-    my @args = @_;
-    my $leader = getLeader;
-    exec($nsenter, "-t", $leader, "-m", "-u", "-i", "-n", "-p", "--", @args);
-    die "cannot run ‘nsenter’: $!\n";
 }
 
 # Remove a directory while recursively unmounting all mounted filesystems within
@@ -239,8 +238,7 @@ if ($action eq "destroy") {
     die "$0: cannot destroy declarative container (remove it from your configuration.nix instead)\n"
         unless POSIX::access($confFile, &POSIX::W_OK);
 
-    $signal = "SIGKILL";
-    killContainer if (isContainerRunning);
+    terminateContainer if (isContainerRunning);
 
     safeRemoveTree($profileDir) if -e $profileDir;
     safeRemoveTree($gcRootsDir) if -e $gcRootsDir;
@@ -257,8 +255,8 @@ elsif ($action eq "stop") {
     stopContainer;
 }
 
-elsif ($action eq "kill") {
-    killContainer;
+elsif ($action eq "terminate") {
+    terminateContainer;
 }
 
 elsif ($action eq "status") {
@@ -270,7 +268,10 @@ elsif ($action eq "update") {
 
     # FIXME: may want to be more careful about clobbering the existing
     # configuration.nix.
-    writeNixOSConfig $nixosConfigFile if (defined $extraConfig && $extraConfig ne "");
+    if ((defined $extraConfig && $extraConfig ne "") ||
+         (defined $configFile && $configFile ne "")) {
+        writeNixOSConfig $nixosConfigFile;
+    }
 
     system("nix-env", "-p", "$profileDir/system",
            "-I", "nixos-config=$nixosConfigFile", "-f", "<nixpkgs/nixos>",
@@ -289,14 +290,14 @@ elsif ($action eq "login") {
 }
 
 elsif ($action eq "root-login") {
-    runInContainer("@su@", "root", "-l");
+    exec("machinectl", "shell", $containerName, "/bin/sh", "-l");
 }
 
 elsif ($action eq "run") {
     shift @ARGV; shift @ARGV;
     # Escape command.
     my $s = join(' ', map { s/'/'\\''/g; "'$_'" } @ARGV);
-    runInContainer("@su@", "root", "-l", "-c", "exec " . $s);
+    exec("machinectl", "--quiet", "shell", $containerName, "/bin/sh", "-l", "-c", $s);
 }
 
 elsif ($action eq "show-ip") {

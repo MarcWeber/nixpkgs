@@ -49,4 +49,7 @@ stdenv.mkDerivation {
     cp -v xpdf/*.h $out/include
   '';
     
+  meta = {
+    platforms = stdenv.lib.platforms.unix;
+  };
 }

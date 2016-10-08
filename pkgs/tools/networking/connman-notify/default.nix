@@ -15,8 +15,8 @@ stdenv.mkDerivation rec {
 
   buildInputs = [
     pythonPackages.python
-    pythonPackages.dbus
-    pythonPackages.pygobject
+    pythonPackages.dbus-python
+    pythonPackages.pygobject2
     pythonPackages.pygtk
     pythonPackages.notify
   ];
@@ -34,7 +34,7 @@ stdenv.mkDerivation rec {
     description = "Desktop notification integration for connman";
     homepage = https://github.com/wavexx/connman-notify;
     license = licenses.gpl2;
-    platforms = platforms.unix;
+    platforms = platforms.linux;
     maintainers = [ maintainers.romildo ];
   };
 }

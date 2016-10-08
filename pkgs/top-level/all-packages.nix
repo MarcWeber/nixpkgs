@@ -10121,6 +10121,8 @@ in
     boost = boost159;
   };
 
+  mysql56 = callPackage ../servers/sql/mysql/5.6.x.nix { };
+
   mysql = mariadb;
   libmysql = mysql.client; # `libmysql` is a slight misnomer ATM
 

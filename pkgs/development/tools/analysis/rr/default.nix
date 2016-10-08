@@ -1,4 +1,4 @@
-{ stdenv, fetchFromGitHub, cmake, libpfm, zlib, python, pkgconfig, pythonPackages, which, procps, gdb }:
+{ stdenv, fetchFromGitHub, cmake, libpfm, zlib, pkgconfig, python2Packages, which, procps, gdb }:
 
 stdenv.mkDerivation rec {
   version = "4.3.0";
@@ -17,12 +17,17 @@ stdenv.mkDerivation rec {
     patchShebangs .
   '';
 
-  buildInputs = [ cmake libpfm zlib python pkgconfig pythonPackages.pexpect which procps gdb ];
+  buildInputs = [ cmake libpfm zlib python2Packages.python pkgconfig python2Packages.pexpect which procps gdb ];
   cmakeFlags = [
     "-DCMAKE_C_FLAGS_RELEASE:STRING="
     "-DCMAKE_CXX_FLAGS_RELEASE:STRING="
     "-Ddisable32bit=ON"
   ];
+
+  # we turn on additional warnings due to hardening
+  NIX_CFLAGS_COMPILE = "-Wno-error";
+
+  hardeningDisable = [ "fortify" ];
 
   enableParallelBuilding = true;
 

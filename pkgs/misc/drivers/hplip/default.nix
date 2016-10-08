@@ -3,7 +3,7 @@
 , cups, zlib, libjpeg, libusb1, pythonPackages, sane-backends, dbus, usbutils
 , net_snmp, openssl, polkit
 , bash, coreutils, utillinux
-, qtSupport ? true, qt4, pyqt4
+, qtSupport ? true, qt4
 , withPlugin ? false
 }:
 
@@ -40,7 +40,7 @@ let
   hplipArch = hplipPlatforms."${stdenv.system}"
     or (throw "HPLIP not supported on ${stdenv.system}");
 
-  pluginArches = [ "x86_32" "x86_64" ];
+  pluginArches = [ "x86_32" "x86_64" "arm32" ];
 
 in
 
@@ -71,7 +71,7 @@ stdenv.mkDerivation {
   pythonPath = with pythonPackages; [
     dbus
     pillow
-    pygobject
+    pygobject2
     recursivePthLoader
     reportlab
     usbutils

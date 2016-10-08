@@ -8,6 +8,7 @@ import ./make-test.nix ({ pkgs, ... }: {
         kdev = config.boot.kernelPackages.kernel.dev;
         kver = config.boot.kernelPackages.kernel.modDirVersion;
         ksrc = "${kdev}/lib/modules/${kver}/build";
+        hardeningDisable = [ "pic" ];
       } ''
         echo "obj-m += $name.o" > Makefile
         echo "$source" > "$name.c"
@@ -61,7 +62,7 @@ import ./make-test.nix ({ pkgs, ... }: {
     boot.initrd.kernelModules = [ "kcanary" ];
 
     boot.initrd.extraUtilsCommands = let
-      compile = name: source: pkgs.runCommand name { inherit source; } ''
+      compile = name: source: pkgs.runCommandCC name { inherit source; } ''
         mkdir -p "$out/bin"
         echo "$source" | gcc -Wall -o "$out/bin/$name" -xc -
       '';

@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchurl, pkgconfig, gtk, gtk3, pango, perl, python, zip, libIDL
+{ lib, stdenv, fetchurl, pkgconfig, gtk2, gtk3, pango, perl, python, zip, libIDL
 , libjpeg, zlib, dbus, dbus_glib, bzip2, xorg
 , freetype, fontconfig, file, alsaLib, nspr, nss, libnotify
 , yasm, mesa, sqlite, unzip, makeWrapper, pysqlite
@@ -30,7 +30,7 @@ common = { pname, version, sha512 }: stdenv.mkDerivation rec {
   };
 
   buildInputs =
-    [ pkgconfig gtk perl zip libIDL libjpeg zlib bzip2
+    [ pkgconfig gtk2 perl zip libIDL libjpeg zlib bzip2
       python dbus dbus_glib pango freetype fontconfig xorg.libXi
       xorg.libX11 xorg.libXrender xorg.libXft xorg.libXt file
       alsaLib nspr nss libnotify xorg.pixman yasm mesa
@@ -47,7 +47,6 @@ common = { pname, version, sha512 }: stdenv.mkDerivation rec {
 
   configureFlags =
     [ "--enable-application=browser"
-      "--disable-javaxpcom"
       "--with-system-jpeg"
       "--with-system-zlib"
       "--with-system-bz2"
@@ -64,11 +63,9 @@ common = { pname, version, sha512 }: stdenv.mkDerivation rec {
       #"--enable-system-cairo"
       "--enable-startup-notification"
       "--enable-content-sandbox"            # available since 26.0, but not much info available
-      "--disable-content-sandbox-reporter"  # keeping disabled for now
       "--disable-crashreporter"
       "--disable-tests"
       "--disable-necko-wifi" # maybe we want to enable this at some point
-      "--disable-installer"
       "--disable-updater"
       "--enable-jemalloc"
       "--disable-gconf"
@@ -116,6 +113,14 @@ common = { pname, version, sha512 }: stdenv.mkDerivation rec {
       "$out/bin/firefox" --version
     '';
 
+  postFixup =
+    # Fix notifications. LibXUL uses dlopen for this, unfortunately; see #18712.
+    ''
+      patchelf --set-rpath "${lib.getLib libnotify
+        }/lib:$(patchelf --print-rpath "$out"/lib/firefox-*/libxul.so)" \
+          "$out"/lib/firefox-*/libxul.so
+    '';
+
   meta = {
     description = "A web browser" + lib.optionalString (pname == "firefox-esr") " (Extended Support Release)";
     homepage = http://www.mozilla.com/en-US/firefox/;
@@ -124,7 +129,8 @@ common = { pname, version, sha512 }: stdenv.mkDerivation rec {
   };
 
   passthru = {
-    inherit gtk nspr version;
+    inherit nspr version;
+    gtk = gtk2;
     isFirefox3Like = true;
     browserName = "firefox";
     ffmpegSupport = lib.versionAtLeast version "46.0";
@@ -135,14 +141,14 @@ in {
 
   firefox-unwrapped = common {
     pname = "firefox";
-    version = "47.0.1";
-    sha512 = "f79c53b9acf0d96917aa11e57092a4e540ce694471123ef8e616e15864195fab7b37235ebd37367e4d0cc8e594a881a30c973075cc97346ef6f88d92944c0312";
+    version = "49.0";
+    sha512 = "9431f86dec5587131699ae57ae428be168e4d6c7d1d48df643c10540e8e18bc5eadfcd08bb204950be611c87d35d8a40aa8ece454b7dfa3992239639c2d688a9";
   };
 
   firefox-esr-unwrapped = common {
     pname = "firefox-esr";
-    version = "45.2.0esr";
-    sha512 = "fd67353cff9400080a311af92562b1ed26d20ca2229e32e8c8289b364ebe27fd501eed78c72b614e0501c3841ae9b17f2102158fbeef5083bee8c12d952660e6";
+    version = "45.4.0esr";
+    sha512 = "2955e02f829a10186a8b22320fb97d4b0fc2b45721fcffa6295653fd760d516ae72b5656547685ba1e0699b381e28044996d9ee12a8738842b4e6b8acd296715";
   };
 
 }

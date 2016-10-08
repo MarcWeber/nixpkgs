@@ -10,23 +10,21 @@ with stdenv.lib;
 
 stdenv.mkDerivation rec {
   name = "mkvtoolnix-${version}";
-  version = "9.2.0";
+  version = "9.4.2";
 
   src = fetchFromGitHub {
     owner = "mbunkus";
     repo = "mkvtoolnix";
     rev = "release-${version}";
-    sha256 = "02w3161iqaijs3bz5w2wily9nz55xnhq1bdm2s5qi8v3sbcqd6df";
+    sha256 = "1dyhlpik8d9z78dg47cha313r0dm9fcjg6hzkmzd2ng9yrq5pmdy";
   };
 
   nativeBuildInputs = [ pkgconfig autoconf automake gettext ruby ];
 
   buildInputs = [
-    expat
-    file xdg_utils boost libebml zlib
-    libmatroska libogg libvorbis flac
-    (optional withGUI qt5.qtbase)
-  ];
+    expat file xdg_utils boost libebml zlib libmatroska libogg
+    libvorbis flac
+  ] ++ optional withGUI qt5.qtbase;
 
   preConfigure = "./autogen.sh; patchShebangs .";
   buildPhase   = "./drake -j $NIX_BUILD_CORES";

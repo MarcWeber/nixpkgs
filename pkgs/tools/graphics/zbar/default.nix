@@ -1,8 +1,10 @@
-{ stdenv, fetchurl, imagemagickBig, pkgconfig, python, pygtk, perl
+{ stdenv, fetchurl, imagemagickBig, pkgconfig, pythonPackages, perl
 , libX11, libv4l, qt4, lzma, gtk2, fetchpatch, autoreconfHook
 }:
 
-stdenv.mkDerivation rec {
+let
+  inherit (pythonPackages) pygtk python;
+in stdenv.mkDerivation rec {
   name = "${pname}-${version}";
   pname = "zbar";
   version = "0.10";
@@ -37,6 +39,8 @@ stdenv.mkDerivation rec {
   buildInputs =
     [ imagemagickBig pkgconfig python pygtk perl libX11
       libv4l qt4 lzma gtk2 autoreconfHook ];
+
+  hardeningDisable = [ "fortify" ];
 
   meta = with stdenv.lib; {
     description = "Bar code reader";

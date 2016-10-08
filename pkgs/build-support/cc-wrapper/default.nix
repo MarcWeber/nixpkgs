@@ -46,7 +46,20 @@ stdenv.mkDerivation {
   inherit cc shell libc_bin libc_dev libc_lib binutils_bin coreutils_bin;
   gnugrep_bin = if nativeTools then "" else gnugrep;
 
-  passthru = { inherit libc nativeTools nativeLibc nativePrefix isGNU isClang; };
+  passthru = {
+    inherit libc nativeTools nativeLibc nativePrefix isGNU isClang;
+
+    emacsBufferSetup = pkgs: ''
+      ; We should handle propagation here too
+      (mapc (lambda (arg)
+        (when (file-directory-p (concat arg "/include"))
+          (setenv "NIX_CFLAGS_COMPILE" (concat (getenv "NIX_CFLAGS_COMPILE") " -isystem " arg "/include")))
+        (when (file-directory-p (concat arg "/lib"))
+          (setenv "NIX_LDFLAGS" (concat (getenv "NIX_LDFLAGS") " -L" arg "/lib")))
+        (when (file-directory-p (concat arg "/lib64"))
+          (setenv "NIX_LDFLAGS" (concat (getenv "NIX_LDFLAGS") " -L" arg "/lib64")))) '(${concatStringsSep " " (map (pkg: "\"${pkg}\"") pkgs)}))
+    '';
+  };
 
   buildCommand =
     ''
@@ -237,7 +250,17 @@ stdenv.mkDerivation {
       cat $out/nix-support/setup-hook.tmp >> $out/nix-support/setup-hook
       rm $out/nix-support/setup-hook.tmp
 
-      substituteAll ${./add-flags} $out/nix-support/add-flags.sh
+      # some linkers on some platforms don't support specific -z flags
+      hardening_unsupported_flags=""
+      if [[ "$($ldPath/ld -z now 2>&1 || true)" =~ "unknown option" ]]; then
+        hardening_unsupported_flags+=" bindnow"
+      fi
+      if [[ "$($ldPath/ld -z relro 2>&1 || true)" =~ "unknown option" ]]; then
+        hardening_unsupported_flags+=" relro"
+      fi
+
+      substituteAll ${./add-flags.sh} $out/nix-support/add-flags.sh
+      substituteAll ${./add-hardening.sh} $out/nix-support/add-hardening.sh
       cp -p ${./utils.sh} $out/nix-support/utils.sh
     ''
     + extraBuildCommands;

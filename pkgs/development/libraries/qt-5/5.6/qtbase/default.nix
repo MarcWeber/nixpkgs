@@ -7,7 +7,7 @@
 , openssl, dbus, glib, udev, libxml2, libxslt, pcre16
 , zlib, libjpeg, libpng, libtiff, sqlite, icu
 
-, coreutils, bison, flex, gdb, gperf, lndir, ruby
+, coreutils, bison, flex, gdb, gperf, lndir
 , patchelf, perl, pkgconfig, python
 
 # optional dependencies
@@ -19,15 +19,11 @@
 , buildExamples ? false
 , buildTests ? false
 , developerBuild ? false
-, libgnomeui, GConf, gnome_vfs, gtk
 , decryptSslTraffic ? false
 }:
 
 let
   system-x86_64 = lib.elem stdenv.system lib.platforms.x86_64;
-
-  # Search path for Gtk plugin
-  gtkLibPath = lib.makeLibraryPath [ gtk gnome_vfs libgnomeui GConf ];
 in
 
 stdenv.mkDerivation {
@@ -35,7 +31,7 @@ stdenv.mkDerivation {
   name = "qtbase-${srcs.qtbase.version}";
   inherit (srcs.qtbase) src version;
 
-  outputs = [ "dev" "out" "gtk" ];
+  outputs = [ "out" "dev" ];
 
   patches =
     copyPathsToStore (lib.readPathsFromFile ./. ./series)
@@ -111,7 +107,7 @@ stdenv.mkDerivation {
     -rpath
     -optimized-qmake
     -strip
-    -reduce-relocations
+    -no-reduce-relocations
     -system-proxies
     -pkg-config
 
@@ -127,7 +123,6 @@ stdenv.mkDerivation {
     -xcb
     -qpa xcb
     -${lib.optionalString (cups == null) "no-"}cups
-    -gtkstyle
 
     -no-eglfs
     -no-directfb
@@ -185,13 +180,11 @@ stdenv.mkDerivation {
   ++ lib.optional mesaSupported mesa;
 
   buildInputs =
-    [ bison flex gperf ruby ]
+    [ bison flex gperf ]
     ++ lib.optional developerBuild gdb
     ++ lib.optional (cups != null) cups
     ++ lib.optional (mysql != null) mysql.lib
-    ++ lib.optional (postgresql != null) postgresql
-    # FIXME: move to the main list on rebuild.
-    ++ [gnome_vfs.out libgnomeui.out gtk GConf];
+    ++ lib.optional (postgresql != null) postgresql;
 
   nativeBuildInputs = [ lndir patchelf perl pkgconfig python ];
 
@@ -216,27 +209,11 @@ stdenv.mkDerivation {
     # The destination directory must exist or moveToOutput will do nothing
     mkdir -p "$dev/share"
     moveToOutput "share/doc" "$dev"
-
-    # Move the QGtkStyle plugin to the gtk output
-    mkdir -p "$gtk/lib/qt5/plugins/platformthemes"
-    mv "$out/lib/qt5/plugins/platformthemes/libqgtk2.so" "$gtk/lib/qt5/plugins/platformthemes"
-    rm "$out/lib/cmake/Qt5Gui/Qt5Gui_QGtk2ThemePlugin.cmake"
-
-    # Set RPATH for QGtkStyle plugin
-    qgtk2="$gtk/lib/qt5/plugins/platformthemes/libqgtk2.so"
-    qgtk2_RPATH="$(patchelf --print-rpath "$qgtk2")"
-    qgtk2_RPATH="$qgtk2_RPATH''${qgtk2_RPATH:+:}${gtkLibPath}"
-    patchelf "$qgtk2" \
-        --add-needed libgtk-x11-2.0.so \
-        --add-needed libgnomeui-2.so \
-        --add-needed libgnomevfs-2.so \
-        --add-needed libgconf-2.so \
-        --set-rpath "$qgtk2_RPATH"
   '';
 
   postFixup =
     ''
-      # Don't retain build-time dependencies like gdb and ruby.
+      # Don't retain build-time dependencies like gdb.
       sed '/QMAKE_DEFAULT_.*DIRS/ d' -i $dev/mkspecs/qconfig.pri
 
       # Move libtool archives and qmake projects

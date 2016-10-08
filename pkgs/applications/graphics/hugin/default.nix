@@ -5,11 +5,11 @@
 }:
 
 stdenv.mkDerivation rec {
-  name = "hugin-2016.0.0";
+  name = "hugin-2016.2.0";
 
   src = fetchurl {
     url = "mirror://sourceforge/hugin/${name}.tar.bz2";
-    sha256 = "1rk5bgsvszv9bza46jxwr3i3qgiha2rza5v8lbwkqn4b4idv0c5h";
+    sha256 = "058zd63vx29yrx2pphbbll7kzcxkai22q26lpw13rn4lvp41pasl";
   };
 
   buildInputs = [
@@ -25,7 +25,7 @@ stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
 
-  NIX_CFLAGS_COMPILE = "-I${ilmbase}/include/OpenEXR";
+  NIX_CFLAGS_COMPILE = "-I${ilmbase.dev}/include/OpenEXR";
 
   postInstall = ''
     for p in $out/bin/*; do

@@ -33,6 +33,11 @@ in
       makeFlagsArray+=("bindir=$bin/bin" "sbindir=$bin/sbin" "rootsbindir=$bin/sbin")
     '';
 
+    # The stackprotector and fortify hardening flags are autodetected by glibc
+    # and enabled by default if supported. Setting it for every gcc invocation
+    # does not work.
+    hardeningDisable = [ "stackprotector" "fortify" ];
+
     # When building glibc from bootstrap-tools, we need libgcc_s at RPATH for
     # any program we run, because the gcc will have been placed at a new
     # store path than that determined when built (as a source for the
@@ -70,7 +75,7 @@ in
       fi
 
       # Get rid of more unnecessary stuff.
-      rm -rf $out/var $out/sbin/sln
+      rm -rf $out/var $bin/bin/sln
 
       # For some reason these aren't stripped otherwise and retain reference
       # to bootstrap-tools; on cross-arm this stripping would break objects.

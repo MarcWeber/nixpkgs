@@ -3,7 +3,7 @@
 # the modules necessary to mount the root file system, then calls the
 # init in the root file system to start the second boot stage.
 
-{ config, lib, pkgs, ... }:
+{ config, lib, utils, pkgs, ... }:
 
 with lib;
 
@@ -23,12 +23,18 @@ let
   };
 
 
+  # The initrd only has to mount `/` or any FS marked as necessary for
+  # booting (such as the FS containing `/nix/store`, or an FS needed for
+  # mounting `/`, like `/` on a loopback).
+  fileSystems = filter utils.fsNeededForBoot config.system.build.fileSystems;
+
+
   # Some additional utilities needed in stage 1, like mount, lvm, fsck
   # etc.  We don't want to bring in all of those packages, so we just
   # copy what we need.  Instead of using statically linked binaries,
   # we just copy what we need from Glibc and use patchelf to make it
   # work.
-  extraUtils = pkgs.runCommand "extra-utils"
+  extraUtils = pkgs.runCommandCC "extra-utils"
     { buildInputs = [pkgs.nukeReferences];
       allowedReferences = [ "out" ]; # prevent accidents like glibc being included in the initrd
     }
@@ -71,7 +77,7 @@ let
       ln -sf kmod $out/bin/modprobe
 
       # Copy resize2fs if needed.
-      ${optionalString (any (fs: fs.autoResize) (attrValues config.fileSystems)) ''
+      ${optionalString (any (fs: fs.autoResize) fileSystems) ''
         # We need mke2fs in the initrd.
         copy_bin_and_libs ${pkgs.e2fsprogs}/sbin/resize2fs
       ''}
@@ -87,15 +93,11 @@ let
         LDD="$(ldd $BIN)" || continue
         LIBS="$(echo "$LDD" | awk '{print $3}' | sed '/^$/d')"
         for LIB in $LIBS; do
-          [ ! -f "$out/lib/$(basename $LIB)" ] && cp -pdv $LIB $out/lib
-          while [ "$(readlink $LIB)" != "" ]; do
-            LINK="$(readlink $LIB)"
-            if [ "${LINK:0:1}" != "/" ]; then
-              LINK="$(dirname $LIB)/$LINK"
-            fi
-            LIB="$LINK"
-            [ ! -f "$out/lib/$(basename $LIB)" ] && cp -pdv $LIB $out/lib
-          done
+          TGT="$out/lib/$(basename $LIB)"
+          if [ ! -f "$TGT" ]; then
+            SRC="$(readlink -e $LIB)"
+            cp -pdv "$SRC" "$TGT"
+          fi
         done
       done
 
@@ -132,18 +134,9 @@ let
     ''; # */
 
 
-  # The initrd only has to mount / or any FS marked as necessary for
-  # booting (such as the FS containing /nix/store, or an FS needed for
-  # mounting /, like / on a loopback).
-  fileSystems = filter
-    (fs: fs.neededForBoot || elem fs.mountPoint [ "/" "/nix" "/nix/store" "/var" "/var/log" "/var/lib" "/etc" ])
-    (attrValues config.fileSystems);
-
-
-  udevRules = pkgs.stdenv.mkDerivation {
-    name = "udev-rules";
-    allowedReferences = [ extraUtils ];
-    buildCommand = ''
+  udevRules = pkgs.runCommand "udev-rules"
+    { allowedReferences = [ extraUtils ]; }
+    ''
       mkdir -p $out
 
       echo 'ENV{LD_LIBRARY_PATH}="${extraUtils}/lib"' > $out/00-env.rules
@@ -182,7 +175,6 @@ let
       substituteInPlace $out/60-persistent-storage.rules \
         --replace ID_CDROM_MEDIA_TRACK_COUNT_DATA ID_CDROM_MEDIA
     ''; # */
-  };
 
 
   # The init script of boot stage 1 (loading kernel modules for
@@ -196,13 +188,18 @@ let
 
     inherit udevRules extraUtils modulesClosure;
 
-    inherit (config.boot) resumeDevice devSize runSize;
+    inherit (config.boot) resumeDevice;
+
+    inherit (config.system.build) earlyMountScript;
 
     inherit (config.boot.initrd) checkJournalingFS
       preLVMCommands preDeviceCommands postDeviceCommands postMountCommands preFailCommands kernelModules;
 
     resumeDevices = map (sd: if sd ? device then sd.device else "/dev/disk/by-label/${sd.label}")
-                    (filter (sd: (sd ? label || hasPrefix "/dev/" sd.device) && !sd.randomEncryption) config.swapDevices);
+                    (filter (sd: hasPrefix "/dev/" sd.device && !sd.randomEncryption
+                             # Don't include zram devices
+                             && !(hasPrefix "/dev/zram" sd.device)
+                            ) config.swapDevices);
 
     fsInfo =
       let f = fs: [ fs.mountPoint (if fs.device != null then fs.device else "/dev/disk/by-label/${fs.label}") fs.fsType (builtins.concatStringsSep "," fs.options) ];
@@ -231,16 +228,12 @@ let
         { object = pkgs.writeText "mdadm.conf" config.boot.initrd.mdadmConf;
           symlink = "/etc/mdadm.conf";
         }
-        { object = pkgs.stdenv.mkDerivation {
-            name = "initrd-kmod-blacklist-ubuntu";
-            builder = pkgs.writeText "builder.sh" ''
-              source $stdenv/setup
+        { object = pkgs.runCommand "initrd-kmod-blacklist-ubuntu"
+            { src = "${pkgs.kmod-blacklist-ubuntu}/modprobe.conf"; }
+            ''
               target=$out
-
               ${pkgs.perl}/bin/perl -0pe 's/## file: iwlwifi.conf(.+?)##/##/s;' $src > $out
             '';
-            src = "${pkgs.kmod-blacklist-ubuntu}/modprobe.conf";
-          };
           symlink = "/etc/modprobe.d/ubuntu.conf";
         }
         { object = pkgs.kmod-debian-aliases;
@@ -400,9 +393,8 @@ in
   };
 
   config = mkIf (!config.boot.isContainer) {
-
     assertions = [
-      { assertion = any (fs: fs.mountPoint == "/") (attrValues config.fileSystems);
+      { assertion = any (fs: fs.mountPoint == "/") fileSystems;
         message = "The ‘fileSystems’ option does not specify your root file system.";
       }
       { assertion = let inherit (config.boot) resumeDevice; in

@@ -192,7 +192,7 @@ let lispPackages = rec {
     version = "git-20150514";
     description = "Common Lisp SQL Interface library";
     deps = [uffi];
-    buildInputs = [pkgs.mysql.lib pkgs.zlib];
+    buildInputs = [pkgs.mysql.client pkgs.zlib];
     # Source type: git
     src = pkgs.fetchgit {
       url =
@@ -204,8 +204,8 @@ let lispPackages = rec {
     };
     overrides = x:{
       preConfigure = ''
-        export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -I${pkgs.mysql.lib}/include/mysql"
-        export NIX_LDFLAGS="$NIX_LDFLAGS -L${pkgs.mysql.lib}/lib/mysql"
+        export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -I${stdenv.lib.getDev pkgs.mysql.client}/include/mysql"
+        export NIX_LDFLAGS="$NIX_LDFLAGS -L${stdenv.lib.getLib pkgs.mysql.client}/lib/mysql"
       '';
     };
   };
@@ -344,14 +344,14 @@ let lispPackages = rec {
 
   command-line-arguments = buildLispPackage rec {
     baseName = "command-line-arguments";
-    version = "git-20141113";
+    version = "git-20151120";
     description = "Small library to deal with command-line arguments";
     deps = [];
     # Source type: git
     src = pkgs.fetchgit {
       url = ''http://common-lisp.net/project/qitab/git/command-line-arguments.git'';
-      sha256 = "1jgx8k706wz2qjdnqnralvnhwlzxd0nx22r6rncgs2kw7p4wll9d";
-      rev = ''121f303bbef9c9cdf37a7a12d8adb1ad4be5a6ae'';
+      sha256 = "0qx33j0bq8dshiyyv8rjwd0zvhqhqx5gby6xrghfy8ylcwf11r5j";
+      rev = ''003bdbc05e2816e43293530f58efb529e9e89a20'';
     };
   };
 

@@ -28,6 +28,14 @@ stdenv.mkDerivation rec {
     sha256 = "1k29rxlvrhgc5hadg2nc50wa3d2ls9ndp373257p756a0aividxh";
   };
 
+  patches =
+    [ # Don't include a copy of the CMake status output in the
+      # build. This causes a runtime dependency on GCC.
+      ./no-build-info.patch
+    ];
+
+  outputs = [ "out" "dev" ];
+
   buildInputs =
        [ zlib ]
     ++ lib.optional enablePython pythonPackages.python
@@ -46,7 +54,7 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [ cmake pkgconfig unzip ];
 
-  NIX_CFLAGS_COMPILE = lib.optional enableEXR "-I${ilmbase}/include/OpenEXR";
+  NIX_CFLAGS_COMPILE = lib.optional enableEXR "-I${ilmbase.dev}/include/OpenEXR";
 
   cmakeFlags = [
     (opencvFlag "TIFF" enableTIFF)
@@ -57,6 +65,8 @@ stdenv.mkDerivation rec {
   ];
 
   enableParallelBuilding = true;
+
+  hardeningDisable = [ "bindnow" "relro" ];
 
   passthru = lib.optionalAttrs enablePython { pythonPath = []; };
 

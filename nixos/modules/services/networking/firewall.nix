@@ -100,10 +100,23 @@ let
 
     # Perform a reverse-path test to refuse spoofers
     # For now, we just drop, as the raw table doesn't have a log-refuse yet
-    ${optionalString (kernelHasRPFilter && cfg.checkReversePath) ''
-      if ! ip46tables -A PREROUTING -t raw -m rpfilter --invert -j DROP; then
-        echo "<2>failed to initialise rpfilter support" >&2
-      fi
+    ${optionalString (kernelHasRPFilter && (cfg.checkReversePath != false)) ''
+      # Clean up rpfilter rules
+      ip46tables -t raw -D PREROUTING -j nixos-fw-rpfilter 2> /dev/null || true
+      ip46tables -t raw -F nixos-fw-rpfilter 2> /dev/null || true
+      ip46tables -t raw -N nixos-fw-rpfilter 2> /dev/null || true
+
+      ip46tables -t raw -A nixos-fw-rpfilter -m rpfilter ${optionalString (cfg.checkReversePath == "loose") "--loose"} -j RETURN
+
+      # Allows this host to act as a DHCPv4 server
+      iptables -t raw -A nixos-fw-rpfilter -s 0.0.0.0 -d 255.255.255.255 -p udp --sport 68 --dport 67 -j RETURN
+
+      ${optionalString cfg.logReversePathDrops ''
+        ip46tables -t raw -A nixos-fw-rpfilter -j LOG --log-level info --log-prefix "rpfilter drop: "
+      ''}
+      ip46tables -t raw -A nixos-fw-rpfilter -j DROP
+
+      ip46tables -t raw -A PREROUTING -j nixos-fw-rpfilter
     ''}
 
     # Accept all traffic on the trusted interfaces.
@@ -187,10 +200,8 @@ let
     # Clean up after added ruleset
     ip46tables -D INPUT -j nixos-fw 2>/dev/null || true
 
-    ${optionalString (kernelHasRPFilter && cfg.checkReversePath) ''
-      if ! ip46tables -D PREROUTING -t raw -m rpfilter --invert -j DROP; then
-        echo "<2>failed to stop rpfilter support" >&2
-      fi
+    ${optionalString (kernelHasRPFilter && (cfg.checkReversePath != false)) ''
+      ip46tables -t raw -D PREROUTING -j nixos-fw-rpfilter 2>/dev/null || true
     ''}
 
     ${cfg.extraStopCommands}
@@ -362,7 +373,7 @@ in
 
     networking.firewall.checkReversePath = mkOption {
       default = kernelHasRPFilter;
-      type = types.bool;
+      type = types.either types.bool (types.enum ["strict" "loose"]);
       description =
         ''
           Performs a reverse path filter test on a packet.
@@ -370,9 +381,20 @@ in
           that the packet arrived on, it is refused.
 
           If using asymmetric routing or other complicated routing,
-          disable this setting and setup your own counter-measures.
+          set this option to loose mode or disable it and setup your
+          own counter-measures.
 
           (needs kernel 3.3+)
+        '';
+    };
+
+    networking.firewall.logReversePathDrops = mkOption {
+      default = false;
+      type = types.bool;
+      description =
+        ''
+          Logs dropped packets failing the reverse path filter test if
+          the option networking.firewall.checkReversePath is enabled.
         '';
     };
 
@@ -461,7 +483,7 @@ in
       options nf_conntrack nf_conntrack_helper=0
     '';
 
-    assertions = [ { assertion = ! cfg.checkReversePath || kernelHasRPFilter;
+    assertions = [ { assertion = (cfg.checkReversePath != false) || kernelHasRPFilter;
                      message = "This kernel does not support rpfilter"; }
                    { assertion = cfg.autoLoadConntrackHelpers || kernelCanDisableHelpers;
                      message = "This kernel does not support disabling conntrack helpers"; }
@@ -469,7 +491,8 @@ in
 
     systemd.services.firewall = {
       description = "Firewall";
-      wantedBy = [ "network-pre.target" ];
+      wantedBy = [ "sysinit.target" ];
+      wants = [ "network-pre.target" ];
       before = [ "network-pre.target" ];
       after = [ "systemd-modules-load.service" ];
 
@@ -479,6 +502,7 @@ in
       # containers don't have CAP_SYS_MODULE. So the host system had
       # better have all necessary modules already loaded.
       unitConfig.ConditionCapability = "CAP_NET_ADMIN";
+      unitConfig.DefaultDependencies = false;
 
       reloadIfChanged = true;
 

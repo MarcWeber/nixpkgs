@@ -1,5 +1,7 @@
 { stdenv, fetchurl, pkgconfig, gettext, perl, python
 , libiconv, libintlOrEmpty, zlib, libffi, pcre, libelf
+# use utillinuxMinimal to avoid circular dependency (utillinux, systemd, glib)
+, utillinuxMinimal ? null
 
 # this is just for tests (not in closure of any regular package)
 , coreutils, dbus_daemon, libxml2, tzdata, desktop_file_utils, shared_mime_info, doCheck ? false
@@ -8,6 +10,7 @@
 with stdenv.lib;
 
 assert stdenv.isFreeBSD || stdenv.isDarwin || stdenv.cc.isGNU;
+assert stdenv.isLinux -> utillinuxMinimal != null;
 
 # TODO:
 # * Add gio-module-fam
@@ -39,8 +42,8 @@ let
     ln -sr -t "''${!outputInclude}/include/" "''${!outputInclude}"/lib/*/include/* 2>/dev/null || true
   '';
 
-  ver_maj = "2.48";
-  ver_min = "1";
+  ver_maj = "2.50";
+  ver_min = "0";
 in
 
 stdenv.mkDerivation rec {
@@ -48,17 +51,18 @@ stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "mirror://gnome/sources/glib/${ver_maj}/${name}.tar.xz";
-    sha256 = "74411bff489cb2a3527bac743a51018841a56a4d896cc1e0d0d54f8166a14612";
+    sha256 = "830b551fa626bda06e12729205b3c5bb0d82b924a8cf64d948945878f01b7d70";
   };
 
   patches = optional stdenv.isDarwin ./darwin-compilation.patch ++ optional doCheck ./skip-timer-test.patch;
 
-  outputs = [ "dev" "out" "docdev" ];
+  outputs = [ "out" "dev" "devdoc" ];
   outputBin = "dev";
 
   setupHook = ./setup-hook.sh;
 
   buildInputs = [ libelf setupHook pcre ]
+    ++ optionals stdenv.isLinux [ utillinuxMinimal ] # for libmount
     ++ optionals doCheck [ tzdata libxml2 desktop_file_utils shared_mime_info ];
 
   nativeBuildInputs = [ pkgconfig gettext perl python ];

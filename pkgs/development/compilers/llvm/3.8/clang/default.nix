@@ -6,7 +6,7 @@ let
     name = "clang-${version}";
 
     unpackPhase = ''
-      unpackFile ${fetch "cfe" "1ybcac8hlr9vl3wg8s4v6cp0c0qgqnwprsv85lihbkq3vqv94504"}
+      unpackFile ${fetch "cfe" "1prc72xmkgx8wrzmrr337776676nhsp1qd3mw2bvb22bzdnq7lsc"}
       mv cfe-${version}.src clang
       sourceRoot=$PWD/clang
       unpackFile ${clang-tools-extra_src}
@@ -39,7 +39,10 @@ let
       ln -sv $out/bin/clang $out/bin/cpp
 
       mkdir -p $python/bin $python/share/clang/
-      mv $out/bin/{git-clang-format,scan-view,set-xcode-analyzer} $python/bin
+      mv $out/bin/{git-clang-format,scan-view} $python/bin
+      if [ -e $out/bin/set-xcode-analyzer ]; then
+        mv $out/bin/set-xcode-analyzer $python/bin
+      fi
       mv $out/share/clang/*.py $python/share/clang
 
       rm $out/bin/c-index-test

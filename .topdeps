@@ -14,7 +14,6 @@ experimental/ruby
 experimental/imap-sync-update
 experimental/mercurial
 experimental/inkscape
-experimental/firebird
 experimental/fonts
 experimental/vsftpd
 marc-nixos/multi-shell-support

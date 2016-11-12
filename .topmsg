@@ -1,5 +1,4 @@
-Replacing apache-httpd's port option by listen option still allowing port for
-backward campatibility.
+apache-httpd
 
-The port option only allowed a port setting, the listen option supports both:
-ip and port setting. Eg listen = { /* ip = "*"; */ port = 443; }
+* Introduce listen = [ { ip = "*"; port = 443; } ]; configuartion.
+* deprecated port = 443 optoin which is no longer needed

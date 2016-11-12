@@ -439,7 +439,7 @@ in
   config = mkIf cfg.enable {
     # TODO: test user supplied config file pases syntax test
 
-    environment.systemPackages = [ nginx ];
+    environment.systemPackages = [ pkgs.nginx ];
 
     services.nginx.httpConfig =
       concatMapStrings (server:

@@ -324,12 +324,12 @@ in
               };
               sslCert = mkOption {
                 type = types.string;
-                description = "ssl cert";
+                description = "ssl cert filepath";
                 default = "";
               };
               sslKey = mkOption {
                 type = types.string;
-                description = "ssl key";
+                description = "ssl key filepath";
                 default = "";
               };
               errorLog = mkOption {
@@ -465,7 +465,6 @@ in
           ${accessLog}
           ${errorLog}
           ${server.preConfig}
-
           ${server.config}
         }
       '') (attrValues cfg.http.servers);

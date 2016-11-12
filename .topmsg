@@ -1,4 +1,4 @@
 apache-httpd
 
 * Introduce listen = [ { ip = "*"; port = 443; } ]; configuartion.
-* deprecated port = 443 optoin which is no longer needed
+* deprecated port = 443 option which is no longer needed

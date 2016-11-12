@@ -33,7 +33,6 @@ with lib;
   };
 
   listen = mkOption {
-     description = "list of ip to listen on";
      type = types.listOf (types.submodule (
           {
             options = {
@@ -48,6 +47,9 @@ with lib;
               };
             };
           } ));
+    description = ''
+      List of { /* ip: "*"; */ port = 80;} to listen on
+    '';
 
     default = [];
   };

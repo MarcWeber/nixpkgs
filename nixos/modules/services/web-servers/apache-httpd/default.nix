@@ -20,9 +20,11 @@ let
     then [{ip = "*"; port = 443;}]
     else [{ip = "*"; port = 80;}];
 
-  getListen = cfg: if cfg.listen == []
-    then defaultListen cfg
-    else cfg.listen;
+  getListen = cfg:
+    let list = (lib.optional (cfg.port != 0) {ip = "*"; port = cfg.port;}) ++ cfg.listen;
+    in if list == []
+        then defaultListen cfg
+        else list;
 
   listenToString = l: "${l.ip}:${toString l.port}";
 
@@ -639,6 +641,8 @@ in
                                     && mainCfg.sslServerKey != null;
                      message = "SSL is enabled for httpd, but sslServerCert and/or sslServerKey haven't been specified."; }
                  ];
+
+    warnings = lib.map (cfg: ''apache-httpd's port option is deprecated. Use listen {/*ip = "*"; */ port = ${cfg.port}";} instead'' ) (lib.filter (cfg: cfg.port != 0) allHosts);
 
     users.extraUsers = optionalAttrs (mainCfg.user == "wwwrun") (singleton
       { name = "wwwrun";

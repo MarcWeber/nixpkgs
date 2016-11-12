@@ -23,26 +23,11 @@ let
     sha256 = "0118iay9ggvdvyva74bzsl67apknnv8pp0fcz8f9cwlmwxx7mq0x";
   };
 
-#   igbinary = igbinary12;
-#   igbinary12 = buildPecl {
-#     name = "igbinary-1.2.1";
-#     sha256 = "1f7x7p879f7ka6lqkx1l817mk4zgf6dwpqx0dpzbnys13ba533hn";
-#   };
-
-  imagick = if isPhp7 then imagick34 else imagick31;
-
-  imagick31 = assert !isPhp7; buildPecl {
-    name = "imagick-3.1.2";
-    sha256 = "14vclf2pqcgf3w8nzqbdw0b9v30q898344c84jdbw2sa62n6k1sj";
+  imagick = buildPecl {
+    name = "imagick-3.4.3RC1";
+    sha256 = "0siyxpszjz6s095s2g2854bhprjq49rf22v6syjiwvndg1pc9fsh";
     configureFlags = "--with-imagick=${pkgs.imagemagick.dev}";
-    buildInputs = [ pkgs.pkgconfig ];
-  };
-
-  imagick34 = buildPecl {
-    name = "imagick-3.4.0RC4";
-    sha256 = "0fdkzdv3r8sm6y1x11kp3rxsimq6zf15xvi0mhn57svmnan4zh0i";
-    configureFlags = "--with-imagick=${pkgs.imagemagick.dev}";
-    buildInputs = [ pkgs.pkgconfig ];
+    nativeBuildInputs = [ pkgs.pkgconfig ];
   };
 
   # No support for PHP 7 yet

@@ -12,7 +12,6 @@ experimental/parallel-building
 experimental/eclipse
 experimental/ruby
 experimental/imap-sync-update
-experimental/ati
 experimental/mercurial
 experimental/inkscape
 experimental/firebird

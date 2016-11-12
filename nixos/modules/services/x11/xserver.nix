@@ -515,6 +515,7 @@ in
       { description = "X11 Server";
 
         after = [ "systemd-udev-settle.service" "local-fs.target" "acpid.service" "systemd-logind.service" ];
+        wants = [ "systemd-udev-settle.service" ];
 
         restartIfChanged = false;
 
@@ -539,6 +540,10 @@ in
           Restart = "always";
           RestartSec = "200ms";
           SyslogIdentifier = "display-manager";
+          # Stop restarting if the display manager stops (crashes) 2 times
+          # in one minute. Starting X typically takes 3-4s.
+          StartLimitInterval = "30s";
+          StartLimitBurst = "3";
         };
       };
 

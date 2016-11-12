@@ -42,6 +42,7 @@ in
       pkgs.lxqt.liblxqt
       pkgs.lxqt.libqtxdg
       pkgs.lxqt.libsysstat
+      pkgs.lxqt.lximage-qt
       pkgs.lxqt.lxqt-about
       pkgs.lxqt.lxqt-admin
       pkgs.lxqt.lxqt-common
@@ -60,11 +61,15 @@ in
       pkgs.lxqt.obconf-qt
       pkgs.lxqt.pavucontrol-qt
       pkgs.lxqt.pcmanfm-qt
+      pkgs.lxqt.qlipper
+      pkgs.lxqt.qps
       pkgs.lxqt.qterminal
       pkgs.lxqt.qtermwidget
+      pkgs.lxqt.screengrab
       pkgs.menu-cache
       pkgs.openbox # default window manager
       pkgs.qt5.qtsvg # provides QT5 plugins for svg icons
+      pkgs.xscreensaver
     ];
 
     # Link some extra directories in /run/current-system/software/share

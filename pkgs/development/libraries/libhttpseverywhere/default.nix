@@ -1,14 +1,15 @@
-{stdenv, fetchFromGitHub, gnome3, glib, json_glib, libxml2, libarchive, libsoup, gobjectIntrospection, meson, ninja, pkgconfig,  valadoc}:
+{stdenv, fetchurl, gnome3, glib, json_glib, libxml2, libarchive, libsoup, gobjectIntrospection, meson, ninja, pkgconfig,  valadoc}:
 
 stdenv.mkDerivation rec {
-  name = "libhttpseverywhere-${version}";
-  version = "0.2.0";
+  major = "0.2";
+  minor = "3";
+  version = "${major}.${minor}";
 
-  src = fetchFromGitHub {
-    owner = "grindhold";
-    repo  = "libhttpseverywhere";
-    rev = "${version}";
-    sha256 = "06yljz7xxh9v48awgmzma6avrnzs2kqh1ydd2hx4b1x2vgf8nfbb";
+  name = "libhttpseverywhere-${version}";
+
+  src = fetchurl {
+    url = "mirror://gnome/sources/libhttpseverywhere/${major}/libhttpseverywhere-${version}.tar.xz";
+    sha256 = "0ndk6yyfcd7iwwkv4rkivhd08k0x8v03gnp9dk1ms4bxb1l2i8l1";
   };
 
   nativeBuildInputs = [ gnome3.vala valadoc  gobjectIntrospection meson ninja pkgconfig ];
@@ -33,7 +34,7 @@ stdenv.mkDerivation rec {
 
   meta = {
     description = "library to use HTTPSEverywhere in desktop applications";
-    homepage    = https://github.com/grindhold/libhttpseverywhere;
+    homepage    = https://git.gnome.org/browse/libhttpseverywhere;
     license     = stdenv.lib.licenses.lgpl3;
     platforms   = stdenv.lib.platforms.linux;
     maintainers = with stdenv.lib.maintainers; [ sternenseemann ];

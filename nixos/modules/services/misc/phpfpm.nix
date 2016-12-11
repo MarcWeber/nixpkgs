@@ -82,11 +82,11 @@ debugging is only enable for php 5.3
 
     {pkgs , config, ...} : {
 
-      services.phpfpm.pools = lib.attrValues phpfpmPools;
+      services.phpfpm_marc_weber.pools = lib.attrValues phpfpmPools;
 
       httpd.extraConfig = ''
-          FastCGIExternalServer /dev/shm/php5.3.fcgi -socket ${config.services.phpfpm.socketPathFun phpfpmPools.php53} -flush -idle-timeout 300
-          FastCGIExternalServer /dev/shm/php5.4.fcgi -socket ${config.services.phpfpm.socketPathFun phpfpmPools.php54} -flush -idle-timeout 300
+          FastCGIExternalServer /dev/shm/php5.3.fcgi -socket ${config.services.phpfpm_marc_weber.socketPathFun phpfpmPools.php53} -flush -idle-timeout 300
+          FastCGIExternalServer /dev/shm/php5.4.fcgi -socket ${config.services.phpfpm_marc_weber.socketPathFun phpfpmPools.php54} -flush -idle-timeout 300
       '';
 
       httpd.virtualHosts =
@@ -128,7 +128,7 @@ let
   inherit (pkgs.lib) mkOption mkIf mkMerge mergeAttrs foldAttrs attrValues
                     mapAttrs catAttrs fold optionalString concatStrings mapAttrsFlatten;
 
-  cfg =  config.services.phpfpm;
+  cfg =  config.services.phpfpm_marc_weber;
 
   phpIniFile =
     {item, phpIniLines ? "", name}:
@@ -143,7 +143,7 @@ let
         "
       ;
 
-  preparePool = item: # item = item of phpfpm.pools
+  preparePool = item: # item = item of phpfpm_marc_weber.pools
     let
       opCacheDefaults = {
         memory_consumption = 64;
@@ -277,7 +277,7 @@ in {
   imports = [];
 
   options = {
-    services.phpfpm = {
+    services.phpfpm_marc_weber = {
 
       enable = mkOption {
         default = true;
@@ -285,12 +285,12 @@ in {
       };
 
       stateDir = mkOption {
-        default = "/var/run/phpfpm";
+        default = "/var/run/phpfpm_marc_weber";
         description = "State directory with PID and socket files.";
       };
 
       logDir = mkOption {
-        default = "/var/log/phpfpm";
+        default = "/var/log/phpfpm_marc_weber";
         description = "Directory where to put in log files.";
       };
 

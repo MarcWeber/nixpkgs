@@ -16,5 +16,6 @@ branch for each
 - calligra krita fix (eigen -> eigen2)
 - writeText: support large files
   (https://github.com/NixOS/nixpkgs/pull/6303)
+- Marcs nginx http.servers code
 
 Signed-off-by: Marc Weber <marco-oweber@gmx.de>

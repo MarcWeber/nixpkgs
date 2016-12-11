@@ -1,8 +1,8 @@
-{ stdenv, lib, go, buildGoPackage, fetchFromGitHub }:
+{ stdenv, go, buildGoPackage, fetchFromGitHub }:
 
 buildGoPackage rec {
   name = "prometheus-${version}";
-  version = "1.1.2";
+  version = "1.4.1";
   rev = "v${version}";
 
   goPackagePath = "github.com/prometheus/prometheus";
@@ -11,7 +11,7 @@ buildGoPackage rec {
     inherit rev;
     owner = "prometheus";
     repo = "prometheus";
-    sha256 = "1k0lfmfkyibjan590wyswr65yr940w8d1zma6k3l2hc025xpi2i4";
+    sha256 = "05yd3y1b0406qdmx7p27pya9kzcrv66069z1y8dqwj3bf9c7csnm";
   };
 
   docheck = true;

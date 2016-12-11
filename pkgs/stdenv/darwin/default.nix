@@ -1,7 +1,5 @@
-{ system         ? builtins.currentSystem
-, allPackages    ? import ../../..
-, platform       ? null
-, config         ? {}
+{ lib, allPackages
+, system, platform, crossSystem, config
 
 # Allow passing in bootstrap files directly so we can test the stdenv bootstrap process when changing the bootstrap tools
 , bootstrapFiles ? let
@@ -17,19 +15,21 @@
   }
 }:
 
+assert crossSystem == null;
+
 let
   libSystemProfile = ''
     (import "${./standard-sandbox.sb}")
   '';
 in rec {
-  allPackages = import ../../..;
+  inherit allPackages;
 
   commonPreHook = ''
     export NIX_ENFORCE_PURITY="''${NIX_ENFORCE_PURITY-1}"
     export NIX_ENFORCE_NO_NATIVE="''${NIX_ENFORCE_NO_NATIVE-1}"
     export NIX_IGNORE_LD_THROUGH_GCC=1
     stripAllFlags=" " # the Darwin "strip" command doesn't know "-s"
-    export MACOSX_DEPLOYMENT_TARGET=10.7
+    export MACOSX_DEPLOYMENT_TARGET=10.10
     export SDKROOT=
     export CMAKE_OSX_ARCHITECTURES=x86_64
     # Workaround for https://openradar.appspot.com/22671534 on 10.11.
@@ -100,8 +100,9 @@ in rec {
       };
 
       thisPkgs = allPackages {
-        inherit system platform;
-        bootStdenv = thisStdenv;
+        inherit system platform crossSystem config;
+        allowCustomOverrides = false;
+        stdenv = thisStdenv;
       };
     in { stdenv = thisStdenv; pkgs = thisPkgs; };
 

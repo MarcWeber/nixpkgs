@@ -65,7 +65,6 @@
   ./programs/adb.nix
   ./programs/atop.nix
   ./programs/bash/bash.nix
-  ./programs/zsh/zsh.nix
   ./programs/blcr.nix
   ./programs/cdemu.nix
   ./programs/command-not-found/command-not-found.nix

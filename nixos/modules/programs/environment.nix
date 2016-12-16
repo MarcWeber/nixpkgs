@@ -51,7 +51,7 @@ in
       ''
          # reset TERM with new TERMINFO available (if any)
          # only for bash
-         [ -n "$ZSH_VERSION" ] || export TERM=$TERM
+         export TERM=$TERM
          export FONTCONFIG_FILE=/etc/fonts/fonts.conf
 
          unset ASPELL_CONF

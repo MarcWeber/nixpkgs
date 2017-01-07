@@ -5,6 +5,7 @@
 , uwimap, pam, gmp, apacheHttpd, libiconv
 , callPackage, fetchgit, pkgs, writeText, systemd
 , idByConfig ? true # if true the php.id value will only depend on php configuration, not on the store path, eg dependencies
+, firebird
 }:
 
 let
@@ -51,6 +52,7 @@ let
         "ztsSupport"
         "calendarSupport"
         "systemd_socket_activationSupport"
+        "interbaseSupport"
     ]; in
 
     composableDerivation.composableDerivation {
@@ -203,6 +205,11 @@ let
         mysql = {
           configureFlags = ["--with-mysql"];
           buildInputs = [ mysql.lib.dev ];
+        };
+
+        interbase = {
+          configureFlags = ["--with-interbase=${firebird}"];
+          buildInputs = [ firebird ];
         };
 
         mysqli = {

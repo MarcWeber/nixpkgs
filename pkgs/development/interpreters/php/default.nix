@@ -52,7 +52,7 @@ let
         "ztsSupport"
         "calendarSupport"
         "systemd_socket_activationSupport"
-        "interbaseSupport"
+        "firebirdPDOSupport"
     ]; in
 
     composableDerivation.composableDerivation {
@@ -207,8 +207,8 @@ let
           buildInputs = [ mysql.lib.dev ];
         };
 
-        interbase = {
-          configureFlags = ["--with-interbase=${firebird}"];
+        firebirdPDO = {
+          configureFlags = ["--with-pdo-firebird=${firebird}"];
           buildInputs = [ firebird ];
         };
 

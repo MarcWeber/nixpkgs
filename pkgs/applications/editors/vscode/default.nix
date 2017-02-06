@@ -2,22 +2,23 @@
   makeWrapper, libXScrnSaver }:
 
 let
-  version = "1.6.1";
-  rev = "9e4e44c19e393803e2b05fe2323cf4ed7e36880e";
+  version = "1.9.0";
+  rev = "38746938a4ab94f2f57d9e1309c51fd6fb37553d";
+  channel = "stable";
 
-  sha256 = if stdenv.system == "i686-linux"    then "1aks84siflpjbd2s9y1f0vvvf3nas4f50cimjf25lijxzjxrlivy"
-      else if stdenv.system == "x86_64-linux"  then "05kbi081ih64fadj4k74grkk9ca3wga6ybwgs5ld0bal4ilw1q6i"
-      else if stdenv.system == "x86_64-darwin" then "00p2m8b0l3pkf5k74szw6kcql3j1fjnv3rwnhy24wfkg4b4ah2x9"
+  sha256 = if stdenv.system == "i686-linux"    then "05f1sk2lq2skp8fxq6q229kf89vi2sq3zz6lywq7nk81pwvp8jap"
+      else if stdenv.system == "x86_64-linux"  then "0wj17lwq8f88xvfa6wfbqm580kp0470ib2yxn15j9mv0iw7nzqry"
+      else if stdenv.system == "x86_64-darwin" then "1k067h099j6fv820nn6h4i8ax35yvd1h8f4h5216dm66cpikv7nd"
       else throw "Unsupported system: ${stdenv.system}";
 
-  urlBase = "https://az764295.vo.msecnd.net/stable/${rev}/";
+  urlBase = "https://az764295.vo.msecnd.net/${channel}/${rev}/";
 
   urlStr = if stdenv.system == "i686-linux" then
-        urlBase + "code-stable-code_${version}-1476372351_i386.tar.gz"
+        urlBase + "code-${channel}-code_${version}-1486024310_i386.tar.gz"
       else if stdenv.system == "x86_64-linux" then
-        urlBase + "code-stable-code_${version}-1476373175_amd64.tar.gz"
+        urlBase + "code-${channel}-code_${version}-1486023356_amd64.tar.gz"
       else if stdenv.system == "x86_64-darwin" then
-        urlBase + "VSCode-darwin-stable.zip"
+        urlBase + "VSCode-darwin-${channel}.zip"
       else throw "Unsupported system: ${stdenv.system}";
 in
   stdenv.mkDerivation rec {
@@ -33,10 +34,7 @@ in
       name = "code";
       exec = "code";
       icon = "code";
-      comment = ''
-        Code editor redefined and optimized for building and debugging modern
-        web and cloud applications
-      '';
+      comment = "Code editor redefined and optimized for building and debugging modern web and cloud applications";
       desktopName = "Visual Studio Code";
       genericName = "Text Editor";
       categories = "GNOME;GTK;Utility;TextEditor;Development;";

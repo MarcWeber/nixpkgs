@@ -1,16 +1,15 @@
 { stdenv, fetchurl, coq, ssreflect, ncurses, which
-, graphviz, ocamlPackages, withDoc ? false
-, src
+, graphviz, withDoc ? false
+, src, name
 }:
 
 stdenv.mkDerivation {
 
-  name = "coq-mathcomp-1.6-${coq.coq-version}";
-
+  inherit name;
   inherit src;
 
   nativeBuildInputs = stdenv.lib.optionals withDoc [ graphviz ];
-  buildInputs = [ coq.ocaml coq.camlp5 ncurses which ];
+  buildInputs = [ coq.ocaml coq.findlib coq.camlp5 ncurses which ];
   propagatedBuildInputs = [ coq ssreflect ];
 
   enableParallelBuilding = true;

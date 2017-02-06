@@ -1,12 +1,9 @@
-{ stdenv, fetchFromGitHub, utillinux
-  ,autoconf, automake, libtool, gettext }:
+{ stdenv, fetchFromGitHub, fetchpatch, utillinux
+, autoconf, automake, libtool, gettext }:
 
 stdenv.mkDerivation rec {
   name = "fuse-${version}";
-
   version = "2.9.7";
-
-  #builder = ./builder.sh;
 
   src = fetchFromGitHub {
     owner = "libfuse";
@@ -17,7 +14,10 @@ stdenv.mkDerivation rec {
 
   buildInputs = [ utillinux autoconf automake libtool gettext ];
 
-  inherit utillinux;
+  patches = stdenv.lib.optional stdenv.isAarch64 (fetchpatch {
+    url = "https://github.com/libfuse/libfuse/commit/914871b20a901e3e1e981c92bc42b1c93b7ab81b.patch";
+    sha256 = "1w4j6f1awjrycycpvmlv0x5v9gprllh4dnbjxl4dyl2jgbkaw6pa";
+  });
 
   preConfigure =
     ''
@@ -32,7 +32,7 @@ stdenv.mkDerivation rec {
 
       sed -e 's@/bin/@${utillinux}/bin/@g' -i lib/mount_util.c
       sed -e 's@CONFIG_RPATH=/usr/share/gettext/config.rpath@CONFIG_RPATH=${gettext}/share/gettext/config.rpath@' -i makeconf.sh
-      
+
       ./makeconf.sh
     '';
 

@@ -14,7 +14,10 @@ let
       mkDerivation = pkgs.callPackage ./generic-builder.nix {
         inherit stdenv;
         inherit (pkgs) fetchurl pkgconfig glibcLocales coreutils gnugrep gnused;
-        inherit (self) ghc jailbreak-cabal;
+        jailbreak-cabal = if (self.ghc.cross or null) != null
+          then self.ghc.bootPkgs.jailbreak-cabal
+          else self.jailbreak-cabal;
+        inherit (self) ghc;
         hscolour = overrideCabal self.hscolour (drv: {
           isLibrary = false;
           doHaddock = false;
@@ -52,18 +55,26 @@ let
         inherit packages;
       };
 
-      hackage2nix = name: version: pkgs.stdenv.mkDerivation {
-        name = "cabal2nix-${name}-${version}";
-        buildInputs = [ pkgs.cabal2nix ];
-        phases = ["installPhase"];
-        LANG = "en_US.UTF-8";
-        LOCALE_ARCHIVE = pkgs.lib.optionalString pkgs.stdenv.isLinux "${pkgs.glibcLocales}/lib/locale/locale-archive";
-        installPhase = ''
-          export HOME="$TMP"
-          mkdir $out
-          hash=$(sed -e 's/.*"SHA256":"//' -e 's/".*$//' ${all-cabal-hashes}/${name}/${version}/${name}.json)
-          cabal2nix --compiler=${self.ghc.name} --system=${stdenv.system} --sha256=$hash ${all-cabal-hashes}/${name}/${version}/${name}.cabal >$out/default.nix
-        '';
+      haskellSrc2nix = { name, src, sha256 ? null }:
+        let
+          sha256Arg = if isNull sha256 then "" else ''--sha256="${sha256}"'';
+        in pkgs.stdenv.mkDerivation {
+          name = "cabal2nix-${name}";
+          buildInputs = [ pkgs.cabal2nix ];
+          phases = ["installPhase"];
+          LANG = "en_US.UTF-8";
+          LOCALE_ARCHIVE = pkgs.lib.optionalString pkgs.stdenv.isLinux "${pkgs.glibcLocales}/lib/locale/locale-archive";
+          installPhase = ''
+            export HOME="$TMP"
+            mkdir -p "$out"
+            cabal2nix --compiler=${self.ghc.name} --system=${stdenv.system} ${sha256Arg} "${src}" > "$out/default.nix"
+          '';
+      };
+
+      hackage2nix = name: version: haskellSrc2nix {
+        name   = "${name}-${version}";
+        sha256 = ''$(sed -e 's/.*"SHA256":"//' -e 's/".*$//' "${all-cabal-hashes}/${name}/${version}/${name}.json")'';
+        src    = "${all-cabal-hashes}/${name}/${version}/${name}.cabal";
       };
 
     in
@@ -72,6 +83,12 @@ let
         inherit mkDerivation callPackage;
 
         callHackage = name: version: self.callPackage (hackage2nix name version);
+
+        # Creates a Haskell package from a source package by calling cabal2nix on the source.
+        callCabal2nix = src: self.callPackage (haskellSrc2nix {
+          inherit src;
+          name = src.name or baseNameOf src;
+        });
 
         ghcWithPackages = selectFrom: withPackages (selectFrom self);
 

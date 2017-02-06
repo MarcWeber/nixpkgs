@@ -24,12 +24,14 @@ let
 in
 stdenv.mkDerivation rec {
   name = "SDL2-${version}";
-  version = "2.0.4";
+  version = "2.0.5";
 
   src = fetchurl {
     url = "http://www.libsdl.org/release/${name}.tar.gz";
-    sha256 = "0jqp46mxxbh9lhpx1ih6sp93k752j2smhpc0ad0q4cb3px0famfs";
+    sha256 = "11c75qj1qxmx67iwkvf9z4x69phk301pdn86zzr6jncnap7kh824";
   };
+
+  outputs = [ "out" "dev" ];
 
   patches = [ ./find-headers.patch ];
 
@@ -61,6 +63,7 @@ stdenv.mkDerivation rec {
 
   postInstall = ''
     rm $out/lib/*.a
+    moveToOutput bin/sdl2-config "$dev"
   '';
 
   setupHook = ./setup-hook.sh;
@@ -72,6 +75,6 @@ stdenv.mkDerivation rec {
     homepage = "http://www.libsdl.org/";
     license = licenses.zlib;
     platforms = platforms.all;
-    maintainers = with maintainers; [ page ];
+    maintainers = with maintainers; [ cpages ];
   };
 }

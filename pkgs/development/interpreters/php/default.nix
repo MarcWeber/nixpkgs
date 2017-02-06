@@ -13,9 +13,10 @@ let
   generic =
     { version, sha256 }:
 
-    let php7 = lib.versionAtLeast version "7.0"; in
+    let php7 = lib.versionAtLeast version "7.0";
+        mysqlHeaders = mysql.lib.dev or mysql;
 
-    let options = [
+        options = [
         "imapSupport"
         "ldapSupport"
         "mhashSupport"
@@ -132,6 +133,10 @@ let
           buildInputs = [apacheHttpd];
         };
 
+        embed = {
+          configureFlags = ["--enable-embed"];
+        };
+
         # Extensions
         imap = {
           configureFlags = [
@@ -204,7 +209,7 @@ let
 
         mysql = {
           configureFlags = ["--with-mysql"];
-          buildInputs = [ mysql.lib.dev ];
+          buildInputs = [ mysqlHeaders ];
         };
 
         firebirdPDO = {
@@ -213,8 +218,8 @@ let
         };
 
         mysqli = {
-          configureFlags = ["--with-mysqli=${mysql.lib.dev}/bin/mysql_config"];
-          buildInputs = [ mysql.lib.dev ];
+          configureFlags = ["--with-mysqli=${mysqlHeaders}/bin/mysql_config"];
+          buildInputs = [ mysqlHeaders ];
         };
 
         mysqli_embedded = {
@@ -224,8 +229,8 @@ let
         };
 
         pdo_mysql = {
-          configureFlags = ["--with-pdo-mysql=${mysql.lib.dev}"];
-          buildInputs = [ mysql.lib.dev ];
+          configureFlags = ["--with-pdo-mysql=${mysqlHeaders}"];
+          buildInputs = [ mysqlHeaders ];
         };
 
         bcmath = {
@@ -338,6 +343,7 @@ let
         pdo_mysqlSupport = config.php.pdo_mysql or true;
         libxml2Support = config.php.libxml2 or true;
         apxs2Support = config.php.apxs2 or (!stdenv.isDarwin);
+        embedSupport = config.php.embed or false;
         bcmathSupport = config.php.bcmath or true;
         socketsSupport = config.php.sockets or true;
         curlSupport = config.php.curl or true;
@@ -373,13 +379,15 @@ let
       configurePhase = ''
         runHook "preConfigure"
         # Don't record the configure flags since this causes unnecessary
-        # runtime dependencies.
+        # runtime dependencies - except for php-embed, as uwsgi needs them.
+        ${lib.optionalString (!(config.php.embed or false)) ''
         for i in main/build-defs.h.in scripts/php-config.in; do
           substituteInPlace $i \
             --replace '@CONFIGURE_COMMAND@' '(omitted)' \
             --replace '@CONFIGURE_OPTIONS@' "" \
             --replace '@PHP_LDFLAGS@' ""
         done
+        ''}
 
         [[ -z "$libxml2" ]] || export PATH=$PATH:$libxml2/bin
         ./configure --with-config-file-scan-dir=/etc/php.d --with-config-file-path=$out/etc --prefix=$out $configureFlags
@@ -420,12 +428,17 @@ in {
   # Example usage: php56.merge { fpmSupport = true; sendmail = ".."; .... }
 
   php56 = generic {
-    version = "5.6.28";
-    sha256 = "13sl8z5inwyzmi1d5z4g42nq3n8gjdl4876h65bbd86mmbsa6pn5";
+    version = "5.6.30";
+    sha256 = "01krq8r9xglq59x376zlg261yikckq179jmhnlcg3gqxza9w41d1";
   };
 
   php70 = generic {
-    version = "7.0.13";
-    sha256 = "1hc8zry3mrggfh1yxvm255xal5h6bxf0p3wdq307w48j719bp46h";
+    version = "7.0.15";
+    sha256 = "1nbxwj4yx30k77qibhmnx0rvqhia1zbkwi5ps5nzm0sn6d3zkj58";
+  };
+
+  php71 = generic {
+    version = "7.1.1";
+    sha256 = "1g3mqscxnsic9ypf641jhiyn95d4d1nz198539245v2lgffx74fp";
   };
 }

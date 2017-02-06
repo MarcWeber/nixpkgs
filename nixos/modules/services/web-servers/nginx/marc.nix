@@ -1,7 +1,6 @@
 { config, lib, pkgs, ... }:
 
 # somewhat duplicating the vhost-options.nix
-# I don't want to force 80 to be default port
 # I don't want to rewrite existing code
 
 with lib;

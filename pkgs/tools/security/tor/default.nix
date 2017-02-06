@@ -3,11 +3,11 @@
 }:
 
 stdenv.mkDerivation rec {
-  name = "tor-0.2.8.10";
+  name = "tor-0.2.9.9";
 
   src = fetchurl {
-    url = "https://archive.torproject.org/tor-package-archive/${name}.tar.gz";
-    sha256 = "0kcw9hq4xz8p91xwyhjfry5p1dmn7vvnhpfz66vl9gsfndbqr2y8";
+    url = "https://dist.torproject.org/${name}.tar.gz";
+    sha256 = "0hqdk5p6dw4bpn7c8gmhyi8jjkhc37112pfw5nx4gl0g4lmmscik";
   };
 
   nativeBuildInputs = [ pkgconfig ];

@@ -18,6 +18,7 @@ with lib;
     (mkRenamedOptionModule [ "services" "elasticsearch" "host" ] [ "services" "elasticsearch" "listenAddress" ])
     (mkRenamedOptionModule [ "services" "graphite" "api" "host" ] [ "services" "graphite" "api" "listenAddress" ])
     (mkRenamedOptionModule [ "services" "graphite" "web" "host" ] [ "services" "graphite" "web" "listenAddress" ])
+    (mkRenamedOptionModule [ "services" "logstash" "address" ] [ "services" "logstash" "listenAddress" ])
     (mkRenamedOptionModule [ "services" "kibana" "host" ] [ "services" "kibana" "listenAddress" ])
     (mkRenamedOptionModule [ "services" "mpd" "network" "host" ] [ "services" "mpd" "network" "listenAddress" ])
     (mkRenamedOptionModule [ "services" "neo4j" "host" ] [ "services" "neo4j" "listenAddress" ])
@@ -149,6 +150,31 @@ with lib;
 
     # tarsnap
     (mkRemovedOptionModule [ "services" "tarsnap" "cachedir" ] "Use services.tarsnap.archives.<name>.cachedir")
+
+    # alsa
+    (mkRenamedOptionModule [ "sound" "enableMediaKeys" ] [ "sound" "mediaKeys" "enable" ])
+
+    # postgrey
+    (mkMergedOptionModule [ [ "services" "postgrey" "inetAddr" ] [ "services" "postgrey" "inetPort" ] ] [ "services" "postgrey" "socket" ] (config: let
+        value = p: getAttrFromPath p config;
+        inetAddr = [ "services" "postgrey" "inetAddr" ];
+        inetPort = [ "services" "postgrey" "inetPort" ];
+      in
+        if value inetAddr == null
+        then { path = "/var/run/postgrey.sock"; }
+        else { addr = value inetAddr; port = value inetPort; }
+    ))
+
+    # dhcpd
+    (mkRenamedOptionModule [ "services" "dhcpd" ] [ "services" "dhcpd4" ])
+
+    # locate
+    (mkRenamedOptionModule [ "services" "locate" "period" ] [ "services" "locate" "interval" ])
+    (mkRemovedOptionModule [ "services" "locate" "includeStore" ] "Use services.locate.prunePaths" )
+
+    # nfs
+    (mkRenamedOptionModule [ "services" "nfs" "lockdPort" ] [ "services" "nfs" "server" "lockdPort" ])
+    (mkRenamedOptionModule [ "services" "nfs" "statdPort" ] [ "services" "nfs" "server" "statdPort" ])
 
     # Options that are obsolete and have no replacement.
     (mkRemovedOptionModule [ "boot" "initrd" "luks" "enable" ] "")

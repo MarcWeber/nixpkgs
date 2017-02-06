@@ -484,7 +484,7 @@ in {
 
       clusterDns = mkOption {
         description = "Use alternative dns.";
-        default = "10.10.1.1";
+        default = "10.10.0.1";
         type = types.str;
       };
 
@@ -737,6 +737,8 @@ in {
         wantedBy = [ "multi-user.target" ];
         after = [ "kube-apiserver.service" ];
         serviceConfig = {
+          RestartSec = "30s";
+          Restart = "on-failure";
           ExecStart = ''${cfg.package}/bin/kube-controller-manager \
             --address=${cfg.controllerManager.address} \
             --port=${toString cfg.controllerManager.port} \

@@ -1,3 +1,5 @@
+# To build, use:
+# nix-build nixos -I nixos-config=nixos/modules/installer/cd-dvd/sd-image-raspberrypi.nix -A config.system.build.sdImage
 { config, lib, pkgs, ... }:
 
 let
@@ -26,7 +28,6 @@ in
   boot.loader.generic-extlinux-compatible.enable = true;
 
   boot.kernelPackages = pkgs.linuxPackages_rpi;
-  boot.consoleLogLevel = 7;
 
   # FIXME: this probably should be in installation-device.nix
   users.extraUsers.root.initialHashedPassword = "";

@@ -10,13 +10,18 @@ self: super: {
   ghcjs-base = null;
 
   # Some packages need a non-core version of Cabal.
-  cabal-install = super.cabal-install.overrideScope (self: super: { Cabal = self.Cabal_1_24_1_0; });
+  cabal-install = super.cabal-install.overrideScope (self: super: { Cabal = self.Cabal_1_24_2_0; });
 
   # Link statically to avoid runtime dependency on GHC.
   jailbreak-cabal = (disableSharedExecutables super.jailbreak-cabal).override { Cabal = self.Cabal_1_20_0_4; };
 
   # Apply NixOS-specific patches.
   ghc-paths = appendPatch super.ghc-paths ./patches/ghc-paths-nix.patch;
+
+  # enable using a local hoogle with extra packagages in the database
+  # nix-shell -p "haskellPackages.hoogleLocal (with haskellPackages; [ mtl lens ])"
+  # $ hoogle server
+  hoogleLocal = { packages ? [] }: self.callPackage ./hoogle.nix { inherit packages; };
 
   # Break infinite recursions.
   clock = dontCheck super.clock;
@@ -37,7 +42,11 @@ self: super: {
   Lazy-Pbkdf2 = if pkgs.stdenv.isi686 then dontCheck super.Lazy-Pbkdf2 else super.Lazy-Pbkdf2;
 
   # Use the default version of mysql to build this package (which is actually mariadb).
-  mysql = super.mysql.override { mysql = pkgs.mysql.lib; };
+  # test phase requires networking
+  mysql = dontCheck (super.mysql.override { mysql = pkgs.mysql.lib; });
+
+  # check requires mysql server
+  mysql-simple = dontCheck super.mysql-simple;
 
   # Link the proper version.
   zeromq4-haskell = super.zeromq4-haskell.override { zeromq = pkgs.zeromq4; };
@@ -48,15 +57,10 @@ self: super: {
     src = pkgs.fetchFromGitHub {
       owner = "joeyh";
       repo = "git-annex";
-      sha256 = "0yy4fdk0sp19hc838j82sls68l5wnrhr55zzs0gbqnagna77cxhd";
+      sha256 = "1vy6bj7f8zyj4n1r0gpi0r7mxapsrjvhwmsi5sbnradfng5j3jya";
       rev = drv.version;
     };
-  })).overrideScope (self: super: {
-    # https://github.com/prowdsponsor/esqueleto/issues/137
-    persistent = self.persistent_2_2_4_1;
-    persistent-template = self.persistent-template_2_1_8_1;
-    persistent-sqlite = self.persistent-sqlite_2_2_1;
-  })).override {
+  }))).override {
     dbus = if pkgs.stdenv.isLinux then self.dbus else null;
     fdo-notify = if pkgs.stdenv.isLinux then self.fdo-notify else null;
     hinotify = if pkgs.stdenv.isLinux then self.hinotify else self.fsnotify;
@@ -161,6 +165,7 @@ self: super: {
   shakespeare-js = dontHaddock super.shakespeare-js;
   shakespeare-text = dontHaddock super.shakespeare-text;
   swagger = dontHaddock super.swagger;  # http://hydra.cryp.to/build/2035868/nixlog/1/raw
+  swagger2 = dontHaddock super.swagger2;
   wai-test = dontHaddock super.wai-test;
   zlib-conduit = dontHaddock super.zlib-conduit;
 
@@ -184,7 +189,8 @@ self: super: {
     then dontCheck (overrideCabal super.hakyll (drv: {
       testToolDepends = [];
     }))
-    else super.hakyll;
+    # https://github.com/jaspervdj/hakyll/issues/491
+    else dontCheck super.hakyll;
 
   # Heist's test suite requires system pandoc
   heist = overrideCabal super.heist (drv: {
@@ -507,7 +513,7 @@ self: super: {
 
   # https://ghc.haskell.org/trac/ghc/ticket/9625
   vty = dontCheck super.vty;
-  vty_5_13 = dontCheck super.vty_5_13;
+  vty_5_15 = dontCheck super.vty_5_15;
 
   # https://github.com/vincenthz/hs-crypto-pubkey/issues/20
   crypto-pubkey = dontCheck super.crypto-pubkey;
@@ -605,6 +611,11 @@ self: super: {
   # /homeless-shelter. Disabled.
   purescript = dontCheck super.purescript;
 
+  # Requires bower-json >= 1.0.0.1 && < 1.1
+  purescript_0_10_5 = super.purescript_0_10_5.overrideScope (self: super: {
+    bower-json = self.bower-json_1_0_0_1;
+  });
+
   # https://github.com/tych0/xcffib/issues/37
   xcffib = dontCheck super.xcffib;
 
@@ -613,6 +624,14 @@ self: super: {
 
   # https://github.com/haskell/haddock/issues/378
   haddock-library = dontCheck super.haddock-library;
+
+  # https://github.com/haskell/haddock/issues/571
+  haddock-api = appendPatch (doJailbreak super.haddock-api) (pkgs.fetchpatch {
+    url = "https://github.com/basvandijk/haddock/commit/f4c5e46ded05a4b8884f5ad6f3102f79ff3bb127.patch";
+    sha256 = "01dawvikzw6y43557sbp9q7z9vw2g3wnzvv5ny0f0ks6ccc0vj0m";
+    stripLen = 2;
+    addPrefixes = true;
+  });
 
   # https://github.com/anton-k/csound-expression-dynamic/issues/1
   csound-expression-dynamic = dontHaddock super.csound-expression-dynamic;
@@ -661,8 +680,38 @@ self: super: {
     '';
   }));
 
-  # Requires optparse-applicative 0.13.0.0
+  # Packages of the diagrams ecosystem that require:
+  #   diagrams-core ==1.4.*
+  #   diagrams-lib ==1.4.*
+  #   optparse-applicative ==0.13.*
+  diagrams_1_4 = super.diagrams_1_4.overrideScope (self: super: {
+    diagrams-contrib = self.diagrams-contrib_1_4_0_1;
+    diagrams-core = self.diagrams-core_1_4;
+    diagrams-lib = self.diagrams-lib_1_4_0_1;
+    diagrams-svg = self.diagrams-svg_1_4_1;
+    optparse-applicative = self.optparse-applicative_0_13_0_0;
+  });
+  diagrams-contrib_1_4_0_1 = super.diagrams-contrib_1_4_0_1.overrideScope (self: super: {
+    diagrams-core = self.diagrams-core_1_4;
+    diagrams-lib = self.diagrams-lib_1_4_0_1;
+  });
+  diagrams-lib_1_4_0_1 = super.diagrams-lib_1_4_0_1.overrideScope (self: super: {
+    diagrams-core = self.diagrams-core_1_4;
+    optparse-applicative = self.optparse-applicative_0_13_0_0;
+  });
   diagrams-pgf = super.diagrams-pgf.overrideScope (self: super: {
+    diagrams-core = self.diagrams-core_1_4;
+    diagrams-lib = self.diagrams-lib_1_4_0_1;
+    optparse-applicative = self.optparse-applicative_0_13_0_0;
+  });
+  diagrams-rasterific_1_4 = super.diagrams-rasterific_1_4.overrideScope (self: super: {
+    diagrams-core = self.diagrams-core_1_4;
+    diagrams-lib = self.diagrams-lib_1_4_0_1;
+    optparse-applicative = self.optparse-applicative_0_13_0_0;
+  });
+  diagrams-svg_1_4_1 = super.diagrams-svg_1_4_1.overrideScope (self: super: {
+    diagrams-core = self.diagrams-core_1_4;
+    diagrams-lib = self.diagrams-lib_1_4_0_1;
     optparse-applicative = self.optparse-applicative_0_13_0_0;
   });
 
@@ -678,6 +727,9 @@ self: super: {
 
   # https://github.com/nushio3/doctest-prop/issues/1
   doctest-prop = dontCheck super.doctest-prop;
+
+  # Depends on itself for testing
+  doctest-discover = addBuildTool super.doctest-discover (dontCheck super.doctest-discover);
 
   # https://github.com/bos/aeson/issues/253
   aeson = dontCheck super.aeson;
@@ -794,14 +846,6 @@ self: super: {
 
   # Fine-tune the build.
   structured-haskell-mode = (overrideCabal super.structured-haskell-mode (drv: {
-    # Bump version to latest git-version to get support for Emacs 25.x.
-    version = "1.0.20-28-g1ffb4db";
-    src = pkgs.fetchFromGitHub {
-      owner = "chrisdone";
-      repo = "structured-haskell-mode";
-      rev = "dde5104ee28e1c63ca9fbc37c969f8e319b4b903";
-      sha256 = "0g5qpnxzr9qmgzvsld5mg94rb28xb8kd1a02q045r6zlmv1zx7lp";
-    };
     # Statically linked Haskell libraries make the tool start-up much faster,
     # which is important for use in Emacs.
     enableSharedExecutables = false;
@@ -814,7 +858,7 @@ self: super: {
       ln -s $lispdir $out/share/emacs/site-lisp
     '';
   })).override {
-    haskell-src-exts = self.haskell-src-exts_1_19_0;
+    haskell-src-exts = self.haskell-src-exts_1_19_1;
   };
 
   # # Make elisp files available at a location where people expect it.
@@ -828,12 +872,22 @@ self: super: {
     '';
     doCheck = false; # https://github.com/chrisdone/hindent/issues/299
   })).override {
-    haskell-src-exts = self.haskell-src-exts_1_19_0;
+    haskell-src-exts = self.haskell-src-exts_1_19_1;
   };
 
   # https://github.com/yesodweb/Shelly.hs/issues/106
   # https://github.com/yesodweb/Shelly.hs/issues/108
-  shelly = dontCheck super.shelly;
+  # https://github.com/yesodweb/Shelly.hs/issues/130
+  shelly =
+    let drv = appendPatch (dontCheck (doJailbreak super.shelly)) (pkgs.fetchpatch {
+                url = "https://github.com/k0001/Shelly.hs/commit/32a1e290961755e7b2379f59faa49b13d03dfef6.patch";
+                sha256 = "0ccq0qly8bxxv64dk97a44ng6hb01j6ajs0sp3f2nn0hf5j3xv69";
+              });
+    in overrideCabal drv (drv : {
+         # doJailbreak doesn't seem to work for build-depends inside an
+         # if-then-else block so we have to do it manually.
+         postPatch = "sed -i 's/base >=4\.6 \&\& <4\.9\.1/base -any/' shelly.cabal";
+       });
 
   # https://github.com/bos/configurator/issues/22
   configurator = dontCheck super.configurator;
@@ -989,17 +1043,19 @@ self: super: {
     '';
   });
 
-  # https://github.com/commercialhaskell/stack/issues/2263
+  # The most current version needs some packages to build that are not in LTS 7.x.
   stack = super.stack.overrideScope (self: super: {
-    http-client = self.http-client_0_5_4;
-    http-client-tls = self.http-client-tls_0_3_3;
+    http-client = self.http-client_0_5_5;
+    http-client-tls = self.http-client-tls_0_3_3_1;
     http-conduit = self.http-conduit_2_2_3;
     optparse-applicative = dontCheck self.optparse-applicative_0_13_0_0;
     criterion = super.criterion.override { inherit (super) optparse-applicative; };
+    aeson = self.aeson_1_0_2_1;
+    hpack = self.hpack_0_15_0;
   });
 
   # The latest Hoogle needs versions not yet in LTS Haskell 7.x.
-  hoogle = super.hoogle.override { haskell-src-exts = self.haskell-src-exts_1_19_0; };
+  hoogle = super.hoogle.override { haskell-src-exts = self.haskell-src-exts_1_19_1; };
 
   # To be in sync with Hoogle.
   lambdabot-haskell-plugins = (overrideCabal super.lambdabot-haskell-plugins (drv: {
@@ -1018,7 +1074,7 @@ self: super: {
   };
 
   # Needs new version.
-  haskell-src-exts-simple = super.haskell-src-exts-simple.override { haskell-src-exts = self.haskell-src-exts_1_19_0; };
+  haskell-src-exts-simple = super.haskell-src-exts-simple.override { haskell-src-exts = self.haskell-src-exts_1_19_1; };
 
   # Test suite fails a QuickCheck property.
   optparse-applicative_0_13_0_0 = dontCheck super.optparse-applicative_0_13_0_0;
@@ -1030,7 +1086,10 @@ self: super: {
   # Note: Simply patching the dynamic library (.so) of the GLUT build will *not* work, since the
   # RPATH also needs to be propagated when using static linking. GHC automatically handles this for
   # us when we patch the cabal file (Link options will be recored in the ghc package registry).
-  GLUT = addPkgconfigDepend (appendPatch super.GLUT ./patches/GLUT.patch) pkgs.freeglut;
+  #
+  # Additional note: nixpkgs' freeglut and macOS's OpenGL implementation do not cooperate,
+  # so disable this on Darwin only
+  ${if pkgs.stdenv.isDarwin then null else "GLUT"} = addPkgconfigDepend (appendPatch super.GLUT ./patches/GLUT.patch) pkgs.freeglut;
 
   # https://github.com/Philonous/hs-stun/pull/1
   # Remove if a version > 0.1.0.1 ever gets released.
@@ -1052,25 +1111,59 @@ self: super: {
     doCheck = false;
   });
 
+  # https://github.com/bos/math-functions/issues/25
+  math-functions = dontCheck super.math-functions;
+
   # http-api-data_0.3.x requires QuickCheck > 2.9, but overriding that version
   # is hard because of transitive dependencies, so we just disable tests.
-  http-api-data_0_3_3 = dontCheck super.http-api-data_0_3_3;
+  http-api-data_0_3_5 = dontCheck super.http-api-data_0_3_5;
 
   # Fix build for latest versions of servant and servant-client.
-  servant_0_9_1_1 = super.servant_0_9_1_1.overrideScope (self: super: {
-    http-api-data = self.http-api-data_0_3_3;
+  servant_0_10 = super.servant_0_10.overrideScope (self: super: {
+    http-api-data = self.http-api-data_0_3_5;
   });
-  servant-client_0_9_1_1 = super.servant-client_0_9_1_1.overrideScope (self: super: {
-    http-api-data = self.http-api-data_0_3_3;
-    servant-server = self.servant-server_0_9_1_1;
-    servant = self.servant_0_9_1_1;
+  servant-client_0_10 = super.servant-client_0_10.overrideScope (self: super: {
+    http-api-data = self.http-api-data_0_3_5;
+    servant-server = self.servant-server_0_10;
+    servant = self.servant_0_10;
+  });
+
+  # build servant docs from the repository
+  servant =
+    let
+      ver = super.servant.version;
+      docs = pkgs.stdenv.mkDerivation {
+        name = "servant-sphinx-documentation-${ver}";
+        src = "${pkgs.fetchFromGitHub {
+          owner = "haskell-servant";
+          repo = "servant";
+          rev = "v${ver}";
+          sha256 = "0fynv77m7rk79pdp535c2a2bd44csgr32zb4wqavbalr7grpxg4q";
+        }}/doc";
+        buildInputs = with pkgs.pythonPackages; [ sphinx recommonmark sphinx_rtd_theme ];
+        makeFlags = "html";
+        installPhase = ''
+          mv _build/html $out
+        '';
+      };
+    in overrideCabal super.servant (old: {
+      postInstall = old.postInstall or "" + ''
+        ln -s ${docs} $out/share/doc/servant
+      '';
+    });
+
+
+  # https://github.com/plow-technologies/servant-auth/issues/20
+  servant-auth = dontCheck super.servant-auth;
+
+  servant-auth-server = super.servant-auth-server.overrideScope (self: super: {
+    jose = super.jose_0_5_0_2;
   });
 
   # https://github.com/pontarius/pontarius-xmpp/issues/105
   pontarius-xmpp = dontCheck super.pontarius-xmpp;
 
-  # https://github.com/fpco/store/issues/77
-  store = dontCheck super.store;
+  # Use proper store-core version.
   store_0_3 = super.store_0_3.overrideScope (self: super: { store-core = self.store-core_0_3; });
 
   # https://github.com/bmillwood/applicative-quoters/issues/6
@@ -1079,13 +1172,10 @@ self: super: {
   # https://github.com/roelvandijk/terminal-progress-bar/issues/13
   terminal-progress-bar = doJailbreak super.terminal-progress-bar;
 
-  # https://github.com/vshabanov/HsOpenSSL/issues/11
-  HsOpenSSL = doJailbreak super.HsOpenSSL;
-
   # https://github.com/NixOS/nixpkgs/issues/19612
   wai-app-file-cgi = (dontCheck super.wai-app-file-cgi).overrideScope (self: super: {
-    http-client = self.http-client_0_5_3_2;
-    http-client-tls = self.http-client-tls_0_3_3;
+    http-client = self.http-client_0_5_5;
+    http-client-tls = self.http-client-tls_0_3_3_1;
     http-conduit = self.http-conduit_2_2_3;
   });
 
@@ -1115,14 +1205,20 @@ self: super: {
 
   socket_0_7_0_0 = super.socket_0_7_0_0.overrideScope (self: super: { QuickCheck = self.QuickCheck_2_9_2; });
 
-  # Encountered missing dependencies: hspec >=1.3 && <2.1
-  # https://github.com/rampion/ReadArgs/issues/8
-  ReadArgs = doJailbreak super.ReadArgs;
+  # requires most recent vty
+  brick = super.brick.overrideScope (self: super: { vty = self.vty_5_15; });
 
-  # https://github.com/philopon/barrier/issues/3
-  barrier = doJailbreak super.barrier;
+  turtle_1_3_1 = super.turtle_1_3_1.overrideScope (self: super: {
+    optparse-applicative = self.optparse-applicative_0_13_0_0;
+  });
 
-  # requires vty 5.13
-  brick = super.brick.overrideScope (self: super: { vty = self.vty_5_13; });
+  # No upstream issue tracker
+  hspec-expectations-pretty-diff = dontCheck super.hspec-expectations-pretty-diff;
 
+  lentil = super.lentil.overrideScope (self: super: {
+    pipes = self.pipes_4_3_2;
+    optparse-applicative = self.optparse-applicative_0_13_0_0;
+    # https://github.com/roelvandijk/terminal-progress-bar/issues/14
+    terminal-progress-bar = doJailbreak self.terminal-progress-bar_0_1_1;
+  });
 }

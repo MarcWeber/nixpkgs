@@ -1,25 +1,39 @@
 { stdenv, fetchurl, makeDesktopItem
 , libXrender, libX11, libXext, libXt, alsaLib, dbus, dbus_glib, glib, gtk2
 , atk, pango, freetype, fontconfig, gdk_pixbuf, cairo, zlib
+, gstreamer, gst_plugins_base, gst_plugins_good, gst_ffmpeg, gmp, ffmpeg
+, libpulseaudio
+, mediaSupport ? false
 }:
 
 let
-  libPath = stdenv.lib.makeLibraryPath [
+  libPath = stdenv.lib.makeLibraryPath ([
     stdenv.cc.cc zlib glib alsaLib dbus dbus_glib gtk2 atk pango freetype
     fontconfig gdk_pixbuf cairo libXrender libX11 libXext libXt
-  ];
+  ] ++ stdenv.lib.optionals mediaSupport [
+    gstreamer gst_plugins_base gmp ffmpeg
+    libpulseaudio
+  ]);
+
+  # Ignored if !mediaSupport
+  gstPlugins = [ gstreamer gst_plugins_base gst_plugins_good gst_ffmpeg ];
+
+  gstPluginsPath = stdenv.lib.concatMapStringsSep ":" (x:
+    "${x}/lib/gstreamer-0.10") gstPlugins;
 in
 
 stdenv.mkDerivation rec {
   name = "tor-browser-${version}";
-  version = "6.0.7";
+  version = "6.5";
 
   src = fetchurl {
-    url = "https://archive.torproject.org/tor-package-archive/torbrowser/${version}/tor-browser-linux${if stdenv.is64bit then "64" else "32"}-${version}_en-US.tar.xz";
+    url = "https://dist.torproject.org/torbrowser/${version}/tor-browser-linux${if stdenv.is64bit then "64" else "32"}-${version}_en-US.tar.xz";
     sha256 = if stdenv.is64bit then
-      "1llgqvxmn572wyxk7r1hf3j6ldi9hkgahm7918rsmsvk66i187h4" else
-      "16z8qfmcgxbvmv5hriv1gq4lpz54fy04mhhwdd6s72y52dfcvfy3";
+      "0q0rdwjiqjjh9awiyp0a55nkhyri5y6zhkyq3n3x6w4afihl0wf4" else
+      "1y1sx2gp7c66l7a4smfibl8mv54byvawhhkikpa5l2vic75vyhk9";
   };
+
+  preferLocalBuild = true;
 
   desktopItem = makeDesktopItem {
     name = "torbrowser";
@@ -66,6 +80,9 @@ stdenv.mkDerivation rec {
     fi
     export FONTCONFIG_PATH=\$HOME/Data/fontconfig
     export LD_LIBRARY_PATH=${libPath}:$out/share/tor-browser/Browser/TorBrowser/Tor
+    ${stdenv.lib.optionalString mediaSupport ''
+      export GST_PLUGIN_SYSTEM_PATH=${gstPluginsPath}
+    ''}
     exec $out/share/tor-browser/Browser/firefox --class "Tor Browser" -no-remote -profile ~/Data/Browser/profile.default "\$@"
     EOF
     chmod +x $out/bin/tor-browser

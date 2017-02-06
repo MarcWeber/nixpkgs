@@ -86,7 +86,7 @@ let
   # We cannot enable -j<n> parallelism for libraries because GHC is far more
   # likely to generate a non-determistic library ID in that case. Further
   # details are at <https://github.com/peti/ghc-library-id-bug>.
-  enableParallelBuilding = versionOlder "7.8" ghc.version && !hasActiveLibrary;
+  enableParallelBuilding = (versionOlder "7.8" ghc.version && !hasActiveLibrary) || versionOlder "8.0.1" ghc.version;
 
   crossCabalFlags = [
     "--with-ghc=${ghc.cross.config}-ghc"
@@ -94,6 +94,7 @@ let
     "--with-gcc=${ghc.cc}"
     "--with-ld=${ghc.ld}"
     "--hsc2hs-options=--cross-compile"
+    "--with-hsc2hs=${nativeGhc}/bin/hsc2hs"
   ];
 
   crossCabalFlagsString =
@@ -147,8 +148,10 @@ let
 
   setupBuilder = if isCross || isGhcjs then "${nativeGhc}/bin/ghc" else ghcCommand;
   setupCommand = "./Setup";
-  ghcCommand = if isGhcjs then "ghcjs" else if isCross then "${ghc.cross.config}-ghc" else "ghc";
-  ghcCommandCaps = toUpper ghcCommand;
+  ghcCommand' = if isGhcjs then "ghcjs" else "ghc";
+  crossPrefix = if (ghc.cross or null) != null then "${ghc.cross.config}-" else "";
+  ghcCommand = "${crossPrefix}${ghcCommand'}";
+  ghcCommandCaps= toUpper ghcCommand';
 
 in
 

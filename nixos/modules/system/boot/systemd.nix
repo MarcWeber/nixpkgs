@@ -17,6 +17,7 @@ let
       "busnames.target"
       "sysinit.target"
       "sockets.target"
+      "exit.target"
       "graphical.target"
       "multi-user.target"
       "network.target"
@@ -41,11 +42,13 @@ let
       "systemd-udevd.service"
       "systemd-udev-settle.service"
       "systemd-udev-trigger.service"
+      "systemd-hwdb-update.service"
 
       # Consoles.
       "getty.target"
       "getty@.service"
       "serial-getty@.service"
+      "console-getty.service"
       "container-getty@.service"
       "systemd-vconsole-setup.service"
 
@@ -72,6 +75,7 @@ let
       "systemd-journal-flush.service"
       "systemd-journal-gatewayd.socket"
       "systemd-journal-gatewayd.service"
+      "systemd-journal-catalog-update.service"
       "systemd-journald-audit.socket"
       "systemd-journald-dev-log.socket"
       "syslog.socket"
@@ -104,6 +108,7 @@ let
       "systemd-random-seed.service"
       "systemd-backlight@.service"
       "systemd-rfkill.service"
+      "systemd-rfkill.socket"
 
       # Hibernate / suspend.
       "hibernate.target"
@@ -111,8 +116,8 @@ let
       "sleep.target"
       "hybrid-sleep.target"
       "systemd-hibernate.service"
-      "systemd-suspend.service"
       "systemd-hybrid-sleep.service"
+      "systemd-suspend.service"
 
       # Reboot stuff.
       "reboot.target"
@@ -136,10 +141,10 @@ let
 
       # Slices / containers.
       "slices.target"
-      "-.slice"
       "system.slice"
       "user.slice"
       "machine.slice"
+      "machines.target"
       "systemd-machined.service"
       "systemd-nspawn@.service"
 
@@ -162,12 +167,12 @@ let
       "systemd-localed.service"
       "systemd-hostnamed.service"
       "systemd-binfmt.service"
+      "systemd-exit.service"
     ]
     ++ cfg.additionalUpstreamSystemUnits;
 
   upstreamSystemWants =
-    [ #"basic.target.wants"
-      "sysinit.target.wants"
+    [ "sysinit.target.wants"
       "sockets.target.wants"
       "local-fs.target.wants"
       "multi-user.target.wants"
@@ -176,11 +181,18 @@ let
 
   upstreamUserUnits =
     [ "basic.target"
+      "bluetooth.target"
+      "busnames.target"
       "default.target"
       "exit.target"
+      "graphical-session-pre.target"
+      "graphical-session.target"
       "paths.target"
+      "printer.target"
       "shutdown.target"
+      "smartcard.target"
       "sockets.target"
+      "sound.target"
       "systemd-exit.service"
       "timers.target"
     ];
@@ -301,7 +313,7 @@ let
     '';
 
   targetToUnit = name: def:
-    { inherit (def) wantedBy requiredBy enable;
+    { inherit (def) aliases wantedBy requiredBy enable;
       text =
         ''
           [Unit]
@@ -310,7 +322,7 @@ let
     };
 
   serviceToUnit = name: def:
-    { inherit (def) wantedBy requiredBy enable;
+    { inherit (def) aliases wantedBy requiredBy enable;
       text = commonUnitText def +
         ''
           [Service]
@@ -330,7 +342,7 @@ let
     };
 
   socketToUnit = name: def:
-    { inherit (def) wantedBy requiredBy enable;
+    { inherit (def) aliases wantedBy requiredBy enable;
       text = commonUnitText def +
         ''
           [Socket]
@@ -340,7 +352,7 @@ let
     };
 
   timerToUnit = name: def:
-    { inherit (def) wantedBy requiredBy enable;
+    { inherit (def) aliases wantedBy requiredBy enable;
       text = commonUnitText def +
         ''
           [Timer]
@@ -349,7 +361,7 @@ let
     };
 
   pathToUnit = name: def:
-    { inherit (def) wantedBy requiredBy enable;
+    { inherit (def) aliases wantedBy requiredBy enable;
       text = commonUnitText def +
         ''
           [Path]
@@ -358,7 +370,7 @@ let
     };
 
   mountToUnit = name: def:
-    { inherit (def) wantedBy requiredBy enable;
+    { inherit (def) aliases wantedBy requiredBy enable;
       text = commonUnitText def +
         ''
           [Mount]
@@ -367,11 +379,20 @@ let
     };
 
   automountToUnit = name: def:
-    { inherit (def) wantedBy requiredBy enable;
+    { inherit (def) aliases wantedBy requiredBy enable;
       text = commonUnitText def +
         ''
           [Automount]
           ${attrsToSection def.automountConfig}
+        '';
+    };
+
+  sliceToUnit = name: def:
+    { inherit (def) aliases wantedBy requiredBy enable;
+      text = commonUnitText def +
+        ''
+          [Slice]
+          ${attrsToSection def.sliceConfig}
         '';
     };
 
@@ -456,6 +477,12 @@ in
         This is a list instead of an attrSet, because systemd mandates the names to be derived from
         the 'where' attribute.
       '';
+    };
+
+    systemd.slices = mkOption {
+      default = {};
+      type = with types; attrsOf (submodule [ { options = sliceOptions; } unitConfig] );
+      description = "Definition of slice configurations.";
     };
 
     systemd.generators = mkOption {
@@ -748,6 +775,7 @@ in
       // mapAttrs' (n: v: nameValuePair "${n}.socket" (socketToUnit n v)) cfg.sockets
       // mapAttrs' (n: v: nameValuePair "${n}.timer" (timerToUnit n v)) cfg.timers
       // mapAttrs' (n: v: nameValuePair "${n}.path" (pathToUnit n v)) cfg.paths
+      // mapAttrs' (n: v: nameValuePair "${n}.slice" (sliceToUnit n v)) cfg.slices
       // listToAttrs (map
                    (v: let n = escapeSystemdPath v.where;
                        in nameValuePair "${n}.mount" (mountToUnit n v)) cfg.mounts)

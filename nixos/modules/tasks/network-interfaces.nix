@@ -116,6 +116,28 @@ let
       };
     };
 
+  gatewayCoerce = address: { inherit address; };
+
+  gatewayOpts = { ... }: {
+
+    options = {
+
+      address = mkOption {
+        type = types.str;
+        description = "The default gateway address.";
+      };
+
+      interface = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        example = "enp0s3";
+        description = "The default gateway interface.";
+      };
+
+    };
+
+  };
+
   interfaceOpts = { name, ... }: {
 
     options = {
@@ -327,19 +349,27 @@ in
 
     networking.defaultGateway = mkOption {
       default = null;
-      example = "131.211.84.1";
-      type = types.nullOr types.str;
+      example = {
+        address = "131.211.84.1";
+        device = "enp3s0";
+      };
+      type = types.nullOr (types.coercedTo types.str gatewayCoerce (types.submodule gatewayOpts));
       description = ''
-        The default gateway.  It can be left empty if it is auto-detected through DHCP.
+        The default gateway. It can be left empty if it is auto-detected through DHCP.
+        It can be specified as a string or an option set along with a network interface.
       '';
     };
 
     networking.defaultGateway6 = mkOption {
       default = null;
-      example = "2001:4d0:1e04:895::1";
-      type = types.nullOr types.str;
+      example = {
+        address = "2001:4d0:1e04:895::1";
+        device = "enp3s0";
+      };
+      type = types.nullOr (types.coercedTo types.str gatewayCoerce (types.submodule gatewayOpts));
       description = ''
-        The default ipv6 gateway.  It can be left empty if it is auto-detected through DHCP.
+        The default ipv6 gateway. It can be left empty if it is auto-detected through DHCP.
+        It can be specified as a string or an option set along with a network interface.
       '';
     };
 
@@ -910,20 +940,23 @@ in
         domainname "${cfg.domain}"
       '';
 
-    environment.etc = mkIf (cfg.hostId != null)
-      [
-        {
-          target = "hostid";
-          source = pkgs.runCommand "gen-hostid" {} ''
-            hi="${cfg.hostId}"
-            ${if pkgs.stdenv.isBigEndian then ''
-              echo -ne "\x''${hi:0:2}\x''${hi:2:2}\x''${hi:4:2}\x''${hi:6:2}" > $out
-            '' else ''
-              echo -ne "\x''${hi:6:2}\x''${hi:4:2}\x''${hi:2:2}\x''${hi:0:2}" > $out
-            ''}
-          '';
-        }
-      ];
+    environment.etc."hostid" = mkIf (cfg.hostId != null)
+      { source = pkgs.runCommand "gen-hostid" {} ''
+          hi="${cfg.hostId}"
+          ${if pkgs.stdenv.isBigEndian then ''
+            echo -ne "\x''${hi:0:2}\x''${hi:2:2}\x''${hi:4:2}\x''${hi:6:2}" > $out
+          '' else ''
+            echo -ne "\x''${hi:6:2}\x''${hi:4:2}\x''${hi:2:2}\x''${hi:0:2}" > $out
+          ''}
+        '';
+      };
+
+    # static hostname configuration needed for hostnamectl and the
+    # org.freedesktop.hostname1 dbus service (both provided by systemd)
+    environment.etc."hostname" = mkIf (cfg.hostName != "")
+      {
+        text = cfg.hostName + "\n";
+      };
 
     environment.systemPackages =
       [ pkgs.host

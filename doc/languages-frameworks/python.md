@@ -97,7 +97,7 @@ We will first have a look at how Python packages are packaged on Nix. Then, we w
 
 #### Python packaging on Nix
 
-On Nix all packages are built by functions. The main function in Nix for building Python packages is [`buildPythonPackage`](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/python-modules/generic/default.nix).
+On Nix all packages are built by functions. The main function in Nix for building Python packages is [`buildPythonPackage`](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/interpreters/python/build-python-package.nix).
 Let's see how we would build the `toolz` package. According to [`python-packages.nix`](https://raw.githubusercontent.com/NixOS/nixpkgs/master/pkgs/top-level/python-packages.nix) `toolz` is build using
 
 ```nix
@@ -141,12 +141,14 @@ with import <nixpkgs> {};
 
 pkgs.python35Packages.buildPythonPackage rec {
   name = "toolz-${version}";
-  version = "0.7.4";
+  version = "0.8.0";
 
   src = pkgs.fetchurl{
     url = "mirror://pypi/t/toolz/toolz-${version}.tar.gz";
-    sha256 = "43c2c9e5e7a16b6c88ba3088a9bfc82f7db8e13378be7c78d6c14a5f8ed05afd";
+    sha256 = "e8451af61face57b7c5d09e71c0d27b8005f001ead56e9fdf470417e5cc6d479";
   };
+
+  doCheck = false;
 
   meta = {
     homepage = "http://github.com/pytoolz/toolz/";
@@ -170,18 +172,18 @@ with import <nixpkgs> {};
 ( let
     toolz = pkgs.python35Packages.buildPythonPackage rec {
       name = "toolz-${version}";
-      version = "0.7.4";
+      version = "0.8.0";
 
       src = pkgs.fetchurl{
         url = "mirror://pypi/t/toolz/toolz-${version}.tar.gz";
-        sha256 = "43c2c9e5e7a16b6c88ba3088a9bfc82f7db8e13378be7c78d6c14a5f8ed05afd";
+        sha256 = "e8451af61face57b7c5d09e71c0d27b8005f001ead56e9fdf470417e5cc6d479";
       };
+
+      doCheck = false;
 
       meta = {
         homepage = "http://github.com/pytoolz/toolz/";
         description = "List processing tools and functional utilities";
-        license = licenses.bsd3;
-        maintainers = with maintainers; [ fridh ];
       };
     };
 
@@ -308,11 +310,10 @@ Note also the line `doCheck = false;`, we explicitly disabled running the test-s
 
 #### Develop local package
 
-As a Python developer you're likely aware of [development mode](http://pythonhosted.org/setuptools/setuptools.html#development-mode) (`python setup.py develop`);
+As a Python developer you're likely aware of [development mode](http://setuptools.readthedocs.io/en/latest/setuptools.html#development-mode) (`python setup.py develop`);
 instead of installing the package this command creates a special link to the project code.
 That way, you can run updated code without having to reinstall after each and every change you make.
-Development mode is also available on Nix as [explained](http://nixos.org/nixpkgs/manual/#ssec-python-development) in the Nixpkgs manual.
-Let's see how you can use it.
+Development mode is also available. Let's see how you can use it.
 
 In the previous Nix expression the source was fetched from an url. We can also refer to a local source instead using
 
@@ -736,18 +737,18 @@ in (pkgs.python35.override {inherit packageOverrides;}).withPackages (ps: [ps.bl
 ```
 The requested package `blaze` depends on `pandas` which itself depends on `scipy`.
 
-If you want the whole of Nixpkgs to use your modifications, then you can use `pkgs.overridePackages`
+If you want the whole of Nixpkgs to use your modifications, then you can use `overlays`
 as explained in this manual. In the following example we build a `inkscape` using a different version of `numpy`.
 ```
 let
   pkgs = import <nixpkgs> {};
-  newpkgs = pkgs.overridePackages ( pkgsself: pkgssuper: {
+  newpkgs = import pkgs.path { overlays = [ (pkgsself: pkgssuper: {
     python27 = let
       packageOverrides = self: super: {
         numpy = super.numpy_1_10;
       };
     in pkgssuper.python27.override {inherit packageOverrides;};
-  } );
+  } ) ]; };
 in newpkgs.inkscape
 ```
 
@@ -780,7 +781,7 @@ If you get the following error:
     could not create '/nix/store/6l1bvljpy8gazlsw2aw9skwwp4pmvyxw-python-2.7.8/etc':
     Permission denied
 
-This is a [known bug](https://bitbucket.org/pypa/setuptools/issue/130/install_data-doesnt-respect-prefix) in setuptools.
+This is a [known bug](https://github.com/pypa/setuptools/issues/130) in setuptools.
 Setuptools `install_data` does not respect `--prefix`. An example of such package using the feature is `pkgs/tools/X11/xpra/default.nix`.
 As workaround install it as an extra `preInstall` step:
 
@@ -802,6 +803,55 @@ packages are available. There is therefore no need to maintain a global `site-pa
 If you want to create a Python environment for development, then the recommended
 method is to use `nix-shell`, either with or without the `python.buildEnv`
 function.
+
+### How to consume python modules using pip in a virtualenv like I am used to on other Operating Systems ?
+
+This is an example of a `default.nix` for a `nix-shell`, which allows to consume a `virtualenv` environment,
+and install python modules through `pip` the traditional way.
+
+Create this `default.nix` file, together with a `requirements.txt` and simply execute `nix-shell`.
+
+```
+with import <nixpkgs> {};
+with pkgs.python27Packages;
+
+stdenv.mkDerivation { 
+  name = "impurePythonEnv";
+  buildInputs = [
+    # these packages are required for virtualenv and pip to work:
+    #
+    python27Full
+    python27Packages.virtualenv
+    python27Packages.pip
+    # the following packages are related to the dependencies of your python 
+    # project. 
+    # In this particular example the python modules listed in the 
+    # requirements.tx require the following packages to be installed locally 
+    # in order to compile any binary extensions they may require.
+    #
+    taglib
+    openssl
+    git
+    libxml2
+    libxslt
+    libzip
+    stdenv
+    zlib ];
+  src = null;
+  shellHook = ''
+  # set SOURCE_DATE_EPOCH so that we can use python wheels
+  SOURCE_DATE_EPOCH=$(date +%s)
+  virtualenv --no-setuptools venv 
+  export PATH=$PWD/venv/bin:$PATH
+  pip install -r requirements.txt
+  '';
+}
+```
+
+Note that the `pip install` is an imperative action. So every time `nix-shell`
+is executed it will attempt to download the python modules listed in 
+requirements.txt. However these will be cached locally within the `virtualenv`
+folder and not downloaded again.
 
 
 ## Contributing

@@ -1,13 +1,15 @@
-{ stdenv, fetchurl, gettext, libidn, pkgconfig
-, perl, perlPackages, LWP, python3
-, libiconv, libpsl ? null, openssl ? null }:
+{ stdenv, fetchurl, gettext, pkgconfig, perl
+, libidn2, zlib, pcre, libuuid, libiconv
+, IOSocketSSL, LWP, python3
+, libpsl ? null
+, openssl ? null }:
 
 stdenv.mkDerivation rec {
-  name = "wget-1.19";
+  name = "wget-1.19.1";
 
   src = fetchurl {
     url = "mirror://gnu/wget/${name}.tar.xz";
-    sha256 = "1133c14g19ysv74j7am66jwgwrr0rdn0rdyxw7rikbnsyjxmf48g";
+    sha256 = "1ljcfhbkdsd0zjfm520rbl1ai62fc34i7c45sfj244l8f6b0p58c";
   };
 
   patches = [ ./remove-runtime-dep-on-openssl-headers.patch ];
@@ -26,9 +28,10 @@ stdenv.mkDerivation rec {
   '';
 
   nativeBuildInputs = [ gettext pkgconfig perl ];
-  buildInputs = [ libidn libiconv libpsl ]
-    ++ stdenv.lib.optionals doCheck [ perlPackages.IOSocketSSL LWP python3 ]
+  buildInputs = [ libidn2 libiconv zlib pcre libuuid ]
+    ++ stdenv.lib.optionals doCheck [ IOSocketSSL LWP python3 ]
     ++ stdenv.lib.optional (openssl != null) openssl
+    ++ stdenv.lib.optional (libpsl != null) libpsl
     ++ stdenv.lib.optional stdenv.isDarwin perl;
 
   configureFlags =

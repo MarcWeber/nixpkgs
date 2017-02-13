@@ -122,8 +122,6 @@ let
     + (strOption  "virtual_mailbox_base" "virtualMailboxBase")
     + (listOption "virtual_mailbox_domains" "virtualMailboxDomains")
     + ''
-      local_recipient_maps =
-
       relayhost = ${if cfg.lookupMX || cfg.relayHost == "" then
           cfg.relayHost
         else

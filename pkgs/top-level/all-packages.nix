@@ -6913,7 +6913,9 @@ with pkgs;
 
   babl = callPackage ../development/libraries/babl { };
   babl_0_1_12 = babl.override { version = "0.1.12"; };
-  bablGit = babl.override { version = "git"; };
+
+  bablVersioned = callPackage ../development/libraries/babl/versioned.nix { };
+  bablGit = bablVersioned.override { version = "git"; };
 
   bctoolbox = callPackage ../development/libraries/bctoolbox {
     mbedtls = mbedtls_1_3;
@@ -7311,7 +7313,15 @@ with pkgs;
 
   gephi = callPackage ../applications/science/misc/gephi { };
 
-  geglVersioned = callPackage ../development/libraries/gegl/versioned.nix { };
+  geglVersioned = callPackage ../development/libraries/gegl/versioned.nix {
+    commonBuildInputs = [
+      # glib libpng intltool libjpeg 
+      #pango
+      # librsvg
+      # cairo
+     fontforge
+    ];
+  };
   geglGit = geglVersioned.override { version = "git"; };
   gegl = callPackage ../development/libraries/gegl {
     inherit (darwin.apple_sdk.frameworks) OpenGL;

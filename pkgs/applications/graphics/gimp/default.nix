@@ -36,14 +36,12 @@ let
 
   */
 
-  p = if false /*if version == "git"*/
-  then applyGlobalOverrides (pkgs: { glib = pkgs.glib.override { version = "2.33.3"; }; } )
-  else pkgs; # applyGlobalOverrides (pkgs: { glib = pkgs.glib.override { version = "2.33.3"; }; } );
+  p = pkgs;
 
   commonBuildInputs = [
-    p.pkgconfig p.gtkLibs.gtk p.freetype p.fontconfig
-    p.gnome.libart_lgpl p.libtiff p.libjpeg p.libexif p.zlib p.bzip2 p.lzma p.perl
-    p.perlXMLParser p.python p.pygtk p.gettext p.intltool
+    p.pkgconfig p.gnome2.gtk p.freetype p.fontconfig
+    p.gnome2.libart_lgpl p.libtiff p.libjpeg p.libexif p.zlib p.bzip2 p.lzma p.perl
+    p.perlXMLParser p.python p.pythonPackages.pygtk p.gettext p.intltool
   ];
   /*
   ] ++
@@ -142,7 +140,7 @@ let
 
     "git" = 
       let gegl = ( p.geglVersioned.override { version ="git"; } ); # > 0.3.8
-          babl = ( p.babl.override { version = "git"; } );
+          babl = ( p.bablVersioned.override { version = "git"; } );
       in {
       buildInputs =
         commonBuildInputs
@@ -152,7 +150,7 @@ let
         (p.libmypaint.override { inherit gegl babl; })
         p.json_glib
         p.autoconf p.automake111x p.libxslt p.libtool
-        p.gnome.gtkdoc
+        p.gnome2.gtkdoc
         p.gnome3.gexiv2
         p.pango p.cairo
         p.libpng
@@ -183,8 +181,8 @@ let
     name = "gimp-${version}";
 
     passthru = {
-      inherit (p) gtkLibs;
-      inherit (p.gtkLibs) gtk;
+      inherit (p) gnome2;
+      inherit (p.gnome2) gtk;
     }; # used by gimp plugins
 
     # "screenshot" needs this.

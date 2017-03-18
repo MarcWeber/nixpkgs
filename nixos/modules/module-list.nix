@@ -29,7 +29,9 @@
   ./hardware/ckb.nix
   ./hardware/cpu/amd-microcode.nix
   ./hardware/cpu/intel-microcode.nix
+  ./hardware/sensor/iio.nix
   ./hardware/ksm.nix
+  ./hardware/mcelog.nix
   ./hardware/network/b43.nix
   ./hardware/network/intel-2100bg.nix
   ./hardware/network/intel-2200bg.nix
@@ -38,9 +40,11 @@
   ./hardware/network/rtl8192c.nix
   ./hardware/opengl.nix
   ./hardware/pcmcia.nix
+  ./hardware/usb-wwan.nix
   ./hardware/video/amdgpu.nix
   ./hardware/video/amdgpu-pro.nix
   ./hardware/video/ati.nix
+  ./hardware/video/capture/mwprocapture.nix
   ./hardware/video/bumblebee.nix
   ./hardware/video/displaylink.nix
   ./hardware/video/nvidia.nix
@@ -80,6 +84,7 @@
   ./programs/light.nix
   ./programs/man.nix
   ./programs/mosh.nix
+  ./programs/mtr.nix
   ./programs/nano.nix
   ./programs/oblogout.nix
   ./programs/screen.nix
@@ -91,6 +96,7 @@
   ./programs/tmux.nix
   ./programs/venus.nix
   ./programs/vim.nix
+  ./programs/wireshark.nix
   ./programs/wvdial.nix
   ./programs/xfs_quota.nix
   ./programs/xonsh.nix
@@ -102,6 +108,7 @@
   ./security/audit.nix
   ./security/ca.nix
   ./security/chromium-suid-sandbox.nix
+  ./security/dhparams.nix
   ./security/duosec.nix
   ./security/grsecurity.nix
   ./security/hidepid.nix
@@ -113,7 +120,7 @@
   ./security/prey.nix
   ./security/rngd.nix
   ./security/rtkit.nix
-  ./security/setuid-wrappers.nix
+  ./security/wrappers/default.nix
   ./security/sudo.nix
   ./services/amqp/activemq/default.nix
   ./services/amqp/rabbitmq.nix
@@ -266,6 +273,7 @@
   ./services/misc/gogs.nix
   ./services/misc/gpsd.nix
   #./services/misc/ihaskell.nix
+  ./services/misc/irkerd.nix
   ./services/misc/leaps.nix
   ./services/misc/mantisbt.nix
   ./services/misc/mathics.nix
@@ -323,10 +331,12 @@
   ./services/monitoring/prometheus/default.nix
   ./services/monitoring/prometheus/alertmanager.nix
   ./services/monitoring/prometheus/blackbox-exporter.nix
+  ./services/monitoring/prometheus/fritzbox-exporter.nix
   ./services/monitoring/prometheus/json-exporter.nix
   ./services/monitoring/prometheus/nginx-exporter.nix
   ./services/monitoring/prometheus/node-exporter.nix
   ./services/monitoring/prometheus/snmp-exporter.nix
+  ./services/monitoring/prometheus/unifi-exporter.nix
   ./services/monitoring/prometheus/varnish-exporter.nix
   ./services/monitoring/riemann.nix
   ./services/monitoring/riemann-dash.nix
@@ -423,6 +433,7 @@
   ./services/networking/namecoind.nix
   ./services/networking/nat.nix
   ./services/networking/networkmanager.nix
+  ./services/networking/nftables.nix
   ./services/networking/ngircd.nix
   ./services/networking/nix-serve.nix
   ./services/networking/nntp-proxy.nix
@@ -565,6 +576,7 @@
   ./services/x11/display-managers/lightdm.nix
   ./services/x11/display-managers/sddm.nix
   ./services/x11/display-managers/slim.nix
+  ./services/x11/display-managers/xpra.nix
   ./services/x11/hardware/libinput.nix
   ./services/x11/hardware/multitouch.nix
   ./services/x11/hardware/synaptics.nix

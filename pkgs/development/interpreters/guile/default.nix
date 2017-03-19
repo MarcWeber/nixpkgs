@@ -14,6 +14,9 @@
     sha256 = "12yqkr974y91ylgw6jnmci2v90i90s7h9vxa4zk0sai8vjnz4i1p";
   };
 
+  outputs = [ "out" "dev" "info" ];
+  setOutputFlags = false; # $dev gets into the library otherwise
+
   nativeBuildInputs = [ makeWrapper gawk pkgconfig ];
   buildInputs = [ readline libtool libunistring libffi ];
   propagatedBuildInputs = [ gmp boehmgc ]
@@ -27,9 +30,7 @@
   # A native Guile 2.0 is needed to cross-build Guile.
   selfNativeBuildInput = true;
 
-  # Guile 2.0.11 repeatable fails with 8-core parallel building because
-  # libguile/vm-i-system.i is not created in time
-  enableParallelBuilding = false;
+  enableParallelBuilding = true;
 
   patches = [ ./disable-gc-sensitive-tests.patch ./eai_system.patch ./clang.patch
     (fetchpatch {
@@ -46,7 +47,21 @@
   # don't have "libgcc_s.so.1" on darwin
   LDFLAGS = stdenv.lib.optionalString (!stdenv.isDarwin) "-lgcc_s";
 
-  configureFlags = [ "--with-libreadline-prefix" ];
+  configureFlags = [ "--with-libreadline-prefix" ]
+    ++ stdenv.lib.optionals stdenv.isSunOS [
+      # Make sure the right <gmp.h> is found, and not the incompatible
+      # /usr/include/mp.h from OpenSolaris.  See
+      # <https://lists.gnu.org/archive/html/hydra-users/2012-08/msg00000.html>
+      # for details.
+      "--with-libgmp-prefix=${gmp.dev}"
+
+      # Same for these (?).
+      "--with-libreadline-prefix=${readline.dev}"
+      "--with-libunistring-prefix=${libunistring}"
+
+      # See below.
+      "--without-threads"
+    ];
 
   postInstall = ''
     wrapProgram $out/bin/guile-snarf --prefix PATH : "${gawk}/bin"
@@ -55,9 +70,11 @@
     # why `--with-libunistring-prefix' and similar options coming from
     # `AC_LIB_LINKFLAGS_BODY' don't work on NixOS/x86_64.
     sed -i "$out/lib/pkgconfig/guile-2.0.pc"    \
-        -e 's|-lunistring|-L${libunistring}/lib -lunistring|g ;
+        -e "s|-lunistring|-L${libunistring}/lib -lunistring|g ;
             s|^Cflags:\(.*\)$|Cflags: -I${libunistring}/include \1|g ;
-            s|-lltdl|-L${libtool.lib}/lib -lltdl|g'
+            s|-lltdl|-L${libtool.lib}/lib -lltdl|g ;
+            s|includedir=$out|includedir=$dev|g
+            "
   '';
 
   # make check doesn't work on darwin
@@ -92,27 +109,6 @@
       processing.
     '';
   };
-}
-
-//
-
-(stdenv.lib.optionalAttrs stdenv.isSunOS {
-  # TODO: Move me above.
-  configureFlags =
-    [
-      # Make sure the right <gmp.h> is found, and not the incompatible
-      # /usr/include/mp.h from OpenSolaris.  See
-      # <https://lists.gnu.org/archive/html/hydra-users/2012-08/msg00000.html>
-      # for details.
-      "--with-libgmp-prefix=${gmp.dev}"
-
-      # Same for these (?).
-      "--with-libreadline-prefix=${readline.dev}"
-      "--with-libunistring-prefix=${libunistring}"
-
-      # See below.
-      "--without-threads"
-    ];
 })
 
 //
@@ -121,4 +117,4 @@
   # Work around <http://bugs.gnu.org/14201>.
   SHELL = "/bin/sh";
   CONFIG_SHELL = "/bin/sh";
-}))
+})

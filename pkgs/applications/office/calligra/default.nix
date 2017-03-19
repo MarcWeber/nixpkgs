@@ -1,8 +1,8 @@
-{ stdenv, fetchurl, automoc4, cmake, perl, pkgconfig, kdelibs, lcms2, libpng, eigen
+{ stdenv, fetchurl, automoc4, cmake, perl, pkgconfig, kdelibs4, lcms2, libpng, eigen
 , exiv2, boost, sqlite, icu, vc, shared_mime_info, librevenge, libodfgen, libwpg
 , libwpd, poppler_qt4, ilmbase, gsl, qca2, marble, libvisio, libmysql, postgresql
 , freetds, fftw, glew, libkdcraw, pstoedit, opencolorio, kdepimlibs
-, kactivities, okular, git, oxygen_icons, makeWrapper
+, kactivities, okular, git, oxygen-icons5, makeWrapper
 # TODO: not found
 #, xbase, openjpeg
 # TODO: package libWPS, Spnav, m2mml, LibEtonyek
@@ -19,7 +19,7 @@ stdenv.mkDerivation rec {
   nativeBuildInputs = [ automoc4 cmake perl pkgconfig makeWrapper ];
 
   buildInputs = [
-    kdelibs lcms2 libpng eigen
+    kdelibs4 lcms2 libpng eigen
     exiv2 boost sqlite icu vc shared_mime_info librevenge libodfgen libwpg
     libwpd poppler_qt4 ilmbase gsl qca2 marble libvisio libmysql postgresql
     freetds fftw glew libkdcraw opencolorio kdepimlibs
@@ -34,7 +34,7 @@ stdenv.mkDerivation rec {
     for i in $out/bin/*; do
       wrapProgram $i \
         --prefix PATH ':' "${pstoedit.out}/bin" \
-        --prefix XDG_DATA_DIRS ':' "${oxygen_icons}/share"
+        --prefix XDG_DATA_DIRS ':' "${oxygen-icons5}/share"
     done
     # [1]
     for prog in braindump calligra calligraactive calligraauthor calligraconverter calligraflow calligraplan calligraplanwork calligrasheets calligrastage calligrawords cstester cstrunner karbon kexi kexi_sqlite3_dump krita; do
@@ -58,7 +58,7 @@ stdenv.mkDerivation rec {
     '';
     homepage = http://calligra.org;
     maintainers = with maintainers; [ urkud phreedom ebzzry ];
-    inherit (kdelibs.meta) platforms;
+    inherit (kdelibs4.meta) platforms;
     license = licenses.gpl2;
   };
 }

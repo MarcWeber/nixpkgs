@@ -18,9 +18,9 @@ let
   };
 
   apcu51 = assert isPhp7; buildPecl {
-    name = "apcu-5.1.2";
+    name = "apcu-5.1.4";
 
-    sha256 = "0r5pfbjbmdj46h20jm3iqmy969qd27ajyf0phjhgykv6j0cqjlgd";
+    sha256 = "0118iay9ggvdvyva74bzsl67apknnv8pp0fcz8f9cwlmwxx7mq0x";
   };
 
   imagick = buildPecl {

@@ -294,6 +294,7 @@
   ./services/misc/packagekit.nix
   ./services/misc/parsoid.nix
   ./services/misc/phd.nix
+  ./services/misc/phpfpm.nix
   ./services/misc/plex.nix
   ./services/misc/radarr.nix
   ./services/misc/redmine.nix

@@ -2,7 +2,10 @@
 , mysql, libxml2, readline, zlib, curl, postgresql, gettext
 , openssl, pkgconfig, sqlite, config, libjpeg, libpng, freetype
 , libxslt, libmcrypt, bzip2, icu, openldap, cyrus_sasl, libmhash, freetds
-, uwimap, pam, gmp, apacheHttpd, libiconv, systemd }:
+, uwimap, pam, gmp, apacheHttpd, libiconv
+, callPackage, fetchgit, pkgs, writeText, systemd
+, idByConfig ? true # if true the php.id value will only depend on php configuration, not on the store path, eg dependencies
+}:
 
 let
 
@@ -12,7 +15,93 @@ let
     let php7 = lib.versionAtLeast version "7.0";
         mysqlHeaders = mysql.lib.dev or mysql;
 
-    in composableDerivation.composableDerivation {} (fixed: {
+        options = [
+        "imapSupport"
+        "ldapSupport"
+        "mhashSupport"
+        "mysqlSupport"
+        "mysqliSupport"
+        "pdo_mysqlSupport"
+        "libxml2Support"
+        "apxs2Support"
+        "bcmathSupport"
+        "socketsSupport"
+        "curlSupport"
+        "curlWrappersSupport"
+        "gettextSupport"
+        "pcntlSupport"
+        "postgresqlSupport"
+        "pdo_pgsqlSupport"
+        "readlineSupport"
+        "sqliteSupport"
+        "soapSupport"
+        "zlibSupport"
+        "opensslSupport"
+        "mbstringSupport"
+        "gdSupport"
+        "intlSupport"
+        "exifSupport"
+        "xslSupport"
+        "mcryptSupport"
+        "bz2Support"
+        "zipSupport"
+        "ftpSupport"
+        "fpmSupport"
+        "gmpSupport"
+        "mssqlSupport"
+        "ztsSupport"
+        "calendarSupport"
+        "systemd_socket_activationSupport"
+    ]; in
+
+    composableDerivation.composableDerivation {
+      # merge some php plugins into the derivation, so that the plugins fit the PHP version
+
+      mkDerivation = args:
+        let php = pkgs.stdenv.mkDerivation args;
+
+            php_with_id = php // {
+              id =
+                 if idByConfig && builtins ? hashString
+                 then # turn options into something hashable:
+                      let opts_s = lib.concatMapStrings (x: if x then "1" else "") (lib.attrVals options php);
+                      # you're never going to use that many php's at the same time, thus use a short hash
+                      in "${php.version}-${builtins.substring 0 5 (builtins.hashString "sha256" opts_s)}"
+                 else # the hash of the store path depending on php version and all configuration details
+                      builtins.baseNameOf (builtins.unsafeDiscardStringContext php);
+            };
+
+            in php_with_id // (callPackage ../../../top-level/php-packages.nix { php = php_with_id; inherit fetchgit; }) // rec {
+              ioncube_so =
+                let name = "ioncube_loader_lin_${builtins.substring 0 3 version}_ts.so";
+                in "${(stdenv.mkDerivation {
+                  # requires php compiled with --disable-maintainer-zts
+                  # php ini: zend_extension = ${php56fpm.ioncube}/ioncube_loader_lin_5.6.so
+                  # not all php versions are supported
+                  name = "ioncube-x86_64";
+                  src = fetchurl {
+                    url = "http://downloads3.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz";
+                    sha256 = "1figdjkm3cmi9m2786rrs9rcmlm8ay07s5n8b6d9j3kmrd8p7kys";
+                  };
+                  installPhase = ''
+                    mkdir -p $out
+                    cp ${name} $out/${name}; 
+                    cp LICENSE.txt $out
+                  '';
+                  # LICENSE: See LICENSE.txt
+                  # 1.1 The Loader is provided without charge.
+                  # 2.1 The Loader may be freely distributed to third parties alone or as· part of a distribution containing other items provided that this license is also included
+                })}/${name}";
+              xcache = callPackage ../../libraries/php-xcache { php = php_with_id; };
+              koellner_phonetik = callPackage ../../interpreters/koellner-phonetik { php = php_with_id; };
+
+              # TODO move this into the fpm module?
+              system_fpm_config =
+                    if (config.php.fpm or true) then
+                        config: pool: (import ./php-5.3-fpm-system-config.nix) { php = php_with_id; inherit pkgs lib writeText config pool;}
+                    else throw "php built without fpm support. use php.override { sapi = \"fpm\"; }";
+            };
+    } (fixed: {
 
       inherit version;
 
@@ -23,6 +112,9 @@ let
       buildInputs = [ flex bison pkgconfig ]
         ++ lib.optional stdenv.isLinux systemd;
 
+      mergeAttrBy = {
+        preConfigure = a: b: "${a}\n${b}";
+      };
       configureFlags = [
         "EXTENSION_DIR=$(out)/lib/php/extensions"
       ] ++ lib.optional stdenv.isDarwin "--with-iconv=${libiconv}"
@@ -224,6 +316,15 @@ let
         calendar = {
           configureFlags = ["--enable-calendar"];
         };
+
+        systemd_socket_activation = {
+          patches = [ ./systemd-socket-activation.patch  ];
+          buildInputs = [ systemd ];
+          preConfigure = ''
+            pkg-config --libs libsystemd
+            export NIX_LDFLAGS="$NIX_LDFLAGS `pkg-config --libs libsystemd`"
+          '';
+        };
       };
 
       cfg = {
@@ -263,11 +364,13 @@ let
         mssqlSupport = (!php7) && (config.php.mssql or (!stdenv.isDarwin));
         ztsSupport = config.php.zts or false;
         calendarSupport = config.php.calendar or true;
+        systemd_socket_activationSupport = config.php.socket_activation_support or true;
       };
 
       hardeningDisable = [ "bindnow" ];
 
       configurePhase = ''
+        runHook "preConfigure"
         # Don't record the configure flags since this causes unnecessary
         # runtime dependencies - except for php-embed, as uwsgi needs them.
         ${lib.optionalString (!(config.php.embed or false)) ''
@@ -281,6 +384,10 @@ let
 
         [[ -z "$libxml2" ]] || export PATH=$PATH:$libxml2/bin
         ./configure --with-config-file-scan-dir=/etc/php.d --with-config-file-path=$out/etc --prefix=$out $configureFlags
+      '';
+
+      preBuild = ''
+        sed -i 's@#define PHP_PROG_SENDMAIL	.*@#define PHP_PROG_SENDMAIL	"${fixed.sendmail or "/var/setuid-wrappers/sendmail"}"@' main/build-defs.h
       '';
 
       postInstall = ''
@@ -312,7 +419,11 @@ let
 
     });
 
+
 in {
+
+  # Example usage: php56.merge { fpmSupport = true; sendmail = ".."; .... }
+
   php56 = generic {
     version = "5.6.30";
     sha256 = "01krq8r9xglq59x376zlg261yikckq179jmhnlcg3gqxza9w41d1";

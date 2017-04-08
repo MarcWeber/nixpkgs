@@ -20,22 +20,27 @@ let
 
 in stdenv.mkDerivation rec {
   name = "nano-${version}";
-  version = "2.7.5";
-  
+  version = "2.8.0";
+
   src = fetchurl {
     url = "mirror://gnu/nano/${name}.tar.xz";
-    sha256 = "1r37gqx7hppqbgsbclchiis8wzzpb9srm3q3dlvlii2gpkk28kd6";
+    sha256 = "1hjxr0kgq3q1fcns9y4lj0dbhjf33j3pa2wayrb3p3c8v3sbrh8m";
   };
 
   nativeBuildInputs = [ texinfo ] ++ optional enableNls gettext;
   buildInputs = [ ncurses ];
-  
+
   outputs = [ "out" "info" ];
-  
+
   configureFlags = ''
     --sysconfdir=/etc
     ${optionalString (!enableNls) "--disable-nls"}
     ${optionalString enableTiny "--enable-tiny"}
+  ''
+  # Unclear why (perhaps an impurity?) but for some reason it decides that REG_ENHANCED is available
+  # during configure but then can't find it at build time.
+    + optionalString stdenv.isDarwin ''
+    nano_cv_flag_reg_extended=REG_EXTENDED
   '';
 
   postPatch = optionalString stdenv.isDarwin ''

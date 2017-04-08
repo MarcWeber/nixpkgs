@@ -19,10 +19,7 @@ stdenv.mkDerivation rec {
   propagatedBuildInputs = [ libxml2 glib gdk_pixbuf libiconv ]
     ++ libintlOrEmpty;
 
-  enableParalellBuilding = true;
-
-  # newest glib causes name collision on "clone", so rename functions in tests
-  preConfigure = ''sed -i 's/\<clone\>/cloneX/' tests/*.c'';
+  outputs = [ "out" "dev" ];
 
   doCheck = true;
   preCheck = "patchShebangs ./tests/";

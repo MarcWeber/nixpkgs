@@ -377,7 +377,7 @@ let
       hardeningDisable = [ "bindnow" ];
 
       configurePhase = ''
-        runHook "preConfigure"
+        eval "$preConfigure"
         # Don't record the configure flags since this causes unnecessary
         # runtime dependencies - except for php-embed, as uwsgi needs them.
         ${lib.optionalString (!(config.php.embed or false)) ''

@@ -171,7 +171,13 @@ self: super: {
     else dontCheck super.fsnotify;
 
   double-conversion = if !pkgs.stdenv.isDarwin
-    then addExtraLibrary super.double-conversion pkgs.stdenv.cc.cc.lib
+    then addExtraLibrary
+           # https://github.com/bos/double-conversion/pull/17
+           (appendPatch super.double-conversion (pkgs.fetchpatch {
+              url = "https://github.com/basvandijk/double-conversion/commit/0927e347d53dbd96d1949930e728cc2471dd4b14.patch";
+              sha256 = "042yqbq5p6nc9nymmbz9hgp51dlc5asaj9bf91kw5fph6dw2hwg9";
+           }))
+           pkgs.stdenv.cc.cc.lib
     else addExtraLibrary (overrideCabal super.double-conversion (drv:
       {
         postPatch = ''
@@ -752,13 +758,6 @@ self: super: {
   # https://github.com/roelvandijk/terminal-progress-bar/issues/13
   terminal-progress-bar = doJailbreak super.terminal-progress-bar;
 
-  # https://github.com/NixOS/nixpkgs/issues/19612
-  wai-app-file-cgi = (dontCheck super.wai-app-file-cgi).overrideScope (self: super: {
-    http-client = self.http-client_0_5_5;
-    http-client-tls = self.http-client-tls_0_3_3_1;
-    http-conduit = self.http-conduit_2_2_3;
-  });
-
   # https://hydra.nixos.org/build/42769611/nixlog/1/raw
   # note: the library is unmaintained, no upstream issue
   dataenc = doJailbreak super.dataenc;
@@ -869,4 +868,34 @@ self: super: {
 
   # https://github.com/danidiaz/tailfile-hinotify/issues/2
   tailfile-hinotify = dontCheck super.tailfile-hinotify;
-}
+} // (let scope' = self: super: {
+            haskell-tools-ast = super.haskell-tools-ast_0_6_0_0;
+            haskell-tools-backend-ghc = super.haskell-tools-backend-ghc_0_6_0_0;
+            haskell-tools-cli = super.haskell-tools-cli_0_6_0_0;
+            haskell-tools-daemon = super.haskell-tools-daemon_0_6_0_0;
+            haskell-tools-debug = super.haskell-tools-debug_0_6_0_0;
+            haskell-tools-demo = super.haskell-tools-demo_0_6_0_0;
+            haskell-tools-prettyprint = super.haskell-tools-prettyprint_0_6_0_0;
+            haskell-tools-refactor = super.haskell-tools-refactor_0_6_0_0;
+            haskell-tools-rewrite = super.haskell-tools-rewrite_0_6_0_0;
+          };
+      in {
+        haskell-tools-ast_0_6_0_0 =
+          super.haskell-tools-ast_0_6_0_0.overrideScope scope';
+        haskell-tools-backend-ghc_0_6_0_0 =
+          super.haskell-tools-backend-ghc_0_6_0_0.overrideScope scope';
+        haskell-tools-cli_0_6_0_0 =
+          dontCheck (super.haskell-tools-cli_0_6_0_0.overrideScope scope');
+        haskell-tools-daemon_0_6_0_0 =
+          dontCheck (super.haskell-tools-daemon_0_6_0_0.overrideScope scope');
+        haskell-tools-debug_0_6_0_0 =
+          super.haskell-tools-debug_0_6_0_0.overrideScope scope';
+        haskell-tools-demo_0_6_0_0 =
+          super.haskell-tools-demo_0_6_0_0.overrideScope scope';
+        haskell-tools-prettyprint_0_6_0_0 =
+          super.haskell-tools-prettyprint_0_6_0_0.overrideScope scope';
+        haskell-tools-refactor_0_6_0_0 =
+          super.haskell-tools-refactor_0_6_0_0.overrideScope scope';
+        haskell-tools-rewrite_0_6_0_0 =
+          super.haskell-tools-rewrite_0_6_0_0.overrideScope scope';
+     })

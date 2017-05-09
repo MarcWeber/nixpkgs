@@ -5,7 +5,7 @@
 
 { pkgs, gimp }:
 let
-  inherit (pkgs) stdenv fetchurl pkgconfig glib fetchgit fetchFromGitHub;
+  inherit (pkgs) stdenv fetchurl pkgconfig intltool glib fetchFromGitHub;
   inherit (gimp) targetPluginDir targetScriptDir;
 
   pluginDerivation = a: stdenv.mkDerivation ({
@@ -23,7 +23,11 @@ let
   }
   // a
     # don't call this gimp-* unless you want nix replace gimp by a plugin :-)
-  // { name = "${a.name}-${gimp.name}-plugin"; }
+  // {
+      name = "${a.name}-${gimp.name}-plugin";
+      buildInputs = [ gimp gimp.gtk glib ] ++ (a.buildInputs or []);
+      nativeBuildInputs = [ pkgconfig intltool ] ++ (a.nativeBuildInputs or []);
+    }
   );
 
   scriptDerivation = {name, src} : pluginDerivation {
@@ -33,8 +37,7 @@ let
 
  libLQR = pluginDerivation {
     name = "liblqr-1-0.4.1";
-    # required by lqrPlugin, you don't have to install this lib explicitely
-    buildInputs = [ gimp ] ++ gimp.nativeBuildInputs;
+    # required by lqrPlugin, you don't havet to install this lib explicitely
     src = fetchurl {
       url = http://registry.gimp.org/files/liblqr-1-0.4.1.tar.bz2;
       sha256 = "02g90wag7xi5rjlmwq8h0qs666b1i2sa90s4303hmym40il33nlz";
@@ -125,31 +128,30 @@ rec {
     installPhase = "installScripts Eg-ISONoiseReduction.scm";
   };
 
-  fourier = pluginDerivation rec {
-    /* menu:
-       Filters/Generic/FFT Forward
-       Filters/Generic/FFT Inverse
-    */
-    name = "fourier-0.4.1";
-    buildInputs = [ gimp pkgs.fftw  pkgconfig gimp.gtkLibs.glib] ++ gimp.nativeBuildInputs;
-    postInstall = "fail";
-    # preConfigure = ''
-    #   NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags glib-2.0 fftw3 gimp-2.0)"
-    #   NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l glib-2.0 gimp-2.0 fftw3)"
-    # '';
-    installPhase = "installPlugins fourier";
-    src = fetchurl {
-      url = "http://registry.gimp.org/files/${name}.tar.gz";
-      sha256 = "1pr3y3zl9w8xs1circdrxpr98myz9m8wfzy022al79z4pdanwvs1";
-    };
-  };
+#   fourier = pluginDerivation rec {
+#     /* menu:
+#        Filters/Generic/FFT Forward
+#        Filters/Generic/FFT Inverse
+#     */
+#     name = "fourier-0.4.1";
+#     buildInputs = [ gimp pkgs.fftw  pkgconfig gimp.gtkLibs.glib] ++ gimp.nativeBuildInputs;
+#     postInstall = "fail";
+#     # preConfigure = ''
+#     #   NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE $( pkg-config --cflags glib-2.0 fftw3 gimp-2.0)"
+#     #   NIX_LDFLAGS="$NIX_LDFLAGS $(pkg-config --libs-only-l glib-2.0 gimp-2.0 fftw3)"
+#     # '';
+#     installPhase = "installPlugins fourier";
+#     src = fetchurl {
+#       url = "http://registry.gimp.org/files/${name}.tar.gz";
+#       sha256 = "1pr3y3zl9w8xs1circdrxpr98myz9m8wfzy022al79z4pdanwvs1";
+#     };
+#   };
 
   gap = pluginDerivation {
     /* menu:
        Video
     */
     name = "gap-2.6.0";
-    buildInputs = [ gimp pkgconfig glib pkgs.intltool gimp.gtk ] ++ gimp.nativeBuildInputs;
     src = fetchurl {
       url = http://ftp.gimp.org/pub/gimp/plug-ins/v2.6/gap/gimp-gap-2.6.0.tar.bz2;
       sha256 = "1jic7ixcmsn4kx2cn32nc5087rk6g8xsrz022xy11yfmgvhzb0ql";
@@ -178,6 +180,17 @@ rec {
     unpackPhase = "cp $src h_localdenoise3.scm";
     installPhase = "installScripts h_localdenoise3.scm";
   };
+  
+  fourier = pluginDerivation rec {
+    /* menu:
+       Filters/Generic/FFT Forward
+       Filters/Generic/FFT Inverse
+    */
+    name = "fourier-0.4.1";
+    buildInputs = with pkgs; [ fftw ];
+    postInstall = "fail";
+    installPhase = "installPlugins fourier";
+  };
 
   refocus-it = pluginDerivation {
     name = "refocus-it-2.0.0";
@@ -200,7 +213,7 @@ rec {
        Blur/Focus Blur
     */
     name = "focusblur-3.2.6";
-    buildInputs = [ gimp pkgconfig pkgs.fftwSinglePrec ] ++ gimp.nativeBuildInputs;
+    buildInputs = with pkgs; [ fftwSinglePrec ];
     patches = [ ./patches/focusblur-glib.patch ];
     postInstall = "fail";
     installPhase = "installPlugins src/focusblur";
@@ -218,7 +231,7 @@ rec {
       Filters/Enhance/Smart remove selection
     */
     name = "resynthesizer-0.16";
-    buildInputs = [ gimp pkgs.fftw pkgs.pkgconfig pkgs.gtk2 ] ++ gimp.nativeBuildInputs;
+    buildInputs = with pkgs; [ fftw ];
     src = fetchurl {
       url = http://www.logarithmic.net/pfh-files/resynthesizer/resynthesizer-0.16.tar.gz;
       sha256 = "1k90a1jzswxmajn56rdxa4r60v9v34fmqsiwfdxqcvx3yf4yq96x";
@@ -239,10 +252,8 @@ rec {
       Filters/Enhance/Smart remove selection
     */
     name = "resynthesizer-2.0.1";
-    buildInputs = [ gimp pkgs.fftw pkgs.autoreconfHook pkgs.pkgconfig pkgs.gtk2
-      pkgs.intltool
-    ]
-      ++ gimp.nativeBuildInputs;
+    buildInputs = with pkgs; [ fftw ];
+    nativeBuildInputs = with pkgs; [ autoreconfHook ];
     makeFlags = "GIMP_LIBDIR=$out/lib/gimp/2.0/";
     src = fetchFromGitHub {
       owner = "bootchk";
@@ -254,11 +265,11 @@ rec {
 
   texturize = pluginDerivation {
     name = "texturize-2.1";
-    buildInputs = [ gimp ] ++ gimp.nativeBuildInputs;
     src = fetchurl {
       url = mirror://sourceforge/gimp-texturize/texturize-2.1_src.tgz;
       sha256 = "0cdjq25g3yfxx6bzx6nid21kq659s1vl9id4wxyjs2dhcv229cg3";
     };
+    buildInputs = with pkgs; [ perl ];
     patchPhase = ''
       sed -i '/.*gimpimage_pdb.h.*/ d' src/*.c*
     '';
@@ -286,7 +297,6 @@ rec {
       Filters/Enhance/Wavelet sharpen
     */
     name = "wavelet-sharpen-0.1.2";
-    buildInputs = [ gimp ] ++ gimp.nativeBuildInputs;
     src = fetchurl {
       url = http://registry.gimp.org/files/wavelet-sharpen-0.1.2.tar.gz;
       sha256 = "0vql1k67i21g5ivaa1jh56rg427m0icrkpryrhg75nscpirfxxqw";
@@ -299,7 +309,7 @@ rec {
        Layer/Liquid Rescale
     */
     name = "lqr-plugin-0.6.1";
-    buildInputs = [ pkgconfig libLQR gimp ] ++ gimp.nativeBuildInputs;
+    buildInputs = with pkgs; [ libLQR ];
     src = fetchurl {
       url = http://registry.gimp.org/files/gimp-lqr-plugin-0.6.1.tar.bz2;
       sha256 = "00hklkpcimcbpjly4rjhfipaw096cpy768g9wixglwrsyqhil7l9";
@@ -312,8 +322,7 @@ rec {
     pluginDerivation rec {
       inherit (pkgs.gmic) name src meta;
 
-      nativeBuildInputs = [ pkgconfig ];
-      buildInputs = [ pkgs.fftw pkgs.opencv gimp ] ++ gimp.nativeBuildInputs;
+      buildInputs = with pkgs; [ fftw opencv curl ];
 
       sourceRoot = "${name}/src";
 
@@ -344,7 +353,7 @@ rec {
         cp ${CImg_h} CImg.h
       '';
 
-      src = fetchgit {
+      src = fetchFromGitHub {
         "url" = "https://github.com/dtschump/gmic-minimal.git";
         "rev" = "87729ac9945a4cbb92a3cd04f654de10711f3e72";
         "sha256" = "1z82ibx4y1l5p17x044gbxs6841yb79v0p78y1bdm6i53hwyvwfw";
@@ -356,7 +365,7 @@ rec {
   # or use the binary
   ufraw = pluginDerivation rec {
     name = "ufraw-0.19.2";
-    buildInputs = [pkgs.gtkimageview pkgs.lcms gimp] ++ gimp.nativeBuildInputs;
+    buildInputs = with pkgs; [ gtkimageview lcms ];
       # --enable-mime - install mime files, see README for more information
       # --enable-extras - build extra (dcraw, nikon-curve) executables
       # --enable-dst-correction - enable DST correction for file timestamps.
@@ -378,7 +387,6 @@ rec {
     ";
   };
 
-
   gimplensfun = pluginDerivation rec {
     version = "0.2.4";
     name = "gimplensfun-${version}";
@@ -390,7 +398,7 @@ rec {
       sha256 = "0zlmp9v732qmzj083mnk5z421s57mnckmpjhiw890wmmwzj2lhxz";
     };
 
-    buildInputs = [ gimp pkgconfig glib gimp.gtk pkgs.lensfun pkgs.exiv2 ];
+    buildInputs = with pkgs; [ lensfun exiv2 ];
 
     installPhase = "
       installPlugins gimp-lensfun

@@ -2049,6 +2049,8 @@ with pkgs;
 
   gnuapl = callPackage ../development/interpreters/gnu-apl { };
 
+  gnu-cobol = callPackage ../development/compilers/gnu-cobol { };
+
   gnufdisk = callPackage ../tools/system/fdisk {
     guile = guile_1_8;
   };

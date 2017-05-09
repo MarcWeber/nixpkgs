@@ -27,6 +27,8 @@ with lib;
       intel2200BGFirmware
       rtl8723bs-firmware
       rtl8192su-firmware
+    ] ++ optionals config.nixpkgs.config.allowUnfree [
+      broadcom-bt-firmware
     ];
   };
 

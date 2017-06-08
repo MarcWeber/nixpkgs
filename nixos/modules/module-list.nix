@@ -39,6 +39,7 @@
   ./hardware/network/intel-3945abg.nix
   ./hardware/network/ralink.nix
   ./hardware/network/rtl8192c.nix
+  ./hardware/nitrokey.nix
   ./hardware/opengl.nix
   ./hardware/pcmcia.nix
   ./hardware/usb-wwan.nix
@@ -79,6 +80,7 @@
   ./programs/environment.nix
   ./programs/fish.nix
   ./programs/freetds.nix
+  ./programs/gnupg.nix
   ./programs/gphoto2.nix
   ./programs/info.nix
   ./programs/java.nix
@@ -129,6 +131,10 @@
   ./security/rtkit.nix
   ./security/wrappers/default.nix
   ./security/sudo.nix
+  ./service-managers/docker.nix
+  ./service-managers/trivial.nix
+  ./services/admin/salt/master.nix
+  ./services/admin/salt/minion.nix
   ./services/amqp/activemq/default.nix
   ./services/amqp/rabbitmq.nix
   ./services/audio/alsa.nix
@@ -237,8 +243,9 @@
   ./services/logging/logrotate.nix
   ./services/logging/logstash.nix
   ./services/logging/rsyslogd.nix
-  ./services/logging/syslogd.nix
+  ./services/logging/SystemdJournal2Gelf.nix
   ./services/logging/syslog-ng.nix
+  ./services/logging/syslogd.nix
   ./services/mail/dovecot.nix
   ./services/mail/dspam.nix
   ./services/mail/exim.nix
@@ -254,6 +261,7 @@
   ./services/mail/spamassassin.nix
   ./services/mail/rspamd.nix
   ./services/mail/rmilter.nix
+  ./services/mail/nullmailer.nix
   ./services/misc/apache-kafka.nix
   ./services/misc/autofs.nix
   ./services/misc/autorandr.nix
@@ -367,6 +375,7 @@
   ./services/network-filesystems/cachefilesd.nix
   ./services/network-filesystems/drbd.nix
   ./services/network-filesystems/glusterfs.nix
+  ./services/network-filesystems/kbfs.nix
   ./services/network-filesystems/ipfs.nix
   ./services/network-filesystems/netatalk.nix
   ./services/network-filesystems/nfsd.nix
@@ -427,11 +436,14 @@
   ./services/networking/i2p.nix
   ./services/networking/iodine.nix
   ./services/networking/ircd-hybrid/default.nix
+  ./services/networking/iwd.nix
   ./services/networking/keepalived/default.nix
+  ./services/networking/keybase.nix
   ./services/networking/kippo.nix
   ./services/networking/kresd.nix
   ./services/networking/lambdabot.nix
   ./services/networking/libreswan.nix
+  ./services/networking/lldpd.nix
   ./services/networking/logmein-hamachi.nix
   ./services/networking/mailpile.nix
   ./services/networking/mfi.nix
@@ -473,6 +485,7 @@
   ./services/networking/radvd.nix
   ./services/networking/rdnssd.nix
   ./services/networking/redsocks.nix
+  ./services/networking/resilio.nix
   ./services/networking/rpcbind.nix
   ./services/networking/sabnzbd.nix
   ./services/networking/searx.nix
@@ -612,6 +625,7 @@
   ./services/x11/window-managers/windowlab.nix
   ./services/x11/window-managers/wmii.nix
   ./services/x11/window-managers/xmonad.nix
+  ./services/x11/xautolock.nix
   ./services/x11/xbanish.nix
   ./services/x11/xfs.nix
   ./services/x11/xserver.nix

@@ -17,6 +17,7 @@
 , multithreadBuild ? true # Multithreading via pthreads/win32 threads
 , networkBuild ? true # Network support
 , pixelutilsBuild ? true # Pixel utils in libavutil
+, enableLto ? false # build with link-time optimization
 /*
  *  Program options
  */
@@ -229,11 +230,11 @@ assert nvenc -> nvidia-video-sdk != null && nonfreeLicensing;
 
 stdenv.mkDerivation rec {
   name = "ffmpeg-full-${version}";
-  version = "3.3";
+  version = "3.3.1";
 
   src = fetchurl {
     url = "https://www.ffmpeg.org/releases/ffmpeg-${version}.tar.xz";
-    sha256 = "17anx7rnbi63if1ndr61836lf76dpn47n0y424hc48bj05y7z7jr";
+    sha256 = "0bwgm6z6k3khb91qh9xv15inykkfchpkm0lcdckkxhkacpyaf0mp";
   };
 
   patchPhase = ''patchShebangs .
@@ -257,6 +258,7 @@ stdenv.mkDerivation rec {
     (if stdenv.cc.isClang then "--cc=clang" else null)
     (enableFeature smallBuild "small")
     (enableFeature runtimeCpuDetectBuild "runtime-cpudetect")
+    (enableFeature enableLto "lto")
     (enableFeature grayBuild "gray")
     (enableFeature swscaleAlphaBuild "swscale-alpha")
     (enableFeature hardcodedTablesBuild "hardcoded-tables")

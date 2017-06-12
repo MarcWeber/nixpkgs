@@ -7659,12 +7659,14 @@ in {
 
   libthumbor = buildPythonPackage rec {
     name = "libthumbor-${version}";
-    version = "1.2.0";
+    version = "1.3.2";
 
     src = pkgs.fetchurl {
       url = "mirror://pypi/l/libthumbor/${name}.tar.gz";
-      sha256 = "09bbaf08124ee33ea4ef99881625bd20450b0b43ab90fd678479beba8c03f86e";
+      sha256 = "1vjhszsf8wl9k16wyg2rfjycjnawzl7z8j39bhiysbz5x4lqg91b";
     };
+
+    buildInputs = with self; [ django ];
 
     propagatedBuildInputs = with self; [ six pycrypto ];
 
@@ -12466,11 +12468,11 @@ in {
   };
 
   ipaddress = if (pythonAtLeast "3.3") then null else buildPythonPackage rec {
-    name = "ipaddress-1.0.16";
+    name = "ipaddress-1.0.18";
 
     src = pkgs.fetchurl {
       url = "mirror://pypi/i/ipaddress/${name}.tar.gz";
-      sha256 = "1c3imabdrw8nfksgjjflzg7h4ynjckqacb188rf541m74arq4cas";
+      sha256 = "1q8klj9d84cmxgz66073x1j35cplr3r77vx1znhxiwl5w74391ax";
     };
 
     checkPhase = ''
@@ -18098,44 +18100,7 @@ in {
     };
   };
 
-  powerline = buildPythonPackage rec {
-    rev  = "2.5.2";
-    name = "powerline-${rev}";
-    src = pkgs.fetchurl {
-      url    = "https://github.com/powerline/powerline/archive/${rev}.tar.gz";
-      name   = "${name}.tar.gz";
-      sha256 = "064rp2jzz4vp1xqk3445qf08pq3aif00q1rjqaqx2pla15s27yrz";
-    };
-
-    propagatedBuildInputs = with self; [ pkgs.git pkgs.mercurial pkgs.bazaar self.psutil self.pygit2 ];
-
-    # error: This is still beta and some tests still fail
-    doCheck = false;
-
-    postInstall = ''
-      install -dm755 "$out/share/fonts/OTF/"
-      install -dm755 "$out/etc/fonts/conf.d"
-      install -m644 "font/PowerlineSymbols.otf" "$out/share/fonts/OTF/PowerlineSymbols.otf"
-      install -m644 "font/10-powerline-symbols.conf" "$out/etc/fonts/conf.d/10-powerline-symbols.conf"
-
-      install -dm755 "$out/share/vim/vimfiles/plugin"
-      install -m644 "powerline/bindings/vim/plugin/powerline.vim" "$out/share/vim/vimfiles/plugin/powerline.vim"
-
-      install -dm755 "$out/share/zsh/site-contrib"
-      install -m644 "powerline/bindings/zsh/powerline.zsh" "$out/share/zsh/site-contrib/powerline.zsh"
-
-      install -dm755 "$out/share/tmux"
-      install -m644 "powerline/bindings/tmux/powerline.conf" "$out/share/tmux/powerline.conf"
-    '';
-
-    meta = {
-      homepage    = https://github.com/powerline/powerline;
-      description = "The ultimate statusline/prompt utility";
-      license     = licenses.mit;
-      maintainers = with maintainers; [ lovek323 ];
-      platforms   = platforms.all;
-    };
-  };
+  powerline = callPackage ../development/python-modules/powerline { };
 
   pox = buildPythonPackage rec {
     name = "pox-${version}";
@@ -28083,7 +28048,7 @@ EOF
 
   thumbor = buildPythonPackage rec {
     name = "thumbor-${version}";
-    version = "5.2.1";
+    version = "6.3.2";
 
     disabled = ! isPy27;
 
@@ -28093,6 +28058,7 @@ EOF
       tornado
       pycrypto
       pycurl
+      pytz
       pillow
       derpconf
       python_magic
@@ -28104,14 +28070,18 @@ EOF
 
     src = pkgs.fetchurl {
       url = "mirror://pypi/t/thumbor/${name}.tar.gz";
-      sha256 = "57b0d7e261e792b2e2c53a79c3d8c722964003d1828331995dc3491dc67db7d8";
+      sha256 = "0787245x4yci34cdfc9xaxhds0lv60476qgp132pwa78hrpc9m31";
     };
+
+    prePatch = ''
+      substituteInPlace setup.py \
+        --replace '"argparse",' ""
+    '';
 
     meta = {
       description = "A smart imaging service";
       homepage = https://github.com/globocom/thumbor/wiki;
       license = licenses.mit;
-      broken = true;
     };
   };
 

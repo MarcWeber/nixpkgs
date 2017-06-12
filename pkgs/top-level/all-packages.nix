@@ -474,6 +474,9 @@ with pkgs;
 
   arp-scan = callPackage ../tools/misc/arp-scan { };
 
+  inherit (callPackages ../data/fonts/arphic {})
+    arphic-ukai arphic-uming;
+
   artyFX = callPackage ../applications/audio/artyFX {};
 
   as31 = callPackage ../development/compilers/as31 {};
@@ -524,12 +527,6 @@ with pkgs;
     monolithic = false;
     client = true;
   });
-
-  androidenv = callPackage ../development/mobile/androidenv {
-    pkgs_i686 = pkgsi686Linux;
-  };
-
-  adb-sync = callPackage ../development/mobile/adb-sync { };
 
   apg = callPackage ../tools/security/apg { };
 
@@ -589,11 +586,17 @@ with pkgs;
     pkgs_i686 = pkgsi686Linux;
   };
 
-  inherit (androidenv) androidsdk_4_4 androidndk;
+  adb-sync = callPackage ../development/mobile/adb-sync { };
 
-  androidsdk = androidenv.androidsdk_7_0;
+  androidenv = callPackage ../development/mobile/androidenv {
+    pkgs_i686 = pkgsi686Linux;
+  };
 
-  androidsdk_extras = self.androidenv.androidsdk_7_0_extras;
+  inherit (androidenv) androidndk;
+
+  androidsdk = androidenv.androidsdk_7_1_1;
+
+  androidsdk_extras = self.androidenv.androidsdk_7_1_1_extras;
 
   arc-theme = callPackage ../misc/themes/arc { };
 
@@ -1777,6 +1780,8 @@ with pkgs;
 
   exiftags = callPackage ../tools/graphics/exiftags { };
 
+  exiftool = perlPackages.ImageExifTool;
+
   extundelete = callPackage ../tools/filesystems/extundelete { };
 
   expect = callPackage ../tools/misc/expect { };
@@ -2263,6 +2268,8 @@ with pkgs;
 
   gtdialog = callPackage ../development/libraries/gtdialog {};
 
+  gtkd = callPackage ../development/libraries/gtkd { };
+
   gtkgnutella = callPackage ../tools/networking/p2p/gtk-gnutella { };
 
   gtkvnc = callPackage ../tools/admin/gtk-vnc {};
@@ -2644,6 +2651,8 @@ with pkgs;
 
   kytea = callPackage ../tools/text/kytea { };
 
+  lbreakout2 = callPackage ../games/lbreakout2 { };
+
   leocad = callPackage ../applications/graphics/leocad { };
 
   less = callPackage ../tools/misc/less { };
@@ -2860,6 +2869,8 @@ with pkgs;
   libevdev = callPackage ../development/libraries/libevdev { };
 
   libevhtp = callPackage ../development/libraries/libevhtp { };
+
+  libfann = callPackage ../development/libraries/libfann { };
 
   libircclient = callPackage ../development/libraries/libircclient { };
 
@@ -4338,6 +4349,8 @@ with pkgs;
 
   tie = callPackage ../development/tools/misc/tie { };
 
+  tilix = callPackage ../applications/misc/tilix { };
+
   tinc_pre = callPackage ../tools/networking/tinc/pre.nix { };
 
   tiny8086 = callPackage ../applications/virtualization/8086tiny { };
@@ -5247,10 +5260,6 @@ with pkgs;
     # PGO seems to speed up compilation by gcc by ~10%, see #445 discussion
     profiledCompiler = with stdenv; (!isDarwin && (isi686 || isx86_64));
 
-    # When building `gcc.crossDrv' (a "Canadian cross", with host == target
-    # and host != build), `cross' must be null but the cross-libc must still
-    # be passed.
-    cross = null;
     libcCross = if targetPlatform != buildPlatform then libcCross else null;
 
     isl = if !stdenv.isDarwin then isl_0_17 else null;
@@ -5642,7 +5651,7 @@ with pkgs;
   llvmPackages_4 = callPackage ../development/compilers/llvm/4 ({
     inherit (stdenvAdapters) overrideCC;
   } // stdenv.lib.optionalAttrs stdenv.isDarwin {
-    cmake = cmake.override { isBootstrap = true; useSharedLibraries = false; };
+    cmake = cmake.override { isBootstrap = true; };
     libxml2 = libxml2.override { pythonSupport = false; };
     python2 = callPackage ../development/interpreters/python/cpython/2.7/boot.nix { inherit (darwin) CF configd; };
   });
@@ -5742,12 +5751,19 @@ with pkgs;
 
   rust = rustStable;
   rustStable = callPackage ../development/compilers/rust {
-    inherit (llvmPackages_39) llvm;
+    inherit (llvmPackages_4) llvm;
   };
   rustBeta = lowPrio (recurseIntoAttrs (callPackage ../development/compilers/rust/beta.nix {}));
-  rustNightly = lowPrio (recurseIntoAttrs (callPackage ../development/compilers/rust/nightly.nix {
-    rustPlatform = recurseIntoAttrs (makeRustPlatform rustBeta);
-  }));
+
+  rustNightly = rustBeta;
+
+  # rust support in nixpkgs isn't yet well maintained enough for us to
+  # pretend to support nightlies in a meaningful way.
+
+  # rustNightly = lowPrio (recurseIntoAttrs (callPackage ../development/compilers/rust/nightly.nix {
+  #   rustPlatform = recurseIntoAttrs (makeRustPlatform rustBeta);
+  # }));
+
   rustNightlyBin = lowPrio (callPackage ../development/compilers/rust/nightlyBin.nix {
      buildRustPackage = callPackage ../build-support/rust {
        rust = rustNightlyBin;
@@ -5801,7 +5817,7 @@ with pkgs;
 
   scalafmt = callPackage ../development/tools/scalafmt { };
 
-  sdcc = callPackage ../development/compilers/sdcc { boost = boost159; };
+  sdcc = callPackage ../development/compilers/sdcc { };
 
   serpent = callPackage ../development/compilers/serpent { };
 
@@ -5940,93 +5956,22 @@ with pkgs;
 
   clooj = callPackage ../development/interpreters/clojure/clooj.nix { };
 
-  erlangR16 = callPackage ../development/interpreters/erlang/R16.nix {
-    inherit (darwin.apple_sdk.frameworks) Carbon Cocoa;
-  };
-  erlangR16_odbc = callPackage ../development/interpreters/erlang/R16.nix {
-    inherit (darwin.apple_sdk.frameworks) Carbon Cocoa;
-    odbcSupport = true;
-  };
-  erlang_basho_R16B02 = callPackage ../development/interpreters/erlang/R16B02-8-basho.nix {
-    inherit (darwin.apple_sdk.frameworks) Carbon Cocoa;
-  };
-  erlang_basho_R16B02_odbc = callPackage ../development/interpreters/erlang/R16B02-8-basho.nix {
-    inherit (darwin.apple_sdk.frameworks) Carbon Cocoa;
-    odbcSupport = true;
-  };
-  erlangR17 = callPackage ../development/interpreters/erlang/R17.nix {
-    inherit (darwin.apple_sdk.frameworks) Carbon Cocoa;
-  };
-  erlangR17_odbc = callPackage ../development/interpreters/erlang/R17.nix {
-    inherit (darwin.apple_sdk.frameworks) Carbon Cocoa;
-    odbcSupport = true;
-  };
-  erlangR17_javac = callPackage ../development/interpreters/erlang/R17.nix {
-    inherit (darwin.apple_sdk.frameworks) Carbon Cocoa;
-    javacSupport = true;
-  };
-  erlangR17_odbc_javac = callPackage ../development/interpreters/erlang/R17.nix {
-    inherit (darwin.apple_sdk.frameworks) Carbon Cocoa;
-    javacSupport = true; odbcSupport = true;
-  };
-  erlangR18 = callPackage ../development/interpreters/erlang/R18.nix {
-    inherit (darwin.apple_sdk.frameworks) Carbon Cocoa;
-    wxGTK = wxGTK30;
-  };
-  erlangR18_odbc = callPackage ../development/interpreters/erlang/R18.nix {
-    inherit (darwin.apple_sdk.frameworks) Carbon Cocoa;
-    wxGTK = wxGTK30;
-    odbcSupport = true;
-  };
-  erlangR18_javac = callPackage ../development/interpreters/erlang/R18.nix {
-    inherit (darwin.apple_sdk.frameworks) Carbon Cocoa;
-    wxGTK = wxGTK30;
-    javacSupport = true;
-  };
-  erlangR18_odbc_javac = callPackage ../development/interpreters/erlang/R18.nix {
-    inherit (darwin.apple_sdk.frameworks) Carbon Cocoa;
-    wxGTK = wxGTK30;
-    javacSupport = true; odbcSupport = true;
-  };
-  erlangR19 = callPackage ../development/interpreters/erlang/R19.nix {
-    inherit (darwin.apple_sdk.frameworks) Carbon Cocoa;
-    wxGTK = wxGTK30;
-  };
-  erlangR19_odbc = callPackage ../development/interpreters/erlang/R19.nix {
-    inherit (darwin.apple_sdk.frameworks) Carbon Cocoa;
-    wxGTK = wxGTK30;
-    odbcSupport = true;
-  };
-  erlangR19_javac = callPackage ../development/interpreters/erlang/R19.nix {
-    inherit (darwin.apple_sdk.frameworks) Carbon Cocoa;
-    wxGTK = wxGTK30;
-    javacSupport = true;
-  };
-  erlangR19_odbc_javac = callPackage ../development/interpreters/erlang/R19.nix {
-    inherit (darwin.apple_sdk.frameworks) Carbon Cocoa;
-    wxGTK = wxGTK30;
-    javacSupport = true; odbcSupport = true;
-  };
-  erlang = erlangR18;
-  erlang_odbc = erlangR18_odbc;
-  erlang_javac = erlangR18_javac;
-  erlang_odbc_javac = erlangR18_odbc_javac;
+  beam = callPackage ./beam-packages.nix { };
 
-  rebar = callPackage ../development/tools/build-managers/rebar { };
-  rebar3-open = callPackage ../development/tools/build-managers/rebar3 { hermeticRebar3 = false; };
-  rebar3 = callPackage ../development/tools/build-managers/rebar3 { hermeticRebar3 = true; };
-  hexRegistrySnapshot = callPackage ../development/beam-modules/hex-registry-snapshot.nix { };
-  fetchHex = callPackage ../development/beam-modules/fetch-hex.nix { };
+  inherit (beam.interpreters)
+    erlang erlang_odbc erlang_javac erlang_odbc_javac
+    elixir
+    lfe
+    erlangR16 erlangR16_odbc
+    erlang_basho_R16B02 erlang_basho_R16B02_odbc
+    erlangR17 erlangR17_odbc erlangR17_javac erlangR17_odbc_javac
+    erlangR18 erlangR18_odbc erlangR18_javac erlangR18_odbc_javac
+    erlangR19 erlangR19_odbc erlangR19_javac erlangR19_odbc_javac;
 
-  beamPackages = callPackage ../development/beam-modules { };
-  hex2nix = beamPackages.callPackage ../development/tools/erlang/hex2nix { };
-  cuter = callPackage ../development/tools/erlang/cuter { };
-
-  relxExe = callPackage ../development/tools/erlang/relx-exe {};
-
-  elixir = callPackage ../development/interpreters/elixir { debugInfo = true; };
-
-  lfe = callPackage ../development/interpreters/lfe { };
+  inherit (beam.packages)
+    rebar rebar3-open rebar3
+    hexRegistrySnapshot fetchHex beamPackages
+    hex2nix cuter relxExe;
 
   groovy = callPackage ../development/interpreters/groovy { };
 
@@ -6055,6 +6000,10 @@ with pkgs;
 
   lxappearance = callPackage ../desktops/lxde/core/lxappearance {
     gtk2 = gtk2-x11;
+  };
+
+  lxappearance-gtk3 = callPackage ../desktops/lxde/core/lxappearance {
+    withGtk3 = true;
   };
 
   lxmenu-data = callPackage ../desktops/lxde/core/lxmenu-data.nix { };
@@ -6526,6 +6475,8 @@ with pkgs;
   bossa = callPackage ../development/tools/misc/bossa {
     wxGTK = wxGTK30;
   };
+
+  buck = callPackage ../development/tools/build-managers/buck { };
 
   buildbot = callPackage ../development/tools/build-managers/buildbot {
     pythonPackages = python2Packages;
@@ -12473,6 +12424,7 @@ with pkgs;
   inherit (callPackage ../misc/uboot {})
     buildUBoot
     ubootTools
+    ubootA20OlinuxinoLime
     ubootBananaPi
     ubootBeagleboneBlack
     ubootJetsonTK1
@@ -12947,6 +12899,8 @@ with pkgs;
   r5rs = callPackage ../data/documentation/rnrs/r5rs.nix { };
 
   raleway = callPackage ../data/fonts/raleway { };
+
+  rictydiminished-with-firacode = callPackage ../data/fonts/rictydiminished-with-firacode { };
 
   roboto = callPackage ../data/fonts/roboto { };
 
@@ -14855,7 +14809,7 @@ with pkgs;
 
   lynx = callPackage ../applications/networking/browsers/lynx { };
 
-  lyx = libsForQt56.callPackage ../applications/misc/lyx { };
+  lyx = libsForQt5.callPackage ../applications/misc/lyx { };
 
   mail-notification = callPackage ../desktops/gnome-2/desktop/mail-notification {};
 
@@ -15487,6 +15441,7 @@ with pkgs;
 
   profanity = callPackage ../applications/networking/instant-messengers/profanity {
     notifySupport   = config.profanity.notifySupport   or true;
+    traySupport     = config.profanity.traySupport     or true;
     autoAwaySupport = config.profanity.autoAwaySupport or true;
   };
 

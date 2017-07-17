@@ -2,6 +2,7 @@
 , pkgconfig, boehmgc, perlPackages, libsodium, aws-sdk-cpp, brotli, readline
 , autoreconfHook, autoconf-archive, bison, flex, libxml2, libxslt, docbook5, docbook5_xsl
 , libseccomp, busybox
+, hostPlatform
 , storeDir ? "/nix/store"
 , stateDir ? "/nix/var"
 , confDir ? "/etc"
@@ -39,7 +40,7 @@ let
     buildInputs = [ curl openssl sqlite xz ]
       ++ lib.optional (stdenv.isLinux || stdenv.isDarwin) libsodium
       ++ lib.optionals fromGit [ brotli readline ] # Since 1.12
-      ++ lib.optional (stdenv.isLinux && is112) libseccomp
+      ++ lib.optional stdenv.isLinux libseccomp
       ++ lib.optional ((stdenv.isLinux || stdenv.isDarwin) && is112)
           (aws-sdk-cpp.override {
             apis = ["s3"];
@@ -78,6 +79,9 @@ let
 
     doInstallCheck = true;
 
+    # socket path becomes too long otherwise
+    preInstallCheck = lib.optional stdenv.isDarwin "export TMPDIR=/tmp";
+
     separateDebugInfo = stdenv.isLinux;
 
     crossAttrs = {
@@ -95,8 +99,8 @@ let
           --disable-init-state
           --enable-gc
         '' + stdenv.lib.optionalString (
-            stdenv.cross ? nix && stdenv.cross.nix ? system
-        ) ''--with-system=${stdenv.cross.nix.system}'';
+            hostPlatform ? nix && hostPlatform.nix ? system
+        ) ''--with-system=${hostPlatform.nix.system}'';
 
       doInstallCheck = false;
     };
@@ -148,10 +152,10 @@ in rec {
   nix = nixStable;
 
   nixStable = (common rec {
-    name = "nix-1.11.9";
+    name = "nix-1.11.12";
     src = fetchurl {
       url = "http://nixos.org/releases/nix/${name}/${name}.tar.xz";
-      sha256 = "0e943e277f37843f9196b0293cc31d828613ad7a328ee77cd5be01935dc6e7e1";
+      sha256 = "02e8d85cfc02494fb04c90d8443dfea433639b9f787989b18f54567fd9769dd2";
     };
   }) // { perl-bindings = nixStable; };
 

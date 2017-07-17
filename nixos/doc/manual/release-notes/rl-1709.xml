@@ -57,6 +57,12 @@ following incompatible changes:</para>
 <itemizedlist>
   <listitem>
     <para>
+      <literal>aiccu</literal> package was removed. This is due to SixXS
+      <link xlink:href="https://www.sixxs.net/main/"> sunsetting</link> its IPv6 tunnel.
+    </para>
+  </listitem>
+  <listitem>
+    <para>
       Top-level <literal>idea</literal> package collection was renamed.
       All JetBrains IDEs are now at <literal>jetbrains</literal>.
     </para>
@@ -80,6 +86,10 @@ rmdir /var/lib/ipfs/.ipfs
   </listitem>
   <listitem>
     <para>
+      The following changes apply if the <literal>stateVersion</literal> is changed to 17.09 or higher.
+      For <literal>stateVersion = "17.03</literal> or lower the old behavior is preserved.
+    </para>
+    <para>
       The <literal>postgres</literal> default version was changed from 9.5 to 9.6.
     </para>
     <para>
@@ -88,9 +98,29 @@ rmdir /var/lib/ipfs/.ipfs
     <para>
       The <literal>postgres</literal> default <literal>dataDir</literal> has changed from <literal>/var/db/postgres</literal> to <literal>/var/lib/postgresql/$psqlSchema</literal> where $psqlSchema is 9.6 for example.
     </para>
+    <para>
+      The <literal>mysql</literal> default <literal>dataDir</literal> has changed from <literal>/var/mysql</literal> to <literal>/var/lib/mysql</literal>.
+    </para>
+  </listitem>
+  <listitem>
+    <para>
+      The <literal>caddy</literal> service was previously using an extra
+      <literal>.caddy</literal> in the data directory specified with the
+      <literal>dataDir</literal> option. The contents of the
+      <literal>.caddy</literal> directory are now expected to be in the
+      <literal>dataDir</literal>.
+    </para>
+  </listitem>
+  <listitem>
+    <para>
+      The <literal>ssh-agent</literal> user service is not started by default
+      anymore. Use <literal>programs.ssh.startAgent</literal> to enable it if
+      needed. There is also a new <literal>programs.gnupg.agent</literal>
+      module that creates a <literal>gpg-agent</literal> user service. It can
+      also serve as a SSH agent if <literal>enableSSHSupport</literal> is set.
+    </para>
   </listitem>
 </itemizedlist>
-
 
 <para>Other notable improvements:</para>
 

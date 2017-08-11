@@ -7475,12 +7475,12 @@ with pkgs;
   aws-sdk-cpp = callPackage ../development/libraries/aws-sdk-cpp { };
 
   babl = callPackage ../development/libraries/babl { };
-  babl_0_1_12 = babl.override { version = "0.1.12"; };
-
-  bablVersioned = callPackage ../development/libraries/babl/versioned.nix { };
-  bablGit = bablVersioned.override { version = "git"; };
 
   backward-cpp = callPackage ../development/libraries/backward-cpp { };
+
+  babl_0_1_12 = babl.override { version = "0.1.12"; };
+  bablVersioned = callPackage ../development/libraries/babl/versioned.nix { };
+  bablGit = bablVersioned.override { version = "git"; };
 
   bctoolbox = callPackage ../development/libraries/bctoolbox {
     mbedtls = mbedtls_1_3;

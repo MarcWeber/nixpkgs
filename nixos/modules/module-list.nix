@@ -105,7 +105,6 @@
   ./programs/venus.nix
   ./programs/vim.nix
   ./programs/wireshark.nix
-  ./programs/wvdial.nix
   ./programs/xfs_quota.nix
   ./programs/xonsh.nix
   ./programs/zsh/oh-my-zsh.nix
@@ -243,6 +242,7 @@
   ./services/logging/graylog.nix
   ./services/logging/heartbeat.nix
   ./services/logging/journalbeat.nix
+  ./services/logging/journalwatch.nix
   ./services/logging/klogd.nix
   ./services/logging/logcheck.nix
   ./services/logging/logrotate.nix
@@ -286,6 +286,7 @@
   ./services/misc/emby.nix
   ./services/misc/errbot.nix
   ./services/misc/etcd.nix
+  ./services/misc/exhibitor.nix
   ./services/misc/felix.nix
   ./services/misc/folding-at-home.nix
   ./services/misc/fstrim.nix
@@ -354,6 +355,7 @@
   ./services/monitoring/munin.nix
   ./services/monitoring/nagios.nix
   ./services/monitoring/netdata.nix
+  ./services/monitoring/osquery.nix
   ./services/monitoring/prometheus/default.nix
   ./services/monitoring/prometheus/alertmanager.nix
   ./services/monitoring/prometheus/blackbox-exporter.nix
@@ -514,7 +516,6 @@
   ./services/networking/teamspeak3.nix
   ./services/networking/tinc.nix
   ./services/networking/tftpd.nix
-  ./services/networking/tlsdated.nix
   ./services/networking/tox-bootstrapd.nix
   ./services/networking/toxvpn.nix
   ./services/networking/tvheadend.nix
@@ -567,6 +568,7 @@
   ./services/system/earlyoom.nix
   ./services/system/kerberos.nix
   ./services/system/nscd.nix
+  ./services/system/saslauthd.nix
   ./services/system/uptimed.nix
   ./services/torrent/deluge.nix
   ./services/torrent/flexget.nix

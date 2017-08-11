@@ -86,7 +86,7 @@ stdenv.mkDerivation rec {
   };
 
   meta = {
-    homepage = "http://haskell.org/ghc";
+    homepage = http://haskell.org/ghc;
     description = "The Glasgow Haskell Compiler";
     maintainers = [
       stdenv.lib.maintainers.marcweber

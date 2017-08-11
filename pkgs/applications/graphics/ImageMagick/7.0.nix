@@ -13,8 +13,8 @@ let
     else throw "ImageMagick is not supported on this platform.";
 
   cfg = {
-    version = "7.0.6-0";
-    sha256 = "1vl9mkdp5pskl4lxd1p79ayv1k3gxpa8iz992d302qyllhm7wn1i";
+    version = "7.0.6-4";
+    sha256 = "0fvkx9lf8g0sa9bccd9s5qyhcy0g1mqnkbpqly55ryxyg1ywxqaz";
     patches = [];
   };
 in

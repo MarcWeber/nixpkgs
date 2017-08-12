@@ -10659,6 +10659,11 @@ with pkgs;
     xapian_1_2_22 xapian_1_4_4;
   xapian = xapian_1_4_4;
 
+  xapianBindings = callPackage ../development/libraries/xapian/bindings {  # TODO perl php Java, tcl, C#, python
+    php = php56;
+    sphinx = pythonPackages.sphinx;
+  };
+
   xapian-omega = callPackage ../development/libraries/xapian/tools/omega {
     libmagic = file;
   };

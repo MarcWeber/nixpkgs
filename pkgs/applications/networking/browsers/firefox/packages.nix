@@ -1,4 +1,4 @@
-{ lib, callPackage, fetchurl, fetchFromGitHub }:
+{ lib, callPackage, stdenv, overrideCC, gcc5, fetchurl, fetchFromGitHub, fetchpatch }:
 
 let common = opts: callPackage (import ./common.nix opts); in
 
@@ -6,11 +6,16 @@ rec {
 
   firefox = common rec {
     pname = "firefox";
-    version = "55.0.1";
+    version = "55.0.3";
     src = fetchurl {
       url = "mirror://mozilla/firefox/releases/${version}/source/firefox-${version}.source.tar.xz";
-      sha512 = "2c15cb3e1a9f464f63ff7ac8ccf0625ed845a5cb9b186d7acf121c439cec38bcdeee93630e99dbfd336f1b7e60a7c09822a1eba59f308bba8866f155b2ed1c47";
+      sha512 = "3cacc87b97871f3a8c5e97c17ef7025079cb5c81f32377d9402cdad45815ac6c4c4762c79187f1e477910161c2377c42d41de62a50b6741d5d7c1cd70e8c6416";
     };
+
+    patches = lib.optional stdenv.isi686 (fetchpatch {
+      url = "https://hg.mozilla.org/mozilla-central/raw-rev/15517c5a5d37";
+      sha256 = "1ba487p3hk4w2w7qqfxgv1y57vp86b8g3xhav2j20qd3j3phbbn7";
+    });
 
     meta = {
       description = "A web browser built from Firefox source tree";
@@ -40,19 +45,9 @@ rec {
     };
   } {};
 
-  tor-browser = common rec {
-    pname = "tor-browser";
-    version = "6.5.2";
-    isTorBrowserLike = true;
+} // (let
 
-    # FIXME: fetchFromGitHub is not ideal, unpacked source is >900Mb
-    src = fetchFromGitHub {
-      owner = "SLNOS";
-      repo  = "tor-browser";
-      rev   = "tor-browser-45.8.0esr-6.5-2";
-      sha256 = "0vbcp1qlxjlph0dqibylsyvb8iah3lnzdxc56hllpvbn51vrp39j";
-    };
-
+  commonAttrs = {
     overrides = {
       unpackPhase = ''
         # fetchFromGitHub produces ro sources, root dir gets a name that
@@ -96,8 +91,42 @@ rec {
       homepage = https://www.torproject.org/projects/torbrowser.html;
       platforms = lib.platforms.linux;
     };
-  } {
+  };
+
+in rec {
+
+  tor-browser-6-5 = common (rec {
+    pname = "tor-browser";
+    version = "6.5.2";
+    isTorBrowserLike = true;
+    extraConfigureFlags = [ "--disable-loop" ];
+
+    # FIXME: fetchFromGitHub is not ideal, unpacked source is >900Mb
+    src = fetchFromGitHub {
+      owner = "SLNOS";
+      repo  = "tor-browser";
+      rev   = "tor-browser-45.8.0esr-6.5-2";
+      sha256 = "0vbcp1qlxjlph0dqibylsyvb8iah3lnzdxc56hllpvbn51vrp39j";
+    };
+  } // commonAttrs) {
+    stdenv = overrideCC stdenv gcc5;
     ffmpegSupport = false;
   };
 
-}
+  tor-browser-7-0 = common (rec {
+    pname = "tor-browser";
+    version = "7.0.1";
+    isTorBrowserLike = true;
+
+    # FIXME: fetchFromGitHub is not ideal, unpacked source is >900Mb
+    src = fetchFromGitHub {
+      owner = "SLNOS";
+      repo  = "tor-browser";
+      rev   = "tor-browser-52.3.0esr-7.0-1-slnos";
+      sha256 = "0szbf8gjbl4dnrb4igy4mq5858i1y6ki4skhdw63iqqdd8w9v4yv";
+    };
+  } // commonAttrs) {};
+
+  tor-browser = tor-browser-7-0;
+
+})

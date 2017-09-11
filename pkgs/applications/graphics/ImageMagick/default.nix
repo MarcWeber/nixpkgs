@@ -10,11 +10,12 @@ let
     if stdenv.system == "i686-linux" then "i686"
     else if stdenv.system == "x86_64-linux" || stdenv.system == "x86_64-darwin" then "x86-64"
     else if stdenv.system == "armv7l-linux" then "armv7l"
+    else if stdenv.system == "aarch64-linux" then "aarch64"
     else throw "ImageMagick is not supported on this platform.";
 
   cfg = {
-    version = "6.9.9-3";
-    sha256 = "1bfg334nxkxhsm6h0hb0vwd9aiz031qa0w8w8hmhdk8m4wawshrg";
+    version = "6.9.9-7";
+    sha256 = "1lwsz9b8clygdppgawv2hsry4aykgmawjlwhg3fj70rndv4a8rw4";
     patches = [];
   }
     # Freeze version on mingw so we don't need to port the patch too often.

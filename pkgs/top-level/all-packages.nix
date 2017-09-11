@@ -15,7 +15,6 @@ with pkgs;
   # Allow callPackage to fill in the pkgs argument
   inherit pkgs;
 
-  inherit applyGlobalOverrides;
 
   # Override system. This is useful to build i686 packages on x86_64-linux.
   forceSystem = system: kernel: nixpkgsFun {
@@ -18714,8 +18713,6 @@ with pkgs;
     version = "cvs";
   };
 
-  # Now that even CVS gutenprint can be built I don't think we still need
-  # binaries .. (TODO remove it)
   gutenprintBin = callPackage ../misc/drivers/gutenprint/bin.nix { };
 
   cups-bjnp = callPackage ../misc/cups/drivers/cups-bjnp { };

@@ -24,10 +24,10 @@
 let
   # NOTE: When updating, please also update in current stable,
   # as older versions stop working
-  version = "32.4.23";
+  version = "34.4.20";
   sha256 = {
-    "x86_64-linux" = "11jh3cyax652crhvjshi8gnvb8mpp7hfbgwqjx5n1q3j1rswm3d1";
-    "i686-linux"   = "0xf0in3ywgd53v19h0v2sg69b6y2lbvr5y6jz10x3cighzr31qfp";
+    "x86_64-linux" = "04yc0sf4w4p86f2rpph4g4qhd4wxlsyhiwcf4201xadnnjj11gzz";
+    "i686-linux"   = "0ch5yxw1n6mwa6050pd10f5z3ys2yca9n8ccjlqi2d2aa4qcxsmr";
   }."${stdenv.system}" or (throw "system ${stdenv.system} not supported");
 
   arch = {
@@ -96,10 +96,10 @@ in mkDerivation {
 
     mkdir -p "$out/bin"
     RPATH="${ldpath}:$out/${appdir}"
+    chmod 755 $out/${appdir}/dropbox
     makeWrapper "$out/${appdir}/dropbox" "$out/bin/dropbox" \
       --prefix LD_LIBRARY_PATH : "$RPATH"
 
-    chmod 755 $out/${appdir}/dropbox
 
     rm $out/${appdir}/wmctrl
     ln -s ${wmctrl}/bin/wmctrl $out/${appdir}/wmctrl

@@ -1,12 +1,12 @@
-{ stdenv, fetchurl, lib, makeWrapper, gvfs, atomEnv}:
+{ stdenv, pkgs, fetchurl, lib, makeWrapper, gvfs, atomEnv}:
 
 stdenv.mkDerivation rec {
   name = "atom-${version}";
-  version = "1.19.0";
+  version = "1.19.7";
 
   src = fetchurl {
     url = "https://github.com/atom/atom/releases/download/v${version}/atom-amd64.deb";
-    sha256 = "1gdasqpmbyasd05p5920aw6bf8j58crs51gxjslsgbl1azi4yfh2";
+    sha256 = "0ividd7bmx0fqz1ykcx5cbnd6qyms1h7r662pcclyzzm3vxj9zif";
     name = "${name}.deb";
   };
 
@@ -31,6 +31,9 @@ stdenv.mkDerivation rec {
     patchelf --set-interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" \
       --set-rpath "${atomEnv.libPath}" \
       $out/share/atom/resources/app/apm/bin/node
+
+    rm -f $out/share/atom/resources/app/node_modules/dugite/git/bin/git
+    ln -s ${pkgs.git}/bin/git $out/share/atom/resources/app/node_modules/dugite/git/bin/git
 
     find $out/share/atom -name "*.node" -exec patchelf --set-rpath "${atomEnv.libPath}:$out/share/atom" {} \;
 

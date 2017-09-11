@@ -15,6 +15,13 @@ with haskellLib;
 
 self: super: {
 
+  attoparsec-time_1 = super.attoparsec-time_1.override {
+    doctest = super.doctest_0_13_0;
+  };
+  attoparsec-data = super.attoparsec-data.override {
+    attoparsec-time = self.attoparsec-time_1;
+  };
+
   # This used to be a core package provided by GHC, but then the compiler
   # dropped it. We define the name here to make sure that old packages which
   # depend on this library still evaluate (even though they won't compile
@@ -36,7 +43,7 @@ self: super: {
   jailbreak-cabal = (disableSharedExecutables super.jailbreak-cabal).override { Cabal = self.Cabal_1_20_0_4; };
 
   # enable using a local hoogle with extra packagages in the database
-  # nix-shell -p "haskellPackages.hoogleLocal (with haskellPackages; [ mtl lens ])"
+  # nix-shell -p "haskellPackages.hoogleLocal { packages = with haskellPackages; [ mtl lens ]; }"
   # $ hoogle server
   hoogleLocal = { packages ? [] }: self.callPackage ./hoogle.nix { inherit packages; };
 
@@ -55,6 +62,13 @@ self: super: {
 
   # segfault due to missing return: https://github.com/haskell/c2hs/pull/184
   c2hs = dontCheck super.c2hs;
+
+  # https://github.com/gilith/hol/pull/1
+  hol = appendPatch (doJailbreak super.hol) (pkgs.fetchpatch {
+    name = "hol.patch";
+    url = "https://github.com/gilith/hol/commit/a5171bdcacdbe93c46c9f82ec5a38f2a2b69e632.patch";
+    sha256 = "0xkgbhc4in38hspxgz2wcvk56pjalw43gig7lzkjfhgavwxv3jyj";
+  });
 
   # This test keeps being aborted because it runs too quietly for too long
   Lazy-Pbkdf2 = if pkgs.stdenv.isi686 then dontCheck super.Lazy-Pbkdf2 else super.Lazy-Pbkdf2;
@@ -79,7 +93,7 @@ self: super: {
       name = "git-annex-${drv.version}-src";
       url = "git://git-annex.branchable.com/";
       rev = "refs/tags/" + drv.version;
-      sha256 = "1psyklfyjf4zqh3qxjn11sp2jiwvp8mfxqvsi1wggqpidfmk39jx";
+      sha256 = "15d29hmbl146axjgbm4qhxpz6ypcq1bjf2aj29yhwh5jmznh58i2";
     };
   })).override {
     dbus = if pkgs.stdenv.isLinux then self.dbus else null;
@@ -87,8 +101,21 @@ self: super: {
     hinotify = if pkgs.stdenv.isLinux then self.hinotify else self.fsnotify;
   };
 
+  # Fix test trying to access /home directory
+  shell-conduit = (overrideCabal super.shell-conduit (drv: {
+    postPatch = "sed -i s/home/tmp/ test/Spec.hs";
+  }));
+
   # https://github.com/froozen/kademlia/issues/2
   kademlia = dontCheck super.kademlia;
+
+  # https://github.com/haskell-works/hw-xml/issues/23
+  # Disable building the hw-xml-example executable:
+  hw-xml = (overrideCabal super.hw-xml (drv: {
+    postPatch = "sed -i 's/  hs-source-dirs:       app/" +
+                          "  hs-source-dirs:       app\\n" +
+                          "  buildable:            false/' hw-xml.cabal";
+  }));
 
   hzk = dontCheck super.hzk;
   haskakafka = dontCheck super.haskakafka;
@@ -118,6 +145,8 @@ self: super: {
     '';
     extraLibraries = [ pkgs.openblasCompat ];
   });
+
+  LambdaHack = super.LambdaHack.override { sdl2-ttf = super.sdl2-ttf_2_0_1; };
 
   # The Haddock phase fails for one reason or another.
   acme-one = dontHaddock super.acme-one;
@@ -417,6 +446,9 @@ self: super: {
   # https://github.com/basvandijk/threads/issues/10
   threads = dontCheck super.threads;
 
+  # https://github.com/purescript/purescript/pull/3041
+  purescript = doJailbreak super.purescript;
+
   # Missing module.
   rematch = dontCheck super.rematch;            # https://github.com/tcrayford/rematch/issues/5
   rematch-text = dontCheck super.rematch-text;  # https://github.com/tcrayford/rematch/issues/6
@@ -689,6 +721,11 @@ self: super: {
   # test suite cannot find its own "idris" binary
   idris = doJailbreak (dontCheck super.idris);
 
+  idris_1_1_1 = overrideCabal (doJailbreak (dontCheck super.idris_1_1_1)) (drv: {
+    # The standard libraries are compiled separately
+    configureFlags = (drv.configureFlags or []) ++ [ "-fexeconly" ];
+  });
+
   # https://github.com/bos/math-functions/issues/25
   math-functions = dontCheck super.math-functions;
 
@@ -719,9 +756,8 @@ self: super: {
       '';
     });
 
-
-  # https://github.com/plow-technologies/servant-auth/issues/20
-  servant-auth = dontCheck super.servant-auth;
+  # Glob == 0.7.x
+  servant-auth = doJailbreak super.servant-auth;
 
   # https://github.com/pontarius/pontarius-xmpp/issues/105
   pontarius-xmpp = dontCheck super.pontarius-xmpp;
@@ -844,6 +880,7 @@ self: super: {
 
   # build liquidhaskell with the proper (old) aeson version
   liquidhaskell = super.liquidhaskell.override { aeson = self.aeson_0_11_3_0; };
+  aeson_0_11_3_0 = super.aeson_0_11_3_0.override { base-orphans = self.base-orphans_0_5_4; };
 
   # Test suite fails: https://github.com/lymar/hastache/issues/46.
   # Don't install internal mkReadme tool.
@@ -872,5 +909,36 @@ self: super: {
 
   # missing dependencies: doctest ==0.12.*
   html-entities = doJailbreak super.html-entities;
+
+  # Needs a version that's newer than what we have in lts-9.
+  sbv = super.sbv.override { doctest = self.doctest_0_13_0; };
+
+  # https://github.com/takano-akio/filelock/issues/5
+  filelock = dontCheck super.filelock;
+
+  # https://github.com/alpmestan/taggy/issues/{19,20}
+  taggy = appendPatch super.taggy (pkgs.fetchpatch {
+    name = "blaze-markup.patch";
+    url = "https://github.com/alpmestan/taggy/commit/5456c2fa4d377f7802ec5df3d5f50c4ccab2e8ed.patch";
+    sha256 = "1vss7b99zrhw3r29krl1b60r4qk0m2mpwmrz8q8zdxrh33hb8pd7";
+  });
+
+  # happy 1.19.6+ broke the Agda build. Sticking with the previous version
+  # avoided that issue, but now the build fails with a segmentation fault
+  # during the install phase for no apparent reason:
+  # https://hydra.nixos.org/build/60678124
+  Agda = markBroken (super.Agda.override { happy = self.happy_1_19_5; });
+
+  # https://github.com/jtdaugherty/text-zipper/issues/11
+  text-zipper = dontCheck super.text-zipper;
+
+  # https://github.com/graknlabs/grakn-haskell/pull/1
+  grakn = dontCheck (doJailbreak super.grakn);
+
+  # cryptonite == 0.24.x, protolude == 0.2.x
+  wai-secure-cookies = super.wai-secure-cookies.override {
+    cryptonite = super.cryptonite_0_24;
+    protolude = super.protolude_0_2;
+  };
 
 }

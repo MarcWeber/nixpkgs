@@ -22,6 +22,7 @@
 , pkgconfig , ncurses, xapian_1_2_22, gpgme, utillinux, fetchpatch, tzdata, icu, libffi
 , cmake, libssh2, openssl, mysql, darwin, git, perl, pcre, gecode_3, curl
 , libmsgpack, qt48, libsodium, snappy, libossp_uuid, lxc, libpcap, xlibs, gtk2, buildRubyGem
+, re2
 }@args:
 
 let
@@ -89,6 +90,8 @@ in
 
   gio2 = attrs: { buildInputs = [ gtk2 pcre pkgconfig ]; };
 
+  gitlab-markup = attrs: { meta.priority = 1; };
+
   glib2 = attrs: { buildInputs = [ gtk2 pcre pkgconfig ]; };
 
   gtk2 = attrs: {
@@ -98,6 +101,10 @@ in
   };
 
   gobject-introspection = attrs: { buildInputs = [ gtk2 pcre pkgconfig ]; };
+
+  grpc = attrs: {
+    buildInputs = [ openssl pkgconfig ];
+  };
 
   hitimes = attrs: {
     buildInputs =
@@ -192,6 +199,10 @@ in
     '';
   };
 
+  re2 = attrs: {
+    buildInputs = [ re2 ];
+  };
+
   rmagick = attrs: {
     buildInputs = [ imagemagick pkgconfig which ];
   };
@@ -242,7 +253,7 @@ in
 
       substituteInPlace lib/sup/crypto.rb \
         --replace 'which gpg2' \
-                  '${which}/bin/which gpg2'
+                  '${which}/bin/which gpg'
     '';
   };
 

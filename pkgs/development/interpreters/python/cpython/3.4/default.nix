@@ -64,6 +64,10 @@ in stdenv.mkDerivation {
     substituteInPlace configure --replace '-Wl,-stack_size,1000000' ' '
   '';
 
+  patches = [
+    ./no-ldconfig.patch
+  ];
+
   postPatch = ''
     # Determinism
     substituteInPlace "Lib/py_compile.py" --replace "source_stats['mtime']" "(1 if 'DETERMINISTIC_BUILD' in os.environ else source_stats['mtime'])"
@@ -107,7 +111,10 @@ in stdenv.mkDerivation {
     # needed for some packages, especially packages that backport functionality
     # to 2.x from 3.x
     for item in $out/lib/python${majorVersion}/test/*; do
-      if [[ "$item" != */test_support.py* ]]; then
+      if [[ "$item" != */test_support.py*
+         && "$item" != */test/support
+         && "$item" != */test/libregrtest
+         && "$item" != */test/regrtest.py* ]]; then
         rm -rf "$item"
       else
         echo $item
@@ -127,7 +134,6 @@ in stdenv.mkDerivation {
 
     # Use Python3 as default python
     ln -s "$out/bin/idle3" "$out/bin/idle"
-    ln -s "$out/bin/pip3" "$out/bin/pip"
     ln -s "$out/bin/pydoc3" "$out/bin/pydoc"
     ln -s "$out/bin/python3" "$out/bin/python"
     ln -s "$out/bin/python3-config" "$out/bin/python-config"

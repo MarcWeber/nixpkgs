@@ -11,7 +11,8 @@ stdenv.mkDerivation rec {
     sha256 = "1w3nx5cqf8z600bdlbwz7brmdb5yn233qrqvv24kbmmxhbwp7qld";
   };
 
-  buildInputs = [ pkgconfig libvirt ];
+  nativeBuildInputs = [ pkgconfig ];
+  buildInputs = [ libvirt ];
 
   RTE_KERNELDIR = "${kernel.dev}/lib/modules/${kernel.modDirVersion}/build";
   RTE_TARGET = "x86_64-native-linuxapp-gcc";
@@ -29,7 +30,7 @@ stdenv.mkDerivation rec {
   '';
 
   installPhase = ''
-    make install-runtime install-sdk DESTDIR=$out prefix= includedir=/include datadir=/
+    make install-runtime DESTDIR=$out prefix= includedir=/include datadir=/
     make install-sdk DESTDIR=$out prefix= includedir=/include datadir=/
     make install-kmod DESTDIR=$kmod
   '';

@@ -296,6 +296,9 @@
       clickhouse = 278;
       rslsync = 279;
       minio = 280;
+      kanboard = 281;
+      pykms = 282;
+      kodi = 283;
 
       # When adding a uid, make sure it doesn't match an existing gid. And don't use uids above 399!
 
@@ -426,7 +429,7 @@
       teamspeak = 124;
       influxdb = 125;
       nsd = 126;
-      #gitolite = 127; # unused
+      gitolite = 127;
       znc = 128;
       polipo = 129;
       mopidy = 130;
@@ -561,6 +564,9 @@
       clickhouse = 278;
       rslsync = 279;
       minio = 280;
+      kanboard = 281;
+      pykms = 282;
+      kodi = 283;
 
       # When adding a gid, make sure it doesn't match an existing
       # uid. Users and groups with the same name should have equal

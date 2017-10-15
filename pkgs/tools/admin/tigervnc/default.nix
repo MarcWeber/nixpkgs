@@ -87,9 +87,10 @@ stdenv.mkDerivation rec {
     glproto mesa_glu
   ] ++ xorgserver.buildInputs;
 
-  nativeBuildInputs = [ cmake zlib gettext libtool ] ++ xorg.xorgserver.nativeBuildInputs;
+  nativeBuildInputs = with xorg; [ cmake zlib gettext libtool utilmacros fontutil ]
+    ++ xorg.xorgserver.nativeBuildInputs;
 
-  propagatedNativeBuildInputs = xorg.xorgserver.propagatedNativeBuildInputs;
+  propagatedBuildInputs = xorg.xorgserver.propagatedBuildInputs;
 
   enableParallelBuilding = true;
 

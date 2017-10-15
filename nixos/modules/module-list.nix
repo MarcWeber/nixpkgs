@@ -9,7 +9,7 @@
   ./config/fonts/ghostscript.nix
   ./config/gnu.nix
   ./config/i18n.nix
-  ./config/krb5.nix
+  ./config/krb5/default.nix
   ./config/ldap.nix
   ./config/networking.nix
   ./config/no-x-libs.nix
@@ -35,11 +35,6 @@
   ./hardware/ksm.nix
   ./hardware/mcelog.nix
   ./hardware/network/b43.nix
-  ./hardware/network/intel-2100bg.nix
-  ./hardware/network/intel-2200bg.nix
-  ./hardware/network/intel-3945abg.nix
-  ./hardware/network/ralink.nix
-  ./hardware/network/rtl8192c.nix
   ./hardware/nitrokey.nix
   ./hardware/opengl.nix
   ./hardware/pcmcia.nix
@@ -74,6 +69,8 @@
   ./programs/adb.nix
   ./programs/atop.nix
   ./programs/bash/bash.nix
+  ./programs/zsh/zsh.nix
+  ./programs/bcc.nix
   ./programs/blcr.nix
   ./programs/browserpass.nix
   ./programs/cdemu.nix
@@ -93,6 +90,7 @@
   ./programs/mosh.nix
   ./programs/mtr.nix
   ./programs/nano.nix
+  ./programs/npm.nix
   ./programs/oblogout.nix
   ./programs/qt5ct.nix
   ./programs/screen.nix
@@ -102,6 +100,7 @@
   ./programs/spacefm.nix
   ./programs/ssh.nix
   ./programs/ssmtp.nix
+  ./programs/sysdig.nix
   ./programs/thefuck.nix
   ./programs/tmux.nix
   ./programs/venus.nix
@@ -134,8 +133,6 @@
   ./security/rtkit.nix
   ./security/wrappers/default.nix
   ./security/sudo.nix
-  ./service-managers/docker.nix
-  ./service-managers/trivial.nix
   ./services/admin/salt/master.nix
   ./services/admin/salt/minion.nix
   ./services/amqp/activemq/default.nix
@@ -157,7 +154,9 @@
   ./services/backup/tarsnap.nix
   ./services/backup/znapzend.nix
   ./services/cluster/fleet.nix
-  ./services/cluster/kubernetes.nix
+  ./services/cluster/kubernetes/default.nix
+  ./services/cluster/kubernetes/dns.nix
+  ./services/cluster/kubernetes/dashboard.nix
   ./services/cluster/panamax.nix
   ./services/computing/boinc/client.nix
   ./services/computing/torque/server.nix
@@ -265,6 +264,7 @@
   ./services/mail/offlineimap.nix
   ./services/mail/opendkim.nix
   ./services/mail/opensmtpd.nix
+  ./services/mail/pfix-srsd.nix
   ./services/mail/postfix.nix
   ./services/mail/postsrsd.nix
   ./services/mail/postgrey.nix
@@ -302,10 +302,12 @@
   ./services/misc/gitlab.nix
   ./services/misc/gitolite.nix
   ./services/misc/gogs.nix
+  ./services/misc/gollum.nix
   ./services/misc/gpsd.nix
   #./services/misc/ihaskell.nix
   ./services/misc/irkerd.nix
   ./services/misc/jackett.nix
+  ./services/misc/logkeys.nix
   ./services/misc/leaps.nix
   ./services/misc/mantisbt.nix
   ./services/misc/mathics.nix
@@ -327,6 +329,7 @@
   ./services/misc/phd.nix
   ./services/misc/phpfpm.nix
   ./services/misc/plex.nix
+  ./services/misc/pykms.nix
   ./services/misc/radarr.nix
   ./services/misc/redmine.nix
   ./services/misc/rippled.nix
@@ -352,6 +355,7 @@
   ./services/monitoring/collectd.nix
   ./services/monitoring/das_watchdog.nix
   ./services/monitoring/dd-agent/dd-agent.nix
+  ./services/monitoring/fusion-inventory.nix
   ./services/monitoring/grafana.nix
   ./services/monitoring/graphite.nix
   ./services/monitoring/hdaps.nix
@@ -365,8 +369,10 @@
   ./services/monitoring/prometheus/default.nix
   ./services/monitoring/prometheus/alertmanager.nix
   ./services/monitoring/prometheus/blackbox-exporter.nix
+  ./services/monitoring/prometheus/collectd-exporter.nix
   ./services/monitoring/prometheus/fritzbox-exporter.nix
   ./services/monitoring/prometheus/json-exporter.nix
+  ./services/monitoring/prometheus/minio-exporter.nix
   ./services/monitoring/prometheus/nginx-exporter.nix
   ./services/monitoring/prometheus/node-exporter.nix
   ./services/monitoring/prometheus/snmp-exporter.nix
@@ -422,15 +428,16 @@
   ./services/networking/ddclient.nix
   ./services/networking/dhcpcd.nix
   ./services/networking/dhcpd.nix
+  ./services/networking/dnscache.nix
   ./services/networking/dnschain.nix
   ./services/networking/dnscrypt-proxy.nix
   ./services/networking/dnscrypt-wrapper.nix
   ./services/networking/dnsmasq.nix
   ./services/networking/ejabberd.nix
-  ./services/networking/fan.nix
   ./services/networking/fakeroute.nix
   ./services/networking/ferm.nix
   ./services/networking/firefox/sync-server.nix
+  ./services/networking/fireqos.nix
   ./services/networking/firewall.nix
   ./services/networking/flannel.nix
   ./services/networking/flashpolicyd.nix
@@ -460,6 +467,7 @@
   ./services/networking/lldpd.nix
   ./services/networking/logmein-hamachi.nix
   ./services/networking/mailpile.nix
+  ./services/networking/matterbridge.nix
   ./services/networking/mjpg-streamer.nix
   ./services/networking/minidlna.nix
   ./services/networking/miniupnpd.nix
@@ -510,6 +518,7 @@
   ./services/networking/smokeping.nix
   ./services/networking/softether.nix
   ./services/networking/spiped.nix
+  ./services/networking/squid.nix
   ./services/networking/sslh.nix
   ./services/networking/ssh/lshd.nix
   ./services/networking/ssh/sshd.nix
@@ -520,6 +529,7 @@
   ./services/networking/tcpcrypt.nix
   ./services/networking/teamspeak3.nix
   ./services/networking/tinc.nix
+  ./services/networking/tinydns.nix
   ./services/networking/tftpd.nix
   ./services/networking/tox-bootstrapd.nix
   ./services/networking/toxvpn.nix
@@ -611,6 +621,7 @@
   ./services/web-servers/phpfpm/default.nix
   ./services/web-servers/shellinabox.nix
   ./services/web-servers/tomcat.nix
+  ./services/web-servers/traefik.nix
   ./services/web-servers/uwsgi.nix
   ./services/web-servers/varnish/default.nix
   ./services/web-servers/winstone.nix

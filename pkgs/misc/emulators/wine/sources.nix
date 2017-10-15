@@ -32,15 +32,15 @@ in rec {
 
   unstable = fetchurl rec {
     # NOTE: Don't forget to change the SHA256 for staging as well.
-    version = "2.16";
+    version = "2.18";
     url = "https://dl.winehq.org/wine/source/2.x/wine-${version}.tar.xz";
-    sha256 = "089cvb7gvhcq5kx1h114fmr09fmj84cz2bjvisa48v6dpv5fsqd5";
+    sha256 = "0l2gmk6g4c5ds29iqcvpmh5g8jdz6g6id7xkgiqps5bqk09322cz";
     inherit (stable) mono gecko32 gecko64;
   };
 
   staging = fetchFromGitHub rec {
     inherit (unstable) version;
-    sha256 = "1q9dnifz02l96s1bafb4w2z779k8ancl37zd7wxbkf0ks2vrnln0";
+    sha256 = "02rh2lvx7sd8d6nhgpfq9crjh495k4k7i3wmgigs4m5rlip363s8";
     owner = "wine-compholio";
     repo = "wine-staging";
     rev = "v${version}";

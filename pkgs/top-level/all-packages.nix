@@ -15,6 +15,7 @@ with pkgs;
   # Allow callPackage to fill in the pkgs argument
   inherit pkgs;
 
+  inherit applyGlobalOverrides;
 
   # Override system. This is useful to build i686 packages on x86_64-linux.
   forceSystem = system: kernel: nixpkgsFun {
@@ -11762,6 +11763,7 @@ with pkgs;
     boost = boost159;
   };
 
+  # rremi
   mysql56 = callPackage ../servers/sql/mysql/5.6.x.nix { };
 
   mysql = mariadb;
@@ -19832,4 +19834,6 @@ with pkgs;
   duti = callPackage ../os-specific/darwin/duti {};
 
   dnstracer = callPackage ../tools/networking/dnstracer {};
+
+  misc = import ../misc/misc.nix {inherit pkgs stdenv;};
 }

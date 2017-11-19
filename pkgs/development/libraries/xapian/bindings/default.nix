@@ -12,7 +12,8 @@ composableDerivation.composableDerivation {} rec {
 
   src = fetchurl {
     url = "http://oligarchy.co.uk/xapian/${version}/${name}.tar.xz";
-    sha256 = "0lv2zblayfax4v7z3sj067b0av0phf3gc2s2d1cvkw0bkl07mv1s";
+    sha256 = "0fca9nsf7pj3fq991xcm5iainz3s8yqik4ycvavm09y486n3wciv";
+    # sha256 = "0lv2zblayfax4v7z3sj067b0av0phf3gc2s2d1cvkw0bkl07mv1s";
   };
 
   buildInputs = [ xapian pkgconfig zlib ];
@@ -73,7 +74,7 @@ composableDerivation.composableDerivation {} rec {
       ;
 
   cfg = {
-    pythonSupport = true;
+    pythonSupport = false; # broken?
     phpSupport = false;
     rubySupport = true;
   };

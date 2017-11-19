@@ -185,7 +185,7 @@ let
     , ...
     }@args:
 
-    stdenv.mkDerivation ((faust2ApplBase args) // {
+    let p = stdenv.mkDerivation ((faust2ApplBase args) // {
 
       nativeBuildInputs = [ pkgconfig ];
       buildInputs = [ makeWrapper ];
@@ -207,6 +207,21 @@ let
         done
       '';
     });
+    in p // {
+      build = name: dsp_text: stdenv.mkDerivation {
+        inherit name;
+        src = builtins.toFile "${name}.dsp" dsp_text;
+        phases = "installPhase";
+        installPhase = ''
+        cp $src ${name}.dsp
+        ${p}/bin/${baseName} ${name}.dsp
+        mkdir -p $out/bin $out/dsp
+        cp ${name} $out/bin/
+        mv ${name}.dsp $out/dsp
+        '';
+      };
+
+    };
 
   # Builder for 'faust2appl' scripts, such as faust2firefox that
   # simply need to be wrapped with some dependencies on PATH.

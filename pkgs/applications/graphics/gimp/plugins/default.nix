@@ -354,9 +354,10 @@ rec {
       '';
 
       src = fetchFromGitHub {
-        "url" = "https://github.com/dtschump/gmic-minimal.git";
-        "rev" = "87729ac9945a4cbb92a3cd04f654de10711f3e72";
-        "sha256" = "1z82ibx4y1l5p17x044gbxs6841yb79v0p78y1bdm6i53hwyvwfw";
+        owner = "dtschump";
+        repo = "gmic-minimal.git";
+        rev = "87729ac9945a4cbb92a3cd04f654de10711f3e72";
+        sha256 = "1z82ibx4y1l5p17x044gbxs6841yb79v0p78y1bdm6i53hwyvwfw";
       };
 
   };

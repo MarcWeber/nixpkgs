@@ -390,4 +390,49 @@ rec {
      starting at zero.
   */
   imap = imap1;
+
+  # old stuff Marc Weber
+
+  # merge attrs based on version key into mkDerivation args, see mergeAttrBy to learn about smart merge defaults
+  #
+  # This function is best explained by an example:
+  #
+  #     {version ? "2.x"}:
+  #
+  #     mkDerivation (mergeAttrsByVersion "package-name" version
+  #       { # version specific settings
+  #         "git" = { src = ..; preConfigre = "autogen.sh"; buildInputs = [automake autoconf libtool];  };
+  #         "2.x" = { src = ..; };
+  #       }
+  #       {  // shared settings
+  #          buildInputs = [ common build inputs ];
+  #          meta = { .. }
+  #       }
+  #     )
+  #
+  # Please note that e.g. Eelco Dolstra usually prefers having one file for
+  # each version. On the other hand there are valuable additional design goals
+  #  - readability
+  #  - do it once only
+  #  - try to avoid duplication
+  #
+  # Marc Weber and Michael Raskin sometimes prefer keeping older
+  # versions around for testing and regression tests - as long as its cheap to
+  # do so.
+  #
+  # Very often it just happens that the "shared" code is the bigger part.
+  # Then using this function might be appropriate.
+  #
+  # Be aware that its easy to cause recompilations in all versions when using
+  # this function - also if derivations get too complex splitting into multiple
+  # files is the way to go.
+  #
+  # See misc.nix -> versionedDerivation
+  # discussion: nixpkgs: pull/310
+  mergeAttrsByVersion = name: version: attrsByVersion: base:
+    mergeAttrsByFuncDefaultsClean [ { name = "${name}-${version}"; }
+                                    base
+                                    (maybeAttr version (throw "bad version ${version} for ${name}") attrsByVersion)
+                                  ];
+
 }

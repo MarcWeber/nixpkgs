@@ -138,10 +138,6 @@ in
 
     systemd.services.display-manager.path = [ pkgs.gnome3.gnome_session ];
 
-    systemd.services.display-manager.serviceConfig.KillMode = "mixed";
-    systemd.services.display-manager.serviceConfig.IgnoreSIGPIPE = "no";
-    systemd.services.display-manager.serviceConfig.BusName = "org.gnome.DisplayManager";
-
     services.dbus.packages = [ gdm ];
 
     systemd.user.services.dbus.wantedBy = [ "default.target" ];

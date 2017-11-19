@@ -7,8 +7,8 @@ let x = stdenv.mkDerivation rec {
   version = "5.6.23";
 
   src = fetchurl {
-    url = "http://cdn.mysql.com/Downloads/MySQL-5.6/${name}.tar.gz";
-    md5 = "60344f26eae136a267a0277407926e79";
+    url = file:///tmp/mysql-5.6.23.tar.gz;
+    sha256 = "16605abxl30d2srljhssq0dsqm5v29bglhdsv9rf614kdbq1mliv";
   };
 
   preConfigure = stdenv.lib.optional stdenv.isDarwin ''

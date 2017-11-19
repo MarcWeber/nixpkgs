@@ -320,16 +320,10 @@ in
 
         instances = mkOption {
           default = {};
-          type = types.attrsOf types.optionSet;
-          example = {
-            mysql.enable = true;
-          };
-          description = ''
-            If you want more than one mysql instance set <option>services.mysql.instances.name.enable = true</option>
-          '';
-          options = [ mysqlOpts ];
+          type = types.attrsOf (types.submodule mysqlOpts);
         };
-      };
+     };
+
   };
 
 

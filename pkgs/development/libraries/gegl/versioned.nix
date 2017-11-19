@@ -17,7 +17,7 @@ in
       buildInputs = commonBuildInputs ++ [
         babl_
         automake bzip2 autoconf libtool ruby which
-        python
+        python intltool
       ];
       propagatedBuildInputs = [json_glib];
       preConfigure = "./autogen.sh";

@@ -188,6 +188,7 @@
   ./services/databases/opentsdb.nix
   ./services/databases/postage.nix
   ./services/databases/postgresql.nix
+  ./services/databases/orientdb.nix
   ./services/databases/redis.nix
   ./services/databases/riak.nix
   ./services/databases/riak-cs.nix
@@ -266,6 +267,7 @@
   ./services/mail/opensmtpd.nix
   ./services/mail/pfix-srsd.nix
   ./services/mail/postfix.nix
+  ./services/mail/postfix-my.nix
   ./services/mail/postsrsd.nix
   ./services/mail/postgrey.nix
   ./services/mail/spamassassin.nix

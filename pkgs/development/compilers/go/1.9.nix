@@ -25,13 +25,13 @@ in
 
 stdenv.mkDerivation rec {
   name = "go-${version}";
-  version = "1.9.1";
+  version = "1.9.2";
 
   src = fetchFromGitHub {
     owner = "golang";
     repo = "go";
     rev = "go${version}";
-    sha256 = "1p226lgsmiwgcvmiakac9i08304cq5ick23vmsk1vjcsh6dvz9i3";
+    sha256 = "07p4ld07r2nml2bsbfb8h51hqilbqyhhdlia99y1gk7ibvhybv8i";
   };
 
   # perl is used for testing go vet
@@ -118,15 +118,8 @@ stdenv.mkDerivation rec {
       ./ssl-cert-file-1.9.patch
       ./creds-test.patch
       ./remove-test-pie-1.9.patch
-
-      (fetchpatch {
-        url = "https://github.com/golang/go/commit/29415eb2b92e78481897c4161ba99f5b09fa6102.patch";
-        sha256 = "01jkm4b2dazzjnfla7rdd0w2clzplga3zza6ybpmkjkk3i4bp73d";
-      })
-      (fetchpatch {
-        url = "https://github.com/golang/go/commit/27e80f7c4d8001598367e15a1617fa524bd0fb11.patch";
-        sha256 = "1250nrc79jwcagkjqffn5srn78isykvjhvmqhwipwyqb99q85wcz";
-      })
+      ./go-1.9-skip-flaky-19608.patch
+      ./go-1.9-skip-flaky-20072.patch
     ];
 
   postPatch = optionalString stdenv.isDarwin ''

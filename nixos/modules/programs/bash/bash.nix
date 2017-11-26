@@ -309,8 +309,13 @@ in
         mv /bin/.sh.tmp /bin/sh # atomically replace /bin/sh
       '';
 
-    # always link bash_completion.d, user's may want to opt-in.
-    environment.pathsToLink = [
+    # Configuration for readline in bash. We use "option default"
+    # priority to allow user override using both .text and .source.
+    environment.etc."inputrc".source = mkOptionDefault ./inputrc;
+
+    users.defaultUserShell = mkDefault pkgs.bashInteractive;
+
+    environment.pathsToLink = optionals cfg.enableCompletion [
       "/etc/bash_completion.d"
       "/share/bash-completion"
     ];

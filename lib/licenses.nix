@@ -219,6 +219,7 @@ lib.mapAttrs (n: v: v // { shortName = n; }) rec {
   ffsl = {
     fullName = "Floodgap Free Software License";
     url = http://www.floodgap.com/software/ffsl/license.html;
+    free = false;
   };
 
   free = {
@@ -438,6 +439,11 @@ lib.mapAttrs (n: v: v // { shortName = n; }) rec {
   openssl = spdx {
     spdxId = "OpenSSL";
     fullName = "OpenSSL License";
+  };
+
+  osl = spdx {
+    spdxId = "OSL-3.0";
+    fullName = "Open Software License 3.0";
   };
 
   php301 = spdx {

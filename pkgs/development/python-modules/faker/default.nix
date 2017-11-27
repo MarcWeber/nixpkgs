@@ -8,12 +8,12 @@ assert pythonOlder "3.3" -> ipaddress != null;
 
 buildPythonPackage rec {
   pname = "Faker";
-  version = "0.7.18";
+  version = "0.8.7";
   name = "${pname}-${version}";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "310b20f3c497a777622920dca314d90f774028d49c7ee7ccfa96ca4b9d9bf429";
+    sha256 = "bf7dabcd6807c8829da28a4de491adf7998af506b8571db6a6eb58161157248a";
   };
 
   checkInputs = [

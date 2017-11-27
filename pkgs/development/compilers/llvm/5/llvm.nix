@@ -6,7 +6,7 @@
 , cmake
 , python
 , libffi
-, binutils
+, libbfd
 , libxml2
 , valgrind
 , ncurses
@@ -58,6 +58,10 @@ in stdenv.mkDerivation rec {
   postPatch = stdenv.lib.optionalString stdenv.isDarwin ''
     substituteInPlace ./projects/compiler-rt/cmake/config-ix.cmake \
       --replace 'set(COMPILER_RT_HAS_TSAN TRUE)' 'set(COMPILER_RT_HAS_TSAN FALSE)'
+
+    substituteInPlace cmake/modules/AddLLVM.cmake \
+      --replace 'set(_install_name_dir INSTALL_NAME_DIR "@rpath")' "set(_install_name_dir INSTALL_NAME_DIR "$lib/lib")" \
+      --replace 'set(_install_rpath "@loader_path/../lib" ''${extra_libdir})' ""
   ''
   # Patch llvm-config to return correct library path based on --link-{shared,static}.
   + stdenv.lib.optionalString (enableSharedLibraries) ''
@@ -97,7 +101,7 @@ in stdenv.mkDerivation rec {
     "-DSPHINX_WARNINGS_AS_ERRORS=OFF"
   ]
   ++ stdenv.lib.optional (!isDarwin)
-    "-DLLVM_BINUTILS_INCDIR=${stdenv.lib.getDev binutils}/include"
+    "-DLLVM_BINUTILS_INCDIR=${libbfd.dev}/include"
   ++ stdenv.lib.optionals (isDarwin) [
     "-DLLVM_ENABLE_LIBCXX=ON"
     "-DCAN_TARGET_i386=false"
@@ -129,8 +133,6 @@ in stdenv.mkDerivation rec {
   + stdenv.lib.optionalString (stdenv.isDarwin && enableSharedLibraries) ''
     substituteInPlace "$out/lib/cmake/llvm/LLVMExports-${if debugVersion then "debug" else "release"}.cmake" \
       --replace "\''${_IMPORT_PREFIX}/lib/libLLVM.dylib" "$lib/lib/libLLVM.dylib"
-    install_name_tool -id $lib/lib/libLLVM.dylib $lib/lib/libLLVM.dylib
-    install_name_tool -change @rpath/libLLVM.dylib $lib/lib/libLLVM.dylib $out/bin/llvm-config
     ln -s $lib/lib/libLLVM.dylib $lib/lib/libLLVM-${shortVersion}.dylib
     ln -s $lib/lib/libLLVM.dylib $lib/lib/libLLVM-${release_version}.dylib
   '';

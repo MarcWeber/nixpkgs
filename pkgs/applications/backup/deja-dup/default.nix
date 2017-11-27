@@ -2,16 +2,16 @@
 , gnome3, libnotify, intltool, itstool, glib, gtk3, libxml2
 , coreutils, libsecret, pcre, libxkbcommon, wrapGAppsHook
 , libpthreadstubs, libXdmcp, epoxy, at_spi2_core, dbus, libgpgerror
-, appstream-glib, desktop_file_utils, atk, pango, duplicity
+, appstream-glib, desktop_file_utils, duplicity
 }:
 
 stdenv.mkDerivation rec {
   name = "deja-dup-${version}";
-  version = "36.1";
+  version = "36.3";
 
   src = fetchurl {
     url = "https://launchpad.net/deja-dup/36/${version}/+download/deja-dup-${version}.tar.xz";
-    sha256 = "1s48k2sxrpwkzp37s4x7934lyg5194c47nv9ks15rksd5s0alnld";
+    sha256 = "08pwybzp7ynfcf0vqxfc3p8ir4gnzcv4v4cq5bwidbff9crklhrc";
   };
 
   patches = [
@@ -44,29 +44,15 @@ stdenv.mkDerivation rec {
     glib-compile-schemas $out/share/glib-2.0/schemas
   '';
 
-  # Manual rpath definition until https://github.com/mesonbuild/meson/issues/314 is fixed
-  postFixup =
-    let
-      rpath = stdenv.lib.makeLibraryPath [
-        glib
-        gtk3
-        gnome3.gnome_online_accounts
-        gnome3.libpeas
-        gnome3.nautilus
-        libgpgerror
-        libsecret
-        # Transitive
-        atk
-        pango
-      ];
-    in ''
-      # Unwrap accidentally wrapped library
-      mv $out/libexec/deja-dup/tools/.libduplicity.so-wrapped $out/libexec/deja-dup/tools/libduplicity.so
+  postFixup = ''
+    # Unwrap accidentally wrapped library
+    mv $out/libexec/deja-dup/tools/.libduplicity.so-wrapped $out/libexec/deja-dup/tools/libduplicity.so
 
-      for elf in "$out"/bin/.*-wrapped "$out"/libexec/deja-dup/.deja-dup-monitor-wrapped "$out"/libexec/deja-dup/tools/*.so "$out"/lib/deja-dup/*.so "$out"/lib/nautilus/extensions-3.0/*.so; do
-        patchelf --set-rpath '${rpath}':"$out/lib/deja-dup" "$elf"
-      done
-    '';
+    # Patched meson does not add internal libraries to rpath
+    for elf in "$out/bin/.deja-dup-wrapped" "$out/libexec/deja-dup/.deja-dup-monitor-wrapped" "$out/libexec/deja-dup/tools/libduplicity.so"; do
+      patchelf --set-rpath "$(patchelf --print-rpath "$elf"):$out/lib/deja-dup" "$elf"
+    done
+  '';
 
   meta = with stdenv.lib; {
     description = "A simple backup tool";
@@ -77,7 +63,7 @@ stdenv.mkDerivation rec {
     '';
     homepage = https://launchpad.net/deja-dup;
     license = with licenses; gpl3;
-    maintainers = with maintainers; [ jtojnar ];
+    maintainers = with maintainers; [ jtojnar joncojonathan ];
     platforms = with platforms; linux;
   };
 }

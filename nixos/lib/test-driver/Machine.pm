@@ -146,6 +146,7 @@ sub start {
             ($self->{allowReboot} ? "" : "-no-reboot ") .
             "-monitor unix:./monitor -chardev socket,id=shell,path=./shell " .
             "-device virtio-serial -device virtconsole,chardev=shell " .
+            "-device virtio-rng-pci " .
             ($showGraphics ? "-serial stdio" : "-nographic") . " " . ($ENV{QEMU_OPTS} || "");
         chdir $self->{stateDir} or die;
         exec $self->{startCommand};
@@ -372,6 +373,17 @@ sub getUnitInfo {
     return $info;
 }
 
+# Fail if the given systemd unit is not in the "active" state.
+sub requireActiveUnit {
+    my ($self, $unit) = @_;
+    $self->nest("checking if unit ‘$unit’ has reached state 'active'", sub {
+        my $info = $self->getUnitInfo($unit);
+        my $state = $info->{ActiveState};
+        if ($state ne "active") {
+            die "Expected unit ‘$unit’ to to be in state 'active' but it is in state ‘$state’\n";
+        };
+    });
+}
 
 # Wait for a systemd unit to reach the "active" state.
 sub waitForUnit {

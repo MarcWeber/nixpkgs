@@ -56,6 +56,8 @@ let
 
     bap = callPackage ../development/ocaml-modules/bap { cmdliner = cmdliner_0_9; };
 
+    batteries = callPackage ../development/ocaml-modules/batteries { };
+
     bitstring = callPackage ../development/ocaml-modules/bitstring { };
 
     bolt = callPackage ../development/ocaml-modules/bolt { };
@@ -98,7 +100,10 @@ let
     camlzip = callPackage ../development/ocaml-modules/camlzip { };
 
     camomile_0_8_2 = callPackage ../development/ocaml-modules/camomile/0.8.2.nix { };
-    camomile = callPackage ../development/ocaml-modules/camomile { };
+    camomile =
+      if lib.versionOlder "4.02" ocaml.version
+      then callPackage ../development/ocaml-modules/camomile { }
+      else callPackage ../development/ocaml-modules/camomile/0.8.5.nix { };
 
     camlimages_4_0 =
       if lib.versionOlder "4.02" ocaml.version
@@ -283,7 +288,6 @@ let
     inifiles = callPackage ../development/ocaml-modules/inifiles { };
 
     jingoo = callPackage ../development/ocaml-modules/jingoo {
-      batteries = ocaml_batteries;
       pcre = ocaml_pcre;
     };
 
@@ -384,7 +388,9 @@ let
       lwt = ocaml_lwt;
     };
 
-    ocaml_batteries = callPackage ../development/ocaml-modules/batteries { };
+    num = if lib.versionOlder "4.06" ocaml.version
+      then callPackage ../development/ocaml-modules/num {}
+      else null;
 
     comparelib = callPackage ../development/ocaml-modules/comparelib { };
 
@@ -404,7 +410,10 @@ let
 
     ocaml_data_notation = callPackage ../development/ocaml-modules/odn { };
 
-    ocaml_expat = callPackage ../development/ocaml-modules/expat { };
+    ocaml_expat =
+    if lib.versionAtLeast ocaml.version "4.02"
+    then callPackage ../development/ocaml-modules/expat { }
+    else callPackage ../development/ocaml-modules/expat/0.9.nix { };
 
     frontc = callPackage ../development/ocaml-modules/frontc { };
 
@@ -672,7 +681,7 @@ let
     janePackage = callPackage ../development/ocaml-modules/janestreet/janePackage.nix {};
 
     janeStreet = import ../development/ocaml-modules/janestreet {
-      inherit lib janePackage ocaml ocamlbuild ctypes cryptokit magic-mime;
+      inherit lib janePackage ocaml ocamlbuild ctypes cryptokit magic-mime num;
       inherit ocaml-migrate-parsetree octavius ounit ppx_deriving re zarith;
       inherit (pkgs) stdenv openssl;
     };
@@ -984,7 +993,9 @@ in rec
 
   ocamlPackages_4_05 = mkOcamlPackages (callPackage ../development/compilers/ocaml/4.05.nix { }) (self: super: { });
 
-  ocamlPackages_latest = ocamlPackages_4_05;
+  ocamlPackages_4_06 = mkOcamlPackages (callPackage ../development/compilers/ocaml/4.06.nix { }) (self: super: { });
 
-  ocamlPackages = ocamlPackages_4_02;
+  ocamlPackages_latest = ocamlPackages_4_06;
+
+  ocamlPackages = ocamlPackages_4_04;
 }

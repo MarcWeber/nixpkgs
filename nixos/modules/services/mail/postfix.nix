@@ -28,7 +28,7 @@ let
 
   mainCf = let
     escape = replaceStrings ["$"] ["$$"];
-    mkList = items: "\n  " + concatMapStringsSep "\n  " escape items;
+    mkList = items: "\n  " + concatStringsSep "\n  " items;
     mkVal = value:
       if isList value then mkList value
         else " " + (if value == true then "yes"
@@ -60,9 +60,11 @@ let
     manpage_directory    = "${pkgs.postfix}/share/man";
     html_directory       = "${pkgs.postfix}/share/postfix/doc/html";
     shlib_directory      = false;
-    relayhost            = if cfg.lookupMX || cfg.relayHost == ""
-                             then cfg.relayHost
-                             else "[${cfg.relayHost}]";
+    relayhost            = if cfg.relayHost == "" then "" else
+                             if cfg.lookupMX
+                             then "${cfg.relayHost}:${toString cfg.relayPort}"
+                             else "[${cfg.relayHost}]:${toString cfg.relayPort}";
+
     mail_spool_directory = "/var/spool/mail/";
     setgid_group         = setgidGroup;
   }
@@ -455,6 +457,14 @@ in
         default = "";
         description = "
           Mail relay for outbound mail.
+        ";
+      };
+
+      relayPort = mkOption {
+        type = types.int;
+        default = 25;
+        description = "
+          SMTP port for relay mail relay.
         ";
       };
 

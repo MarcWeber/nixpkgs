@@ -315,14 +315,15 @@ in
     installFlags = "sdkdir=\${out}/include/xorg";
   };
 
-  xf86inputlibinput = attrs: attrs // {
-    name = "xf86-input-libinput-0.25.1";
+  xf86inputlibinput = attrs: attrs // rec {
+    name = "xf86-input-libinput-0.26.0";
     src = args.fetchurl {
-      url = mirror://xorg/individual/driver/xf86-input-libinput-0.25.1.tar.bz2;
-      sha256 = "1q67hjd67ni1nq7kgxdrrdgkyhzaqvvn2vlnsiiq9w4y3icpv7s8";
+      url = "mirror://xorg/individual/driver/${name}.tar.bz2";
+      sha256 = "0yrqs88b7yn9nljwlxzn76jfmvf0sh939kzij5b2jvr2qa7mbjmb";
     };
+    outputs = [ "out" "dev" ];
     buildInputs = attrs.buildInputs ++ [ args.libinput ];
-    installFlags = "sdkdir=\${out}/include/xorg";
+    installFlags = "sdkdir=\${dev}/include/xorg";
   };
 
   xf86inputsynaptics = attrs: attrs // {
@@ -563,11 +564,11 @@ in
 
   xf86videointel = attrs: attrs // {
     # the update script only works with released tarballs :-/
-    name = "xf86-video-intel-2017-04-18";
+    name = "xf86-video-intel-2017-10-19";
     src = args.fetchurl {
       url = "http://cgit.freedesktop.org/xorg/driver/xf86-video-intel/snapshot/"
-          + "c72bb27a3a68ecc616ce2dc8e9a1d20354504562.tar.gz";
-      sha256 = "1awxbig135nmq7qa8jzggqr4q32k6ngnal2lckrdkg7zqi40zdv8";
+          + "4798e18b2b2c8b0a05dc967e6140fd9962bc1a73.tar.gz";
+      sha256 = "1zpgbibfpdassswfj68zwhhfpvd2p80rpxw92bis6lv81ssknwby";
     };
     buildInputs = attrs.buildInputs ++ [xorg.libXfixes xorg.libXScrnSaver xorg.pixman];
     nativeBuildInputs = attrs.nativeBuildInputs ++ [args.autoreconfHook xorg.utilmacros];

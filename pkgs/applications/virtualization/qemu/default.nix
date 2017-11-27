@@ -4,7 +4,7 @@
 , makeWrapper
 , attr, libcap, libcap_ng
 , CoreServices, Cocoa, rez, setfile
-, numaSupport ? stdenv.isLinux, numactl
+, numaSupport ? stdenv.isLinux && !stdenv.isArm, numactl
 , seccompSupport ? stdenv.isLinux, libseccomp
 , pulseSupport ? !stdenv.isDarwin, libpulseaudio
 , sdlSupport ? !stdenv.isDarwin, SDL
@@ -12,28 +12,34 @@
 , spiceSupport ? !stdenv.isDarwin, spice, spice_protocol
 , usbredirSupport ? spiceSupport, usbredir
 , xenSupport ? false, xen
-, x86Only ? false
+, hostCpuOnly ? false
 , nixosTestRunner ? false
 }:
 
 with stdenv.lib;
 let
-  version = "2.9.1";
+  version = "2.10.1";
+  sha256 = "1a3bjr0ygx4r2qd4nx5jf77jhh4xis3zga27lfryn0b4ap3hn14f";
   audio = optionalString (hasSuffix "linux" stdenv.system) "alsa,"
     + optionalString pulseSupport "pa,"
     + optionalString sdlSupport "sdl,";
+
+  hostCpuTargets = if stdenv.isi686 || stdenv.isx86_64 then "i386-softmmu,x86_64-softmmu"
+                      else if stdenv.isArm then "arm-softmmu"
+                      else if stdenv.isAarch64 then "aarch64-softmmu"
+                      else throw "Don't know how to build a 'hostCpuOnly = true' QEMU";
 in
 
 stdenv.mkDerivation rec {
   name = "qemu-"
     + stdenv.lib.optionalString xenSupport "xen-"
-    + stdenv.lib.optionalString x86Only "x86-only-"
+    + stdenv.lib.optionalString hostCpuOnly "host-cpu-only-"
     + stdenv.lib.optionalString nixosTestRunner "for-vm-tests-"
     + version;
 
   src = fetchurl {
     url = "http://wiki.qemu.org/download/qemu-${version}.tar.bz2";
-    sha256 = "1340hh4jvhvi97yqck408wi8aagnhzq1311ih0fq9bp4ddlk03sd";
+    inherit sha256;
   };
 
   buildInputs =
@@ -74,7 +80,7 @@ stdenv.mkDerivation rec {
     ++ optional seccompSupport "--enable-seccomp"
     ++ optional spiceSupport "--enable-spice"
     ++ optional usbredirSupport "--enable-usb-redir"
-    ++ optional x86Only "--target-list=i386-softmmu,x86_64-softmmu"
+    ++ optional hostCpuOnly "--target-list=${hostCpuTargets}"
     ++ optional stdenv.isDarwin "--enable-cocoa"
     ++ optional stdenv.isLinux "--enable-linux-aio"
     ++ optional xenSupport "--enable-xen";

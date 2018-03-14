@@ -3,10 +3,10 @@
 buildPythonPackage rec {
   pname = "flake8-debugger";
   name = "${pname}-${version}";
-  version = "1.4.0";
+  version = "3.1.0";
   src = fetchurl {
     url = "mirror://pypi/f/flake8-debugger/${name}.tar.gz";
-    sha256 = "0chjfa6wvnqjnx778qzahhwvjx1j0rc8ax0ipp5bn70gf47lj62r";
+    sha256 = "be4fb88de3ee8f6dd5053a2d347e2c0a2b54bab6733a2280bb20ebd3c4ca1d97";
   };
   buildInputs = [ nose ];
   propagatedBuildInputs = [ flake8 ];

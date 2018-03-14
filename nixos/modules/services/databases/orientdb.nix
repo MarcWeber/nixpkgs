@@ -68,21 +68,26 @@ in
 
       users.extraGroups.orientdb.gid = config.ids.gids.orientdb;
 
+      environment.systemPackages = [(
+          pkgs.writeScriptBin "orientdb-console" ''
+          #!/bin/sh
+          exec /var/lib/orientdb-3.0.0m2/bin/console.sh "$@"
+          ''
+      )];
+
       systemd.services.orientdb =
         { description = "Orientdb Server";
 
           wantedBy = [ "multi-user.target" ];
           after = [ "network.target" ];
 
-          # environment.PGDATA = cfg.dataDir;
-
-          path = [ pkgs.openjdk ];
+          path = [ pkgs.openjdk pkgs.gzip ];
 
           preStart =
             ''
             [ -d ${cfg.dataDir} ] || {
               mkdir -p ${cfg.dataDir}
-              tar --strip-components=1 -C ${cfg.dataDir} -xzf ${orientdb_binary_tar_gz}
+              ${pkgs.gnutar}/bin/tar --strip-components=1 -C ${cfg.dataDir} -xzf ${orientdb_binary_tar_gz}
               chown -R orientdb:orientdb ${cfg.dataDir}
             }
             config="${cfg.dataDir}/config/orientdb-server-config.xml"
@@ -97,31 +102,12 @@ in
               Group = "orientdb";
               PermissionsStartOnly = true;
 
-              # Shut down Postgres using SIGINT ("Fast Shutdown mode").  See
-              # http://www.postgresql.org/docs/current/static/server-shutdown.html
               KillSignal = "SIGINT";
               KillMode = "mixed";
 
-              # Give Postgres a decent amount of time to clean up after
-              # receiving systemd's SIGINT.
               TimeoutSec = 120;
             };
 
-          # # Wait for PostgreSQL to be ready to accept connections.
-          # postStart =
-          #   ''
-          #     while ! ${pkgs.sudo}/bin/sudo -u ${cfg.superUser} psql --port=${toString cfg.port} -d postgres -c "" 2> /dev/null; do
-          #         if ! kill -0 "$MAINPID"; then exit 1; fi
-          #         sleep 0.1
-          #     done
-
-          #     if test -e "${cfg.dataDir}/.first_startup"; then
-          #       ${optionalString (cfg.initialScript != null) ''
-          #         ${pkgs.sudo}/bin/sudo -u ${cfg.superUser} psql -f "${cfg.initialScript}" --port=${toString cfg.port} -d postgres
-          #       ''}
-          #       rm -f "${cfg.dataDir}/.first_startup"
-          #     fi
-          #   '';
 
           unitConfig.RequiresMountsFor = "${cfg.dataDir}";
         };

@@ -84,7 +84,7 @@ let
       installPhase = "
         installPlugins gmic_gimp
       " + (pkgs.lib.optionalString zart ''
-        ensureDir $out/bin
+        mkdir -p $out/bin
         cp ../zart/zart $out/bin
       '')
       ;

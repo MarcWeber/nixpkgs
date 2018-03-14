@@ -52,6 +52,7 @@ mkDerivation rec {
 
   # [1]: If dependencies are missing calligra build tends to miss building executables silently.
   #      Thus ensure all have been built
+  # braindump
   postInstall = ''
     for i in $out/bin/*; do
       wrapProgram $i \
@@ -59,9 +60,10 @@ mkDerivation rec {
         --prefix XDG_DATA_DIRS ':' "${breeze-icons}/share"
     done
     # [1]
-    for prog in braindump calligra calligraactive calligraauthor calligraconverter calligraflow calligraplan calligraplanwork calligrasheets calligrastage calligrawords cstester cstrunner karbon kexi kexi_sqlite3_dump krita; do
+    for prog in calligra calligraactive calligraauthor calligraconverter calligraflow calligraplan calligraplanwork calligrasheets calligrastage calligrawords cstester cstrunner karbon kexi kexi_sqlite3_dump krita; do
       [ -x $out/bin/$prog ] || {
-        echo "$out/bin/$prog not found"
+        echo "$out/bin/$prog not found, all found apps:"
+        ls -1 $out/bin/*
         exit 1
       }
     done

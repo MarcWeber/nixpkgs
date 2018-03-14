@@ -4,7 +4,7 @@ let
 
   copyRestSh = name: ''
   # rest could contain license or such, make sure its in the store
-  ensureDir $out/share/${name}
+  mkdir -p $out/share/${name}
   mv * $out/share/${name}
   '';
 

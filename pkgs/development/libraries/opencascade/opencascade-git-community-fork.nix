@@ -74,7 +74,7 @@ versionedDerivation "opencascade" version {
 
   preConfigure = ''
     # why is this directory required by the installation?
-    ensureDir $out/inc
+    mkdir -p $out/inc
     cmakeFlags="$cmakeFlags -DCMAKE_INSTALL_PREFIX=$out -DOCE_INSTALL_PREFIX:PATH=$out "-DOCE_INSTALL_DATA_DIR=$out""
   '';
 
@@ -91,7 +91,7 @@ versionedDerivation "opencascade" version {
 
 
   # mv $out/inc $out/include
-  # ensureDir $out/share/doc/${name}
+  # mkdir -p $out/share/doc/${name}
   # cp -R ../doc $out/share/doc/${name}
 
   postInstall = ''

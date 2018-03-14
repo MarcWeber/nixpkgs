@@ -14,7 +14,7 @@ stdenv.mkDerivation {
   patches = ./compile.patch;
 
   installPhase = ''
-    ensureDir $out/bin
+    mkdir -p $out/bin
     mv ttf2eot $out/bin
   '';
 

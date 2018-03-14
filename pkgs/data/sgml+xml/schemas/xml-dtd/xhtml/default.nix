@@ -12,7 +12,7 @@ stdenv.mkDerivation {
 
   installPhase = ''
     t=$out/xml/dtd/w3c-xhtml
-    ensureDir $t
+    mkdir -p $t
     cp DTD/* $t
     cat >> $t/catalog.xml << EOF
     <?xml version='1.0'?>

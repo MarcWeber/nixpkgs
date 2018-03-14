@@ -19,6 +19,8 @@ rec {
             makeWrapper;
   };
 
+  ### Eclipse Java
+
   ### Eclipse CPP
 
   eclipse-cpp = eclipse-cpp-47; # always point to latest

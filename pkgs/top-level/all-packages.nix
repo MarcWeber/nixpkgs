@@ -21137,4 +21137,74 @@ with pkgs;
 
   misc = import ../misc/misc.nix {inherit pkgs stdenv;};
 
+
+  kaldi = callPackage ../development/libraries/kaldi { };
+
+  xxx = (pkgs.texlive.combine { inherit (pkgs.texlive) scheme-small pdfjam; });
+
+
+  scrapy_env_2x =
+   let pp = python2Packages;
+   in pkgs.writeScriptBin "scrapy-env-2.x" ''
+      #!/bin/sh
+      export PATH=${pp.python}/bin:${pp.scrapy}/bin/:$PATH
+      export PYTHONPATH=${stdenv.lib.concatStringsSep ":" (map (x: "${x}/lib/${python.libPrefix}/site-packages") [pp.scrapy pp.parso pp.numpy pp.pandas pp.dateutil pp.pytz pp.unidecode ]) }
+      "$@"
+  '';
+
+  scrapy_env_3x =
+   let pp = python35Packages; 
+   in pkgs.writeScriptBin "scrapy-env-3.x" ''
+      #!/bin/sh
+      export PATH=${pp.python}/bin:${pp.scrapy}/bin/:$PATH
+      export PYTHONPATH=${stdenv.lib.concatStringsSep ":" (map (x: "${x}/lib/${python.libPrefix}/site-packages") [pp.scrapy pp.parso]) }
+      "$@"
+  '';
+
+  o_py3 = 
+
+    let
+      pp = python3Packages;
+      inherit (pp) buildPythonPackage numpy;
+
+      opencv3 = pkgs.opencv3.override {
+       enableGtk2 = true;
+       pythonPackages = pp; enablePython = true;
+       # enableCuda =true;
+       enableIpp =true;
+       enableContrib =true;
+       # enableGtk3 =true;
+       enableFfmpeg =true;
+       enableGStreamer =true;
+       enableTesseract =true;
+     };
+
+    imutils = pp.buildPythonPackage rec {
+      pname = "imutils";
+      version = "0.4.5";
+      name = "${pname}-${version}";
+
+      src = pkgs.fetchurl {
+        url = "https://pypi.python.org/packages/79/d3/e45ebd1c70ce114a06a8a61facdd75ac2bbcb30d51bf8ec6f22174ef9589/imutils-0.4.5.tar.gz";
+        sha256 = "1p5v58hsxv3p7jaz63w1d06ghv81nc9dbj476mbrniqad2p8zl7c";
+      };
+
+      propagatedBuildInputs = with self; [ numpy  opencv3 ];
+
+      doCheck = false;
+
+      meta = {
+        description = "A series of convenience functions to make basic image processing functions such as translation, rotation, resizing, skeletonization, displaying Matplotlib images, sorting contours, detecting edges, and much more easier with OpenCV and both Python 2.7 and Python 3.";
+        license = licenses.mit;
+        maintainers = with maintainers; [];
+        homepage = "https://pypi.python.org/pypi/ipfsapi";
+      };
+    };
+    
+  in stdenv.mkDerivation {
+    name = "py-opencv2";
+    buildInputs = [pp.python opencv3 imutils pp.numpy pp.cached-property];
+
+  };
+
 }

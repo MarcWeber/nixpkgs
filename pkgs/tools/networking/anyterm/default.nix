@@ -18,7 +18,7 @@ stdenv.mkDerivation {
   patches = ./patch.patch;
 
   installPhase = ''
-    ensureDir $out/bin
+    mkdir -p $out/bin
     mv build/anytermd $out/bin
   '';
 

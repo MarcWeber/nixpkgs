@@ -40,7 +40,7 @@ stdenv.mkDerivation {
   patches = [ ./umtsmon-find-fstat.patch ];
 
   installPhase = ''
-    ensureDir $out/bin
+    mkdir -p $out/bin
     cp umtsmon $out/bin
   '';
 

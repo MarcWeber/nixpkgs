@@ -11,7 +11,7 @@ installPhase() {
     # Note: the "no" is because the install scripts asks whether we
     # want to install icons in some system-wide directories.
     
-    ensureDir "$out"
+    mkdir -p "$out"
 
     ./install --text --system
 
@@ -32,7 +32,7 @@ installPhase() {
     # Substitute pwd as late as possible so that the md5 checksum check of opera passes.
     substituteInPlace $out/bin/opera --replace /bin/pwd pwd
 
-    ensureDir $out/share/applications
+    mkdir -p $out/share/applications
     cp $desktopItem/share/applications/* $out/share/applications
 
     eval "$installPlugins"

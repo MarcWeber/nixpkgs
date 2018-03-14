@@ -11,7 +11,7 @@ in
     src = (fetchurl { url = "http://mawercer.de/~nix/repos/hg-attic-hg-3ba1e5f.tar.bz2"; sha256 = "a34c8249bc4ee4f8a69262137418886e358efe2f94ea48dd0a07a6869c8b7a19"; });
     name = "hg-attic-hg-3ba1e5f";
     # END
-    installPhase = "ensureDir $out/hgext; mv * $out/hgext";
+    installPhase = "mkdir -p $out/hgext; mv * $out/hgext";
   };
 
   collapse = stdenv.mkDerivation {
@@ -22,7 +22,7 @@ in
     
     buildInputs = [ pkgs.python ];
     buildPhase = ":";
-    installPhase = "ensureDir $out; mv hgext $out";
+    installPhase = "mkdir -p $out; mv hgext $out";
   };
 
   hggit = 

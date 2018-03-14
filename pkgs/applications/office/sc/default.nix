@@ -13,7 +13,7 @@ stdenv.mkDerivation {
   patches = [ ./patch.patch ];
 
   installPhase = ''
-    ensureDir $out/{bin,lib,man/man1}
+    mkdir -p $out/{bin,lib,man/man1}
     make prefix=$out install
   '';
 

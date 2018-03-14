@@ -163,7 +163,7 @@
   ./services/backup/bacula.nix
   ./services/backup/crashplan.nix
   ./services/backup/crashplan-small-business.nix
-  ./services/backup/mysql-backup.nix
+  # ./services/backup/mysql-backup.nix
   ./services/backup/postgresql-backup.nix
   ./services/backup/rsnapshot.nix
   ./services/backup/tarsnap.nix

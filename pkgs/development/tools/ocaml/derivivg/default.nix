@@ -54,7 +54,7 @@ versionedDerivation "ocaml-deriving" version {
     # not all tests compile !?
     # (cd tests; make)
 
-    ensureDir $out/bin
+    mkdir -p $out/bin
     cp -a lib $out/
     cp -a syntax $out
 

@@ -13,7 +13,7 @@ stdenv.mkDerivation {
   # moving all buildfiles into $out/zimbu is not perfect, but maybe best to do
   # for now
   preConfigure = ''
-    ensureDir $out/bin
+    mkdir -p $out/bin
     cd ..
     mv nix_repository_manager $out/zimbu
     cd $out/zimbu

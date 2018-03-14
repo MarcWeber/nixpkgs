@@ -32,7 +32,7 @@ versionedDerivation "ocaml-deriving" version {
   buildInputs = [ocaml findlib];
 
   installPhase = ''
-    ensureDir $out/{bin,vim-plugins}
+    mkdir -p $out/{bin,vim-plugins}
     make BINDIR=$out/bin install
     mv *.vim $out/vim-plugin
   '';

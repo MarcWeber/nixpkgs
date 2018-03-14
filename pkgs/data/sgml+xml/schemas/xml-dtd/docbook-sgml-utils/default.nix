@@ -27,7 +27,7 @@ stdenv.mkDerivation {
 
   # if you know this stuff consider tidying up - I just made my case (gutenprint-cvs) compile
   installPhase = ''
-    ensureDir $out/bin
+    mkdir -p $out/bin
     cp -a bin/jw bin/docbook2* $out/bin
     chmod +x $out/bin/jw
     for p in $out/bin/*; do
@@ -36,11 +36,11 @@ stdenv.mkDerivation {
     done
 
     f=$out/frontends
-    ensureDir $f
+    mkdir -p $f
     cp frontends/docbook $f/docbook
 
     b=$out/backends
-    ensureDir $b
+    mkdir -p $b
     cp backends/html $b/html
 
     # set default backend/frontend directory
@@ -56,7 +56,7 @@ stdenv.mkDerivation {
      $out/bin/jw
 
      # TODO tidy this up?
-     ensureDir $out/share/sgml/docbook/utils-0.6.14
+     mkdir -p $out/share/sgml/docbook/utils-0.6.14
      cp docbook-utils.dsl $out/share/sgml/docbook/utils-0.6.14
   '';
 

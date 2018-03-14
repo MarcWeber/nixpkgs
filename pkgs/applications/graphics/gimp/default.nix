@@ -55,7 +55,7 @@ let
 
   inherit (p) stdenv fetchurl sourceFromHead;
 
-  gimp = stdenv.mkDerivation (stdenv.lib.mergeAttrsByVersion "gimp" version {
+  gimp = stdenv.mkDerivation (stdenv.lib.misc.mergeAttrsByVersion "gimp" version {
     # version specific attributes
     "2.6.12" = {
       src = fetchurl {
@@ -75,7 +75,7 @@ let
       # plugins want to find the header files. Adding the includes to
       # NIX_CFLAGS_COMPILE is faster than patching them all ..
       postInstall = ''
-        ensureDir $out/nix-support
+        mkdir -p $out/nix-support
         echo "NIX_CFLAGS_COMPILE=\"\$NIX_CFLAGS_COMPILE -I ''${out}/include/gimp-2.0\"" >> $out/nix-support/setup-hook
       '';
 
@@ -163,8 +163,8 @@ let
       sed -i 's@gegl >= 0.1.6@gegl-2.0 >= 0.1.6@' configure
       '';
       # REGION AUTO UPDATE: { name="gimp"; type="git"; url="git://git.gnome.org/gimp"; groups = "gimp_group"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-56848.tar.bz2"; sha256 = "7cadb87e7776093fc53861923ba7c7d65527b6bab83db634731916086e55abe9"; });
-      name = "gimp-git-56848";
+      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-702c4.tar.bz2"; sha256 = "d3506d9502efdc30a4f221eac912d3bc239ab22958938eee4f7bbd69c859a252"; });
+      name = "gimp-git-702c4";
       # END
 
       passthru = {

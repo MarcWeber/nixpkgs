@@ -9,29 +9,18 @@
 
 let
   commonTargetPkgs = pkgs: with pkgs;
-    let
-      tzdir = "${pkgs.tzdata}/share/zoneinfo";
-      # I'm not sure if this is the best way to add things like this
-      # to an FHSUserEnv
-      etc-zoneinfo = pkgs.runCommand "zoneinfo" {} ''
-        mkdir -p $out/etc
-        ln -s ${tzdir} $out/etc/zoneinfo
-        ln -s ${tzdir}/UTC $out/etc/localtime
-      '';
-    in [
+    [
       steamPackages.steam-fonts
       # Errors in output without those
       pciutils
       python2
       # Games' dependencies
-      xlibs.xrandr
+      xorg.xrandr
       which
       # Needed by gdialog, including in the steam-runtime
       perl
       # Open URLs
       xdg_utils
-      # Zoneinfo
-      etc-zoneinfo
       iana-etc
     ] ++ lib.optional withJava jdk
       ++ lib.optional withPrimus primus
@@ -62,12 +51,15 @@ in buildFHSUserEnv rec {
 
   multiPkgs = pkgs: with pkgs; [
     # These are required by steam with proper errors
-    xlibs.libXcomposite
-    xlibs.libXtst
-    xlibs.libXrandr
-    xlibs.libXext
-    xlibs.libX11
-    xlibs.libXfixes
+    xorg.libXcomposite
+    xorg.libXtst
+    xorg.libXrandr
+    xorg.libXext
+    xorg.libX11
+    xorg.libXfixes
+
+    # Needed to properly check for libGL.so.1 in steam-wrapper.sh
+    pkgsi686Linux.glxinfo
 
     # Not formally in runtime but needed by some games
     gst_all_1.gstreamer
@@ -75,7 +67,7 @@ in buildFHSUserEnv rec {
     libdrm
     mono
     xorg.xkeyboardconfig
-    xlibs.libpciaccess
+    xorg.libpciaccess
 
     (steamPackages.steam-runtime-wrapped.override {
       inherit nativeOnly runtimeOnly;
@@ -100,10 +92,28 @@ in buildFHSUserEnv rec {
 
   profile = ''
     export STEAM_RUNTIME=/steamrt
-    export TZDIR=/etc/zoneinfo
   '';
 
-  runScript = "steam";
+  runScript = writeScript "steam-wrapper.sh" ''
+    #!${stdenv.shell}
+    if [ -f /host/etc/NIXOS ]; then   # Check only useful on NixOS
+      glxinfo >/dev/null 2>&1
+      # If there was an error running glxinfo, we know something is wrong with the configuration
+      if [ $? -ne 0 ]; then
+        cat <<EOF > /dev/stderr
+    **
+    WARNING: Steam is not set up. Add the following options to /etc/nixos/configuration.nix
+    and then run \`sudo nixos-rebuild switch\`:
+    { 
+      hardware.opengl.driSupport32Bit = true;
+      hardware.pulseaudio.support32Bit = true;
+    }
+    **
+    EOF
+      fi
+    fi
+    steam
+  '';
 
   passthru.run = buildFHSUserEnv {
     name = "steam-run";

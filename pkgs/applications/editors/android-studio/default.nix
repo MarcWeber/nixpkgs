@@ -1,19 +1,27 @@
-{ stdenv, callPackage, fetchurl, makeFontsConf }:
+{ stdenv, callPackage, fetchurl, makeFontsConf, gnome2 }:
 let
   mkStudio = opts: callPackage (import ./common.nix opts) {
     fontsConf = makeFontsConf {
       fontDirectories = [];
     };
+    inherit (gnome2) GConf gnome_vfs;
   };
 in rec {
+  # Old alias
+  preview = beta;
+
+  # Attributes are named by the channels
+
+  # linux-bundle
   stable = mkStudio {
     pname = "android-studio";
-    version = "3.0.0.18"; # "Android Studio 3.0"
-    build = "171.4408382";
-    sha256Hash = "18npm7ckdybj6vc2vndr0wd50da19m9z2j7wld2mdidnl5ggk4br";
+    #pname = "android-studio-stable"; # TODO: Rename
+    version = "3.0.1.0"; # "Android Studio 3.0.1"
+    build = "171.4443003";
+    sha256Hash = "1krahlqr70nq3csqiinq2m4fgs68j11hd9gg2dx2nrpw5zni0wdd";
 
     meta = with stdenv.lib; {
-      description = "The Official IDE for Android (stable version)";
+      description = "The Official IDE for Android (stable channel)";
       longDescription = ''
         Android Studio is the official IDE for Android app development, based on
         IntelliJ IDEA.
@@ -25,15 +33,39 @@ in rec {
     };
   };
 
-  preview = mkStudio {
+  # linux-beta-bundle
+  beta = mkStudio {
     pname = "android-studio-preview";
-    version = "3.1.0.3"; # "Android Studio 3.1 Canary 4"
-    build = "171.4444016";
-    sha256Hash = "0qgd0hd3i3p1adv0xqa0409r5injw3ygs50lajzi99s33j6vdc6s";
+    #pname = "android-studio-beta"; # TODO: Rename
+    version = "3.1.0.14"; # "Android Studio 3.1 RC 2"
+    build = "173.4640767";
+    sha256Hash = "00v8qbis4jm31v1g9989f9y15av6p3ywj8mmfxcsc3hjlpzdgid8";
 
     meta = stable.meta // {
-      description = "The Official IDE for Android (preview version)";
+      description = "The Official IDE for Android (beta channel)";
       homepage = https://developer.android.com/studio/preview/index.html;
+    };
+  };
+
+  dev = mkStudio {
+    pname = "android-studio-dev";
+    version = "3.2.0.5"; # "Android Studio 3.2 Canary 6"
+    build = "173.4640885";
+    sha256Hash = "1fbjk1dhvi975dm09s9iz9ja53fjqca07nw5h068gdj3358pj3k8";
+
+    meta = beta.meta // {
+      description = "The Official IDE for Android (dev channel)";
+    };
+  };
+
+  canary = mkStudio {
+    pname = "android-studio-canary";
+    version = "3.2.0.5"; # "Android Studio 3.2 Canary 6"
+    build = "173.4640885";
+    sha256Hash = "1fbjk1dhvi975dm09s9iz9ja53fjqca07nw5h068gdj3358pj3k8";
+
+    meta = beta.meta // {
+      description = "The Official IDE for Android (canary channel)";
     };
   };
 }

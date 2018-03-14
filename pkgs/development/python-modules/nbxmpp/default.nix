@@ -2,11 +2,11 @@
 
 buildPythonPackage rec {
   pname = "nbxmpp";
-  version = "0.6.0";
+  version = "0.6.3";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "0x495yb0abkdspyziw7dyyjwxx6ivnv5zznk92wa3mcind5s9757";
+    sha256 = "dd66e701a4856e3cace8f4865837ccc9bcfcdb286df01f01aa19531f5d834a83";
   };
 
   meta = with stdenv.lib; {

@@ -111,7 +111,7 @@ in {
       type = mkOption {
         description = "Database type.";
         default = "sqlite3";
-        type = types.enum ["mysql" "sqlite3" "postgresql"];
+        type = types.enum ["mysql" "sqlite3" "postgres"];
       };
 
       host = mkOption {
@@ -249,7 +249,7 @@ in {
       };
       preStart = ''
         ln -fs ${cfg.package}/share/grafana/conf ${cfg.dataDir}
-        ln -fs ${cfg.package}/share/grafana/vendor ${cfg.dataDir}
+        ln -fs ${cfg.package}/share/grafana/tools ${cfg.dataDir}
       '';
     };
 

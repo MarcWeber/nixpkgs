@@ -4,8 +4,10 @@
 , fetchpatch
 , ipykernel
 , isPy27
+, python
 , pexpect
 }:
+
 buildPythonPackage rec {
   pname = "bash_kernel";
   version = "0.7.1";
@@ -27,15 +29,15 @@ buildPythonPackage rec {
 
   propagatedBuildInputs = [ ipykernel pexpect ];
 
+  # no tests
   doCheck = false;
 
   preBuild = ''
-    mkdir tmp
-    export HOME=$PWD/tmp
+    export HOME=$TMPDIR
   '';
 
   postInstall = ''
-    python -m bash_kernel.install --prefix $out
+    ${python.interpreter} -m bash_kernel.install --prefix $out
   '';
 
   meta = {

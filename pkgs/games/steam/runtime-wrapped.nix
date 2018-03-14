@@ -5,7 +5,7 @@
 
 assert !(nativeOnly && runtimeOnly);
 
-let 
+let
   runtimePkgs = with pkgs; [
     # Required
     glib
@@ -15,15 +15,15 @@ let
     gdk_pixbuf
 
     # Without these it silently fails
-    xlibs.libXinerama
-    xlibs.libXdamage
-    xlibs.libXcursor
-    xlibs.libXrender
-    xlibs.libXScrnSaver
-    xlibs.libXxf86vm
-    xlibs.libXi
-    xlibs.libSM
-    xlibs.libICE
+    xorg.libXinerama
+    xorg.libXdamage
+    xorg.libXcursor
+    xorg.libXrender
+    xorg.libXScrnSaver
+    xorg.libXxf86vm
+    xorg.libXi
+    xorg.libSM
+    xorg.libICE
     gnome2.GConf
     freetype
     (curl.override { gnutlsSupport = true; sslSupport = false; })
@@ -38,7 +38,7 @@ let
     libcap
     SDL2
     libusb1
-    dbus_glib
+    dbus-glib
     libav
     atk
     # Only libraries are needed from those two
@@ -46,9 +46,9 @@ let
     networkmanager098
 
     # Verified games requirements
-    xlibs.libXmu
-    xlibs.libxcb
-    mesa_glu
+    xorg.libXmu
+    xorg.libxcb
+    libGLU
     libuuid
     libogg
     libvorbis
@@ -60,7 +60,7 @@ let
     tbb
 
     # Other things from runtime
-    xlibs.libXinerama
+    xorg.libXinerama
     flac
     freeglut
     libjpeg
@@ -88,6 +88,8 @@ let
     libva
     vulkan-loader
     gcc.cc
+    nss
+    nspr
   ];
 
   ourRuntime = if runtimeOnly then []

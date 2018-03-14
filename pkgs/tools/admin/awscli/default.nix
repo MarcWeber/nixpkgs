@@ -18,21 +18,20 @@ let
     name = "${pname}-${version}";
     pname = "colorama";
     version = "0.3.7";
-    src = fetchPypi {
-      inherit pname version;
+    src = old.src.override {
+      inherit version;
       sha256 = "0avqkn6362v7k2kg3afb35g4sfdvixjgy890clip4q174p9whhz0";
     };
   });
 
 in buildPythonPackage rec {
-  name = "${pname}-${version}";
   pname = "awscli";
-  version = "1.11.185";
+  version = "1.14.41";
   namePrefix = "";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "18rskl6sla456z4hkq2gmmm03fqc4rqw5pfiqdyc7a2v9kljv4ah";
+    sha256 = "8cf2a52d56f26e22e2fbd7b72649ef1d3de8930df7a730d7f27418d129bb3a6a";
   };
 
   # No tests included

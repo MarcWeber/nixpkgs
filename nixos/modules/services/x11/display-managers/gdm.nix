@@ -134,7 +134,7 @@ in
       StandardError = "inherit";
     };
 
-    systemd.services.display-manager.path = [ pkgs.gnome3.gnome_session ];
+    systemd.services.display-manager.path = [ pkgs.gnome3.gnome-session ];
 
     services.dbus.packages = [ gdm ];
 
@@ -194,7 +194,7 @@ in
         auth     required       pam_env.so envfile=${config.system.build.pamEnvironment}
 
         auth     required       pam_succeed_if.so uid >= 1000 quiet
-        auth     optional       ${pkgs.gnome3.gnome_keyring}/lib/security/pam_gnome_keyring.so
+        auth     optional       ${pkgs.gnome3.gnome-keyring}/lib/security/pam_gnome_keyring.so
         auth     ${if config.security.pam.enableEcryptfs then "required" else "sufficient"} pam_unix.so nullok likeauth
         ${optionalString config.security.pam.enableEcryptfs
           "auth required ${pkgs.ecryptfs}/lib/security/pam_ecryptfs.so unwrap"}
@@ -214,7 +214,7 @@ in
           "session optional ${pkgs.ecryptfs}/lib/security/pam_ecryptfs.so"}
         session  required       pam_loginuid.so
         session  optional       ${pkgs.systemd}/lib/security/pam_systemd.so
-        session  optional       ${pkgs.gnome3.gnome_keyring}/lib/security/pam_gnome_keyring.so auto_start
+        session  optional       ${pkgs.gnome3.gnome-keyring}/lib/security/pam_gnome_keyring.so auto_start
       '';
 
       gdm-password.text = ''
@@ -222,7 +222,7 @@ in
         auth     required       pam_env.so envfile=${config.system.build.pamEnvironment}
 
         auth     required       pam_succeed_if.so uid >= 1000 quiet
-        auth     optional       ${pkgs.gnome3.gnome_keyring}/lib/security/pam_gnome_keyring.so
+        auth     optional       ${pkgs.gnome3.gnome-keyring}/lib/security/pam_gnome_keyring.so
         auth     ${if config.security.pam.enableEcryptfs then "required" else "sufficient"} pam_unix.so nullok likeauth
         ${optionalString config.security.pam.enableEcryptfs
           "auth required ${pkgs.ecryptfs}/lib/security/pam_ecryptfs.so unwrap"}
@@ -241,7 +241,7 @@ in
           "session optional ${pkgs.ecryptfs}/lib/security/pam_ecryptfs.so"}
         session  required       pam_loginuid.so
         session  optional       ${pkgs.systemd}/lib/security/pam_systemd.so
-        session  optional       ${pkgs.gnome3.gnome_keyring}/lib/security/pam_gnome_keyring.so auto_start
+        session  optional       ${pkgs.gnome3.gnome-keyring}/lib/security/pam_gnome_keyring.so auto_start
       '';
 
       gdm-autologin.text = ''

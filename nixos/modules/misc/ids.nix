@@ -65,7 +65,7 @@
       foldingathome = 37;
       sabnzbd = 38;
       #kdm = 39; # dropped in 17.03
-      ghostone = 40;
+      #ghostone = 40; # dropped in 18.03
       git = 41;
       fourstore = 42;
       fourstorehttp = 43;
@@ -197,10 +197,10 @@
       #input = 174; # unused
       sddm = 175;
       tss = 176;
-      memcached = 177;
+      #memcached = 177; removed 2018-01-03
       ntp = 179;
       zabbix = 180;
-      redis = 181;
+      #redis = 181; removed 2018-01-03
       unifi = 183;
       uptimed = 184;
       zope2 = 185;
@@ -233,7 +233,7 @@
       calibre-server = 213;
       heapster = 214;
       bepasty = 215;
-      pumpio = 216;
+      # pumpio = 216; # unused, removed 2018-02-24
       nm-openvpn = 217;
       mathics = 218;
       ejabberd = 219;
@@ -281,8 +281,8 @@
       stanchion = 262;
       riak-cs = 263;
       infinoted = 264;
-      keystone = 265;
-      glance = 266;
+      # keystone = 265; # unused, removed 2017-12-13
+      # glance = 266; # unused, removed 2017-12-13
       couchpotato = 267;
       gogs = 268;
       pdns-recursor = 269;
@@ -301,6 +301,10 @@
       pykms = 282;
       kodi = 283;
       restya-board = 284;
+      mighttpd2 = 285;
+      hass = 286;
+      monero = 287;
+      ceph = 288;
 
       orientdb = 350;
 
@@ -350,7 +354,7 @@
       #foldingathome = 37; # unused
       #sabnzd = 38; # unused
       #kdm = 39; # unused, even before 17.03
-      ghostone = 40;
+      #ghostone = 40; # dropped in 18.03
       git = 41;
       fourstore = 42;
       fourstorehttp = 43;
@@ -477,10 +481,10 @@
       input = 174;
       sddm = 175;
       tss = 176;
-      #memcached = 177; # unused
+      #memcached = 177; # unused, removed 2018-01-03
       #ntp = 179; # unused
       #zabbix = 180; # unused
-      #redis = 181; # unused
+      #redis = 181; # unused, removed 2018-01-03
       #unifi = 183; # unused
       #uptimed = 184; # unused
       #zope2 = 185; # unused
@@ -512,7 +516,7 @@
       xtreemfs = 212;
       calibre-server = 213;
       bepasty = 215;
-      pumpio = 216;
+      # pumpio = 216; # unused, removed 2018-02-24
       nm-openvpn = 217;
       mathics = 218;
       ejabberd = 219;
@@ -553,8 +557,8 @@
       stanchion = 262;
       riak-cs = 263;
       infinoted = 264;
-      keystone = 265;
-      glance = 266;
+      # keystone = 265; # unused, removed 2017-12-13
+      # glance = 266; # unused, removed 2017-12-13
       couchpotato = 267;
       gogs = 268;
       kresd = 270;
@@ -572,6 +576,10 @@
       pykms = 282;
       kodi = 283;
       restya-board = 284;
+      mighttpd2 = 285;
+      hass = 286;
+      monero = 287;
+      ceph = 288;
 
 
       orientdb = 350;

@@ -17000,12 +17000,12 @@ with pkgs;
   openscad = callPackage ../applications/graphics/openscad {};
 
   opentx = callPackage ../applications/misc/opentx { };
-
   opera_my = callPackage ../applications/networking/browsers/opera/my.nix { };
-  # TODO merge with upstream opera to support HTML 5 viedos?
+  # TODO merge with upstream opera to support HTML 5 videos?
   # testpages:
   # http://www.planetoftunes.com/web_site/videoforweb/html5_example/index.html
   # http://www.youtube.com/html5
+
   opera = callPackage ../applications/networking/browsers/opera {};
 
   orca = python3Packages.callPackage ../applications/misc/orca {

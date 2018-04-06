@@ -31,11 +31,12 @@ in rec {
   nix-prefetch-git = mkPrefetchScript "git" ../../../build-support/fetchgit/nix-prefetch-git [ git coreutils ];
   nix-prefetch-hg  = mkPrefetchScript "hg"  ../../../build-support/fetchhg/nix-prefetch-hg   [ mercurial ];
   nix-prefetch-svn = mkPrefetchScript "svn" ../../../build-support/fetchsvn/nix-prefetch-svn [ subversion ];
+  nix-prefetch-zip = mkPrefetchScript "zip" ../../../build-support/fetchzip/nix-prefetch-zip [unzip curl.bin];
 
   nix-prefetch-scripts = buildEnv {
     name = "nix-prefetch-scripts";
 
-    paths = [ nix-prefetch-bzr nix-prefetch-cvs nix-prefetch-git nix-prefetch-hg nix-prefetch-svn ];
+    paths = [ nix-prefetch-bzr nix-prefetch-cvs nix-prefetch-git nix-prefetch-hg nix-prefetch-svn nix-prefetch-zip ];
 
     meta = with stdenv.lib; {
       description = "Collection of all the nix-prefetch-* scripts which may be used to obtain source hashes";

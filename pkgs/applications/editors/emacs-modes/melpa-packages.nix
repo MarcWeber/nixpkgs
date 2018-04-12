@@ -82,10 +82,6 @@ self:
         inherit (self.melpaPackages) ess ctable popup;
       };
 
-      ess-R-object-popup = super.ess-R-object-popup.override {
-        inherit (self.melpaPackages) ess popup;
-      };
-
       # upstream issue: missing dependency highlight
       evil-search-highlight-persist = markBroken super.evil-search-highlight-persist;
 
@@ -97,9 +93,6 @@ self:
 
       # Expects bash to be at /bin/bash
       flycheck-rtags = markBroken super.flycheck-rtags;
-
-      # upstream issue: missing file header
-      fold-dwim = markBroken super.fold-dwim;
 
       # build timeout
       graphene = markBroken super.graphene;
@@ -117,7 +110,7 @@ self:
       ido-complete-space-or-hyphen = markBroken super.ido-complete-space-or-hyphen;
 
       # upstream issue: missing file header
-      initsplit = markBroken super.initsplit;
+      initsplit = super.initsplit;
 
       # Expects bash to be at /bin/bash
       ivy-rtags = markBroken super.ivy-rtags;
@@ -127,9 +120,6 @@ self:
 
       # upstream issue: missing file header
       link = markBroken super.link;
-
-      # upstream issue: mismatched filename
-      link-hint = markBroken super.link-hint;
 
       # upstream issue: missing file header
       maxframe = markBroken super.maxframe;
@@ -170,9 +160,6 @@ self:
 
       # upstream issue: missing file header
       qiita = markBroken super.qiita;
-
-      # upstream issue: missing package version
-      quack = markBroken super.quack;
 
       # upstream issue: missing file header
       railgun = markBroken super.railgun;

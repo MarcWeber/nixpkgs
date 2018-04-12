@@ -93,6 +93,7 @@ let
       kcolorchooser = callPackage ./kcolorchooser.nix {};
       kcontacts = callPackage ./kcontacts.nix {};
       kdav = callPackage ./kdav.nix {};
+      kdebugsettings = callPackage ./kdebugsettings.nix {};
       kdegraphics-mobipocket = callPackage ./kdegraphics-mobipocket.nix {};
       kdegraphics-thumbnailers = callPackage ./kdegraphics-thumbnailers.nix {};
       kdenetwork-filesharing = callPackage ./kdenetwork-filesharing.nix {};
@@ -130,6 +131,7 @@ let
       krdc = callPackage ./krdc.nix {};
       krfb = callPackage ./krfb.nix {};
       kruler = callPackage ./kruler.nix {};
+      ksystemlog = callPackage ./ksystemlog.nix {};
       ktnef = callPackage ./ktnef.nix {};
       kwalletmanager = callPackage ./kwalletmanager.nix {};
       libgravatar = callPackage ./libgravatar.nix {};

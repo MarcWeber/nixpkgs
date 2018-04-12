@@ -4,7 +4,7 @@
          version="5.0"
          xml:id="sec-release-18.09">
 
-<title>Release 18.09 (“??”, 2018/09/??)</title>
+<title>Release 18.09 (“Jellyfish”, 2018/09/??)</title>
 
 <section xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -58,6 +58,9 @@ following incompatible changes:</para>
 <itemizedlist>
   <listitem>
     <para>
+      The <literal>clementine</literal> package points now to the free derivation.
+      <literal>clementineFree</literal> is removed now and <literal>clementineUnfree</literal>
+      points to the package which is bundled with the unfree <literal>libspotify</literal> package.
     </para>
   </listitem>
 </itemizedlist>

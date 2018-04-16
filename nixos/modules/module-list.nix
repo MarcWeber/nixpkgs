@@ -548,6 +548,7 @@
   ./services/networking/searx.nix
   ./services/networking/seeks.nix
   ./services/networking/skydns.nix
+  ./services/networking/shadowsocks.nix
   ./services/networking/shairport-sync.nix
   ./services/networking/shout.nix
   ./services/networking/sniproxy.nix

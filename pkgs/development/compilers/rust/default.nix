@@ -6,29 +6,34 @@
 
 let
   rustPlatform = recurseIntoAttrs (makeRustPlatform (callPackage ./bootstrap.nix {}));
-  version = "1.25.0";
-  cargoVersion = "0.26.0";
+  version = "1.26.2";
+  cargoVersion = "1.26.2";
   src = fetchurl {
     url = "https://static.rust-lang.org/dist/rustc-${version}-src.tar.gz";
-    sha256 = "0baxjr99311lvwdq0s38bipbnj72pn6fgbk6lcq7j555xq53mxpf";
+    sha256 = "0047ais0fvmqvngqkdsxgrzhb0kljg8wy85b01kbbjc88hqcz7pv";
   };
 in rec {
   rustc = callPackage ./rustc.nix {
     inherit stdenv llvm targets targetPatches targetToolchains rustPlatform version src;
 
+    patches = [
+      ./patches/net-tcp-disable-tests.patch
+      ./patches/stdsimd-disable-doctest.patch
+      # Fails on hydra - not locally; the exact reason is unknown.
+      # Comments in the test suggest that some non-reproducible environment
+      # variables such $RANDOM can make it fail.
+      ./patches/disable-test-inherit-env.patch
+    ];
+
     forceBundledLLVM = true;
 
     configureFlags = [ "--release-channel=stable" ];
 
-    # Upstream is not running tests on aarch64:
+    # 1. Upstream is not running tests on aarch64:
     # see https://github.com/rust-lang/rust/issues/49807#issuecomment-380860567
     # So we do the same.
-    doCheck = !stdenv.isAarch64;
-
-    patches = [
-      ./patches/0001-Disable-fragile-tests-libstd-net-tcp-on-Darwin-Linux.patch
-    ] ++ stdenv.lib.optional stdenv.needsPax ./patches/grsec.patch;
-
+    # 2. Tests run out of memory for i686
+    doCheck = !stdenv.isAarch64 && !stdenv.isi686;
   };
 
   cargo = callPackage ./cargo.nix rec {

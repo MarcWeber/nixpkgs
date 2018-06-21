@@ -312,7 +312,7 @@ For example, installing the following environment
 allows one to browse module documentation index [not too dissimilar to
 this](https://downloads.haskell.org/~ghc/latest/docs/html/libraries/index.html)
 for all the specified packages and their dependencies by directing a browser of
-choice to `~/.nix-profiles/share/doc/hoogle/index.html` (or
+choice to `~/.nix-profile/share/doc/hoogle/index.html` (or
 `/run/current-system/sw/share/doc/hoogle/index.html` in case you put it in
 `environment.systemPackages` in NixOS).
 
@@ -334,10 +334,29 @@ navigate there.
 
 Finally, you can run
 ```shell
-hoogle server -p 8080 --local
+hoogle server --local -p 8080
 ```
 and navigate to http://localhost:8080/ for your own local
-[Hoogle](https://www.haskell.org/hoogle/).
+[Hoogle](https://www.haskell.org/hoogle/). The `--local` flag makes the hoogle
+server serve files from your nix store over http, without the flag it will use
+`file://` URIs. Note, however, that Firefox and possibly other browsers
+disallow navigation from `http://` to `file://` URIs for security reasons,
+which might be quite an inconvenience. Versions before v5 did not have this
+flag. See
+[this page](http://kb.mozillazine.org/Links_to_local_pages_do_not_work) for
+workarounds.
+
+For NixOS users there's a service which runs this exact command for you.
+Specify the `packages` you want documentation for and the `haskellPackages` set
+you want them to come from. Add the following to `configuration.nix`.
+
+```nix
+services.hoogle = {
+enable = true;
+packages = (hpkgs: with hpkgs; [text cryptonite]);
+haskellPackages = pkgs.haskellPackages;
+};
+```
 
 ### How to build a Haskell project using Stack
 
@@ -665,6 +684,56 @@ to build the `ghc-events` executable, so strictly speaking there's no reason to
 prefer one built with GHC 7.8.x in the first place. However, for users who
 cannot use GHC 7.10.x at all for some reason, the approach of downgrading to an
 older version might be useful.
+
+### How to override packages in all compiler-specific package sets
+
+In the previous section we learned how to override a package in a single
+compiler-specific package set. You may have some overrides defined that you want
+to use across multiple package sets. To accomplish this you could use the
+technique that we learned in the previous section by repeating the overrides for
+all the compiler-specific package sets. For example:
+
+```nix
+{
+  packageOverrides = super: let self = super.pkgs; in
+  {
+    haskell = super.haskell // {
+      packages = super.haskell.packages // {
+        ghc784 = super.haskell.packages.ghc784.override {
+          overrides = self: super: {
+            my-package = ...;
+            my-other-package = ...;
+          };
+        };
+        ghc822 = super.haskell.packages.ghc784.override {
+          overrides = self: super: {
+            my-package = ...;
+            my-other-package = ...;
+          };
+        };
+        ...
+      };
+    };
+  };
+}
+```
+
+However there's a more convenient way to override all compiler-specific package
+sets at once:
+
+```nix
+{
+  packageOverrides = super: let self = super.pkgs; in
+  {
+    haskell = super.haskell // {
+      packageOverrides = self: super: {
+        my-package = ...;
+        my-other-package = ...;
+      };
+    };
+  };
+}
+```
 
 ### How to recover from GHC's infamous non-deterministic library ID bug
 

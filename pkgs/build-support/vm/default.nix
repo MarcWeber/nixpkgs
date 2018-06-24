@@ -14,16 +14,6 @@ rec {
 
   qemu = pkgs.qemu_kvm;
 
-  qemu-220 = lib.overrideDerivation pkgs.qemu_kvm (attrs: rec {
-    version = "2.2.0";
-    src = fetchurl {
-      url = "http://wiki.qemu.org/download/qemu-${version}.tar.bz2";
-      sha256 = "1703c3scl5n07gmpilg7g2xzyxnr7jczxgx6nn4m8kv9gin9p35n";
-    };
-    patches = [ ../../../nixos/modules/virtualisation/azure-qemu-220-no-etc-install.patch ];
-  });
-
-
   modulesClosure = makeModulesClosure {
     inherit kernel rootModules;
     firmware = kernel;
@@ -92,7 +82,7 @@ rec {
 
     echo "loading kernel modules..."
     for i in $(cat ${modulesClosure}/insmod-list); do
-      insmod $i
+      insmod $i || echo "warning: unable to load $i"
     done
 
     mount -t devtmpfs devtmpfs /dev
@@ -997,22 +987,22 @@ rec {
     };
 
     debian9i386 = {
-      name = "debian-9.3-stretch-i386";
-      fullName = "Debian 9.3 Stretch (i386)";
+      name = "debian-9.4-stretch-i386";
+      fullName = "Debian 9.4 Stretch (i386)";
       packagesList = fetchurl {
         url = mirror://debian/dists/stretch/main/binary-i386/Packages.xz;
-        sha256 = "1rpv0r92pkr9dmjvpffvgmq3an1s83npfmq870h67jqag3qpwj9l";
+        sha256 = "05z5ccg4ysbrgallhai53sh83i0364w7a3fdq84dpv1li059jf10";
       };
       urlPrefix = mirror://debian;
       packages = commonDebianPackages;
     };
 
     debian9x86_64 = {
-      name = "debian-9.3-stretch-amd64";
-      fullName = "Debian 9.3 Stretch (amd64)";
+      name = "debian-9.4-stretch-amd64";
+      fullName = "Debian 9.4 Stretch (amd64)";
       packagesList = fetchurl {
         url = mirror://debian/dists/stretch/main/binary-amd64/Packages.xz;
-        sha256 = "1gnkvh7wc5yp0rw8kq8p8rlskvl0lc4cv3gdylw8qpqzy75xqlig";
+        sha256 = "19j0c54b1b9lbk9fv2c2aswdh0s2c3klf97zrlmsz4hs8wm9jylq";
       };
       urlPrefix = mirror://debian;
       packages = commonDebianPackages;

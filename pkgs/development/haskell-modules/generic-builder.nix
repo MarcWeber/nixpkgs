@@ -30,7 +30,7 @@ in
 , profilingDetail ? "all-functions"
 # TODO enable shared libs for cross-compiling
 , enableSharedExecutables ? false
-, enableSharedLibraries ? ((ghc.isGhcjs or false) || stdenv.lib.versionOlder "7.7" ghc.version)
+, enableSharedLibraries ? (ghc.enableShared or false)
 , enableDeadCodeElimination ? (!stdenv.isDarwin)  # TODO: use -dead_strip for darwin
 , enableStaticLibraries ? !hostPlatform.isWindows
 , enableHsc2hsViaAsm ? hostPlatform.isWindows && stdenv.lib.versionAtLeast ghc.version "8.4"
@@ -98,7 +98,7 @@ let
                         else "package-conf";
 
   # the target dir for haddock documentation
-  docdir = docoutput: docoutput + "/share/doc";
+  docdir = docoutput: docoutput + "/share/doc/" + pname + "-" + version;
 
   newCabalFileUrl = "http://hackage.haskell.org/package/${pname}-${version}/revision/${revision}.cabal";
   newCabalFile = fetchurl {

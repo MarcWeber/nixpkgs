@@ -392,11 +392,12 @@ let
     nat = [ pkgs.which ];
     nat_nblast = [ pkgs.which ];
     nat_templatebrains = [ pkgs.which ];
-    pbdZMQ = lib.optionals stdenv.isDarwin [ pkgs.binutils.bintools ];
+    pbdZMQ = lib.optionals stdenv.isDarwin [ pkgs.darwin.binutils ];
     RMark = [ pkgs.which ];
     RPushbullet = [ pkgs.which ];
     qtpaint = [ pkgs.cmake ];
     qtbase = [ pkgs.cmake pkgs.perl ];
+    RcppEigen = [ pkgs.libiconv ];
     RCurl = [ pkgs.curl.dev ];
     R2SWF = [ pkgs.pkgconfig ];
     rggobi = [ pkgs.pkgconfig ];
@@ -409,7 +410,7 @@ let
     fftw = [ pkgs.pkgconfig ];
     geoCount = [ pkgs.pkgconfig ];
     gdtools = [ pkgs.pkgconfig ];
-    JuniperKernel = lib.optionals stdenv.isDarwin [ pkgs.binutils.bintools ];
+    JuniperKernel = lib.optionals stdenv.isDarwin [ pkgs.darwin.binutils ];
     kza = [ pkgs.pkgconfig ];
     magick = [ pkgs.pkgconfig ];
     mwaved = [ pkgs.pkgconfig ];
@@ -433,12 +434,17 @@ let
     PET = [ pkgs.which pkgs.xorg.xdpyinfo pkgs.imagemagick ];
     dti = [ pkgs.which pkgs.xorg.xdpyinfo pkgs.imagemagick ];
     mzR = [ pkgs.netcdf ];
+    cluster = [ pkgs.libiconv ];
+    KernSmooth = [ pkgs.libiconv ];
+    nlme = [ pkgs.libiconv ];
+    Matrix = [ pkgs.libiconv ];
+    mgcv = [ pkgs.libiconv ];
+    igraph = [ pkgs.libiconv ];
   };
 
   packagesRequireingX = [
     "accrual"
     "ade4TkGUI"
-    "adehabitat"
     "analogue"
     "analogueExtra"
     "AnalyzeFMRI"
@@ -585,7 +591,6 @@ let
     "ProbForecastGOP"
     "qtbase"
     "qtpaint"
-    "R2STATS"
     "r4ss"
     "RandomFields"
     "rareNMtests"
@@ -759,9 +764,9 @@ let
     });
 
     JuniperKernel = old.JuniperKernel.overrideDerivation (attrs: {
-      postPatch = ''
+      postPatch = lib.optionalString stdenv.isDarwin ''
         for file in {R,src}/*.R; do
-            sed -i 's#system("which \(otool\|install_name_tool\)"[^)]*)#"${pkgs.binutils.bintools}/bin/\1"#g' $file
+            sed -i 's#system("which \(otool\|install_name_tool\)"[^)]*)#"${pkgs.darwin.cctools}/bin/\1"#g' $file
         done
       '';
       preConfigure = ''
@@ -776,7 +781,7 @@ let
     pbdZMQ = old.pbdZMQ.overrideDerivation (attrs: {
       postPatch = lib.optionalString stdenv.isDarwin ''
         for file in R/*.{r,r.in}; do
-            sed -i 's#system("which \(\w\+\)"[^)]*)#"${pkgs.binutils.bintools}/bin/\1"#g' $file
+            sed -i 's#system("which \(\w\+\)"[^)]*)#"${pkgs.darwin.cctools}/bin/\1"#g' $file
         done
       '';
     });

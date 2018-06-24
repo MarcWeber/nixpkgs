@@ -2,16 +2,18 @@
 
 stdenv.mkDerivation rec {
   name = "hwdata-${version}";
-  version = "0.310";
+  version = "0.312";
 
   src = fetchurl {
-    url = "https://github.com/vcrhonek/hwdata/archive/v0.310.tar.gz";
-    sha256 = "08mhwwc9g9cpfyxrwwviflkdk2jnqs6hc95iv4r5d59hqrj5kida";
+    url = "https://github.com/vcrhonek/hwdata/archive/v0.312.tar.gz";
+    sha256 = "04dbxfn40b8vyw49qpkslv20akbqm5hwl3cndmqacp6cik1l0gai";
   };
 
   preConfigure = "patchShebangs ./configure";
 
   configureFlags = "--datadir=$(prefix)/data";
+
+  doCheck = false; # this does build machine-specific checks (e.g. enumerates PCI bus)
 
   meta = {
     homepage = https://github.com/vcrhonek/hwdata;

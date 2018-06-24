@@ -1,23 +1,24 @@
-{ stdenv, buildGoPackage, fetchFromGitHub, git, gnupg, makeWrapper }:
+{ stdenv, buildGoPackage, fetchFromGitHub, git, gnupg, xclip, makeWrapper }:
 
 buildGoPackage rec {
-  version = "1.6.11";
+  version = "1.8.1";
   name = "gopass-${version}";
 
-  goPackagePath = "github.com/justwatchcom/gopass";
+  goPackagePath = "github.com/gopasspw/gopass";
 
   nativeBuildInputs = [ makeWrapper ];
 
   src = fetchFromGitHub {
-    owner = "justwatchcom";
+    owner = "gopasspw";
     repo = "gopass";
     rev = "v${version}";
-    sha256 = "12pih414232bsdj1qqc04vck2p9254wjy044n5kbbdqbmfgap7sj";
+    sha256 = "1b3caydxz3zf1ky6qvkx0dgidlalvpmga6cjh3gqc269n00lwh6w";
   };
 
   wrapperPath = with stdenv.lib; makeBinPath ([
     git
     gnupg
+    xclip
   ]);
 
   postInstall = ''
@@ -37,7 +38,7 @@ buildGoPackage rec {
 
   meta = with stdenv.lib; {
     description     = "The slightly more awesome Standard Unix Password Manager for Teams. Written in Go.";
-    homepage        = https://github.com/justwatchcom/gopass;
+    homepage        = https://www.gopass.pw/;
     license         = licenses.mit;
     maintainers     = with maintainers; [ andir ];
     platforms       = platforms.unix;

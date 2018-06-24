@@ -4,13 +4,13 @@
 
 stdenv.mkDerivation rec {
   name = "gzdoom-${version}";
-  version = "3.3.0";
+  version = "3.4.0";
 
   src = fetchFromGitHub {
     owner = "coelckers";
     repo = "gzdoom";
     rev = "g${version}";
-    sha256 = "1q1hjfxhksny236a058ys36mpdl434vbmgapqr51n82pia838h2l";
+    sha256 = "09400w0xpw6sk593c0fr6m9qmgn6n5r1qdardizim6m0r5ki565i";
   };
 
   nativeBuildInputs = [ cmake makeWrapper ];

@@ -2,10 +2,10 @@
 
 stdenv.mkDerivation rec {
   name = "facter-${version}";
-  version = "3.11.0";
+  version = "3.11.2";
 
   src = fetchFromGitHub {
-    sha256 = "15cqn09ng23k6a70xvxbpjjqlxw46838k7qr9216lcvxwl2banih";
+    sha256 = "0sxxd05r7ika2m4p76kld1xclyi8yf4b79gb86084m1rcv692ap1";
     rev = version;
     repo = "facter";
     owner = "puppetlabs";

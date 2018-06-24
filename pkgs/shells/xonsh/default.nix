@@ -2,13 +2,13 @@
 
 python3Packages.buildPythonApplication rec {
   name = "xonsh-${version}";
-  version = "0.6.0";
+  version = "0.6.7";
 
   src = fetchFromGitHub {
     owner = "scopatz";
     repo = "xonsh";
     rev = version;
-    sha256= "0hfsan22i81wffx2xbamm8wwkxgpv12z4kfl37p9m22vpqgg0fdg";
+    sha256= "0vxdfq1wpajfypdl5lhvib50mk742dk8y375zf3h057hjb0khhgw";
   };
 
   LC_ALL = "en_US.UTF-8";
@@ -34,7 +34,7 @@ python3Packages.buildPythonApplication rec {
 
   meta = with stdenv.lib; {
     description = "A Python-ish, BASHwards-compatible shell";
-    homepage = http://xonsh.org;
+    homepage = http://xon.sh/;
     license = licenses.bsd3;
     maintainers = with maintainers; [ spwhitt garbas vrthra ];
     platforms = platforms.all;

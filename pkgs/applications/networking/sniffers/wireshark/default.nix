@@ -12,7 +12,7 @@ assert withQt  -> !withGtk && qt5  != null;
 with stdenv.lib;
 
 let
-  version = "2.4.6";
+  version = "2.6.1";
   variant = if withGtk then "gtk" else if withQt then "qt" else "cli";
 
 in stdenv.mkDerivation {
@@ -20,7 +20,7 @@ in stdenv.mkDerivation {
 
   src = fetchurl {
     url = "http://www.wireshark.org/download/src/all-versions/wireshark-${version}.tar.xz";
-    sha256 = "1znmjg40pf81ks9lnm6ilx0cy32xan5g19gbqkkhj35whb95z5lf";
+    sha256 = "126dvd6myjbxjr69dy9vzzdda2lmjy1wwwc6gcs5djb46jy5nvmb";
   };
 
   cmakeFlags = [
@@ -52,6 +52,10 @@ in stdenv.mkDerivation {
     })
     ++ stdenv.lib.optional stdenv.isDarwin ./cmake.patch;
 
+  preBuild = ''
+    export LD_LIBRARY_PATH="$PWD/run"
+  '';
+
   postInstall = if stdenv.isDarwin then ''
     ${optionalString withQt ''
       mkdir -p $out/Applications
@@ -72,6 +76,8 @@ in stdenv.mkDerivation {
     ''}
     ${optionalString withQt ''
       install -Dm644 -t $out/share/applications ../wireshark.desktop
+      wrapProgram $out/bin/wireshark \
+        --set QT_PLUGIN_PATH ${qt5.qtbase.bin}/${qt5.qtbase.qtPluginPrefix}
     ''}
 
     substituteInPlace $out/share/applications/*.desktop \
@@ -81,6 +87,11 @@ in stdenv.mkDerivation {
   '';
 
   enableParallelBuilding = true;
+
+  shellHook = ''
+    # to be able to run the resulting binary
+    export WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1
+  '';
 
   meta = with stdenv.lib; {
     homepage = https://www.wireshark.org/;

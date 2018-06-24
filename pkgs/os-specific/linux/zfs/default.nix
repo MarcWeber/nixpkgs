@@ -5,6 +5,8 @@
 # Userspace dependencies
 , zlib, libuuid, python, attr, openssl
 , libtirpc
+, nfs-utils
+, gawk, gnugrep, gnused, systemd
 
 # Kernel dependencies
 , kernel ? null, spl ? null, splUnstable ? null, splLegacyCrypto ? null
@@ -66,6 +68,7 @@ let
         substituteInPlace ./module/zfs/zfs_ctldir.c   --replace "mount -t zfs"            "${utillinux}/bin/mount -t zfs"
         substituteInPlace ./lib/libzfs/libzfs_mount.c --replace "/bin/umount"             "${utillinux}/bin/umount"
         substituteInPlace ./lib/libzfs/libzfs_mount.c --replace "/bin/mount"              "${utillinux}/bin/mount"
+        substituteInPlace ./lib/libshare/nfs.c        --replace "/usr/sbin/exportfs"      "${nfs-utils}/bin/exportfs"
         substituteInPlace ./cmd/ztest/ztest.c         --replace "/usr/sbin/ztest"         "$out/sbin/ztest"
         substituteInPlace ./cmd/ztest/ztest.c         --replace "/usr/sbin/zdb"           "$out/sbin/zdb"
         substituteInPlace ./config/user-systemd.m4    --replace "/usr/lib/modules-load.d" "$out/etc/modules-load.d"
@@ -74,12 +77,15 @@ let
         substituteInPlace ./cmd/zed/Makefile.am       --replace "\$(sysconfdir)"          "$out/etc"
         substituteInPlace ./module/Makefile.in        --replace "/bin/cp"                 "cp"
         substituteInPlace ./etc/systemd/system/zfs-share.service.in \
-          --replace "@bindir@/rm " "${coreutils}/bin/rm "
+          --replace "/bin/rm " "${coreutils}/bin/rm "
 
         for f in ./udev/rules.d/*
         do
           substituteInPlace "$f" --replace "/lib/udev/vdev_id" "$out/lib/udev/vdev_id"
         done
+        substituteInPlace ./cmd/vdev_id/vdev_id \
+          --replace "PATH=/bin:/sbin:/usr/bin:/usr/sbin" \
+          "PATH=${makeBinPath [ coreutils gawk gnused gnugrep systemd ]}"
 
         ./autogen.sh
         configureFlagsArray+=("--libexecdir=$out/libexec")
@@ -151,12 +157,12 @@ in {
   # to be adapted
   zfsStable = common {
     # comment/uncomment if breaking kernel versions are known
-    incompatibleKernelVersion = null;
+    incompatibleKernelVersion = "4.16";
 
     # this package should point to the latest release.
-    version = "0.7.8";
+    version = "0.7.9";
 
-    sha256 = "0m7j5cpz81lqcfbh4w3wvqjjka07wickl27klgy1zplv6vr0baix";
+    sha256 = "0krpxrvnda2jx6l71xhw9fsksyp2a6h9l9asppac3szsd1n7fp9n";
 
     extraPatches = [
       (fetchpatch {
@@ -173,10 +179,10 @@ in {
     incompatibleKernelVersion = "4.16";
 
     # this package should point to a version / git revision compatible with the latest kernel release
-    version = "2018-04-10";
+    version = "2018-05-22";
 
-    rev = "74df0c5e251a920a1966a011c16f960cd7ba562e";
-    sha256 = "1x3mipj3ryznnd7kx84r3n607hv6jqs66mb61g3zcdmvk6al4yq4";
+    rev = "ba863d0be4cbfbea938b10e49fb6ff459ac9ec20";
+    sha256 = "11dhigw1gybalwg2m6si148b6w195dj2lw38snqf6576wb5zndd0";
     isUnstable = true;
 
     extraPatches = [

@@ -1,24 +1,23 @@
 { lib, buildPythonPackage, fetchPypi
 , cheroot, portend, routes, six
 , setuptools_scm
-, backports_unittest-mock, codecov, coverage, objgraph, pathpy, pytest, pytest-sugar, pytestcov
+, backports_unittest-mock, objgraph, pathpy, pytest, pytestcov
 }:
 
 buildPythonPackage rec {
-  name = "${pname}-${version}";
   pname = "CherryPy";
-  version = "14.0.1";
+  version = "16.0.2";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "721d09bbeedaf5b3493e9e644ae9285d776ea7f16b1d4a0a5aaec7c0d22e5074";
+    sha256 = "858fbff27235a392026b1d821ad815b587815c94fbb14312e2e64cc23766b9c3";
   };
 
   propagatedBuildInputs = [ cheroot portend routes six ];
 
   buildInputs = [ setuptools_scm ];
 
-  checkInputs = [ backports_unittest-mock codecov coverage objgraph pathpy pytest pytest-sugar pytestcov ];
+  checkInputs = [ backports_unittest-mock objgraph pathpy pytest pytestcov ];
 
   checkPhase = ''
     LANG=en_US.UTF-8 pytest

@@ -37,5 +37,6 @@ stdenv.mkDerivation rec {
     '';
 
     platforms = stdenv.lib.platforms.mesaPlatforms;
+    hydraPlatforms = stdenv.lib.platforms.linux; # darwin times out
   };
 }

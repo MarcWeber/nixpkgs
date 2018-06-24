@@ -1,207 +1,74 @@
-{ pkgs
-, version ? "2.8.x"
-, applyGlobalOverrides
-}:
+{ stdenv, fetchurl, autoreconfHook, pkgconfig, intltool, babl, gegl, gtk2, glib, gdk_pixbuf, isocodes
+, pango, cairo, freetype, fontconfig, lcms, libpng, libjpeg, poppler, poppler_data, libtiff
+, libmng, librsvg, libwmf, zlib, libzip, ghostscript, aalib, shared-mime-info
+, python2Packages, libexif, gettext, xorg, glib-networking, libmypaint, gexiv2
+, harfbuzz, mypaint-brushes, libwebp, libgudev, openexr
+, AppKit, Cocoa, gtk-mac-integration }:
 
 let
+  inherit (python2Packages) pygtk wrapPython python;
+in stdenv.mkDerivation rec {
+  name = "gimp-${version}";
+  version = "2.10.2";
 
-  /*
-     HOWTO install & use gimp plugins:
+  src = fetchurl {
+    url = "http://download.gimp.org/pub/gimp/v${stdenv.lib.versions.majorMinor version}/${name}.tar.bz2";
+    sha256 = "1srkqd9cx1xmny7cyk3b6f14dknb3fd77whm38vlvr7grnpbmc0w";
+  };
 
-     all installable plugins are found in ./plugins/default.nix
+  nativeBuildInputs = [ autoreconfHook pkgconfig intltool gettext wrapPython ];
+  propagatedBuildInputs = [ gegl ]; # needed by gimp-2.0.pc
+  buildInputs = [
+    babl gegl gtk2 glib gdk_pixbuf pango cairo gexiv2 harfbuzz isocodes
+    freetype fontconfig lcms libpng libjpeg poppler poppler_data libtiff openexr
+    libmng librsvg libwmf zlib libzip ghostscript aalib shared-mime-info libwebp
+    python pygtk libexif xorg.libXpm glib-networking libmypaint mypaint-brushes
+  ] ++ stdenv.lib.optionals stdenv.isDarwin [ AppKit Cocoa gtk-mac-integration ]
+    ++ stdenv.lib.optionals stdenv.isLinux [ libgudev ];
 
-     Install using config.nix: (gimp.withPlugins ["fourier" ...])
-     otherwise install gimp_VERSION.plugins.PLUGIN_NAME
+  pythonPath = [ pygtk ];
 
-     After opening gimp goto edit -> preferences -> folders -> Plug-Ins and add ~/.nix-profile/gimp-$version-plugins
-     Pay attention: This hardwires the gimp's builtin plugin path into your ~/.gimp-$VERSION/.gimprc :(
+  # Check if librsvg was built with --disable-pixbuf-loader.
+  PKG_CONFIG_GDK_PIXBUF_2_0_GDK_PIXBUF_MODULEDIR = "${librsvg}/${gdk_pixbuf.moduleDir}";
 
-     I didn't came up with a easier way within reasonable time.
+  preConfigure = ''
+    # The check runs before glib-networking is registered
+    export GIO_EXTRA_MODULES="${glib-networking}/lib/gio/modules:$GIO_EXTRA_MODULES"
+  '';
 
-     ISSUES: If the store paths changes some paths in ~/.gimp-$VERSION/ are bad.
-             Eg this can cause gimp failing opening .jpeg files !
+  postFixup = ''
+    wrapPythonProgramsIn $out/lib/gimp/${passthru.majorVersion}/plug-ins/
+    wrapProgram $out/bin/gimp-${stdenv.lib.versions.majorMinor version} \
+      --prefix PYTHONPATH : "$PYTHONPATH" \
+      --set GDK_PIXBUF_MODULE_FILE "$GDK_PIXBUF_MODULE_FILE"
+  '';
 
-             TODO: create a script which checks for changing store paths and
-             fixing this on the fly ?
+  passthru = rec {
+    # The declarations for `gimp-with-plugins` wrapper,
+    # used for determining plug-in installation paths
+    majorVersion = "${stdenv.lib.versions.major version}.0";
+    targetPluginDir = "lib/gimp/${majorVersion}/plug-ins";
+    targetScriptDir = "lib/gimp/${majorVersion}/scripts";
 
-      The followhing env vars could be of interest:
-      GIMP2_DIRECTORY
-      GIMP2_PLUGINDIR
+    # probably its a good idea to use the same gtk in plugins ?
+    gtk = gtk2;
+  };
 
-
-      If versions differ in two many ways the new gimp versions should be put into a separate file.
-
-
-    >= gimp-2.8 supports GPU acceleration, you have to export GEGL_USE_OPENCL=yes
-
-  */
-
-  p = pkgs;
-
-  commonBuildInputs = [
-    p.pkgconfig p.gnome2.gtk p.freetype p.fontconfig
-    p.gnome2.libart_lgpl p.libtiff p.libjpeg p.libexif p.zlib p.bzip2 p.lzma p.perl
-    p.perlXMLParser p.python p.pythonPackages.pygtk p.gettext p.intltool
+  configureFlags = [
+    "--without-webkit" # old version is required
+    "--with-bug-report-url=https://github.com/NixOS/nixpkgs/issues/new"
+    "--with-icc-directory=/var/run/current-system/sw/share/color/icc"
   ];
-  /*
-  ] ++
-  (if version == "git" then [ (p.pkgconfig.override { version = "0.27"; })  ]
-  else [ p.pkgconfig ]);
-  */
 
-  commonBuildInputs28 = [ p.pango p.cairo p.gdk_pixbuf p.librsvg  p.glib
-      p.lcms2 p.poppler p.webkit p.libmng p.libwmf p.libzip p.ghostscript p.aalib p.jasper
-  ];
+  doCheck = true;
 
-  inherit (p) stdenv fetchurl sourceFromHead;
+  enableParallelBuilding = true;
 
-  gimp = stdenv.mkDerivation (stdenv.lib.misc.mergeAttrsByVersion "gimp" version {
-    # version specific attributes
-    "2.6.12" = {
-      src = fetchurl {
-        url = "ftp://ftp.gtk.org/pub/gimp/v2.6/gimp-2.6.12.tar.bz2";
-        sha256 = "0qpcgaa4pdqqhyyy8vjvzfflxgsrrs25zk79gixzlnbzq3qwjlym";
-      };
-
-      buildInputs =
-        let gegl_ = p.gegl.override { version = "0.1.6"; }; in
-        commonBuildInputs ++ [ gegl_ gegl_.babl p.libpng12 ];
-
-      configureFlags = [ "--disable-print" ];
-
-
-      enableParallelBuilding = false;
-
-      # plugins want to find the header files. Adding the includes to
-      # NIX_CFLAGS_COMPILE is faster than patching them all ..
-      postInstall = ''
-        mkdir -p $out/nix-support
-        echo "NIX_CFLAGS_COMPILE=\"\$NIX_CFLAGS_COMPILE -I ''${out}/include/gimp-2.0\"" >> $out/nix-support/setup-hook
-      '';
-
-      passthru = {
-        pluginDir = "lib/gimp/2.0/plug-ins";
-        scriptDir = "share/gimp/2.0/scripts";
-      };
-    };
-
-    # "2.7.1" = {
-    #   src = fetchurl {
-    #     url = "ftp://ftp.gimp.org/pub/gimp/v2.7/gimp-${version}.tar.bz2";
-    #     md5 = "4932a0a1645ecd5b23ea6155ddda013d";
-    #   };
-    #   enableParallelBuilding = false; # compilation fails (git version of 2011-01)
-    #   buildInputs =
-    #     let gegl_ = p.gegl.override { version = "0.1.6"; }; in
-    #     commonBuildInputs ++ [ gegl_ gegl_.babl p.libpng ];
-
-    #   # preConfigure = ''
-    #   #   sed -i 's@gegl >= \([0-9]\.[0-9]\.[0-9]\)@gegl-0.2 >= \1@' configure
-    #   # '';
-
-    #   passthru = {
-    #     pluginDir = "lib/gimp/2.0/plug-ins";
-    #     scriptDir = "share/gimp/2.0/scripts";
-    #   };
-    # };
-
-    "2.8.x" = {
-      src = fetchurl {
-        url = "ftp://ftp.gimp.org/pub/gimp/v2.8/gimp-2.8.8.tar.bz2";
-        md5 = "ef2547c3514a1096931637bd6250635a";
-      };
-
-      buildInputs =
-        commonBuildInputs
-        ++ commonBuildInputs28
-        ++ [ p.babl p.gegl p.libpng ];
-
-      passthru = {
-        pluginDir = "lib/gimp/2.0/plug-ins";
-        scriptDir = "share/gimp/2.0/scripts";
-      };
-    };
-
-    "latest" = {
-      src = fetchurl {
-        url = "ftp://ftp.gimp.org/pub/gimp/v2.9/gimp-2.8.8.tar.bz2";
-        md5 = "ef2547c3514a1096931637bd6250635a";
-      };
-      buildInputs =
-        commonBuildInputs
-        ++ commonBuildInputs28
-        ++ [ p.babl p.gegl p.libpng ];
-
-      passthru = {
-        pluginDir = "lib/gimp/2.0/plug-ins";
-        scriptDir = "share/gimp/2.0/scripts";
-      };
-    };
-
-    "git" = 
-      let gegl = ( p.geglVersioned.override { version ="git"; } ); # > 0.3.8
-          babl = ( p.bablVersioned.override { version = "git"; } );
-      in {
-      buildInputs =
-        commonBuildInputs
-        ++ commonBuildInputs28
-        ++ [
-        babl gegl
-        (p.libmypaint.override { inherit gegl babl; })
-        p.json_glib
-        p.autoconf p.automake111x p.libxslt p.libtool
-        p.gnome2.gtkdoc
-        p.gnome3.gexiv2
-        p.pango p.cairo
-        p.libpng
-      ];
-      enableParallelBuilding = true;
-
-      preConfigure = ''
-      ./autogen.sh
-      # don't ask me why !?
-      sed -i 's@gegl >= 0.1.6@gegl-2.0 >= 0.1.6@' configure
-      '';
-      # REGION AUTO UPDATE: { name="gimp"; type="git"; url="git://git.gnome.org/gimp"; groups = "gimp_group"; }
-      src = (fetchurl { url = "http://mawercer.de/~nix/repos/gimp-git-702c4.tar.bz2"; sha256 = "d3506d9502efdc30a4f221eac912d3bc239ab22958938eee4f7bbd69c859a252"; });
-      name = "gimp-git-702c4";
-      # END
-
-      passthru = {
-        pluginDir = "lib/gimp/2.0/plug-ins";
-        scriptDir = "share/gimp/2.0/scripts";
-      };
-    };
-
-  }
-  {
-
-    # shared derivation attributes:
-
-    name = "gimp-${version}";
-
-    passthru = {
-      inherit (p) gnome2;
-      inherit (p.gnome2) gtk;
-    }; # used by gimp plugins
-
-    # "screenshot" needs this.
-    NIX_LDFLAGS = "-rpath ${p.xlibs.libX11}/lib";
-
-    meta = {
-      description = "The GNU Image Manipulation Program";
-      homepage = http://www.gimp.org/;
-      license = "GPL";
-    };
-  });
-
-  plugins = (import ./plugins) { inherit pkgs gimp; };
-
-  # you still have to manually install the plugins :(.
-  withPlugins = pluginNames:
-      pkgs.misc.collection {
-        name = "${gimp.name}-and-plugins";
-        list = [  gimp ] ++ map (n: builtins.getAttr n plugins ) pluginNames;
-      };
-
-in gimp // { inherit plugins withPlugins; }
+  meta = with stdenv.lib; {
+    description = "The GNU Image Manipulation Program";
+    homepage = https://www.gimp.org/;
+    maintainers = with maintainers; [ jtojnar ];
+    license = licenses.gpl3Plus;
+    platforms = platforms.unix;
+  };
+}

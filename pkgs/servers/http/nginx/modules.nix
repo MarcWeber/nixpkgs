@@ -5,14 +5,23 @@
     src = let gitsrc = pkgs.fetchFromGitHub {
       owner = "eustas";
       repo = "ngx_brotli";
-      rev = "6a1174446f5a866d3d13615dd2824177570f0a69";
-      sha256 = "148xfh6w1wgql2jj922ryiddrs93dyacs903j2hnil67cpia45p6";
+      rev = "v0.1.2";
+      sha256 = "19r9igxm4hrzrhxajlxw2ccq0057h8ipkfiif725x0xqbxjskl6c";
     }; in pkgs.runCommandNoCC "ngx_brotli-src" {} ''
       cp -a ${gitsrc} $out
       substituteInPlace $out/config \
         --replace /usr/local ${lib.getDev pkgs.brotli}
     '';
     inputs = [ pkgs.brotli ];
+  };
+
+  ipscrub = {
+    src = fetchFromGitHub {
+      owner = "masonicboom";
+      repo = "ipscrub";
+      rev = "99230f66d5afe1f929cf4ed217901acb6206f620";
+      sha256 = "0mfrwkg4srql38w713pg6qxi0h4hgy8inkvgc9cm80bwlv2ng9s1";
+    } + "/ipscrub";
   };
 
   rtmp ={

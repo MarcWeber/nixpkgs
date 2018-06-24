@@ -12,7 +12,7 @@
 , libatomic_ops, graphite2, harfbuzz, libodfgen, libzmf
 , librevenge, libe-book, libmwaw, glm, glew, gst_all_1
 , gdb, commonsLogging, librdf_rasqal, wrapGAppsHook
-, defaultIconTheme, glib, ncurses, xmlsec, epoxy, gpgme
+, defaultIconTheme, glib, ncurses, epoxy, gpgme
 , langs ? [ "ca" "de" "en-GB" "en-US" "eo" "es" "fr" "hu" "it" "nl" "pl" "ru" "sl" ]
 , withHelp ? true
 , kdeIntegration ? false
@@ -42,14 +42,14 @@ let
 
     translations = fetchSrc {
       name = "translations";
-      sha256 = "1fx9xkf1ppap77b8zdr8qawbikgp607z5w9b7jk3rilcqs7xbkwl";
+      sha256 = "0bjl3hdckd5bcgskh46xqna1hpxjjx0ycgpnilyk7j8l6407hpw6";
     };
 
     # TODO: dictionaries
 
     help = fetchSrc {
       name = "help";
-      sha256 = "0zphmhl4a8pd5l7ma4bzhrwgbv037j8p5m1ilvb1blgbqv53v38a";
+      sha256 = "1z21bk5lwd5gxsyjdwh0fmgkys4lhnx7flbjd6dbn9d99paz1w6f";
     };
 
   };
@@ -184,7 +184,7 @@ in stdenv.mkDerivation rec {
     done
 
     cp -r sysui/desktop/icons  "$out/share"
-    sed -re 's@Icon=libreofficedev[0-9.]*-?@Icon=@' -i "$out/share/applications/"*.desktop
+    sed -re 's@Icon=libreoffice(dev)?[0-9.]*-?@Icon=@' -i "$out/share/applications/"*.desktop
   '';
 
   configureFlags = [
@@ -241,6 +241,7 @@ in stdenv.mkDerivation rec {
     "--without-system-mdds"
     # https://github.com/NixOS/nixpkgs/commit/5c5362427a3fa9aefccfca9e531492a8735d4e6f
     "--without-system-orcus"
+    "--without-system-xmlsec"
   ];
 
   checkPhase = ''
@@ -261,7 +262,7 @@ in stdenv.mkDerivation rec {
       python3 sablotron sane-backends unzip vigra which zip zlib
       mdds bluez5 glibc libcmis libwps libabw libzmf libtool
       libxshmfence libatomic_ops graphite2 harfbuzz gpgme utillinux
-      librevenge libe-book libmwaw glm glew ncurses xmlsec epoxy
+      librevenge libe-book libmwaw glm glew ncurses epoxy
       libodfgen CoinMP librdf_rasqal defaultIconTheme gettext
       gdb
     ]

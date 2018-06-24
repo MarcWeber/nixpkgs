@@ -22,7 +22,7 @@
 , pkgconfig , ncurses, xapian_1_2_22, gpgme, utillinux, fetchpatch, tzdata, icu, libffi
 , cmake, libssh2, openssl, mysql, darwin, git, perl, pcre, gecode_3, curl
 , libmsgpack, qt48, libsodium, snappy, libossp_uuid, lxc, libpcap, xorg, gtk2, buildRubyGem
-, cairo, re2, rake, gobjectIntrospection, gdk_pixbuf
+, cairo, re2, rake, gobjectIntrospection, gdk_pixbuf, zeromq, graphicsmagick
 }@args:
 
 let
@@ -96,12 +96,47 @@ in
     '';
   };
 
+  fog-dnsimple = attrs: {
+    postInstall = ''
+      cd $(cat $out/nix-support/gem-meta/install-path)
+      rm {$out/bin,bin,../../bin}/{setup,console}
+    '';
+  };
+
+  redis-rack = attrs: {
+    dontBuild = false;
+    preBuild = ''
+      exec 3>&1
+      output="$(gem build $gemspec | tee >(cat - >&3))"
+      exec 3>&-
+      sed -i 's!"rake".freeze!!' $gemspec
+    '';
+  };
+
+  ffi-rzmq-core = attrs: {
+    postInstall = ''
+      installPath=$(cat $out/nix-support/gem-meta/install-path)
+      sed -i $installPath/lib/ffi-rzmq-core/libzmq.rb -e 's@inside_gem =.*@inside_gem = "${zeromq}/lib"@'
+    '';
+  };
+
+  mini_magick = attrs: {
+    postInstall = ''
+      installPath=$(cat $out/nix-support/gem-meta/install-path)
+      echo -e "\nENV['PATH'] += ':${graphicsmagick}/bin'\n" >> $installPath/lib/mini_magick/configuration.rb
+    '';
+  };
+
+  do_sqlite3 = attrs: {
+    buildInputs = [ sqlite ];
+  };
+
   eventmachine = attrs: {
     buildInputs = [ openssl ];
   };
 
   ffi = attrs: {
-  nativeBuildInputs = [ pkgconfig ];
+    nativeBuildInputs = [ pkgconfig ];
     buildInputs = [ libffi ];
   };
 
@@ -141,6 +176,7 @@ in
   grpc = attrs: {
     nativeBuildInputs = [ pkgconfig ];
     buildInputs = [ openssl ];
+    hardeningDisable = [ "format" ];
     NIX_CFLAGS_COMPILE = [ "-Wno-error=stringop-overflow" "-Wno-error=implicit-fallthrough" ];
   };
 
@@ -203,8 +239,15 @@ in
     ] ++ lib.optional stdenv.isDarwin "--with-iconv-dir=${libiconv}";
   };
 
+  oxidized = attrs: {
+    postInstall = ''
+      cd "$(cat "$out/nix-support/gem-meta/install-path")"
+      patch -p1 < ${../../../tools/admin/oxidized/temporary-x-series.patch}
+    '';
+  };
+
   pango = attrs: {
-  nativeBuildInputs = [ pkgconfig ];
+    nativeBuildInputs = [ pkgconfig ];
     buildInputs = [ gtk2 xorg.libXdmcp pcre xorg.libpthreadstubs ];
   };
 
@@ -243,7 +286,7 @@ in
   };
 
   rmagick = attrs: {
-  nativeBuildInputs = [ pkgconfig ];
+    nativeBuildInputs = [ pkgconfig ];
     buildInputs = [ imagemagick which ];
   };
 
@@ -338,7 +381,7 @@ in
   xapian-ruby = attrs: {
     # use the system xapian
     dontBuild = false;
-  nativeBuildInputs = [ pkgconfig ];
+    nativeBuildInputs = [ pkgconfig ];
     buildInputs = [ xapian_1_2_22 zlib ];
     postPatch = ''
       cp ${./xapian-Rakefile} Rakefile

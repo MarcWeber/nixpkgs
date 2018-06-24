@@ -45,6 +45,21 @@ runTests {
     expected = true;
   };
 
+  testBitAnd = {
+    expr = (bitAnd 3 10);
+    expected = 2;
+  };
+
+  testBitOr = {
+    expr = (bitOr 3 10);
+    expected = 11;
+  };
+
+  testBitXor = {
+    expr = (bitXor 3 10);
+    expected = 9;
+  };
+
 # STRINGS
 
   testConcatMapStrings = {
@@ -317,7 +332,8 @@ runTests {
     expr = mapAttrs (const (generators.toPretty {})) rec {
       int = 42;
       bool = true;
-      string = "fnord";
+      string = ''fno"rd'';
+      path = /. + "/foo"; # toPath returns a string
       null_ = null;
       function = x: x;
       functionArgs = { arg ? 4, foo }: arg;
@@ -328,13 +344,14 @@ runTests {
     expected = rec {
       int = "42";
       bool = "true";
-      string = "\"fnord\"";
+      string = ''"fno\"rd"'';
+      path = "/foo";
       null_ = "null";
       function = "<λ>";
       functionArgs = "<λ:{(arg),foo}>";
       list = "[ 3 4 ${function} [ false ] ]";
       attrs = "{ \"foo\" = null; \"foo bar\" = \"baz\"; }";
-      drv = "<δ>";
+      drv = "<δ:test>";
     };
   };
 

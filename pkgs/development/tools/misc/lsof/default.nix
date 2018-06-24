@@ -4,13 +4,13 @@ let dialect = with stdenv.lib; last (splitString "-" stdenv.system); in
 
 stdenv.mkDerivation rec {
   name = "lsof-${version}";
-  version = "4.90";
+  version = "4.91";
 
   depsBuildBuild = [ buildPackages.stdenv.cc ];
   buildInputs = [ ncurses ];
 
   src = fetchurl {
-    urls = ["https://fossies.org/linux/misc/lsof_4.90.tar.bz2"] ++ # Mirrors seem to be down...
+    urls = ["https://fossies.org/linux/misc/lsof_${version}.tar.bz2"] ++ # Mirrors seem to be down...
       ["ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/lsof_${version}.tar.bz2"]
       ++ map (
         # the tarball is moved after new version is released
@@ -23,13 +23,17 @@ stdenv.mkDerivation rec {
         + "${stdenv.lib.optionalString isOld "OLD/"}lsof_${version}.tar.bz2"
       ) [ false true ]
       ;
-    sha256 = "1xhn3amvl5mmwji5g90nkw7lfmh2494v18qbv1f729hrg468853g";
+    sha256 = "18sh4hbl9jw2szkf0gvgan8g13f3g4c6s2q9h3zq5gsza9m99nn9";
   };
 
   unpackPhase = "tar xvjf $src; cd lsof_*; tar xvf lsof_*.tar; sourceRoot=$( echo lsof_*/); ";
 
+  patches = stdenv.lib.optional stdenv.isDarwin ./darwin-dfile.patch;
+
   postPatch = stdenv.lib.optionalString stdenv.hostPlatform.isMusl ''
     substituteInPlace dialects/linux/dlsof.h --replace "defined(__UCLIBC__)" 1
+  '' + stdenv.lib.optionalString stdenv.isDarwin ''
+    sed -i 's|lcurses|lncurses|g' Configure
   '';
 
   # Stop build scripts from searching global include paths

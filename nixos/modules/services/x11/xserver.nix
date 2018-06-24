@@ -240,7 +240,17 @@ in
         type = types.listOf types.str;
         # !!! We'd like "nv" here, but it segfaults the X server.
         default = [ "ati" "cirrus" "intel" "vesa" "vmware" "modesetting" ];
-        example = [ "vesa" ];
+        example = [
+          "ati_unfree" "amdgpu" "amdgpu-pro"
+          "nv" "nvidia" "nvidiaLegacy340" "nvidiaLegacy304"
+        ];
+        # TODO(@oxij): think how to easily add the rest, like those nvidia things
+        relatedPackages = concatLists
+          (mapAttrsToList (n: v:
+            optional (hasPrefix "xf86video" n) {
+              path  = [ "xorg" n ];
+              title = removePrefix "xf86video" n;
+            }) pkgs.xorg);
         description = ''
           The names of the video drivers the configuration
           supports. They will be tried in order until one that

@@ -26,6 +26,7 @@ let
   isPy34 = python.pythonVersion == "3.4";
   isPy35 = python.pythonVersion == "3.5";
   isPy36 = python.pythonVersion == "3.6";
+  isPy37 = python.pythonVersion == "3.7";
   isPyPy = python.executable == "pypy";
   isPy3k = strings.substring 0 1 python.pythonVersion == "3";
 
@@ -132,7 +133,7 @@ let
 
 in {
 
-  inherit python bootstrapped-pip pythonAtLeast pythonOlder isPy26 isPy27 isPy33 isPy34 isPy35 isPy36 isPyPy isPy3k buildPythonPackage buildPythonApplication;
+  inherit python bootstrapped-pip pythonAtLeast pythonOlder isPy26 isPy27 isPy33 isPy34 isPy35 isPy36 isPy37 isPyPy isPy3k buildPythonPackage buildPythonApplication;
   inherit fetchPypi callPackage;
   inherit hasPythonModule requiredPythonModules makePythonPath disabledIf;
   inherit toPythonModule toPythonApplication;
@@ -149,7 +150,6 @@ in {
   setuptools = toPythonModule (callPackage ../development/python-modules/setuptools { });
 
   vowpalwabbit = callPackage ../development/python-modules/vowpalwabbit {
-    pythonPackages = self;
     boost = pkgs.boost160;
   };
 
@@ -265,6 +265,8 @@ in {
 
   diff-match-patch = callPackage ../development/python-modules/diff-match-patch { };
 
+  fido2 = callPackage ../development/python-modules/fido2 {  };
+
   globus-sdk = callPackage ../development/python-modules/globus-sdk { };
 
   goocalendar = callPackage ../development/python-modules/goocalendar { };
@@ -365,7 +367,7 @@ in {
 
   pydocstyle = callPackage ../development/python-modules/pydocstyle { };
 
-  pyexiv2 = disabledIf isPy3k (callPackage ../development/python-modules/pyexiv2 {});
+  pyexiv2 = disabledIf isPy3k (toPythonModule (callPackage ../development/python-modules/pyexiv2 {}));
 
   py3exiv2 = callPackage ../development/python-modules/py3exiv2 { };
 
@@ -434,9 +436,7 @@ in {
 
   python-hosts = callPackage ../development/python-modules/python-hosts { };
 
-  python-openid = callPackage (if isPy3k
-    then ../development/python-modules/python3-openid
-    else ../development/python-modules/python-openid) { };
+  python3-openid = callPackage ../development/python-modules/python3-openid { };
 
   python-periphery = callPackage ../development/python-modules/python-periphery { };
 
@@ -471,6 +471,8 @@ in {
   simpleeval = callPackage ../development/python-modules/simpleeval { };
 
   sip = callPackage ../development/python-modules/sip { };
+
+  sklearn-deap = callPackage ../development/python-modules/sklearn-deap { };
 
   spglib = callPackage ../development/python-modules/spglib { };
 
@@ -2039,7 +2041,7 @@ in {
     meta = {
       description = "Complete yet simple CSS parser for Python";
       license = licenses.bsd3;
-      homepage = http://pythonhosted.org/tinycss/;
+      homepage = https://pythonhosted.org/tinycss/;
     };
   };
 
@@ -2293,7 +2295,7 @@ in {
     '';
 
     meta = {
-      homepage = "http://editorconfig.org";
+      homepage = https://editorconfig.org;
       description = "EditorConfig File Locator and Interpreter for Python";
       license = stdenv.lib.licenses.psfl;
     };
@@ -2614,6 +2616,8 @@ in {
     };
   };
 
+  python-forecastio = callPackage ../development/python-modules/python-forecastio { };
+
   fpdf = callPackage ../development/python-modules/fpdf { };
 
   fpylll = callPackage ../development/python-modules/fpylll { };
@@ -2683,7 +2687,7 @@ in {
     };
 
     meta = {
-      homepage = http://docs.python.org/3/library/functools.html;
+      homepage = https://docs.python.org/3/library/functools.html;
     };
   };
 
@@ -3866,6 +3870,8 @@ in {
   };
 
   phpserialize = callPackage ../development/python-modules/phpserialize { };
+
+  plaid-python = callPackage ../development/python-modules/plaid-python { };
 
   plaster = callPackage ../development/python-modules/plaster {};
 
@@ -5520,6 +5526,8 @@ in {
     };
   };
 
+  flask-caching = callPackage ../development/python-modules/flask-caching { };
+
   flask-common = callPackage ../development/python-modules/flask-common { };
 
   flask-compress = callPackage ../development/python-modules/flask-compress { };
@@ -6911,7 +6919,7 @@ in {
 
   keyring = callPackage ../development/python-modules/keyring { };
 
-  keyutils = callPackage ../development/python-modules/keyutils { };
+  keyutils = callPackage ../development/python-modules/keyutils { inherit (pkgs) keyutils; };
 
   kiwisolver = callPackage ../development/python-modules/kiwisolver { };
 
@@ -7780,7 +7788,7 @@ in {
 
     meta = {
       description = "EditorConfig File Locator and Interpreter for Python";
-      homepage = "http://editorconfig.org/";
+      homepage = https://editorconfig.org/;
       license = licenses.psfl;
     };
   };
@@ -8070,7 +8078,7 @@ in {
     disabled = isPy3k;
 
     src = pkgs.fetchurl {
-      url = http://www.blacktrash.org/hg/muttils/archive/8bb26094df06.tar.bz2;
+      url = https://www.blacktrash.org/hg/muttils/archive/8bb26094df06.tar.bz2;
       sha256 = "1a4kxa0fpgg6rdj5p4kggfn8xpniqh8v5kbiaqc6wids02m7kag6";
     };
 
@@ -8079,7 +8087,7 @@ in {
 
     meta = {
       description = "Utilities for use with console mail clients, like mutt";
-      homepage = http://www.blacktrash.org/hg/muttils;
+      homepage = https://www.blacktrash.org/hg/muttils;
       license = licenses.gpl2Plus;
     };
   });
@@ -8227,7 +8235,7 @@ in {
 
     meta = {
       description = "Tool to measure, monitor and analyze memory behavior";
-      homepage = http://pythonhosted.org/Pympler/;
+      homepage = https://pythonhosted.org/Pympler/;
       license = licenses.asl20;
     };
   };
@@ -8711,7 +8719,7 @@ in {
 
     meta = {
       description = "A Python wrapper around notmuch";
-      homepage = http://notmuchmail.org/;
+      homepage = https://notmuchmail.org/;
       maintainers = with maintainers; [ garbas ];
     };
   };
@@ -9155,7 +9163,7 @@ in {
    ];
 
    meta = with stdenv.lib; {
-     homepage = "http://github.com/bcwaldon/warlock";
+     homepage = https://github.com/bcwaldon/warlock;
    };
  };
 
@@ -10100,15 +10108,6 @@ in {
   psd-tools = callPackage ../development/python-modules/psd-tools { };
 
   psutil = callPackage ../development/python-modules/psutil { };
-
-  psutil_1 = self.psutil.overrideAttrs (oldAttrs: rec {
-    name = "${oldAttrs.pname}-${version}";
-    version = "1.2.1";
-    src = oldAttrs.src.override {
-      inherit version;
-      sha256 = "0ibclqy6a4qmkjhlk3g8jhpvnk0v9aywknc61xm3hfi5r124m3jh";
-    };
-  });
 
   psycopg2 = buildPythonPackage rec {
     name = "psycopg2-2.7.1";
@@ -11257,7 +11256,7 @@ in {
   pyls-isort = callPackage ../development/python-modules/pyls-isort {};
 
   pyudev = callPackage ../development/python-modules/pyudev {
-    inherit (pkgs) fetchurl systemd;
+    inherit (pkgs) systemd;
   };
 
   pynmea2 = callPackage ../development/python-modules/pynmea2 {};
@@ -11599,7 +11598,7 @@ in {
     doCheck = false;
 
     meta = {
-      homepage = "http://github.com/mongodb/mongo-python-driver";
+      homepage = https://github.com/mongodb/mongo-python-driver;
       license = licenses.asl20;
       description = "Python driver for MongoDB ";
     };
@@ -12326,7 +12325,7 @@ in {
     propagatedBuildInputs = with self; [ pyasn1 ];
 
     meta = {
-      homepage = "http://stuvel.eu/rsa";
+      homepage = https://stuvel.eu/rsa;
       license = licenses.asl20;
       description = "A pure-Python RSA implementation";
     };
@@ -12805,7 +12804,7 @@ in {
 
     meta = {
       description = "sqlite-backed dictionary";
-      homepage = "http://github.com/Yelp/sqlite3dbm";
+      homepage = https://github.com/Yelp/sqlite3dbm;
       license = licenses.asl20;
     };
   };
@@ -12860,6 +12859,8 @@ in {
   spambayes = callPackage ../development/python-modules/spambayes { };
 
   shapely = callPackage ../development/python-modules/shapely { };
+
+  soco = callPackage ../development/python-modules/soco { };
 
   sopel = buildPythonPackage rec {
     name = "sopel-6.3.1";
@@ -13534,7 +13535,7 @@ in {
     doCheck = false;
     meta = {
       description = "Sphinx spelling extension";
-      homepage = "http://bitbucket.org/dhellmann/sphinxcontrib-spelling";
+      homepage = https://bitbucket.org/dhellmann/sphinxcontrib-spelling;
       maintainers = with maintainers; [ nand0p ];
       license = licenses.bsd2;
     };
@@ -13806,7 +13807,7 @@ in {
 
     meta = {
       description = "Utility belt for automated testing";
-      homepage = "http://falcao.it/sure/";
+      homepage = https://falcao.it/sure/;
       license = licenses.gpl3Plus;
     };
   };
@@ -13886,7 +13887,7 @@ in {
     propagatedBuildInputs = with self; [ six dateutil pytz ];
 
     meta = {
-      homepage =  http://github.com/ralphbean/taskw;
+      homepage =  https://github.com/ralphbean/taskw;
       description = "Python bindings for your taskwarrior database";
       license = licenses.gpl3Plus;
       platforms = platforms.all;
@@ -15508,28 +15509,7 @@ EOF
 
   libarcus = callPackage ../development/python-modules/libarcus { };
 
-  pybrowserid = buildPythonPackage rec {
-    name = "PyBrowserID-${version}";
-    version = "0.9.2";
-    disabled = isPy3k; # Errors in the test suite.
-
-    src = pkgs.fetchgit {
-      url = https://github.com/mozilla/PyBrowserID.git;
-      rev = "refs/tags/${version}";
-      sha256 = "0zsljr45gm8a4c0lxh6mgfc60a5fijhs4pwijb9fdkq16zw0pmf0";
-    };
-
-    doCheck = false;  # some tests use networking
-
-    buildInputs = with self; [ mock unittest2 ];
-    propagatedBuildInputs = with self; [ requests ];
-
-    meta = {
-      description = "Python library for the BrowserID Protocol";
-      homepage    = "https://github.com/mozilla/PyBrowserID";
-      license     = licenses.mpl20;
-    };
-  };
+  pybrowserid = callPackage ../development/python-modules/pybrowserid { };
 
   pyzmq = callPackage ../development/python-modules/pyzmq { };
 
@@ -16152,7 +16132,7 @@ EOF
     '';
 
     meta = {
-      homepage = http://pythonhosted.org/Logbook/;
+      homepage = https://pythonhosted.org/Logbook/;
       description = "A logging replacement for Python";
       license = licenses.bsd3;
     };
@@ -17019,7 +16999,7 @@ EOF
 
     meta = {
       description = "Free console XMPP client";
-      homepage = http://poez.io;
+      homepage = https://poez.io;
       license = licenses.mit;
       maintainers = [ maintainers.lsix ];
     };
@@ -17092,7 +17072,7 @@ EOF
 
     meta = with stdenv.lib; {
       description = "Lightweight SOAP client (Jurko's fork)";
-      homepage = "http://bitbucket.org/jurko/suds";
+      homepage = https://bitbucket.org/jurko/suds;
     };
   };
 
@@ -17531,7 +17511,7 @@ EOF
     doCheck = false;
     meta = {
       description = "A client side encrypted pastebin";
-      homepage = "http://0bin.net/";
+      homepage = https://0bin.net/;
       license = licenses.wtfpl;
     };
   };

@@ -317,6 +317,10 @@
       restic = 291;
       openvpn = 292;
       meguca = 293;
+      yarn = 294;
+      hdfs = 295;
+      mapred = 296;
+      hadoop = 297;
 
       orientdb = 350;
 
@@ -596,6 +600,10 @@
       restic = 291;
       openvpn = 292;
       meguca = 293;
+      yarn = 294;
+      hdfs = 295;
+      mapred = 296;
+      hadoop = 297;
 
 
       orientdb = 350;

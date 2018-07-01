@@ -17,7 +17,7 @@ in stdenv.mkDerivation rec {
 
   # when updating check Eclipse, maybe the older version there can be removed then
   src = fetchurl {
-    url = "http://cairographics.org/${if stdenv.lib.mod (builtins.fromJSON (stdenv.lib.versions.minor version)) 2 == 0 then "releases" else "snapshots"}/${name}.tar.xz";
+    url = "https://cairographics.org/${if stdenv.lib.mod (builtins.fromJSON (stdenv.lib.versions.minor version)) 2 == 0 then "releases" else "snapshots"}/${name}.tar.xz";
     sha256 = "1jcl0mnqq6j2xip8p506g2cj54sfycm339rrd3p4g2jljhdhh8vn";
   };
 

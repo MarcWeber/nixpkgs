@@ -23,6 +23,7 @@ self: super: {
   ghc-prim = null;
   ghci = null;
   haskeline = null;
+  hoopl = self.hoopl_3_10_2_2;   # no longer a core library in GHC 8.4.x
   hpc = null;
   integer-gmp = null;
   mtl = null;
@@ -39,23 +40,7 @@ self: super: {
   unix = null;
   xhtml = null;
 
-  ## Shadowed:
-
-  ## Needs bump to a versioned attribute
-  ## Issue: https://github.com/sol/doctest/issues/189
-  doctest = overrideCabal super.doctest_0_15_0 (drv: {
-    ## Setup: Encountered missing dependencies:
-    ## ghc >=7.0 && <8.4
-    ##
-    ## Setup: Encountered missing dependencies:
-    ## QuickCheck >=2.11.3
-    doCheck         = false;
-  });
-
-  ## Needs bump to a versioned attribute
-  ## Setup: Encountered missing dependencies:
-  ## Cabal <2.2
-  ## Older versions don't compile.
+  doctest = dontCheck super.doctest_0_16_0;  # tests depend on very recent QuickCheck
   hackage-db = super.hackage-db_2_0_1;
 
   ## Needs bump to a versioned attribute
@@ -412,9 +397,9 @@ self: super: {
   dhall_1_13_0 = doJailbreak super.dhall_1_14_0;  # support ansi-terminal 0.8.x
   HaTeX = self.HaTeX_3_19_0_0;
   hpack = self.hpack_0_28_2;
-  hspec = dontCheck super.hspec_2_5_1;
-  hspec-core = dontCheck super.hspec-core_2_5_1;
-  hspec-discover = self.hspec-discover_2_5_1;
+  hspec = dontCheck super.hspec_2_5_3;
+  hspec-core = dontCheck super.hspec-core_2_5_3;
+  hspec-discover = self.hspec-discover_2_5_3;
   hspec-smallcheck = self.hspec-smallcheck_0_5_2;
   matrix = self.matrix_0_3_6_1;
   pandoc = self.pandoc_2_2_1;

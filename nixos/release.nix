@@ -299,6 +299,8 @@ in rec {
   tests.gnome3-gdm = callTest tests/gnome3-gdm.nix {};
   tests.grafana = callTest tests/grafana.nix {};
   tests.graphite = callTest tests/graphite.nix {};
+  tests.hadoop.hdfs = callTestOnMatchingSystems [ "x86_64-linux" ] tests/hadoop/hdfs.nix {};
+  tests.hadoop.yarn = callTestOnMatchingSystems [ "x86_64-linux" ] tests/hadoop/yarn.nix {};
   tests.hardened = callTest tests/hardened.nix { };
   tests.haproxy = callTest tests/haproxy.nix {};
   tests.hibernate = callTest tests/hibernate.nix {};
@@ -314,6 +316,7 @@ in rec {
   tests.influxdb = callTest tests/influxdb.nix {};
   tests.ipv6 = callTest tests/ipv6.nix {};
   tests.jenkins = callTest tests/jenkins.nix {};
+  tests.ostree = callTest tests/ostree.nix {};
   tests.osquery = callTest tests/osquery.nix {};
   tests.plasma5 = callTest tests/plasma5.nix {};
   tests.plotinus = callTest tests/plotinus.nix {};
@@ -363,6 +366,7 @@ in rec {
   tests.nsd = callTest tests/nsd.nix {};
   tests.openssh = callTest tests/openssh.nix {};
   tests.openldap = callTest tests/openldap.nix {};
+  tests.opensmtpd = callTest tests/opensmtpd.nix {};
   tests.owncloud = callTest tests/owncloud.nix {};
   tests.pam-oath-login = callTest tests/pam-oath-login.nix {};
   tests.peerflix = callTest tests/peerflix.nix {};

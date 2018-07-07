@@ -2854,6 +2854,11 @@
     github = "nthorne";
     name = "Niklas Thörne";
   };
+  numinit = {
+    email = "me@numin.it";
+    github = "numinit";
+    name = "Morgan Jones";
+  };
   nyanloutre = {
     email = "paul@nyanlout.re";
     github = "nyanloutre";
@@ -2937,6 +2942,11 @@
     email = "oxij@oxij.org";
     github = "oxij";
     name = "Jan Malakhovski";
+  };
+  oyren = {
+    email = "m.scheuren@oyra.eu";
+    github = "oyren";
+    name = "Moritz Scheuren";
   };
   pSub = {
     email = "mail@pascal-wittmann.de";
@@ -3174,6 +3184,11 @@
     email = "js@lastlog.de";
     github = "qknight";
     name = "Joachim Schiele";
+  };
+  qoelet = {
+    email = "kenny@machinesung.com";
+    github = "qoelet";
+    name = "Kenny Shen";
   };
   ragge = {
     email = "r.dahlen@gmail.com";

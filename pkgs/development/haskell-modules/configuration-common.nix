@@ -665,7 +665,7 @@ self: super: {
   # Need newer versions of their dependencies than the ones we have in LTS-11.x.
   cabal2nix = super.cabal2nix.overrideScope (self: super: { hpack = self.hpack_0_28_2; hackage-db = self.hackage-db_2_0_1; });
   dbus-hslogger = super.dbus-hslogger.overrideScope (self: super: { dbus = self.dbus_1_0_1; });
-  graphviz = (addBuildTool super.graphviz pkgs.graphviz).overrideScope (self: super: { wl-pprint-text = self.wl-pprint-text_1_2_0_0; base-compat = self.base-compat_0_10_1; });
+  graphviz = (addBuildTool super.graphviz pkgs.graphviz).overrideScope (self: super: { wl-pprint-text = self.wl-pprint-text_1_2_0_0; base-compat = self.base-compat_0_10_4; });
   status-notifier-item = super.status-notifier-item.overrideScope (self: super: { dbus = self.dbus_1_0_1; });
 
   # https://github.com/bos/configurator/issues/22
@@ -989,7 +989,7 @@ self: super: {
       cp -v embeddedfiles/*.info* $out/share/info/
     '';
   });
-  hledger-ui = overrideCabal super.hledger-ui (drv: {
+  hledger-ui = (overrideCabal super.hledger-ui (drv: {
     postInstall = ''
       for i in $(seq 1 9); do
         for j in *.$i; do
@@ -999,8 +999,8 @@ self: super: {
       done
       mkdir -p $out/share/info
       cp -v *.info* $out/share/info/
-    '';
-  });
+    '';  # hledger-ui 1.10 needs newer fsnotify than lts-11 provides.
+  })).overrideScope (self: super: { fsnotify = self.fsnotify_0_3_0_1; });
   hledger-web = overrideCabal super.hledger-web (drv: {
     postInstall = ''
       for i in $(seq 1 9); do
@@ -1063,14 +1063,17 @@ self: super: {
   });
 
   # dhall-json requires a very particular dhall version
-  dhall-json_1_2_1 = super.dhall-json_1_2_1.override { dhall = self.dhall_1_14_0; };
+  dhall-json_1_2_1 = super.dhall-json_1_2_1.override { dhall = self.dhall_1_15_0; };
+
+  # dhall-nix requires a very particular dhall version
+  dhall-nix = super.dhall-nix.override { dhall = self.dhall_1_15_0; };
 
   # https://github.com/fpco/streaming-commons/issues/49
   streaming-commons = dontCheck super.streaming-commons;
 
   # cabal2nix generates a dependency on base-compat, which is the wrong version
   base-compat-batteries = super.base-compat-batteries.override {
-    base-compat = super.base-compat_0_10_1;
+    base-compat = super.base-compat_0_10_4;
   };
 
 }

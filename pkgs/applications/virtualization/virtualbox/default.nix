@@ -1,12 +1,12 @@
 { stdenv, fetchurl, lib, fetchpatch, iasl, dev86, pam, libxslt, libxml2
 , libX11, xproto, libXext, libXcursor, libXmu, qt5, libIDL, SDL, libcap
-, zlib, libpng, glib, lvm2, libXrandr, libXinerama
+, libpng, glib, lvm2, libXrandr, libXinerama
 , pkgconfig, which, docbook_xsl, docbook_xml_dtd_43
-, alsaLib, curl, libvpx, gawk, nettools, dbus
+, alsaLib, curl, libvpx, nettools, dbus
 , xorriso, makeself, perl
 , javaBindings ? false, jdk ? null
 , pythonBindings ? false, python2 ? null
-, enableExtensionPack ? false, requireFile ? null, patchelf ? null, fakeroot ? null
+, extensionPack ? null, fakeroot ? null
 , pulseSupport ? false, libpulseaudio ? null
 , enableHardening ? false
 , headless ? false
@@ -19,30 +19,9 @@ with stdenv.lib;
 let
   python = python2;
   buildType = "release";
-  # Manually sha256sum the extensionPack file, must be hex!
-  # Do not forget to update the hash in ./guest-additions/default.nix!
-  extpack = "4c36d129f17dcab2bb37292022f1b1adfefa5f32a3161b0d5d40784bc8acf4d0";
-  extpackRev = "122591";
-  main = "0n1lip8lkz4qqq5ml47xldsx41919ncfh060i7yj51bhas604q6s";
-  version = "5.2.12";
-
-  # See https://github.com/NixOS/nixpkgs/issues/672 for details
-  extensionPack = requireFile rec {
-    name = "Oracle_VM_VirtualBox_Extension_Pack-${version}-${toString extpackRev}.vbox-extpack";
-    sha256 = extpack;
-    message = ''
-      In order to use the extension pack, you need to comply with the VirtualBox Personal Use
-      and Evaluation License (PUEL) available at:
-
-      https://www.virtualbox.org/wiki/VirtualBox_PUEL
-
-      Once you have read and if you agree with the license, please use the
-      following command and re-run the installation:
-
-      nix-prefetch-url http://download.virtualbox.org/virtualbox/${version}/${name}
-    '';
-  };
-
+  # Remember to change the extpackRev and version in extpack.nix as well.
+  main = "ee3af129a581ec4c1a3e777e98247f8943e976ce6edd24962bcaa5c53ed1f644";
+  version = "5.2.14";
 in stdenv.mkDerivation {
   name = "virtualbox-${version}";
 
@@ -174,7 +153,7 @@ in stdenv.mkDerivation {
         ln -s "$libexec/$file" $out/bin/$file
     done
 
-    ${optionalString enableExtensionPack ''
+    ${optionalString (extensionPack != null) ''
       mkdir -p "$share"
       "${fakeroot}/bin/fakeroot" "${stdenv.shell}" <<EXTHELPER
       "$libexec/VBoxExtPackHelperApp" install \

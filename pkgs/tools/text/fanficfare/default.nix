@@ -1,13 +1,13 @@
 { stdenv, fetchurl, python27Packages }:
 
 python27Packages.buildPythonApplication rec {
-  version = "2.26.0";
+  version = "2.28.0";
   name = "fanficfare-${version}";
   nameprefix = "";
 
   src = fetchurl {
     url = "https://github.com/JimmXinu/FanFicFare/archive/v${version}.tar.gz";
-    sha256 = "1gas5x0xzkxnc0rvyi04phzxpxxd1jfmx9a7l2fhqmlw67lml4rr";
+    sha256 = "18icxs9yaazz9swa2g4ppjsdbl25v22fdv4c1c3xspj3hwksjlvw";
   };
 
   propagatedBuildInputs = with python27Packages; [ beautifulsoup4 chardet html5lib html2text ];

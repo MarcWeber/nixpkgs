@@ -25,15 +25,15 @@ rec {
     inherit (pkgs) stdenv fetchurl unzip;
   };
 
-  platforms = if (pkgs.stdenv.system == "i686-linux" || pkgs.stdenv.system == "x86_64-linux")
+  platforms = if (pkgs.stdenv.hostPlatform.system == "i686-linux" || pkgs.stdenv.hostPlatform.system == "x86_64-linux")
     then import ./platforms-linux.nix {
       inherit (pkgs) stdenv fetchurl unzip;
     }
-    else if pkgs.stdenv.system == "x86_64-darwin"
+    else if pkgs.stdenv.hostPlatform.system == "x86_64-darwin"
     then import ./platforms-macosx.nix {
       inherit (pkgs) stdenv fetchurl unzip;
     }
-    else throw "Platform: ${pkgs.stdenv.system} not supported!";
+    else throw "Platform: ${pkgs.stdenv.hostPlatform.system} not supported!";
 
   sysimages = import ./sysimages.nix {
     inherit (pkgs) stdenv fetchurl unzip;
@@ -224,7 +224,7 @@ rec {
 
   androidsdk_latest = androidsdk_8_0;
 
-  androidndk_10e = import ./androidndk.nix {
+  androidndk_10e = pkgs.callPackage ./androidndk.nix {
     inherit (buildPackages)
       unzip makeWrapper;
     inherit (pkgs)
@@ -235,7 +235,7 @@ rec {
     sha256 = "032j3sgk93bjbkny84i17ph61dhjmsax9ddqng1zbi2p7dgl0pzf";
   };
 
-  androidndk_16b = import ./androidndk.nix {
+  androidndk_16b = pkgs.callPackage ./androidndk.nix {
     inherit (buildPackages)
        unzip makeWrapper;
     inherit (pkgs)
@@ -246,7 +246,7 @@ rec {
     sha256 = "00frcnvpcsngv00p6l2vxj4cwi2mwcm9lnjvm3zv4wrp6pss9pmw";
   };
 
-  androidndk_17 = import ./androidndk.nix {
+  androidndk_17 = pkgs.callPackage ./androidndk.nix {
     inherit (buildPackages)
       unzip makeWrapper;
     inherit (pkgs)
@@ -281,7 +281,7 @@ rec {
     inherit (buildPackages)
       makeWrapper;
     inherit (pkgs)
-      lib hostPlatform targetPlatform
+      lib stdenv
       runCommand wrapBintoolsWith wrapCCWith;
     # buildPackages.foo rather than buildPackages.buildPackages.foo would work,
     # but for splicing messing up on infinite recursion for the variants we
@@ -297,7 +297,7 @@ rec {
     inherit (buildPackages)
       makeWrapper;
     inherit (pkgs)
-      lib hostPlatform targetPlatform
+      lib stdenv
       runCommand wrapBintoolsWith wrapCCWith;
     # buildPackages.foo rather than buildPackages.buildPackages.foo would work,
     # but for splicing messing up on infinite recursion for the variants we

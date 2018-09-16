@@ -1,7 +1,7 @@
 { stdenv, fetchurl, buildPythonApplication
 , python, cython, pkgconfig
 , xorg, gtk3, glib, pango, cairo, gdk_pixbuf, atk, pygobject3, pycairo, gobjectIntrospection
-, makeWrapper, xkbcomp, xorgserver, getopt, xauth, utillinux, which, fontsConf
+, makeWrapper, xorgserver, getopt, xauth, utillinux, which, fontsConf
 , ffmpeg, x264, libvpx, libwebp
 , libfakeXinerama, pam }:
 
@@ -68,11 +68,12 @@ buildPythonApplication rec {
   #'';
 
 
-  meta = {
+  meta = with stdenv.lib; {
     homepage = http://xpra.org/;
     downloadPage = "https://xpra.org/src/";
     downloadURLRegexp = "xpra-.*[.]tar[.]xz$";
     description = "Persistent remote applications for X";
-    platforms = stdenv.lib.platforms.linux;
+    platforms = platforms.linux;
+    license = licenses.gpl2;
   };
 }

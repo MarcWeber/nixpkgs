@@ -1,4 +1,4 @@
-{ config, lib, pkgs, services, ... }:
+{ config, lib, pkgs, ... }:
 with lib;
 let
   cfg = config.services.matomo;
@@ -241,6 +241,6 @@ in {
 
   meta = {
     doc = ./matomo-doc.xml;
-    maintainers = with stdenv.lib.maintainers; [ florianjacob ];
+    maintainers = with lib.maintainers; [ florianjacob ];
   };
 }

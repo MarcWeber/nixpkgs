@@ -4,7 +4,11 @@ with lib;
 
 {
   imports = [
-    (mkRenamedOptionModule [ "dysnomia" ] [ "services" "dysnomia" ])
+    # !!! These were renamed the other way, but got reverted later.
+    # !!! Drop these before 18.09 is released.
+    (mkRenamedOptionModule [ "system" "nixos" "stateVersion" ] [ "system" "stateVersion" ])
+    (mkRenamedOptionModule [ "system" "nixos" "defaultChannel" ] [ "system" "defaultChannel" ])
+
     (mkRenamedOptionModule [ "environment" "x11Packages" ] [ "environment" "systemPackages" ])
     (mkRenamedOptionModule [ "environment" "enableBashCompletion" ] [ "programs" "bash" "enableCompletion" ])
     (mkRenamedOptionModule [ "environment" "nix" ] [ "nix" "package" ])
@@ -37,7 +41,15 @@ with lib;
     (mkRenamedOptionModule [ "services" "kubernetes" "addons" "dashboard" "enableRBAC" ] [ "services" "kubernetes" "addons" "dashboard" "rbac" "enable" ])
     (mkRenamedOptionModule [ "services" "logstash" "address" ] [ "services" "logstash" "listenAddress" ])
     (mkRenamedOptionModule [ "services" "mpd" "network" "host" ] [ "services" "mpd" "network" "listenAddress" ])
-    (mkRenamedOptionModule [ "services" "neo4j" "host" ] [ "services" "neo4j" "listenAddress" ])
+    (mkRenamedOptionModule [ "services" "neo4j" "host" ] [ "services" "neo4j" "defaultListenAddress" ])
+    (mkRenamedOptionModule [ "services" "neo4j" "listenAddress" ] [ "services" "neo4j" "defaultListenAddress" ])
+    (mkRenamedOptionModule [ "services" "neo4j" "enableBolt" ] [ "services" "neo4j" "bolt" "enable" ])
+    (mkRenamedOptionModule [ "services" "neo4j" "enableHttps" ] [ "services" "neo4j" "https" "enable" ])
+    (mkRenamedOptionModule [ "services" "neo4j" "certDir" ] [ "services" "neo4j" "directories" "certificates" ])
+    (mkRenamedOptionModule [ "services" "neo4j" "dataDir" ] [ "services" "neo4j" "directories" "home" ])
+    (mkRemovedOptionModule [ "services" "neo4j" "port" ] "Use services.neo4j.http.listenAddress instead.")
+    (mkRemovedOptionModule [ "services" "neo4j" "boltPort" ] "Use services.neo4j.bolt.listenAddress instead.")
+    (mkRemovedOptionModule [ "services" "neo4j" "httpsPort" ] "Use services.neo4j.https.listenAddress instead.")
     (mkRenamedOptionModule [ "services" "shout" "host" ] [ "services" "shout" "listenAddress" ])
     (mkRenamedOptionModule [ "services" "sslh" "host" ] [ "services" "sslh" "listenAddress" ])
     (mkRenamedOptionModule [ "services" "statsd" "host" ] [ "services" "statsd" "listenAddress" ])
@@ -207,15 +219,13 @@ with lib;
     '')
 
     # Profile splitting
-    (mkRenamedOptionModule [ "virtualization" "growPartition" ] [ "boot" "growPartition" ])
+    (mkRenamedOptionModule [ "virtualisation" "growPartition" ] [ "boot" "growPartition" ])
 
     # misc/version.nix
     (mkRenamedOptionModule [ "system" "nixosVersion" ] [ "system" "nixos" "version" ])
     (mkRenamedOptionModule [ "system" "nixosVersionSuffix" ] [ "system" "nixos" "versionSuffix" ])
     (mkRenamedOptionModule [ "system" "nixosRevision" ] [ "system" "nixos" "revision" ])
     (mkRenamedOptionModule [ "system" "nixosLabel" ] [ "system" "nixos" "label" ])
-    (mkRenamedOptionModule [ "system" "stateVersion" ] [ "system" "nixos" "stateVersion" ])
-    (mkRenamedOptionModule [ "system" "defaultChannel" ] [ "system" "nixos" "defaultChannel" ])
 
     # Users
     (mkAliasOptionModule [ "users" "extraUsers" ] [ "users" "users" ])
@@ -242,9 +252,12 @@ with lib;
     (mkRemovedOptionModule [ "fonts" "fontconfig" "hinting" "style" ] "")
     (mkRemovedOptionModule [ "services" "xserver" "displayManager" "sddm" "themes" ]
       "Set the option `services.xserver.displayManager.sddm.package' instead.")
+    (mkRemovedOptionModule [ "services" "xserver" "desktopManager" "xfce" "screenLock" ] "")
     (mkRemovedOptionModule [ "fonts" "fontconfig" "forceAutohint" ] "")
     (mkRemovedOptionModule [ "fonts" "fontconfig" "renderMonoTTFAsBitmap" ] "")
     (mkRemovedOptionModule [ "virtualisation" "xen" "qemu" ] "You don't need this option anymore, it will work without it.")
+    (mkRemovedOptionModule [ "services" "logstash" "enableWeb" ] "The web interface was removed from logstash")
+    (mkRemovedOptionModule [ "boot" "zfs" "enableLegacyCrypto" ] "The corresponding package was removed from nixpkgs.")
 
     # ZSH
     (mkRenamedOptionModule [ "programs" "zsh" "enableSyntaxHighlighting" ] [ "programs" "zsh" "syntaxHighlighting" "enable" ])

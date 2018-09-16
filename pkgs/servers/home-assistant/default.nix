@@ -1,75 +1,66 @@
-{ lib, fetchFromGitHub, python3
+{ lib, fetchFromGitHub, fetchpatch, python3
+
+# Look up dependencies of specified components in component-packages.nix
 , extraComponents ? []
+
+# Additional packages to add to propagatedBuildInputs
 , extraPackages ? ps: []
+
+# Override Python packages using
+# self: super: { pkg = super.pkg.overridePythonAttrs (oldAttrs: { ... }); }
+# Applied after defaultOverrides
+, packageOverrides ? self: super: { }
+
+# Skip pip install of required packages on startup
 , skipPip ? true }:
 
 let
 
-  py = python3.override {
+  defaultOverrides = [
     # Override the version of some packages pinned in Home Assistant's setup.py
-    packageOverrides = self: super: {
-      aiohttp = super.aiohttp.overridePythonAttrs (oldAttrs: rec {
-        version = "3.3.2";
+    (mkOverride "aiohttp" "3.4.0"
+      "9b15efa7411dcf3b59c1f4766eb16ba1aba4531a33e54d469ee22106eabce460")
+    (mkOverride "astral" "1.6.1"
+      "ab0c08f2467d35fcaeb7bad15274743d3ac1ad18b5391f64a0058a9cd192d37d")
+    (mkOverride "attrs" "18.1.0"
+      "e0d0eb91441a3b53dab4d9b743eafc1ac44476296a2053b6ca3af0b139faf87b")
+    (mkOverride "bcrypt" "3.1.4"
+      "67ed1a374c9155ec0840214ce804616de49c3df9c5bc66740687c1c9b1cd9e8d")
+    (mkOverride "pyjwt" "1.6.4"
+      "4ee413b357d53fd3fb44704577afac88e72e878716116270d722723d65b42176")
+    (mkOverride "cryptography" "2.3.1"
+      "8d10113ca826a4c29d5b85b2c4e045ffa8bad74fb525ee0eceb1d38d4c70dfd6")
+    (mkOverride "cryptography_vectors" "2.3.1" # required by cryptography==2.3.1
+      "bf4d9b61dce69c49e830950aa36fad194706463b0b6dfe81425b9e0bc6644d46")
+    (mkOverride "requests" "2.19.1"
+      "ec22d826a36ed72a7358ff3fe56cbd4ba69dd7a6718ffd450ff0e9df7a47ce6a")
+    (mkOverride "voluptuous" "0.11.5"
+      "567a56286ef82a9d7ae0628c5842f65f516abcb496e74f3f59f1d7b28df314ef")
+
+    # used by check_config script
+    # can be unpinned once https://github.com/home-assistant/home-assistant/issues/11917 is resolved
+    (mkOverride "colorlog" "3.1.4"
+      "418db638c9577f37f0fae4914074f395847a728158a011be2a193ac491b9779d")
+
+    # hass-frontend does not exist in python3.pkgs
+    (self: super: {
+      hass-frontend = self.callPackage ./frontend.nix { };
+    })
+  ];
+
+  mkOverride = attrname: version: sha256:
+    self: super: {
+      ${attrname} = super.${attrname}.overridePythonAttrs (oldAttrs: {
+        inherit version;
         src = oldAttrs.src.override {
-          inherit version;
-          sha256 = "f20deec7a3fbaec7b5eb7ad99878427ad2ee4cc16a46732b705e8121cbb3cc12";
+          inherit version sha256;
         };
       });
-      requests = super.requests.overridePythonAttrs (oldAttrs: rec {
-        version = "2.18.4";
-        src = oldAttrs.src.override {
-          inherit version;
-          sha256 = "0zi3v9nsmv9j27d0c0m1dvqyvaxz53g8m0aa1h3qanxs4irkwi4w";
-        };
-      });
-      # Required by requests==2.18.4
-      urllib3 = super.urllib3.overridePythonAttrs (oldAttrs: rec {
-        version = "1.22";
-        src = oldAttrs.src.override {
-          inherit version;
-          sha256 = "0kyvc9zdlxr5r96bng5rhm9a6sfqidrbvvkz64s76qs5267dli6c";
-        };
-      });
-      # Required by requests==2.18.4
-      idna = super.idna.overridePythonAttrs (oldAttrs: rec {
-        version = "2.6";
-        src = oldAttrs.src.override {
-          inherit version;
-          sha256 = "13qaab6d0s15gknz8v3zbcfmbj6v86hn9pjxgkdf62ch13imssic";
-        };
-      });
-      voluptuous = super.voluptuous.overridePythonAttrs (oldAttrs: rec {
-        version = "0.11.1";
-        src = oldAttrs.src.override {
-          inherit version;
-          sha256 = "af7315c9fa99e0bfd195a21106c82c81619b42f0bd9b6e287b797c6b6b6a9918";
-        };
-      });
-      attrs = super.attrs.overridePythonAttrs (oldAttrs: rec {
-        version = "18.1.0";
-        src = oldAttrs.src.override {
-          inherit version;
-          sha256 = "e0d0eb91441a3b53dab4d9b743eafc1ac44476296a2053b6ca3af0b139faf87b";
-        };
-      });
-      astral = super.astral.overridePythonAttrs (oldAttrs: rec {
-        version = "1.6.1";
-        src = oldAttrs.src.override {
-          inherit version;
-          sha256 = "ab0c08f2467d35fcaeb7bad15274743d3ac1ad18b5391f64a0058a9cd192d37d";
-        };
-      });
-      # used by check_config script
-      # can be unpinned once https://github.com/home-assistant/home-assistant/issues/11917 is resolved
-      colorlog = super.colorlog.overridePythonAttrs (oldAttrs: rec {
-        version = "3.1.4";
-        src = oldAttrs.src.override {
-          inherit version;
-          sha256 = "418db638c9577f37f0fae4914074f395847a728158a011be2a193ac491b9779d";
-        };
-      });
-      hass-frontend = super.callPackage ./frontend.nix { };
     };
+    
+  py = python3.override {
+    # Put packageOverrides at the start so they are applied after defaultOverrides
+    packageOverrides = lib.foldr lib.composeExtensions (self: super: { }) ([ packageOverrides ] ++ defaultOverrides);
   };
 
   componentPackages = import ./component-packages.nix;
@@ -84,7 +75,7 @@ let
   extraBuildInputs = extraPackages py.pkgs;
 
   # Don't forget to run parse-requirements.py after updating
-  hassVersion = "0.72.1";
+  hassVersion = "0.77.3";
 
 in with py.pkgs; buildPythonApplication rec {
   pname = "homeassistant";
@@ -99,14 +90,14 @@ in with py.pkgs; buildPythonApplication rec {
     owner = "home-assistant";
     repo = "home-assistant";
     rev = version;
-    sha256 = "05r55hdai0qwgpj2f2qqngks7qmz4lqcfbh2c1symfyigv7m634r";
+    sha256 = "1c459iqbkhs6dv563zld6qb9avpx3h0fnxng476zahj9x9m5rzk6";
   };
 
   propagatedBuildInputs = [
     # From setup.py
-    requests pyyaml pytz pip jinja2 voluptuous typing aiohttp async-timeout astral certifi attrs
-    # From http, frontend, recorder and config.config_entries components
-    sqlalchemy aiohttp-cors hass-frontend voluptuous-serialize
+    aiohttp astral async-timeout attrs bcrypt certifi jinja2 pyjwt cryptography pip pytz pyyaml requests voluptuous
+    # From http, frontend, recorder and config.config_entries components and auth.mfa_modules.totp
+    sqlalchemy aiohttp-cors hass-frontend voluptuous-serialize pyotp pyqrcode
   ] ++ componentBuildInputs ++ extraBuildInputs;
 
   checkInputs = [

@@ -9,7 +9,7 @@
 # Systemd can also change ownership of service directories using the
 # RuntimeDirectory/StateDirectory options.
 
-{ config, pkgs, lib, ... }:
+{ lib, ... }:
 
 {
   options = {
@@ -53,7 +53,7 @@
       tomcat = 16;
       #audio = 17; # unused
       #floppy = 18; # unused
-      #uucp = 19; # unused
+      uucp = 19;
       #lp = 20; # unused
       #proc = 21; # unused
       pulseaudio = 22; # must match `pulseaudio' GID
@@ -143,6 +143,7 @@
       jenkins = 109;
       systemd-journal-gateway = 110;
       #notbit = 111; # unused
+      aerospike = 111;
       ngircd = 112;
       btsync = 113;
       minecraft = 114;
@@ -321,6 +322,13 @@
       hdfs = 295;
       mapred = 296;
       hadoop = 297;
+      hydron = 298;
+      cfssl = 299;
+      cassandra = 300;
+      qemu-libvirtd = 301;
+      # kvm = 302; # unused
+      # render = 303; # unused
+      zeronet = 304;
 
       orientdb = 350;
 
@@ -438,6 +446,7 @@
       jenkins = 109;
       systemd-journal-gateway = 110;
       #notbit = 111; # unused
+      aerospike = 111;
       #ngircd = 112; # unused
       btsync = 113;
       #minecraft = 114; # unused
@@ -604,6 +613,13 @@
       hdfs = 295;
       mapred = 296;
       hadoop = 297;
+      hydron = 298;
+      cfssl = 299;
+      cassandra = 300;
+      qemu-libvirtd = 301;
+      kvm = 302; # default udev rules from systemd requires these
+      render = 303; # default udev rules from systemd requires these
+      zeronet = 304;
 
 
       orientdb = 350;

@@ -5,7 +5,7 @@
 , curl
 , cups
 , dbus-glib
-, dbus_libs
+, dbus
 , fontconfig
 , freetype
 , gconf
@@ -19,9 +19,11 @@
 , libXScrnSaver
 , libxcb
 , libXcomposite
+, libXcursor
 , libXdamage
 , libXext
 , libXfixes
+, libXi
 , libXinerama
 , libXrender
 , libXt
@@ -57,7 +59,7 @@ let
     "x86_64-linux" = "linux-x86_64";
   };
 
-  arch = mozillaPlatforms.${stdenv.system};
+  arch = mozillaPlatforms.${stdenv.hostPlatform.system};
 
   isPrefixOf = prefix: string:
     builtins.substring 0 (builtins.stringLength prefix) string == prefix;
@@ -91,7 +93,7 @@ stdenv.mkDerivation {
       curl
       cups
       dbus-glib
-      dbus_libs
+      dbus
       fontconfig
       freetype
       gconf
@@ -104,10 +106,12 @@ stdenv.mkDerivation {
       libX11
       libXScrnSaver
       libXcomposite
+      libXcursor
       libxcb
       libXdamage
       libXext
       libXfixes
+      libXi
       libXinerama
       libXrender
       libXt
@@ -170,6 +174,7 @@ stdenv.mkDerivation {
       gappsWrapperArgs+=(--argv0 "$out/bin/.firefox-wrapped")
     '';
 
+  passthru.execdir = "/bin";
   passthru.ffmpegSupport = true;
   passthru.gssSupport = true;
   # update with:

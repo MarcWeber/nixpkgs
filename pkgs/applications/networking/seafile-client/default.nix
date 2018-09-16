@@ -1,18 +1,18 @@
-{ stdenv, fetchFromGitHub, writeScript, pkgconfig, cmake, qtbase, qttools
+{ stdenv, fetchFromGitHub, pkgconfig, cmake, qtbase, qttools
 , seafile-shared, ccnet, makeWrapper
 , withShibboleth ? true, qtwebengine }:
 
 with stdenv.lib;
 
 stdenv.mkDerivation rec {
-  version = "6.2.1";
+  version = "6.2.4";
   name = "seafile-client-${version}";
 
   src = fetchFromGitHub {
     owner = "haiwen";
     repo = "seafile-client";
     rev = "v${version}";
-    sha256 = "02nzihs720pmgr5139s7fz88f7gm19dn1x2kqdpi81k7gdwqq0bp";
+    sha256 = "0z5li1d7ipsm1mp0lk6mls220v4vlmsqm8ym8kxlkinqbmkky0hz";
   };
 
   nativeBuildInputs = [ pkgconfig cmake makeWrapper ];

@@ -42,20 +42,20 @@ let
   # from the name, version, sha256, and optional per-package arguments above
   #
   deriveBioc = mkDerive {
-    mkHomepage = {name, biocVersion}: "https://bioconductor.org/packages/${biocVersion}/bioc/html/${name}.html";
+    mkHomepage = {name, biocVersion, ...}: "https://bioconductor.org/packages/${biocVersion}/bioc/html/${name}.html";
     mkUrls = {name, version, biocVersion}: [ "mirror://bioc/${biocVersion}/bioc/src/contrib/${name}_${version}.tar.gz"
                                              "mirror://bioc/${biocVersion}/bioc/src/contrib/Archive/${name}_${version}.tar.gz" ];
   };
   deriveBiocAnn = mkDerive {
-    mkHomepage = {name, biocVersion}: "http://www.bioconductor.org/packages/${name}.html";
+    mkHomepage = {name, ...}: "http://www.bioconductor.org/packages/${name}.html";
     mkUrls = {name, version, biocVersion}: [ "mirror://bioc/${biocVersion}/data/annotation/src/contrib/${name}_${version}.tar.gz" ];
   };
   deriveBiocExp = mkDerive {
-    mkHomepage = {name, biocVersion}: "http://www.bioconductor.org/packages/${name}.html";
+    mkHomepage = {name, ...}: "http://www.bioconductor.org/packages/${name}.html";
     mkUrls = {name, version, biocVersion}: [ "mirror://bioc/${biocVersion}/data/experiment/src/contrib/${name}_${version}.tar.gz" ];
   };
   deriveCran = mkDerive {
-    mkHomepage = {name, snapshot}: "http://mran.revolutionanalytics.com/snapshot/${snapshot}/web/packages/${name}/";
+    mkHomepage = {name, snapshot, ...}: "http://mran.revolutionanalytics.com/snapshot/${snapshot}/web/packages/${name}/";
     mkUrls = {name, version, snapshot}: [ "http://mran.revolutionanalytics.com/snapshot/${snapshot}/src/contrib/${name}_${version}.tar.gz" ];
   };
 
@@ -216,7 +216,8 @@ let
   # `self` is `_self` with overridden packages;
   # packages in `_self` may depends on overridden packages.
   self = (defaultOverrides _self self) // overrides;
-  _self = import ./bioc-packages.nix { inherit self; derive = deriveBioc; } //
+  _self = { inherit buildRPackage; } //
+          import ./bioc-packages.nix { inherit self; derive = deriveBioc; } //
           import ./bioc-annotation-packages.nix { inherit self; derive = deriveBiocAnn; } //
           import ./bioc-experiment-packages.nix { inherit self; derive = deriveBiocExp; } //
           import ./cran-packages.nix { inherit self; derive = deriveCran; };
@@ -264,7 +265,7 @@ let
     graphscan = [ pkgs.gsl_1 ];
     gsl = [ pkgs.gsl_1 ];
     h5 = [ pkgs.hdf5-cpp pkgs.which ];
-    haven = [ pkgs.libiconv ];
+    haven = [ pkgs.libiconv pkgs.zlib.dev ];
     h5vc = [ pkgs.zlib.dev ];
     HiCseg = [ pkgs.gsl_1 ];
     imager = [ pkgs.x11 ];
@@ -272,6 +273,7 @@ let
     igraph = [ pkgs.gmp pkgs.libxml2.dev ];
     JavaGD = [ pkgs.jdk ];
     jpeg = [ pkgs.libjpeg.dev ];
+    jqr = [ pkgs.jq.dev ];
     KFKSDS = [ pkgs.gsl_1 ];
     kza = [ pkgs.fftw.dev ];
     libamtrack = [ pkgs.gsl_1 ];
@@ -306,6 +308,7 @@ let
     RcppCNPy = [ pkgs.zlib.dev ];
     RcppGSL = [ pkgs.gsl_1 ];
     RcppZiggurat = [ pkgs.gsl_1 ];
+    reprex = [ pkgs.which ];
     rgdal = [ pkgs.proj pkgs.gdal ];
     rgeos = [ pkgs.geos ];
     rggobi = [ pkgs.ggobi pkgs.gtk2.dev pkgs.libxml2.dev ];
@@ -313,6 +316,7 @@ let
     Rglpk = [ pkgs.glpk ];
     RGtk2 = [ pkgs.gtk2.dev ];
     rhdf5 = [ pkgs.zlib ];
+    Rhdf5lib = [ pkgs.zlib ];
     Rhpc = [ pkgs.zlib pkgs.bzip2.dev pkgs.icu pkgs.lzma.dev pkgs.openmpi pkgs.pcre.dev ];
     Rhtslib = [ pkgs.zlib.dev pkgs.automake pkgs.autoconf ];
     RJaCGH = [ pkgs.zlib.dev ];
@@ -410,6 +414,7 @@ let
     geoCount = [ pkgs.pkgconfig ];
     gdtools = [ pkgs.pkgconfig ];
     JuniperKernel = lib.optionals stdenv.isDarwin [ pkgs.darwin.binutils ];
+    jqr = [ pkgs.jq.lib ];
     kza = [ pkgs.pkgconfig ];
     magick = [ pkgs.pkgconfig ];
     mwaved = [ pkgs.pkgconfig ];
@@ -744,8 +749,8 @@ let
       patches = [ ./patches/BayesXsrc.patch ];
     });
 
-    rhdf5 = old.rhdf5.overrideDerivation (attrs: {
-      patches = [ ./patches/rhdf5.patch ];
+    Rhdf5lib = old.Rhdf5lib.overrideDerivation (attrs: {
+      patches = [ ./patches/Rhdf5lib.patch ];
     });
 
     rJava = old.rJava.overrideDerivation (attrs: {
@@ -771,6 +776,12 @@ let
       preConfigure = ''
         patchShebangs configure
       '';
+    });
+
+    jqr = old.jqr.overrideDerivation (attrs: {
+      preConfigure = ''
+        patchShebangs configure
+        '';
     });
 
     pbdZMQ = old.pbdZMQ.overrideDerivation (attrs: {
@@ -893,6 +904,14 @@ let
         export TCLLIBPATH="${pkgs.bwidget}/lib/bwidget${pkgs.bwidget.version}"
       '';
       TCLLIBPATH = "${pkgs.bwidget}/lib/bwidget${pkgs.bwidget.version}";
+    });
+
+    RPostgres = old.RPostgres.overrideDerivation (attrs: {
+      preConfigure = ''
+        export INCLUDE_DIR=${pkgs.postgresql}/include
+        export LIB_DIR=${pkgs.postgresql.lib}/lib
+        patchShebangs configure
+        '';
     });
 
     OpenMx = old.OpenMx.overrideDerivation (attrs: {

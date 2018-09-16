@@ -1,6 +1,8 @@
-{ lib, callPackage, newScope, pkgs, config, system }:
+{ lib, callPackage, newScope, pkgs, config }:
 
 let
+  inherit (pkgs.stdenv.hostPlatform) system;
+
   mkOcamlPackages = ocaml: overrides:
     let
       packageSet = self:
@@ -50,8 +52,6 @@ let
 
     atd = callPackage ../development/ocaml-modules/atd { };
 
-    atdgen = callPackage ../development/ocaml-modules/atdgen { };
-
     base64 = callPackage ../development/ocaml-modules/base64 { };
 
     bap = callPackage ../development/ocaml-modules/bap {
@@ -70,6 +70,8 @@ let
     };
 
     batteries = callPackage ../development/ocaml-modules/batteries { };
+
+    bigstringaf = callPackage ../development/ocaml-modules/bigstringaf { };
 
     bitstring = callPackage ../development/ocaml-modules/bitstring { };
 
@@ -242,9 +244,7 @@ let
 
     estring = callPackage ../development/ocaml-modules/estring { };
 
-    ezjsonm = callPackage ../development/ocaml-modules/ezjsonm {
-      lwt = ocaml_lwt;
-    };
+    ezjsonm = callPackage ../development/ocaml-modules/ezjsonm { };
 
     facile = callPackage ../development/ocaml-modules/facile { };
 
@@ -298,7 +298,7 @@ let
     iso8601 = callPackage ../development/ocaml-modules/iso8601 { };
 
     javalib = callPackage ../development/ocaml-modules/javalib {
-      extlib = ocaml_extlib_maximal;
+      extlib = ocaml_extlib;
     };
 
     dypgen = callPackage ../development/ocaml-modules/dypgen { };
@@ -319,7 +319,11 @@ let
 
     hex = callPackage ../development/ocaml-modules/hex { };
 
+    httpaf = callPackage ../development/ocaml-modules/httpaf { };
+
     inifiles = callPackage ../development/ocaml-modules/inifiles { };
+
+    iri = callPackage ../development/ocaml-modules/iri { };
 
     jingoo = callPackage ../development/ocaml-modules/jingoo {
       pcre = ocaml_pcre;
@@ -366,6 +370,8 @@ let
       gtkmathview = callPackage ../development/libraries/gtkmathview { };
     };
 
+    labltk = callPackage ../development/ocaml-modules/labltk { };
+
     lambdaTerm-1_6 = callPackage ../development/ocaml-modules/lambda-term/1.6.nix { lwt = lwt2; };
     lambdaTerm =
       if lib.versionOlder "4.02" ocaml.version
@@ -391,6 +397,10 @@ let
       else throw "lwt3 is not available for OCaml ${ocaml.version}";
 
     ocaml_lwt = if lib.versionOlder "4.02" ocaml.version then lwt3 else lwt2;
+
+    lwt_log = callPackage ../development/ocaml-modules/lwt_log {
+      lwt = lwt3;
+    };
 
     lwt_ppx = callPackage ../development/ocaml-modules/lwt/ppx.nix {
       lwt = lwt3;
@@ -554,6 +564,8 @@ let
 
     result = callPackage ../development/ocaml-modules/ocaml-result { };
 
+    seq = callPackage ../development/ocaml-modules/seq { };
+
     sequence = callPackage ../development/ocaml-modules/sequence { };
 
     spacetime_lib = callPackage ../development/ocaml-modules/spacetime_lib { };
@@ -602,9 +614,6 @@ let
       else null;
 
     ocaml_extlib = callPackage ../development/ocaml-modules/extlib { };
-    ocaml_extlib_maximal = callPackage ../development/ocaml-modules/extlib {
-      minimal = false;
-    };
 
     ocb-stubblr = callPackage ../development/ocaml-modules/ocb-stubblr { };
 
@@ -636,7 +645,11 @@ let
 
     ppx_deriving_yojson = callPackage ../development/ocaml-modules/ppx_deriving_yojson {};
 
+    ppx_gen_rec = callPackage ../development/ocaml-modules/ppx_gen_rec {};
+
     ppx_import = callPackage ../development/ocaml-modules/ppx_import {};
+
+    ppx_sqlexpr = callPackage ../development/ocaml-modules/sqlexpr/ppx.nix {};
 
     ppx_tools =
       if lib.versionAtLeast ocaml.version "4.02"
@@ -675,9 +688,7 @@ let
 
     ssl = callPackage ../development/ocaml-modules/ssl { };
 
-    stog = callPackage ../applications/misc/stog {
-      ocaml_lwt = lwt2;
-    };
+    stog = callPackage ../applications/misc/stog { };
 
     stringext = callPackage ../development/ocaml-modules/stringext { };
 
@@ -744,14 +755,14 @@ let
     # Jane Street
 
     janePackage = callPackage ../development/ocaml-modules/janestreet/janePackage.nix {};
-    
+
     janeStreet = import ../development/ocaml-modules/janestreet {
-      inherit lib janePackage ocaml ocamlbuild angstrom ctypes cryptokit;
+      inherit janePackage ocamlbuild angstrom ctypes cryptokit;
       inherit magic-mime num ocaml-migrate-parsetree octavius ounit;
       inherit ppx_deriving re zarith ppxlib;
       inherit (pkgs) stdenv openssl;
     };
-    
+
     janeStreet_0_9_0 = import ../development/ocaml-modules/janestreet/old.nix {
       janePackage = callPackage ../development/ocaml-modules/janestreet/janePackage.nix { defaultVersion = "0.9.0"; };
       inherit lib ocaml ocamlbuild ctypes cryptokit;
@@ -1063,12 +1074,7 @@ in rec
 
   ocamlPackages_4_07 = mkOcamlPackages (callPackage ../development/compilers/ocaml/4.07.nix { }) (self: super: { });
 
-  ocamlPackages_latest = ocamlPackages_4_06;
+  ocamlPackages_latest = ocamlPackages_4_07;
 
-  ocamlPackages =
-    # OCaml 4.05 is broken on aarch64
-    if system == "aarch64-linux" then
-      ocamlPackages_4_06
-    else
-      ocamlPackages_4_05;
+  ocamlPackages = ocamlPackages_4_06;
 }

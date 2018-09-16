@@ -1,8 +1,8 @@
-{ stdenv, buildPackages, hostPlatform, fetchFromGitHub, perl, buildLinux, ... } @ args:
+{ stdenv, buildPackages, fetchFromGitHub, perl, buildLinux, ... } @ args:
 
 let
-  modDirVersion = "4.14.34";
-  tag = "1.20180417";
+  modDirVersion = "4.14.62";
+  tag = "1.20180817";
 in
 stdenv.lib.overrideDerivation (buildLinux (args // rec {
   version = "${modDirVersion}-${tag}";
@@ -12,13 +12,13 @@ stdenv.lib.overrideDerivation (buildLinux (args // rec {
     owner = "raspberrypi";
     repo = "linux";
     rev = "raspberrypi-kernel_${tag}-1";
-    sha256 = "1xgisvmcq50lpnd4rpqhaw52399n0rx2n8mp6k0bf8qm1g3vnza2";
+    sha256 = "17k7c9hcp834qmlpllag8jc6xhym9wkr5lck1vr0y2wlcxccwnaz";
   };
 
   defconfig = {
     "armv6l-linux" = "bcmrpi_defconfig";
     "armv7l-linux" = "bcm2709_defconfig";
-  }.${stdenv.system} or (throw "linux_rpi not supported on '${stdenv.system}'");
+  }.${stdenv.hostPlatform.system} or (throw "linux_rpi not supported on '${stdenv.hostPlatform.system}'");
 
   features = {
     efiBootStub = false;

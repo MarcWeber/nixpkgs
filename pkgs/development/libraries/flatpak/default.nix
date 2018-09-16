@@ -1,39 +1,45 @@
 { stdenv, fetchurl, autoreconfHook, docbook_xml_dtd_412, docbook_xml_dtd_42, docbook_xml_dtd_43, docbook_xsl, which, libxml2
-, gobjectIntrospection, gtk_doc, intltool, libxslt, pkgconfig, xmlto, appstream-glib, substituteAll, glibcLocales, yacc
-, bubblewrap, bzip2, dbus, glib, gpgme, json_glib, libarchive, libcap, libseccomp, coreutils, python2, hicolor-icon-theme
-, libsoup, lzma, ostree, polkit, python3, systemd, xlibs, valgrind, glib_networking, makeWrapper, gnome3 }:
+, gobjectIntrospection, gtk-doc, intltool, libxslt, pkgconfig, xmlto, appstream-glib, substituteAll, glibcLocales, yacc, xdg-dbus-proxy, p11-kit
+, bubblewrap, bzip2, dbus, glib, gpgme, json-glib, libarchive, libcap, libseccomp, coreutils, python2, hicolor-icon-theme
+, libsoup, lzma, ostree, polkit, python3, systemd, xorg, valgrind, glib-networking, makeWrapper, gnome3 }:
 
 let
-  version = "0.99.2";
-  desktop_schemas = gnome3.gsettings_desktop_schemas;
+  version = "1.0.2";
+  desktop_schemas = gnome3.gsettings-desktop-schemas;
 in stdenv.mkDerivation rec {
   name = "flatpak-${version}";
 
+  # TODO: split out lib once we figure out what to do with triggerdir
   outputs = [ "out" "man" "doc" "installedTests" ];
 
   src = fetchurl {
     url = "https://github.com/flatpak/flatpak/releases/download/${version}/${name}.tar.xz";
-    sha256 = "1cc82nxd290m4ljkd1phllwb3hkhz41h4ncfdrmhbg3gk47zgpyw";
+    sha256 = "0d0nnymb4p3njc24j0p6f74x7cdfi7jac714gxzzz5y5lrd651gn";
   };
 
   patches = [
     (substituteAll {
       src = ./fix-test-paths.patch;
-      inherit coreutils python2 glibcLocales;
+      inherit coreutils glibcLocales;
       hicolorIconTheme = hicolor-icon-theme;
+    })
+    (substituteAll {
+      src = ./fix-paths.patch;
+      p11 = p11-kit;
     })
     # patch taken from gtk_doc
     ./respect-xml-catalog-files-var.patch
+    ./use-flatpak-from-path.patch
   ];
 
   nativeBuildInputs = [
     autoreconfHook libxml2 docbook_xml_dtd_412 docbook_xml_dtd_42 docbook_xml_dtd_43 docbook_xsl which gobjectIntrospection
-    gtk_doc intltool libxslt pkgconfig xmlto appstream-glib yacc makeWrapper
-  ] ++ stdenv.lib.optionals doCheck checkInputs;
+    gtk-doc intltool libxslt pkgconfig xmlto appstream-glib yacc makeWrapper
+  ];
 
   buildInputs = [
-    bubblewrap bzip2 dbus glib gpgme json_glib libarchive libcap libseccomp
-    libsoup lzma ostree polkit python3 systemd xlibs.libXau
+    bubblewrap bzip2 dbus glib gpgme json-glib libarchive libcap libseccomp
+    libsoup lzma ostree polkit python3 systemd xorg.libXau
   ];
 
   checkInputs = [ valgrind ];
@@ -44,6 +50,7 @@ in stdenv.mkDerivation rec {
 
   configureFlags = [
     "--with-system-bubblewrap=${bubblewrap}/bin/bwrap"
+    "--with-system-dbus-proxy=${xdg-dbus-proxy}/bin/xdg-dbus-proxy"
     "--localstatedir=/var"
     "--enable-installed-tests"
   ];
@@ -60,7 +67,7 @@ in stdenv.mkDerivation rec {
 
   postFixup = ''
     wrapProgram $out/bin/flatpak \
-      --prefix GIO_EXTRA_MODULES : "${glib_networking.out}/lib/gio/modules" \
+      --prefix GIO_EXTRA_MODULES : "${glib-networking.out}/lib/gio/modules" \
       --prefix XDG_DATA_DIRS : "${desktop_schemas}/share/gsettings-schemas/${desktop_schemas.name}"
   '';
 

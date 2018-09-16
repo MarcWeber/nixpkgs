@@ -8,7 +8,7 @@ with lib.trivial;
 with lib.strings;
 let
 
-  inherit (lib.modules) mergeDefinitions filterOverrides;
+  inherit (lib.modules) mergeDefinitions;
   outer_types =
 rec {
   isType = type: x: (x._type or "") == type;
@@ -119,7 +119,9 @@ rec {
       let
         betweenDesc = lowest: highest:
           "${toString lowest} and ${toString highest} (both inclusive)";
-        between = lowest: highest: assert lowest <= highest;
+        between = lowest: highest:
+          assert lib.assertMsg (lowest <= highest)
+            "ints.between: lowest must be smaller than highest";
           addCheck int (x: x >= lowest && x <= highest) // {
             name = "intBetween";
             description = "integer between ${betweenDesc lowest highest}";
@@ -309,7 +311,6 @@ rec {
               }
           else
             def;
-        listOnly = listOf elemType;
         attrOnly = attrsOf elemType;
       in mkOptionType rec {
         name = "loaOf";
@@ -440,7 +441,9 @@ rec {
     # Either value of type `finalType` or `coercedType`, the latter is
     # converted to `finalType` using `coerceFunc`.
     coercedTo = coercedType: coerceFunc: finalType:
-      assert coercedType.getSubModules == null;
+      assert lib.assertMsg (coercedType.getSubModules == null)
+        "coercedTo: coercedType must not have submodules (it’s a ${
+          coercedType.description})";
       mkOptionType rec {
         name = "coercedTo";
         description = "${finalType.description} or ${coercedType.description} convertible to it";

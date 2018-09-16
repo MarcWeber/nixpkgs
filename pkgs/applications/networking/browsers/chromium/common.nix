@@ -1,11 +1,11 @@
-{ stdenv, ninja, which, nodejs, fetchurl, fetchpatch, gnutar
+{ stdenv, gn, ninja, which, nodejs, fetchurl, fetchpatch, gnutar
 
 # default dependencies
 , bzip2, flac, speex, libopus
 , libevent, expat, libjpeg, snappy
 , libpng, libcap
 , xdg_utils, yasm, minizip, libwebp
-, libusb1, pciutils, nss, re2, zlib, libvpx
+, libusb1, pciutils, nss, re2, zlib
 
 , python2Packages, perl, pkgconfig
 , nspr, systemd, kerberos
@@ -14,11 +14,10 @@
 , glib, gtk2, gtk3, dbus-glib
 , libXScrnSaver, libXcursor, libXtst, libGLU_combined
 , protobuf, speechd, libXdamage, cups
-, ffmpeg, harfbuzz, harfbuzz-icu, libxslt, libxml2
+, ffmpeg, libxslt, libxml2
 
 # optional dependencies
 , libgcrypt ? null # gnomeSupport || cupsSupport
-, libexif ? null # only needed for Chromium before version 51
 
 # package customization
 , enableNaCl ? false
@@ -43,10 +42,6 @@ let
   # source tree.
   extraAttrs = buildFun base;
 
-  gentooPatch = name: sha256: fetchpatch {
-    url = "https://gitweb.gentoo.org/repo/gentoo.git/plain/www-client/chromium/files/${name}";
-    inherit sha256;
-  };
   githubPatch = commit: sha256: fetchpatch {
     url = "https://github.com/chromium/chromium/commit/${commit}.patch";
     inherit sha256;
@@ -87,8 +82,8 @@ let
     xdg_utils yasm minizip libwebp
     libusb1 re2 zlib
     ffmpeg libxslt libxml2
-    # harfbuzz-icu # in versions over 63 harfbuzz and freetype are being built together
-                   # so we can't build with one from system and other from source
+    # harfbuzz # in versions over 63 harfbuzz and freetype are being built together
+               # so we can't build with one from system and other from source
   ];
 
   # build paths and release info
@@ -142,13 +137,9 @@ let
       # https://git.archlinux.org/svntogit/packages.git/tree/trunk?h=packages/chromium
       # for updated patches and hints about build flags
     # (gentooPatch "<patch>" "0000000000000000000000000000000000000000000000000000000000000000")
-      ./patches/fix-openh264.patch
       ./patches/fix-freetype.patch
-    ]  ++ optionals (versionRange "66" "68") [
-      ./patches/nix_plugin_paths_52.patch
-    ]  ++ optionals (versionAtLeast version "68") [
       ./patches/nix_plugin_paths_68.patch
-      (githubPatch "56cb5f7da1025f6db869e840ed34d3b98b9ab899" "04mp5r1yvdvdx6m12g3lw3z51bzh7m3gr73mhblkn4wxdbvi3dcs")
+      ./patches/remove-webp-include-69.patch
     ] ++ optional enableWideVine ./patches/widevine.patch;
 
     postPatch = ''
@@ -247,15 +238,11 @@ let
     configurePhase = ''
       runHook preConfigure
 
-      # Build gn
-      python tools/gn/bootstrap/bootstrap.py -v -s --no-clean
-      PATH="$PWD/out/Release:$PATH"
-
       # This is to ensure expansion of $out.
       libExecPath="${libExecPath}"
       python build/linux/unbundle/replace_gn_files.py \
         --system-libraries ${toString gnSystemLibraries}
-      gn gen --args=${escapeShellArg gnFlags} out/Release | tee gn-gen-outputs.txt
+      ${gn}/bin/gn gen --args=${escapeShellArg gnFlags} out/Release | tee gn-gen-outputs.txt
 
       # Fail if `gn gen` contains a WARNING.
       grep -o WARNING gn-gen-outputs.txt && echo "Found gn WARNING, exiting nix build" && exit 1

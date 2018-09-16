@@ -1,12 +1,12 @@
 { stdenv, fetchFromGitHub, tzdata, iana-etc, go_bootstrap, runCommand, writeScriptBin
 , perl, which, pkgconfig, patch, procps
 , pcre, cacert, llvm
-, Security, Foundation, bash
+, Security, Foundation
 , makeWrapper, git, subversion, mercurial, bazaar }:
 
 let
 
-  inherit (stdenv.lib) optional optionals optionalString;
+  inherit (stdenv.lib) optionals optionalString;
 
   clangHack = writeScriptBin "clang" ''
     #!${stdenv.shell}
@@ -33,6 +33,8 @@ stdenv.mkDerivation rec {
     rev = "go${version}";
     sha256 = "0i89298dgnmpmam3ifkm0ax266vvbq1yz7wfw8wwrcma0szrbrnb";
   };
+
+  GOCACHE = "off";
 
   # perl is used for testing go vet
   nativeBuildInputs = [ perl which pkgconfig patch makeWrapper procps ];
@@ -132,12 +134,12 @@ stdenv.mkDerivation rec {
 
   GOOS = if stdenv.isDarwin then "darwin" else "linux";
   GOARCH = if stdenv.isDarwin then "amd64"
-           else if stdenv.system == "i686-linux" then "386"
-           else if stdenv.system == "x86_64-linux" then "amd64"
+           else if stdenv.hostPlatform.system == "i686-linux" then "386"
+           else if stdenv.hostPlatform.system == "x86_64-linux" then "amd64"
            else if stdenv.isAarch32 then "arm"
            else if stdenv.isAarch64 then "arm64"
            else throw "Unsupported system";
-  GOARM = optionalString (stdenv.system == "armv5tel-linux") "5";
+  GOARM = optionalString (stdenv.hostPlatform.system == "armv5tel-linux") "5";
   GO386 = 387; # from Arch: don't assume sse2 on i686
   CGO_ENABLED = 1;
   GOROOT_BOOTSTRAP = "${goBootstrap}/share/go";

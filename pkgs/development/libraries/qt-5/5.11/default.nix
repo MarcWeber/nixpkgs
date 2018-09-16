@@ -17,7 +17,7 @@ top-level attribute to `top-level/all-packages.nix`.
 
 {
   newScope,
-  stdenv, fetchurl, fetchFromGitHub, makeSetupHook, makeWrapper,
+  stdenv, fetchurl, fetchFromGitHub, makeSetupHook,
   bison, cups ? null, harfbuzz, libGL, perl,
   gstreamer, gst-plugins-base, gtk3, dconf,
 
@@ -34,13 +34,26 @@ let
   qtCompatVersion = "5.11";
 
   mirror = "http://download.qt.io";
-  srcs = import ./srcs.nix { inherit fetchurl; inherit mirror; };
+  srcs = import ./srcs.nix { inherit fetchurl; inherit mirror; } // {
+    # Community port of the now unmaintained upstream qtwebkit.
+    qtwebkit = {
+      src = fetchFromGitHub {
+        owner = "annulen";
+        repo = "webkit";
+        rev = "4ce8ebc4094512b9916bfa5984065e95ac97c9d8";
+        sha256 = "05h1xnxzbf7sp3plw5dndsvpf6iigh0bi4vlj4svx0hkf1giakjf";
+      };
+      version = "5.212-alpha-01-26-2018";
+    };
+  };
 
   patches = {
     qtbase = [
       ./qtbase.patch
       ./qtbase-darwin.patch
       ./qtbase-revert-no-macos10.10.patch
+    ] ++ optionals stdenv.isDarwin [
+      ./qtbase-darwin-nseventtype.patch
     ];
     qtdeclarative = [ ./qtdeclarative.patch ];
     qtscript = [ ./qtscript.patch ];
@@ -100,15 +113,7 @@ let
       qtwayland = callPackage ../modules/qtwayland.nix {};
       qtwebchannel = callPackage ../modules/qtwebchannel.nix {};
       qtwebengine = callPackage ../modules/qtwebengine.nix {};
-      qtwebkit = callPackage ../modules/qtwebkit.nix {
-        src = fetchFromGitHub {
-          owner = "annulen";
-          repo = "webkit";
-          rev = "4ce8ebc4094512b9916bfa5984065e95ac97c9d8";
-          sha256 = "05h1xnxzbf7sp3plw5dndsvpf6iigh0bi4vlj4svx0hkf1giakjf";
-        };
-        version = "5.212-alpha-01-26-2018";
-      };
+      qtwebkit = callPackage ../modules/qtwebkit.nix {};
       qtwebsockets = callPackage ../modules/qtwebsockets.nix {};
       qtx11extras = callPackage ../modules/qtx11extras.nix {};
       qtxmlpatterns = callPackage ../modules/qtxmlpatterns.nix {};

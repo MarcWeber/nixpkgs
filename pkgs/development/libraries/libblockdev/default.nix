@@ -1,10 +1,10 @@
 { stdenv, fetchFromGitHub, autoreconfHook, pkgconfig, gtk-doc, libxslt, docbook_xsl
-, docbook_xml_dtd_43, python3, gobjectIntrospection, glib, libudev, kmod, parted, libyaml
-, cryptsetup, devicemapper, dmraid, utillinux, libbytesize, libndctl, nss, volume_key
+, docbook_xml_dtd_43, python3, gobjectIntrospection, glib, udev, kmod, parted, libyaml
+, cryptsetup, lvm2, dmraid, utillinux, libbytesize, libndctl, nss, volume_key
 }:
 
 let
-  version = "2.18";
+  version = "2.19";
 in stdenv.mkDerivation rec {
   name = "libblockdev-${version}";
 
@@ -12,7 +12,7 @@ in stdenv.mkDerivation rec {
     owner = "storaged-project";
     repo = "libblockdev";
     rev = "${version}-1";
-    sha256 = "03gbmji401nz1sff2zp61dhal80qls4blqwadj2p4ckbxdlmid4i";
+    sha256 = "1ny31vaarzbpw0h863p2r5cvjsfs77d33nnisf8bhjc6ps6js3ys";
   };
 
   outputs = [ "out" "dev" "devdoc" ];
@@ -26,7 +26,7 @@ in stdenv.mkDerivation rec {
   ];
 
   buildInputs = [
-    glib libudev kmod parted cryptsetup devicemapper dmraid utillinux libbytesize libndctl nss volume_key libyaml
+    glib udev kmod parted cryptsetup lvm2 dmraid utillinux libbytesize libndctl nss volume_key libyaml
   ];
 
   meta = with stdenv.lib; {

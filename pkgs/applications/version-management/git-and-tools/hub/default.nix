@@ -1,8 +1,8 @@
-{ stdenv, buildGoPackage, fetchFromGitHub, go, ronn, ruby, groff, Security, utillinux }:
+{ stdenv, buildGoPackage, fetchFromGitHub, ronn, ruby, groff, Security, utillinux }:
 
 buildGoPackage rec {
   name = "hub-${version}";
-  version = "2.4.0";
+  version = "2.5.1";
 
   goPackagePath = "github.com/github/hub";
 
@@ -10,7 +10,7 @@ buildGoPackage rec {
     owner = "github";
     repo = "hub";
     rev = "v${version}";
-    sha256 = "1lr6vg0zhg2air9bnzcl811g97jraxq05l3cs46wqqflwy57xpz2";
+    sha256 = "0a5i351v998vdwf883qhh39c15x56db01fr9hscz4ha7r9550pqg";
   };
 
   buildInputs = [ groff ronn ruby utillinux ] ++

@@ -1,19 +1,19 @@
-{ stdenv, fetchurl, dpkg, gettext, gawk, perl, wget, coreutils, fakeroot }:
+{ stdenv, fetchurl, dpkg, gettext, gawk, perl, wget, coreutils }:
 
 # USAGE like this: debootstrap sid /tmp/target-chroot-directory
 # There is also cdebootstrap now. Is that easier to maintain?
 stdenv.mkDerivation rec {
   name = "debootstrap-${version}";
-  version = "1.0.105";
+  version = "1.0.108";
 
   src = fetchurl {
     # git clone git://git.debian.org/d-i/debootstrap.git
     # I'd like to use the source. However it's lacking the lanny script ? (still true?)
     url = "mirror://debian/pool/main/d/debootstrap/debootstrap_${version}.tar.gz";
-    sha256 = "0m4630q8smn45pmck1azk5sv6cgdzza2r001paqvmasqa6qxbjq3";
+    sha256 = "1zfp6i6mskgx3b186sbd1443031h9z01yfqgynhl848faknv4h9f";
   };
 
-  buildInputs = [ dpkg gettext gawk perl ];
+  buildInputs = [ dpkg gettext gawk perl wget ];
 
   dontBuild = true;
 
@@ -39,7 +39,7 @@ stdenv.mkDerivation rec {
         --subst-var-by id "$(type -p id)" \
         --subst-var-by perl "$(type -p perl)" \
         --subst-var-by uname "$(type -p uname)" \
-        --subst-var-by wget "${wget}/bin/wget"
+        --subst-var-by wget "$(type -p wget)"
     done
 
 

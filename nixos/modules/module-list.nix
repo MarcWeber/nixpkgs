@@ -7,6 +7,10 @@
   ./config/fonts/fontdir.nix
   ./config/fonts/fonts.nix
   ./config/fonts/ghostscript.nix
+  ./config/xdg/autostart.nix
+  ./config/xdg/icons.nix
+  ./config/xdg/menus.nix
+  ./config/xdg/mime.nix
   ./config/gnu.nix
   ./config/i18n.nix
   ./config/iproute2.nix
@@ -86,6 +90,7 @@
   ./programs/dconf.nix
   ./programs/digitalbitbox/default.nix
   ./programs/environment.nix
+  ./programs/firejail.nix
   ./programs/fish.nix
   ./programs/freetds.nix
   ./programs/gnupg.nix
@@ -199,6 +204,8 @@
   ./services/continuous-integration/jenkins/slave.nix
   ./services/databases/4store-endpoint.nix
   ./services/databases/4store.nix
+  ./services/databases/aerospike.nix
+  ./services/databases/cassandra.nix
   ./services/databases/clickhouse.nix
   ./services/databases/couchdb.nix
   ./services/databases/firebird.nix
@@ -220,6 +227,7 @@
   ./services/databases/stanchion.nix
   ./services/databases/virtuoso.nix
   ./services/desktops/accountsservice.nix
+  ./services/desktops/bamf.nix
   ./services/desktops/dleyna-renderer.nix
   ./services/desktops/dleyna-server.nix
   ./services/desktops/flatpak.nix
@@ -237,14 +245,17 @@
   ./services/desktops/gnome3/gnome-user-share.nix
   ./services/desktops/gnome3/gpaste.nix
   ./services/desktops/gnome3/gvfs.nix
+  ./services/desktops/gnome3/rygel.nix
   ./services/desktops/gnome3/seahorse.nix
   ./services/desktops/gnome3/sushi.nix
   ./services/desktops/gnome3/tracker.nix
   ./services/desktops/gnome3/tracker-miners.nix
   ./services/desktops/profile-sync-daemon.nix
   ./services/desktops/telepathy.nix
+  ./services/desktops/zeitgeist.nix
   ./services/development/bloop.nix
   ./services/development/hoogle.nix
+  ./services/development/jupyter/default.nix
   ./services/editors/emacs.nix
   ./services/editors/infinoted.nix
   ./services/games/factorio.nix
@@ -276,6 +287,7 @@
   ./services/hardware/upower.nix
   ./services/hardware/usbmuxd.nix
   ./services/hardware/thermald.nix
+  ./services/hardware/undervolt.nix
   ./services/logging/SystemdJournal2Gelf.nix
   ./services/logging/awstats.nix
   ./services/logging/fluentd.nix
@@ -318,6 +330,7 @@
   ./services/misc/canto-daemon.nix
   ./services/misc/calibre-server.nix
   ./services/misc/cfdyndns.nix
+  ./services/misc/clipmenu.nix
   ./services/misc/cpuminer-cryptonight.nix
   ./services/misc/cgminer.nix
   ./services/misc/confd.nix
@@ -394,6 +407,7 @@
   ./services/misc/taskserver
   ./services/misc/tzupdate.nix
   ./services/misc/uhub.nix
+  ./services/misc/weechat.nix
   ./services/misc/xmr-stak.nix
   ./services/misc/zookeeper.nix
   ./services/monitoring/apcupsd.nix
@@ -402,12 +416,14 @@
   ./services/monitoring/cadvisor.nix
   ./services/monitoring/collectd.nix
   ./services/monitoring/das_watchdog.nix
+  ./services/monitoring/datadog-agent.nix
   ./services/monitoring/dd-agent/dd-agent.nix
   ./services/monitoring/fusion-inventory.nix
   ./services/monitoring/grafana.nix
   ./services/monitoring/graphite.nix
   ./services/monitoring/hdaps.nix
   ./services/monitoring/heapster.nix
+  ./services/monitoring/incron.nix
   ./services/monitoring/longview.nix
   ./services/monitoring/monit.nix
   ./services/monitoring/munin.nix
@@ -501,9 +517,11 @@
   ./services/networking/heyefi.nix
   ./services/networking/hostapd.nix
   ./services/networking/htpdate.nix
+  ./services/networking/hylafax/default.nix
   ./services/networking/i2pd.nix
   ./services/networking/i2p.nix
   ./services/networking/iodine.nix
+  ./services/networking/iperf3.nix
   ./services/networking/ircd-hybrid/default.nix
   ./services/networking/iwd.nix
   ./services/networking/keepalived/default.nix
@@ -539,6 +557,7 @@
   ./services/networking/ntopng.nix
   ./services/networking/ntpd.nix
   ./services/networking/nylon.nix
+  ./services/networking/ocserv.nix
   ./services/networking/oidentd.nix
   ./services/networking/openfire.nix
   ./services/networking/openntpd.nix
@@ -605,6 +624,7 @@
   ./services/networking/xl2tpd.nix
   ./services/networking/xrdp.nix
   ./services/networking/zerobin.nix
+  ./services/networking/zeronet.nix
   ./services/networking/zerotierone.nix
   ./services/networking/znc.nix
   ./services/printing/cupsd.nix
@@ -614,9 +634,12 @@
   ./services/scheduling/fcron.nix
   ./services/scheduling/marathon.nix
   ./services/search/elasticsearch.nix
+  ./services/search/elasticsearch-curator.nix
   ./services/search/hound.nix
   ./services/search/kibana.nix
   ./services/search/solr.nix
+  ./services/security/certmgr.nix
+  ./services/security/cfssl.nix
   ./services/security/clamav.nix
   ./services/security/fail2ban.nix
   ./services/security/fprintd.nix
@@ -672,12 +695,12 @@
   ./services/web-servers/caddy.nix
   ./services/web-servers/fcgiwrap.nix
   ./services/web-servers/hitch/default.nix
+  ./services/web-servers/hydron.nix
   ./services/web-servers/jboss/default.nix
   ./services/web-servers/lighttpd/cgit.nix
   ./services/web-servers/lighttpd/collectd.nix
   ./services/web-servers/lighttpd/default.nix
   ./services/web-servers/lighttpd/gitweb.nix
-  ./services/web-servers/lighttpd/inginious.nix
   ./services/web-servers/meguca.nix
   ./services/web-servers/mighttpd2.nix
   ./services/web-servers/minio.nix

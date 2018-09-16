@@ -18,6 +18,7 @@
 , lib
 , nodePackages
 , ghcjsDepOverrides ? (_:_:{})
+, haskell
 }:
 
 let
@@ -48,13 +49,17 @@ let
 
     # Relics of the old GHCJS build system
     stage1Packages = [];
-    mkStage2 = _: {};
+    mkStage2 = { callPackage }: {
+      # https://github.com/ghcjs/ghcjs-base/issues/110
+      # https://github.com/ghcjs/ghcjs-base/pull/111
+      ghcjs-base = haskell.lib.dontCheck (haskell.lib.doJailbreak (callPackage ./ghcjs-base.nix {}));
+    };
 
     haskellCompilerName = "ghcjs-${bootGhcjs.version}";
   };
 
   bootGhcjs = haskellLib.justStaticExecutables passthru.bootPkgs.ghcjs;
-  libexec = "${bootGhcjs}/libexec/${builtins.replaceStrings ["darwin" "i686"] ["osx" "i386"] stdenv.system}-${passthru.bootPkgs.ghc.name}/${bootGhcjs.name}";
+  libexec = "${bootGhcjs}/libexec/${builtins.replaceStrings ["darwin" "i686"] ["osx" "i386"] stdenv.buildPlatform.system}-${passthru.bootPkgs.ghc.name}/${bootGhcjs.name}";
 
 in stdenv.mkDerivation {
     name = bootGhcjs.name;

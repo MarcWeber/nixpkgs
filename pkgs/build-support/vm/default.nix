@@ -1,6 +1,6 @@
 { pkgs
 , kernel ? pkgs.linux
-, img ? pkgs.stdenv.platform.kernelTarget
+, img ? pkgs.stdenv.hostPlatform.platform.kernelTarget
 , storeDir ? builtins.storeDir
 , rootModules ?
     [ "virtio_pci" "virtio_mmio" "virtio_blk" "virtio_balloon" "virtio_rng" "ext4" "unix" "9p" "9pnet_virtio" "crc32c_generic" ]
@@ -22,7 +22,6 @@ rec {
 
   hd = "vda"; # either "sda" or "vda"
 
-
   initrdUtils = runCommand "initrd-utils"
     { buildInputs = [ nukeReferences ];
       allowedReferences = [ "out" modulesClosure ]; # prevent accidents like glibc being included in the initrd
@@ -35,6 +34,7 @@ rec {
       cp -p ${pkgs.stdenv.glibc.out}/lib/ld-linux*.so.? $out/lib
       cp -p ${pkgs.stdenv.glibc.out}/lib/libc.so.* $out/lib
       cp -p ${pkgs.stdenv.glibc.out}/lib/libm.so.* $out/lib
+      cp -p ${pkgs.stdenv.glibc.out}/lib/libresolv.so.* $out/lib
 
       # Copy BusyBox.
       cp -pd ${pkgs.busybox}/bin/* $out/bin
@@ -990,8 +990,8 @@ rec {
       name = "debian-9.4-stretch-i386";
       fullName = "Debian 9.4 Stretch (i386)";
       packagesList = fetchurl {
-        url = mirror://debian/dists/stretch/main/binary-i386/Packages.xz;
-        sha256 = "05z5ccg4ysbrgallhai53sh83i0364w7a3fdq84dpv1li059jf10";
+        url = https://web.archive.org/web/20180912163509/http://ftp.debian.org/debian/dists/stretch/main/binary-i386/Packages.xz;
+        sha256 = "0flvn8zn7vk04p10ndf3aq0mdr8k2ic01g51aq4lsllkv8lmwzyh";
       };
       urlPrefix = mirror://debian;
       packages = commonDebianPackages;
@@ -1001,8 +1001,8 @@ rec {
       name = "debian-9.4-stretch-amd64";
       fullName = "Debian 9.4 Stretch (amd64)";
       packagesList = fetchurl {
-        url = mirror://debian/dists/stretch/main/binary-amd64/Packages.xz;
-        sha256 = "19j0c54b1b9lbk9fv2c2aswdh0s2c3klf97zrlmsz4hs8wm9jylq";
+        url = https://web.archive.org/web/20180912163152/http://ftp.debian.org/debian/dists/stretch/main/binary-amd64/Packages.xz;
+        sha256 = "11vnn9bba2jabixvabfbw9zparl326c88xn99di7pbr5xsnl15jm";
       };
       urlPrefix = mirror://debian;
       packages = commonDebianPackages;

@@ -58,9 +58,6 @@ let
     '';
 
 
-  channelContents = [ pkgs.rlwrap ];
-
-
   # The test script boots a NixOS VM, installs NixOS on an empty hard
   # disk, and then reboot from the hard disk.  It's parameterized with
   # a test script fragment `createPartitions', which must create
@@ -206,7 +203,7 @@ let
 
         # The configuration of the machine used to run "nixos-install".
         machine =
-          { config, lib, pkgs, ... }:
+          { pkgs, ... }:
 
           { imports =
               [ ../modules/profiles/installation-device.nix
@@ -236,13 +233,16 @@ let
               [ sudo
                 libxml2.bin
                 libxslt.bin
+                desktop-file-utils
                 docbook5
-                docbook5_xsl
+                docbook_xsl_ns
                 unionfs-fuse
                 ntp
-                nixos-artwork.wallpapers.gnome-dark
+                nixos-artwork.wallpapers.simple-dark-gray-bottom
                 perlPackages.XMLLibXML
                 perlPackages.ListCompare
+                shared-mime-info
+                texinfo
                 xorg.lndir
 
                 # add curl so that rather than seeing the test attempt to download
@@ -470,7 +470,7 @@ in {
       enableOCR = true;
       preBootCommands = ''
         $machine->start;
-        $machine->waitForText(qr/Enter passphrase/);
+        $machine->waitForText(qr/Passphrase for/);
         $machine->sendChars("supersecret\n");
       '';
     };

@@ -329,6 +329,7 @@
       # kvm = 302; # unused
       # render = 303; # unused
       zeronet = 304;
+      lirc = 305;
 
       orientdb = 350;
 
@@ -620,6 +621,7 @@
       kvm = 302; # default udev rules from systemd requires these
       render = 303; # default udev rules from systemd requires these
       zeronet = 304;
+      lirc = 305;
 
 
       orientdb = 350;

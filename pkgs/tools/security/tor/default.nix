@@ -14,16 +14,14 @@
 }:
 
 stdenv.mkDerivation rec {
-  name = "tor-0.3.4.8";
+  name = "tor-0.3.4.9";
 
   src = fetchurl {
     url = "https://dist.torproject.org/${name}.tar.gz";
-    sha256 = "08qhzcmzxp5xr2l5721vagksqnnbrzzzy5hmz5y9r8lrq2r4qsl2";
+    sha256 = "0jhnvnp08hsfrzgsvg5xnfxyaw3nzgg9h24cwbwnz6iby20i05qs";
   };
 
   outputs = [ "out" "geoip" ];
-
-  enableParallelBuilding = true;
 
   nativeBuildInputs = [ pkgconfig ];
   buildInputs = [ libevent openssl zlib ] ++
@@ -37,13 +35,16 @@ stdenv.mkDerivation rec {
       --replace 'exec torsocks' 'exec ${torsocks}/bin/torsocks'
   '';
 
+  enableParallelBuilding = true;
+  enableParallelChecking = false; # 4 tests fail randomly
+
+  doCheck = true;
+
   postInstall = ''
     mkdir -p $geoip/share/tor
     mv $out/share/tor/geoip{,6} $geoip/share/tor
     rm -rf $out/share/tor
   '';
-
-  doCheck = true;
 
   passthru.updateScript = import ./update.nix {
     inherit (stdenv) lib;

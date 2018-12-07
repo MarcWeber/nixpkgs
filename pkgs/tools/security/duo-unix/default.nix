@@ -2,11 +2,11 @@
 
 stdenv.mkDerivation rec {
   name = "duo-unix-${version}";
-  version = "1.10.4";
+  version = "1.11.0";
 
   src = fetchurl {
     url    = "https://dl.duosecurity.com/duo_unix-${version}.tar.gz";
-    sha256 = "1pbl6ii7sh66i277s5mqpnv092jd2q52qis3ar4lwy4mywfvrhjp";
+    sha256 = "1i3dx7nim7xwlrjzcs9aqfyp87fangxqvhhpr16vpqklkz2zwmw4";
   };
 
   buildInputs = [ pam openssl zlib ];

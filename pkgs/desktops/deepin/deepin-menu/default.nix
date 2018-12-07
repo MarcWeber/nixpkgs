@@ -1,16 +1,16 @@
 { stdenv, fetchFromGitHub, pkgconfig, qmake, dtkcore, dtkwidget,
-  qt5integration }:
+  qt5integration, deepin }:
 
 stdenv.mkDerivation rec {
   name = "${pname}-${version}";
   pname = "deepin-menu";
-  version = "3.3.10";
+  version = "3.4.0";
 
   src = fetchFromGitHub {
     owner = "linuxdeepin";
     repo = pname;
     rev = version;
-    sha256 = "1666821c2irs2hjgr3kvivij6c2fgjva8323kplrz75w2lz518xb";
+    sha256 = "15v2v7pg53csxmhmnkglxv5mj9cpn0ph8kv3hj44973sdwyrl51f";
   };
 
   nativeBuildInputs = [
@@ -29,6 +29,8 @@ stdenv.mkDerivation rec {
   '';
 
   enableParallelBuilding = true;
+
+  passthru.updateScript = deepin.updateScript { inherit name; };
 
   meta = with stdenv.lib; {
     description = "Deepin menu service";

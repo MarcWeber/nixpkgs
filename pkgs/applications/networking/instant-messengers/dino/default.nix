@@ -10,16 +10,17 @@
 , dbus
 , gpgme
 , pcre
+, qrencode
  }:
 
 stdenv.mkDerivation rec {
-  name = "dino-unstable-2018-09-05";
+  name = "dino-unstable-2018-11-29";
 
   src = fetchFromGitHub {
     owner = "dino";
     repo = "dino";
-    rev = "79e0aee5fdb90830fad748fdfae717cb5fbf91f9";
-    sha256 = "1sfh729fg6c5ds3rcma13paqnvv58jln34s93j74jnca19wgn7k5";
+    rev = "680d28360c781ff29e810821801cfaba0493c526";
+    sha256 = "1w08xc842p2nggdxf0dwqw8izhwsrqah10w3s0v1i7dp33yhycln";
     fetchSubmodules = true;
   };
 
@@ -32,6 +33,7 @@ stdenv.mkDerivation rec {
   ];
 
   buildInputs = [
+    qrencode
     gobjectIntrospection
     glib-networking
     glib
@@ -54,6 +56,8 @@ stdenv.mkDerivation rec {
     dbus
     gettext
   ];
+
+  enableParallelBuilding = true;
 
   meta = with stdenv.lib; {
     description = "Modern Jabber/XMPP Client using GTK+/Vala";

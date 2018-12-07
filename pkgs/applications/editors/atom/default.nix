@@ -1,6 +1,19 @@
 { stdenv, pkgs, fetchurl, makeWrapper, wrapGAppsHook, gvfs, gtk3, atomEnv }:
 
 let
+  versions = {
+    atom = {
+      version = "1.32.1";
+      sha256 = "1x22jbhvagqw9mvq0v7z4z09qp727vl0rkyvaxn98xnj9gvcfkq9";
+    };
+
+    atom-beta = {
+      version = "1.33.0";
+      beta = 1;
+      sha256 = "0sf98apmb57msgr5p1xly0mffzn2s808nsfsmbisk4qqmm9fv2m3";
+    };
+  };
+
   common = pname: {version, sha256, beta ? null}:
       let fullVersion = version + stdenv.lib.optionalString (beta != null) "-beta${toString beta}";
       name = "${pname}-${fullVersion}";
@@ -31,8 +44,7 @@ let
     buildCommand = ''
       mkdir -p $out/usr/
       ar p $src data.tar.xz | tar -C $out -xJ ./usr
-      substituteInPlace $out/usr/share/applications/${pname}.desktop \
-        --replace /usr/share/${pname} $out/bin
+      sed -i -e "s|Exec=.*$|Exec=$out/bin/${pname}|" $out/usr/share/applications/${pname}.desktop
       mv $out/usr/* $out/
       rm -r $out/share/lintian
       rm -r $out/usr/
@@ -71,15 +83,4 @@ let
       platforms = platforms.x86_64;
     };
   };
-in stdenv.lib.mapAttrs common {
-  atom = {
-    version = "1.30.0";
-    sha256 = "1hqizfn9c249l51rlpfgk0h374maqgw6pagswlh4xa278qzb6qzs";
-  };
-
-  atom-beta = {
-    version = "1.31.0";
-    beta = 0;
-    sha256 = "11nlaz89rg6lgzsxp83qdqk4bnn2cij2p5aqjd9a3phd7v70xmy5";
-  };
-}
+in stdenv.lib.mapAttrs common versions

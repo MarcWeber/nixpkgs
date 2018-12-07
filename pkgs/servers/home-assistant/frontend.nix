@@ -2,11 +2,11 @@
 
 buildPythonPackage rec {
   pname = "home-assistant-frontend";
-  version = "20180903.0";
+  version = "20181121.1";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "54ba2ad2d1043952885f432d900025bd3eb11de180ac5147342cff585f44d4f9";
+    sha256 = "9cedc4dc4258823b084b9d7634995ab038be109fea4c087e38412b9ef1cb6433";
   };
 
   propagatedBuildInputs = [ user-agents ];

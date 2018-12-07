@@ -18484,7 +18484,6 @@ in
   # testpages:
   # http://www.planetoftunes.com/web_site/videoforweb/html5_example/index.html
   # http://www.youtube.com/html5
-
   opera = callPackage ../applications/networking/browsers/opera {};
 
   orca = python3Packages.callPackage ../applications/misc/orca {

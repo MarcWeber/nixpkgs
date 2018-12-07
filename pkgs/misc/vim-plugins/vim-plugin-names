@@ -32,17 +32,21 @@ chrisgeo/sparkup
 chriskempson/base16-vim
 christoomey/vim-sort-motion
 christoomey/vim-tmux-navigator
+cocopon/iceberg.vim
 ctjhoa/spacevim
 ctrlpvim/ctrlp.vim
 dag/vim2hs
 dannyob/quickfixstatus
+davidhalter/jedi-vim
 derekelkins/agda-vim
 derekwyatt/vim-scala
 dhruvasagar/vim-table-mode
 digitaltoad/vim-jade
+direnv/direnv.vim
 dleonard0/pony-vim-syntax
 dracula/vim
 drmingdrmer/xptemplate
+dylanaraps/wal.vim
 eagletmt/ghcmod-vim
 eagletmt/neco-ghc
 easymotion/vim-easymotion
@@ -60,6 +64,7 @@ esneider/YUNOcommit.vim
 farmergreg/vim-lastplace
 fatih/vim-go
 FelikZ/ctrlp-py-matcher
+fenetikm/falcon
 fisadev/vim-isort
 flazz/vim-colorschemes
 floobits/floobits-neovim
@@ -73,10 +78,12 @@ google/vim-jsonnet
 google/vim-maktaba
 gregsexton/gitv
 guns/xterm-color-table.vim
+hashivim/vim-terraform
 haya14busa/incsearch-easymotion.vim
 haya14busa/incsearch.vim
 heavenshell/vim-jsdoc
 hecal3/vim-leader-guide
+HerringtonDarkholme/yats.vim
 honza/vim-snippets
 hsanson/vim-android
 ianks/vim-tsx
@@ -114,11 +121,13 @@ junegunn/vim-plug
 justincampbell/vim-eighties
 justinmk/vim-dirvish
 KabbAmine/zeavim.vim
+kalbasit/vim-colemak
 kana/vim-niceblock
 kana/vim-operator-replace
 kana/vim-operator-user
 kana/vim-tabpagecd
 kchmck/vim-coffee-script
+KeitaNakamura/neodark.vim
 keith/swift.vim
 kien/rainbow_parentheses.vim
 konfekt/fastfold
@@ -134,6 +143,7 @@ lfilho/cosco.vim
 LnL7/vim-nix
 ludovicchabant/vim-gutentags
 ludovicchabant/vim-lawrencium
+lukaszkorecki/workflowish
 luochen1990/rainbow
 lyokha/vim-xkbswitch
 machakann/vim-highlightedyank
@@ -158,7 +168,9 @@ MarcWeber/vim-addon-sql
 MarcWeber/vim-addon-syntax-checker
 MarcWeber/vim-addon-toggle-buffer
 MarcWeber/vim-addon-xdebug
+markonm/traces.vim
 martinda/Jenkinsfile-vim-syntax
+mattn/emmet-vim
 mattn/gist-vim
 mattn/webapi-vim
 mbbill/undotree
@@ -166,6 +178,7 @@ megaannum/forms
 megaannum/self
 mfukar/robotframework-vim
 mhinz/vim-grepper
+mhinz/vim-janah
 mhinz/vim-sayonara
 mhinz/vim-signify
 mhinz/vim-startify
@@ -174,8 +187,10 @@ mileszs/ack.vim
 mindriot101/vim-yapf
 mkasa/lushtags
 morhetz/gruvbox
+motus/pig.vim
 mpickering/hlint-refactor-vim
 nathanaelkane/vim-indent-guides
+navicore/vissort.vim
 nbouscal/vim-stylish-haskell
 ncm2/ncm2
 ncm2/ncm2-bufword
@@ -185,8 +200,12 @@ ncm2/ncm2-ultisnips
 neoclide/vim-easygit
 neovimhaskell/haskell-vim
 neovim/nvimdev.nvim
+neutaaaaan/iosvkem
 nixprime/cpsm
+NLKNguyen/papercolor-theme
 noc7c9/vim-iced-coffee-script
+ntpeters/vim-better-whitespace
+nvie/vim-flake8
 osyo-manga/shabadou.vim
 osyo-manga/vim-anzu
 osyo-manga/vim-textobj-multiblock
@@ -194,8 +213,11 @@ osyo-manga/vim-watchdogs
 pangloss/vim-javascript
 parsonsmatt/intero-neovim
 peterhoeg/vim-qml
+phanviet/vim-monokai-pro
 plasticboy/vim-markdown
+posva/vim-vue
 powerman/vim-plugin-AnsiEsc
+PProvost/vim-ps1
 python-mode/python-mode
 Quramy/tsuquyomi
 racer-rust/vim-racer
@@ -203,6 +225,7 @@ rafaqz/ranger.vim
 rafi/awesome-vim-colorschemes
 raghur/vim-ghost
 raichoo/purescript-vim
+rakr/vim-one
 reedes/vim-pencil
 reedes/vim-wordy
 rhysd/committia.vim
@@ -245,6 +268,7 @@ sjl/gundo.vim
 sjl/splice.vim
 sk1418/last256
 slashmili/alchemist.vim
+sonph/onehalf
 t9md/vim-smalls
 takac/vim-hardtime
 ternjs/tern_for_vim
@@ -281,6 +305,7 @@ tpope/vim-tbone
 tpope/vim-unimpaired
 tpope/vim-vinegar
 travitch/hasksyn
+troydm/zoomwintab.vim
 twinside/vim-haskellconceal
 Twinside/vim-hoogle
 tyru/caw.vim
@@ -297,6 +322,7 @@ vim-pandoc/vim-pandoc-syntax
 vim-ruby/vim-ruby
 vim-scripts/align
 vim-scripts/argtextobj.vim
+vim-scripts/autoload_cscope.vim
 vim-scripts/a.vim
 vim-scripts/bats.vim
 vim-scripts/changeColorScheme.vim
@@ -304,6 +330,7 @@ vim-scripts/Colour-Sampler-Pack
 vim-scripts/Improved-AnsiEsc
 vim-scripts/matchit.zip
 vim-scripts/mayansmoke
+vim-scripts/PreserveNoEOL
 vim-scripts/random.vim
 vim-scripts/Rename
 vim-scripts/ReplaceWithRegister
@@ -311,6 +338,7 @@ vim-scripts/tabmerge
 vim-scripts/taglist.vim
 vim-scripts/wombat256.vim
 vim-scripts/YankRing.vim
+vim-utils/vim-husk
 vimwiki/vimwiki
 vmchale/dhall-vim
 w0rp/ale
@@ -318,6 +346,7 @@ wakatime/vim-wakatime
 wellle/targets.vim
 will133/vim-dirdiff
 wincent/command-t
+wincent/ferret
 xolox/vim-easytags
 xolox/vim-misc
 xuhdev/vim-latex-live-preview

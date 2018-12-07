@@ -101,7 +101,7 @@
       iodined = 66;
       #libvirtd = 67; # unused
       graphite = 68;
-      statsd = 69;
+      #statsd = 69; # removed 2018-11-14
       transmission = 70;
       postgres = 71;
       #vboxusers = 72; # unused
@@ -175,7 +175,7 @@
       dnsmasq = 141;
       uhub = 142;
       yandexdisk = 143;
-      #collectd = 144; #unused
+      mxisd = 144; # was once collectd
       consul = 145;
       mailpile = 146;
       redmine = 147;
@@ -289,7 +289,7 @@
       stanchion = 262;
       riak-cs = 263;
       infinoted = 264;
-      # keystone = 265; # unused, removed 2017-12-13
+      sickbeard = 265;
       # glance = 266; # unused, removed 2017-12-13
       couchpotato = 267;
       gogs = 268;
@@ -330,6 +330,14 @@
       # render = 303; # unused
       zeronet = 304;
       lirc = 305;
+      lidarr = 306;
+      slurm = 307;
+      kapacitor = 308;
+      solr = 309;
+      alerta = 310;
+      minetest = 311;
+      rss2email = 312;
+      cockroachdb = 313;
 
       # When adding a uid, make sure it doesn't match an existing gid. And don't use uids above 399!
 
@@ -384,7 +392,7 @@
       virtuoso = 44;
       #rtkit = 45; # unused
       dovecot2 = 46;
-      #dovenull = 47; # unused
+      dovenull2 = 47;
       prayer = 49;
       mpd = 50;
       clamav = 51;
@@ -405,7 +413,7 @@
       iodined = 66;
       libvirtd = 67;
       graphite = 68;
-      #statsd = 69; # unused
+      #statsd = 69; # removed 2018-11-14
       transmission = 70;
       postgres = 71;
       vboxusers = 72;
@@ -477,7 +485,7 @@
       #dnsmasq = 141; # unused
       uhub = 142;
       #yandexdisk = 143; # unused
-      #collectd = 144; # unused
+      mxisd = 144; # was once collectd
       #consul = 145; # unused
       mailpile = 146;
       redmine = 147;
@@ -580,7 +588,7 @@
       stanchion = 262;
       riak-cs = 263;
       infinoted = 264;
-      # keystone = 265; # unused, removed 2017-12-13
+      sickbeard = 265;
       # glance = 266; # unused, removed 2017-12-13
       couchpotato = 267;
       gogs = 268;
@@ -620,6 +628,14 @@
       render = 303; # default udev rules from systemd requires these
       zeronet = 304;
       lirc = 305;
+      lidarr = 306;
+      slurm = 307;
+      kapacitor = 308;
+      solr = 309;
+      alerta = 310;
+      minetest = 311;
+      rss2email = 312;
+      cockroachdb = 313;
 
       # When adding a gid, make sure it doesn't match an existing
       # uid. Users and groups with the same name should have equal

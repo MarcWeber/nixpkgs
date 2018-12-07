@@ -1,11 +1,11 @@
 { stdenv, fetchurl, m4, perl, help2man }:
 
 stdenv.mkDerivation rec {
-  name = "bison-3.0.5";
+  name = "bison-3.2.1";
 
   src = fetchurl {
     url = "mirror://gnu/bison/${name}.tar.gz";
-    sha256 = "0rnml9spd6p0i5qy9g4r82drwdr09r1z9cf4p89agbrkxqmrsffd";
+    sha256 = "1pgcvwzzlckb83sdcljz75hg71zwbc2a4pl5ycwxsxw05423gwq1";
   };
 
   patches = []; # remove on another rebuild
@@ -17,7 +17,7 @@ stdenv.mkDerivation rec {
   doInstallCheck = false; # fails
 
   meta = {
-    homepage = http://www.gnu.org/software/bison/;
+    homepage = https://www.gnu.org/software/bison/;
     description = "Yacc-compatible parser generator";
     license = stdenv.lib.licenses.gpl3Plus;
 

@@ -1,5 +1,5 @@
 # pcre functionality is tested in nixos/tests/php-pcre.nix
-{ lib, stdenv, fetchurl, flex, bison
+{ lib, stdenv, fetchurl, flex, bison, autoconf
 , mysql, libxml2, readline, zlib, curl, postgresql, gettext
 , openssl, pcre, pkgconfig, sqlite, config, libjpeg, libpng, freetype
 , libxslt, libmcrypt, bzip2, icu, openldap, cyrus_sasl, libmhash, freetds
@@ -12,6 +12,7 @@ let
   generic =
   { version
   , sha256
+  , extraPatches ? []
   , imapSupport ? config.php.imap or (!stdenv.isDarwin)
   , ldapSupport ? config.php.ldap or true
   , mhashSupport ? config.php.mhash or true
@@ -37,10 +38,7 @@ let
   , opensslSupport ? config.php.openssl or true
   , mbstringSupport ? config.php.mbstring or true
   , gdSupport ? config.php.gd or true
-  # Because of an upstream bug: https://bugs.php.net/bug.php?id=76826
-  # We need to disable the intl support on darwin. Whenever the upstream bug is
-  # fixed we should revert this to just just "config.php.intl or true".
-  , intlSupport ? (config.php.intl or true) && (!stdenv.isDarwin)
+  , intlSupport ? config.php.intl or true
   , exifSupport ? config.php.exif or true
   , xslSupport ? config.php.xsl or false
   , mcryptSupport ? config.php.mcrypt or true
@@ -68,7 +66,7 @@ let
 
       enableParallelBuilding = true;
 
-      nativeBuildInputs = [ pkgconfig ];
+      nativeBuildInputs = [ pkgconfig autoconf ];
       buildInputs = [ flex bison pcre ]
         ++ optional stdenv.isLinux systemd
         ++ optionals imapSupport [ uwimap openssl pam ]
@@ -136,6 +134,7 @@ let
       ++ optionals mysqliSupport [
         "--with-mysqli=${if mysqlndSupport then "mysqlnd" else "${mysql.connector-c}/bin/mysql_config"}"
       ]
+      ++ optional ( pdo_mysqlSupport || mysqlSupport || mysqliSupport ) "--with-mysql-sock=/run/mysqld/mysqld.sock"
       ++ optional bcmathSupport "--enable-bcmath"
       # FIXME: Our own gd package doesn't work, see https://bugs.php.net/bug.php?id=60108.
       ++ optionals gdSupport [
@@ -184,6 +183,8 @@ let
 
         configureFlags+=(--with-config-file-path=$out/etc \
           --includedir=$dev/include)
+
+        ./buildconf --force
       '';
 
       postInstall = ''
@@ -212,7 +213,7 @@ let
         outputsToInstall = [ "out" "dev" ];
       };
 
-      patches = [ ./fix-paths-php7.patch ];
+      patches = [ ./fix-paths-php7.patch ] ++ extraPatches;
 
       postPatch = optional stdenv.isDarwin ''
         substituteInPlace configure --replace "-lstdc++" "-lc++"
@@ -226,12 +227,18 @@ let
 
 in {
   php71 = generic {
-    version = "7.1.22";
-    sha256 = "0qz74qdlk19cw478f42ckyw5r074y0fg73r2bzlhm0dar0cizsf8";
+    version = "7.1.24";
+    sha256 = "02qy76krbdhlbkzs9k1sa5mgmj0qnbb8gcf1j3q0cq3z7kkj9pk6";
+
+    # https://bugs.php.net/bug.php?id=76826
+    extraPatches = optional stdenv.isDarwin ./php71-darwin-isfinite.patch;
   };
 
   php72 = generic {
-    version = "7.2.10";
-    sha256 = "17fsvdi6ihjghjsz9kk2li2rwrknm2ccb6ys0xmn789116d15dh1";
+    version = "7.2.12";
+    sha256 = "1dpnbsv4bdlc5v40ddddi971f456jp1qrn89w5di1dj70g1c895p";
+
+    # https://bugs.php.net/bug.php?id=76826
+    extraPatches = optional stdenv.isDarwin ./php72-darwin-isfinite.patch;
   };
 }

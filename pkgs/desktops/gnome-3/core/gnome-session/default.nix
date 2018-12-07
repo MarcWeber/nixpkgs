@@ -1,5 +1,5 @@
 { fetchurl, stdenv, substituteAll, meson, ninja, pkgconfig, gnome3, glib, gtk, gsettings-desktop-schemas
-, gnome-desktop, dbus, json-glib, libICE, xmlto, docbook_xsl, docbook_xml_dtd_412
+, gnome-desktop, dbus, json-glib, libICE, xmlto, docbook_xsl, docbook_xml_dtd_412, python3
 , libxslt, gettext, makeWrapper, systemd, xorg, epoxy }:
 
 stdenv.mkDerivation rec {
@@ -7,15 +7,14 @@ stdenv.mkDerivation rec {
   version = "3.28.1";
 
   src = fetchurl {
-    url = "mirror://gnome/sources/gnome-session/${gnome3.versionBranch version}/${name}.tar.xz";
+    url = "mirror://gnome/sources/gnome-session/${stdenv.lib.versions.majorMinor version}/${name}.tar.xz";
     sha256 = "14nmbirgrp2nm16khbz109saqdlinlbrlhjnbjydpnrlimfgg4xq";
   };
 
   patches = [
     (substituteAll {
       src = ./fix-paths.patch;
-      # FIXME: glib binaries shouldn't be in .dev!
-      gsettings = "${glib.dev}/bin/gsettings";
+      gsettings = "${glib.bin}/bin/gsettings";
       dbusLaunch = "${dbus.lib}/bin/dbus-launch";
     })
   ];
@@ -24,7 +23,7 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [
     meson ninja pkgconfig gettext makeWrapper
-    xmlto libxslt docbook_xsl docbook_xml_dtd_412
+    xmlto libxslt docbook_xsl docbook_xml_dtd_412 python3
     dbus # for DTD
   ];
 

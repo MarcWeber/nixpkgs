@@ -7,13 +7,21 @@ with stdenv.lib;
 
 buildGoPackage rec {
   name = "gitea-${version}";
-  version = "1.5.1";
+  version = "1.6.0";
 
   src = fetchFromGitHub {
     owner = "go-gitea";
     repo = "gitea";
     rev = "v${version}";
-    sha256 = "06h6v9py35mm0xk9l8xrq02vvr5vzl15gfbw9qqvpn8kiamkn53r";
+    sha256 = "01nqf8pnpa0n72brqh499z15rys6f0ck7l2cnpbiqgg3kir8b21p";
+    # Required to generate the same checksum on MacOS due to unicode encoding differences
+    # More information: https://github.com/NixOS/nixpkgs/pull/48128
+    extraPostFetch = ''
+      rm -rf $out/integrations
+      rm -rf $out/vendor/github.com/Unknown/cae/tz/testdata
+      rm -rf $out/vendor/github.com/Unknown/cae/zip/testdata
+      rm -rf $out/vendor/gopkg.in/macaron.v1/fixtures
+    '';
   };
 
   patches = [ ./static-root-path.patch ];
@@ -31,7 +39,7 @@ buildGoPackage rec {
 
   postInstall = ''
     mkdir $data
-    cp -R $src/{public,templates} $data
+    cp -R $src/{public,templates,options} $data
     mkdir -p $out
     cp -R $src/options/locale $out/locale
 

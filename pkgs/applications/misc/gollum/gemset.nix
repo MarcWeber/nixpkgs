@@ -45,10 +45,10 @@
     dependencies = ["gemojione" "gollum-lib" "kramdown" "mustache" "sinatra" "useragent"];
     source = {
       remotes = ["https://rubygems.org"];
-      sha256 = "1146irmnm0xyzjzw8k14wvb6h4cqh4q53ds92wk6jpsfs6r1pjq6";
+      sha256 = "0ik1b0f73lcxfwfml1h84dp6br79g0z9v6x54wvl46n9d1ndrhl7";
       type = "gem";
     };
-    version = "4.1.3";
+    version = "4.1.4";
   };
   gollum-grit_adapter = {
     dependencies = ["gitlab-grit"];
@@ -63,10 +63,10 @@
     dependencies = ["gemojione" "github-markup" "gollum-grit_adapter" "nokogiri" "rouge" "sanitize" "stringex" "twitter-text"];
     source = {
       remotes = ["https://rubygems.org"];
-      sha256 = "1w48mrjgy4ykd1ix421n96nx0w15iid2aj3sgglpl3bdkizxhfqj";
+      sha256 = "1699wiir6f2a8yawk3qg0xn3zdc10mz783v53ri1ivfnzdrm3dvf";
       type = "gem";
     };
-    version = "4.2.9";
+    version = "4.2.10";
   };
   json = {
     source = {
@@ -137,10 +137,10 @@
   rack = {
     source = {
       remotes = ["https://rubygems.org"];
-      sha256 = "0in0amn0kwvzmi8h5zg6ijrx5wpsf8h96zrfmnk1kwh2ql4sxs2q";
+      sha256 = "1g9926ln2lw12lfxm4ylq1h6nl0rafl10za3xvjzc87qvnqic87f";
       type = "gem";
     };
-    version = "1.6.10";
+    version = "1.6.11";
   };
   rack-protection = {
     dependencies = ["rack"];
@@ -163,10 +163,10 @@
     dependencies = ["nokogiri"];
     source = {
       remotes = ["https://rubygems.org"];
-      sha256 = "0xsv6xqrlz91rd8wifjknadbl3z5h6qphmxy0hjb189qbdghggn3";
+      sha256 = "12ip1d80r0dgc621qn7c32bk12xxgkkg3w6q21s1ckxivcd7r898";
       type = "gem";
     };
-    version = "2.1.0";
+    version = "2.1.1";
   };
   sinatra = {
     dependencies = ["rack" "rack-protection" "tilt"];

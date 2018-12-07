@@ -1,20 +1,29 @@
 { stable, version, sha256Hash, archPatchesRevision, archPatchesHash }:
 
-{ mkDerivation, lib, fetchgit, fetchsvn
+{ mkDerivation, lib, fetchFromGitHub, fetchsvn
 , pkgconfig, pythonPackages, cmake, wrapGAppsHook
-, qtbase, qtimageformats, gtk3, libappindicator-gtk3, libnotify
+, qtbase, qtimageformats, gtk3, libappindicator-gtk3, libnotify, xdg_utils
 , dee, ffmpeg, openalSoft, minizip, libopus, alsaLib, libpulseaudio, range-v3
 }:
 
 with lib;
 
-mkDerivation rec {
+let
+  # TODO: Not optimal (maybe we should only package the stable versions)
+  previewPatches = fetchFromGitHub {
+    owner = "primeos";
+    repo = "nixpkgs-tdesktop-patches";
+    rev = "b3c0cbce1b412443a8712c90069932bbcae87fb6";
+    sha256 = "1bymrciaci6plghaz7a6qwsidjm8rg5fqdh158cdp70il4g7kmw9";
+  };
+in mkDerivation rec {
   name = "telegram-desktop-${version}";
   inherit version;
 
   # Telegram-Desktop with submodules
-  src = fetchgit {
-    url = "git://github.com/telegramdesktop/tdesktop";
+  src = fetchFromGitHub {
+    owner = "telegramdesktop";
+    repo = "tdesktop";
     rev = "v${version}";
     sha256 = sha256Hash;
     fetchSubmodules = true;
@@ -28,7 +37,10 @@ mkDerivation rec {
   };
 
   # TODO: libtgvoip.patch no-gtk2.patch
-  patches = [ "${archPatches}/tdesktop.patch" ]
+  patches =
+    (if stable
+      then [ "${archPatches}/tdesktop.patch" ]
+      else [ "${previewPatches}/tdesktop.patch" ])
     # TODO: Only required to work around a compiler bug.
     # This should be fixed in GCC 7.3.1 (or later?)
     ++ [ ./fix-internal-compiler-error.patch ];
@@ -97,7 +109,9 @@ mkDerivation rec {
     sed -i Telegram/ThirdParty/libtgvoip/libtgvoip.gyp \
       -e "/-msse2/d"
 
-    gyp \
+    gyp ${lib.optionalString (!stable) ''
+        -Dapi_id=17349 \
+        -Dapi_hash=344583e45741c457fe1862106095a5eb ''}\
       -Dbuild_defines=${GYP_DEFINES} \
       -Gconfig=Release \
       --depth=Telegram/gyp \
@@ -131,6 +145,7 @@ mkDerivation rec {
     wrapProgram $out/bin/telegram-desktop \
       "''${gappsWrapperArgs[@]}" \
       --prefix QT_PLUGIN_PATH : "${qtbase}/${qtbase.qtPluginPrefix}" \
+      --prefix PATH : ${xdg_utils}/bin \
       --set XDG_RUNTIME_DIR "XDG-RUNTIME-DIR"
     sed -i $out/bin/telegram-desktop \
       -e "s,'XDG-RUNTIME-DIR',\"\''${XDG_RUNTIME_DIR:-/run/user/\$(id --user)}\","

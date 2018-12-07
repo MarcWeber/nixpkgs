@@ -2,11 +2,11 @@
 
 python2Packages.buildPythonApplication rec {
     name = "tortoisehg-${version}";
-    version = "4.7";
+    version = "4.8";
 
     src = fetchurl {
       url = "https://bitbucket.org/tortoisehg/targz/downloads/${name}.tar.gz";
-      sha256 = "1s99dmz8izsyj5mpnqlx9dasw8ar2lr68r3m1wyafzbqlqmbjbqm";
+      sha256 = "1zp74nb24pq0qrla5zf7kridxb8rky3n25z7xya0gwp0c0d0aygh";
     };
 
     pythonPath = with python2Packages; [ pyqt4 mercurial qscintilla iniparse ];

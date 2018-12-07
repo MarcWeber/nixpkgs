@@ -1,8 +1,5 @@
 { stdenv, fetchFromGitHub, tzdata, iana-etc, go_bootstrap, runCommand, writeScriptBin
-, perl, which, pkgconfig, patch, procps
-, pcre, cacert, llvm
-, Security, Foundation
-, makeWrapper, git, subversion, mercurial, bazaar }:
+, perl, which, pkgconfig, patch, procps, pcre, cacert, llvm, Security, Foundation }:
 
 let
 
@@ -25,19 +22,19 @@ in
 
 stdenv.mkDerivation rec {
   name = "go-${version}";
-  version = "1.11";
+  version = "1.11.2";
 
   src = fetchFromGitHub {
     owner = "golang";
     repo = "go";
     rev = "go${version}";
-    sha256 = "1k18d6rkijlgzn1zw4wphzcv6a6w9hb1msgrsh1102jb18644f2q";
+    sha256 = "0pk7pxfm3ij2ksdrg49jz501fr1d103zr4mjjwv821if9g279jc9";
   };
 
   GOCACHE = "off";
 
   # perl is used for testing go vet
-  nativeBuildInputs = [ perl which pkgconfig patch makeWrapper procps ];
+  nativeBuildInputs = [ perl which pkgconfig patch procps ];
   buildInputs = [ cacert pcre ]
     ++ optionals stdenv.isLinux [ stdenv.cc.libc.out ]
     ++ optionals (stdenv.hostPlatform.libc == "glibc") [ stdenv.cc.libc.static ];
@@ -134,14 +131,17 @@ stdenv.mkDerivation rec {
     substituteInPlace "src/cmd/link/internal/ld/lib.go" --replace dsymutil ${llvm}/bin/llvm-dsymutil
   '';
 
-  GOOS = if stdenv.isDarwin then "darwin" else "linux";
-  GOARCH = if stdenv.isDarwin then "amd64"
-           else if stdenv.targetPlatform.isi686 then "386"
-           else if stdenv.targetPlatform.isx86_64 then "amd64"
-           else if stdenv.targetPlatform.isAarch32 then "arm"
-           else if stdenv.targetPlatform.isAarch64 then "arm64"
-           else throw "Unsupported system";
-  GOARM = toString (stdenv.lib.intersectLists [(stdenv.targetPlatform.parsed.cpu.version or "")] ["5" "6" "7"]);
+  GOOS = stdenv.hostPlatform.parsed.kernel.name;
+  GOARCH = {
+    "i686" = "386";
+    "x86_64" = "amd64";
+    "aarch64" = "arm64";
+    "arm" = "arm";
+    "armv5tel" = "arm";
+    "armv6l" = "arm";
+    "armv7l" = "arm";
+  }.${stdenv.hostPlatform.parsed.cpu.name} or (throw "Unsupported system");
+  GOARM = toString (stdenv.lib.intersectLists [(stdenv.hostPlatform.parsed.cpu.version or "")] ["5" "6" "7"]);
   GO386 = 387; # from Arch: don't assume sse2 on i686
   CGO_ENABLED = 1;
   GOROOT_BOOTSTRAP = "${goBootstrap}/share/go";
@@ -171,13 +171,11 @@ stdenv.mkDerivation rec {
   installPhase = ''
     cp -r . $GOROOT
     ( cd $GOROOT/src && ./all.bash )
-
-    # (https://github.com/golang/go/wiki/GoGetTools)
-    wrapProgram $out/share/go/bin/go --prefix PATH ":" "${stdenv.lib.makeBinPath [ git subversion mercurial bazaar ]}"
   '';
 
   preFixup = ''
     rm -r $out/share/go/pkg/bootstrap
+    rm -r $out/share/go/pkg/obj
     ln -s $out/share/go/bin $out/bin
   '';
 
@@ -186,7 +184,7 @@ stdenv.mkDerivation rec {
   disallowedReferences = [ go_bootstrap ];
 
   meta = with stdenv.lib; {
-    branch = "1.9";
+    branch = "1.11";
     homepage = http://golang.org/;
     description = "The Go Programming language";
     license = licenses.bsd3;

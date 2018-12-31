@@ -1,9 +1,14 @@
-{ lib, stdenv, glibc, fetchurl, zlib, readline, libossp_uuid, openssl, libxml2, makeWrapper, tzdata, systemd }:
+{ lib, stdenv, glibc, fetchurl, zlib, readline, libossp_uuid, openssl, libxml2, makeWrapper, tzdata, systemd, icu, pkgconfig }:
 
 let
 
   common = { version, sha256, psqlSchema }:
-   let atLeast = lib.versionAtLeast version; in stdenv.mkDerivation (rec {
+  let
+    atLeast = lib.versionAtLeast version;
+
+    # Build with ICU by default on versions that support it
+    icuEnabled = atLeast "10";
+  in stdenv.mkDerivation (rec {
     name = "postgresql-${version}";
     inherit version;
 
@@ -17,8 +22,11 @@ let
 
     buildInputs =
       [ zlib readline openssl libxml2 makeWrapper ]
+      ++ lib.optionals icuEnabled [ icu ]
       ++ lib.optionals (atLeast "9.6" && !stdenv.isDarwin) [ systemd ]
       ++ lib.optionals (!stdenv.isDarwin) [ libossp_uuid ];
+
+    nativeBuildInputs = lib.optionals icuEnabled [ pkgconfig ];
 
     enableParallelBuilding = !stdenv.isDarwin;
 
@@ -37,7 +45,7 @@ let
       "--with-system-tzdata=${tzdata}/share/zoneinfo"
       (lib.optionalString (atLeast "9.6" && !stdenv.isDarwin) "--with-systemd")
       (if stdenv.isDarwin then "--with-uuid=e2fs" else "--with-ossp-uuid")
-    ];
+    ] ++ lib.optionals icuEnabled [ "--with-icu" ];
 
     patches =
       [ (if atLeast "9.4" then ./disable-resolve_symlinks-94.patch else ./disable-resolve_symlinks.patch)
@@ -70,7 +78,8 @@ let
           # Remove static libraries in case dynamic are available.
           for i in $out/lib/*.a; do
             name="$(basename "$i")"
-            if [ -e "$lib/lib/''${name%.a}.so" ] || [ -e "''${i%.a}.so" ]; then
+            ext="${stdenv.hostPlatform.extensions.sharedLibrary}"
+            if [ -e "$lib/lib/''${name%.a}$ext" ] || [ -e "''${i%.a}$ext" ]; then
               rm "$i"
             fi
           done
@@ -97,16 +106,12 @@ let
       license     = licenses.postgresql;
       maintainers = with maintainers; [ ocharles thoughtpolice ];
       platforms   = platforms.unix;
+      knownVulnerabilities = optional (!atLeast "9.4")
+        "PostgreSQL versions older than 9.4 are not maintained anymore!";
     };
   });
 
 in {
-
-  postgresql_9_3 = common {
-    version = "9.3.25";
-    psqlSchema = "9.3";
-    sha256 = "1nxn0hjrg4y5v5n2jgzrbicgv4504r2yfjyk6g6rq0sx8603x5g4";
-  };
 
   postgresql_9_4 = common {
     version = "9.4.20";

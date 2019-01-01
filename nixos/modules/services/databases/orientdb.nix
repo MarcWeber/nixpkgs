@@ -8,6 +8,8 @@ let
 
   cfg = config.services.orientdb;
 
+  jdk = pkgs.openjdk;
+
   orientdb_binary_tar_gz = pkgs.fetchurl {
     url = "http://orientdb.com/download.php?file=orientdb-community-3.0.0m2.tar.gz";
     sha256 = "sha256:17j4fi12x4kkw7r6pcpn2l6avrnbnv0sp4z065n039p2rh14v8r5";
@@ -71,6 +73,7 @@ in
       environment.systemPackages = [(
           pkgs.writeScriptBin "orientdb-console" ''
           #!/bin/sh
+          export JAVA_HOME=${jdk}
           exec /var/lib/orientdb-3.0.0m2/bin/console.sh "$@"
           ''
       )];
@@ -81,7 +84,7 @@ in
           wantedBy = [ "multi-user.target" ];
           after = [ "network.target" ];
 
-          path = [ pkgs.openjdk pkgs.gzip ];
+          path = [ jdk pkgs.gzip ];
 
           preStart =
             ''

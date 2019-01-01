@@ -38,6 +38,10 @@ in stdenv.mkDerivation rec {
       --replace '#!/bin/sh' '#!/bin/bash' \
       --subst-var-by VERSION ${version}
 
+    sed -i \
+      -e 's@CHROOT_CMD="chroot $TARGET"@CHROOT_CMD="$(type -p chroot) $TARGET"@ ' \
+      debootstrap
+
     d=$out/share/debootstrap
     mkdir -p $out/{share/debootstrap,bin}
 

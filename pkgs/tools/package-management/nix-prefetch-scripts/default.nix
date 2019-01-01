@@ -1,5 +1,5 @@
 { stdenv, makeWrapper, buildEnv,
-  git, subversion, mercurial, bazaar, cvs, gnused, coreutils, nix, findutils
+  git, subversion, mercurial, bazaar, cvs, gnused, coreutils, nix, findutils, unzip, curl
 }:
 
 let mkPrefetchScript = tool: src: deps:

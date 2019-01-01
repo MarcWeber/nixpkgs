@@ -1,11 +1,11 @@
 diff --git a/sapi/fpm/config.m4 b/sapi/fpm/config.m4
-index ad46717..51d7987 100644
+index 8a9c60a..4876b6c 100644
 --- a/sapi/fpm/config.m4
 +++ b/sapi/fpm/config.m4
 @@ -101,6 +101,22 @@ AC_DEFUN([AC_FPM_CLOCK],
    fi
  ])
-
+ 
 +AC_DEFUN([AC_FPM_SYSTEMD],
 +[
 +  AC_MSG_CHECKING([for systemd])
@@ -25,7 +25,7 @@ index ad46717..51d7987 100644
  AC_DEFUN([AC_FPM_TRACE],
  [
    have_ptrace=no
-@@ -544,6 +560,7 @@ if test "$PHP_FPM" != "no"; then
+@@ -560,6 +576,7 @@ if test "$PHP_FPM" != "no"; then
    AC_FPM_STDLIBS
    AC_FPM_PRCTL
    AC_FPM_CLOCK
@@ -33,10 +33,8 @@ index ad46717..51d7987 100644
    AC_FPM_TRACE
    AC_FPM_BUILTIN_ATOMIC
    AC_FPM_LQ
-
-
 diff --git a/sapi/fpm/fpm/fpm_sockets.c b/sapi/fpm/fpm/fpm_sockets.c
-index f56b9cf..5027ace 100644
+index 36a6654..191a1e9 100644
 --- a/sapi/fpm/fpm/fpm_sockets.c
 +++ b/sapi/fpm/fpm/fpm_sockets.c
 @@ -19,6 +19,8 @@
@@ -45,7 +43,7 @@ index f56b9cf..5027ace 100644
  #include <unistd.h>
 +#include <systemd/sd-daemon.h>
 +#include <systemd/sd-journal.h>
-
+ 
  #include "zlog.h"
  #include "fpm_arrays.h"
 @@ -34,6 +36,7 @@ struct listening_socket_s {
@@ -55,9 +53,9 @@ index f56b9cf..5027ace 100644
 +	int preserve;
  	char *key;
  };
-
-@@ -73,7 +76,7 @@ static void fpm_sockets_cleanup(int which, void *arg) /* {{{ */
-
+ 
+@@ -54,7 +57,7 @@ static void fpm_sockets_cleanup(int which, void *arg) /* {{{ */
+ 
  	for (i = 0; i < sockets_list.used; i++, ls++) {
  		if (which != FPM_CLEANUP_PARENT_EXEC) {
 -			close(ls->sock);
@@ -65,8 +63,8 @@ index f56b9cf..5027ace 100644
  		} else { /* on PARENT EXEC we want socket fds to be inherited through environment variable */
  			char fd[32];
  			sprintf(fd, "%d", ls->sock);
-@@ -83,7 +86,7 @@ static void fpm_sockets_cleanup(int which, void *arg) /* {{{ */
-
+@@ -76,7 +79,7 @@ static void fpm_sockets_cleanup(int which, void *arg) /* {{{ */
+ 
  		if (which == FPM_CLEANUP_PARENT_EXIT_MAIN) {
  			if (ls->type == FPM_AF_UNIX) {
 -				unlink(ls->key);
@@ -74,41 +72,41 @@ index f56b9cf..5027ace 100644
  			}
  		}
  		free(ls->key);
-@@ -98,7 +101,7 @@ static void fpm_sockets_cleanup(int which, void *arg) /* {{{ */
+@@ -118,7 +121,7 @@ static int fpm_get_in_port(struct sockaddr *sa) /* {{{ */
  }
  /* }}} */
-
+ 
 -static int fpm_sockets_hash_op(int sock, struct sockaddr *sa, char *key, int type, int op) /* {{{ */
 +static int fpm_sockets_hash_op(int sock, struct sockaddr *sa, char *key, int type, int op, int preserve) /* {{{ */
  {
  	if (key == NULL) {
  		switch (type) {
-@@ -155,6 +158,7 @@ static int fpm_sockets_hash_op(int sock, struct sockaddr *sa, char *key, int typ
+@@ -175,6 +178,7 @@ static int fpm_sockets_hash_op(int sock, struct sockaddr *sa, char *key, int typ
  			ls->type = type;
  			ls->sock = sock;
  			ls->key = strdup(key);
 +			ls->preserve = preserve;
-
+ 
  			return 0;
  		}
-@@ -221,13 +225,13 @@ static int fpm_sockets_get_listening_socket(struct fpm_worker_pool_s *wp, struct
+@@ -244,13 +248,13 @@ static int fpm_sockets_get_listening_socket(struct fpm_worker_pool_s *wp, struct
  {
  	int sock;
-
+ 
 -	sock = fpm_sockets_hash_op(0, sa, 0, wp->listen_address_domain, FPM_GET_USE_SOCKET);
 +	sock = fpm_sockets_hash_op(0, sa, 0, wp->listen_address_domain, FPM_GET_USE_SOCKET, /* (systemd) preserve= */ 0);
  	if (sock >= 0) {
  		return sock;
  	}
-
+ 
  	sock = fpm_sockets_new_listening_socket(wp, sa, socklen);
 -	fpm_sockets_hash_op(sock, sa, 0, wp->listen_address_domain, FPM_STORE_USE_SOCKET);
 +	fpm_sockets_hash_op(sock, sa, 0, wp->listen_address_domain, FPM_STORE_USE_SOCKET, /* (systemd) preserve= */ 0);
-
+ 
  	return sock;
  }
-@@ -301,7 +305,10 @@ static int fpm_socket_af_unix_listening_socket(struct fpm_worker_pool_s *wp) /*
-
+@@ -373,7 +377,10 @@ static int fpm_socket_af_unix_listening_socket(struct fpm_worker_pool_s *wp) /*
+ 
  int fpm_sockets_init_main() /* {{{ */
  {
 +	int sd_sock_count;
@@ -116,12 +114,12 @@ index f56b9cf..5027ace 100644
 +	struct sockaddr_un address;
 +	socklen_t address_len;
  	struct fpm_worker_pool_s *wp;
- 	char *inherited = getenv("FPM_SOCKETS");
- 	struct listening_socket_s *ls;
-@@ -310,12 +317,32 @@ int fpm_sockets_init_main() /* {{{ */
+ 	char sockname[32];
+ 	char sockpath[256];
+@@ -384,6 +391,26 @@ int fpm_sockets_init_main() /* {{{ */
  		return -1;
  	}
-
+ 
 +	/* Is systemd providing any sockets? */
 +	sd_sock_count = sd_listen_fds(0);
 +	if (sd_sock_count < 0) sd_sock_count = 0; /* can return -errno, so set to zero */
@@ -143,21 +141,14 @@ index f56b9cf..5027ace 100644
 +	}
 +
  	/* import inherited sockets */
- 	while (inherited && *inherited) {
- 		char *comma = strchr(inherited, ',');
- 		int type, fd_no;
- 		char *eq;
--
-+
- 		if (comma) {
- 			*comma = '\0';
- 		}
-@@ -326,7 +353,7 @@ int fpm_sockets_init_main() /* {{{ */
- 			fd_no = atoi(eq + 1);
- 			type = fpm_sockets_domain_from_address(inherited);
- 			zlog(ZLOG_NOTICE, "using inherited socket fd=%d, \"%s\"", fd_no, inherited);
--			fpm_sockets_hash_op(fd_no, 0, inherited, type, FPM_STORE_SOCKET);
-+			fpm_sockets_hash_op(fd_no, 0, inherited, type, FPM_STORE_SOCKET, /* (systemd) preserve= */ 0);
- 		}
-
- 		if (comma) {
+ 	for (i = 0; i < FPM_ENV_SOCKET_SET_MAX; i++) {
+ 		if (!i) {
+@@ -417,7 +444,7 @@ int fpm_sockets_init_main() /* {{{ */
+ 				fd_no = atoi(eq + 1);
+ 				type = fpm_sockets_domain_from_address(sockpath);
+ 				zlog(ZLOG_NOTICE, "using inherited socket fd=%d, \"%s\"", fd_no, sockpath);
+-				fpm_sockets_hash_op(fd_no, 0, sockpath, type, FPM_STORE_SOCKET);
++           			fpm_sockets_hash_op(fd_no, 0, sockpath, type, FPM_STORE_SOCKET, /* (systemd) preserve= */ 0);
+ 			}
+ 
+ 			if (comma) {

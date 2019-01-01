@@ -10,7 +10,7 @@ with lib;
 
 let
   generic =
-  { version
+  cfg@{ version
   , sha256
   , extraPatches ? []
   , withSystemd ? config.php.systemd or stdenv.isLinux
@@ -62,7 +62,57 @@ let
     let
       mysqlBuildInputs = optional (!mysqlndSupport) mysql.connector-c;
       libmcrypt' = libmcrypt.override { disablePosixThreads = true; };
-    in stdenv.mkDerivation {
+
+
+      mkDerivation = args:
+        let
+            options = [ "imapSupport" "ldapSupport" "mhashSupport" "mysqlSupport" "mysqlndSupport" "mysqliSupport" "pdo_mysqlSupport" "libxml2Support" "apxs2Support" "embedSupport" "bcmathSupport" "socketsSupport" "curlSupport" "curlWrappersSupport" "gettextSupport" "pcntlSupport" "postgresqlSupport" "pdo_pgsqlSupport" "readlineSupport" "sqliteSupport" "soapSupport" "zlibSupport" "opensslSupport" "mbstringSupport" "gdSupport" "intlSupport" "exifSupport" "xslSupport" "mcryptSupport" "bz2Support" "zipSupport" "ftpSupport" "fpmSupport" "gmpSupport" "mssqlSupport" "ztsSupport" "calendarSupport" "sodiumSupport" "tidySupport" ];
+
+            php = stdenv.mkDerivation args;
+
+            php_with_id = php // {
+              id =
+                 if idByConfig && builtins ? hashString
+                 then # turn options into something hashable:
+                      let opts_s = lib.concatMapStrings (x: "${x}=${if cfg.imapSupport then "1" else "0"}") options;
+                      # you're never going to use that many php's at the same time, thus use a short hash
+                      in "${php.version}-${builtins.substring 0 5 (builtins.hashString "sha256" opts_s)}"
+                 else # the hash of the store path depending on php version and all configuration details
+                      builtins.baseNameOf (builtins.unsafeDiscardStringContext php);
+            };
+
+            in php_with_id // (callPackage ../../../top-level/php-packages.nix { php = php_with_id; inherit fetchgit; }) // rec {
+              ioncube_so =
+                let name = "ioncube_loader_lin_${builtins.substring 0 3 version}_ts.so";
+                in "${(stdenv.mkDerivation {
+                  # requires php compiled with --disable-maintainer-zts
+                  # php ini: zend_extension = ${php56fpm.ioncube}/ioncube_loader_lin_5.6.so
+                  # not all php versions are supported
+                  name = "ioncube-x86_64";
+                  src = fetchurl {
+                    url = "http://downloads3.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz";
+                    sha256 = "1figdjkm3cmi9m2786rrs9rcmlm8ay07s5n8b6d9j3kmrd8p7kys";
+                  };
+                  installPhase = ''
+                    mkdir -p $out
+                    cp ${name} $out/${name}; 
+                    cp LICENSE.txt $out
+                  '';
+                  # LICENSE: See LICENSE.txt
+                  # 1.1 The Loader is provided without charge.
+                  # 2.1 The Loader may be freely distributed to third parties alone or as· part of a distribution containing other items provided that this license is also included
+                })}/${name}";
+              xcache = callPackage ../../libraries/php-xcache { php = php_with_id; };
+              koellner_phonetik = callPackage ../../interpreters/koellner-phonetik { php = php_with_id; };
+
+              # TODO move this into the fpm module?
+              system_fpm_config =
+                    if (config.php.fpm or true) then
+                        config: pool: (import ./php-5.3-fpm-system-config.nix) { php = php_with_id; inherit pkgs lib writeText config pool;}
+                    else throw "php built without fpm support. use php.override { sapi = \"fpm\"; }";
+            };
+
+    in mkDerivation {
 
       inherit version;
 

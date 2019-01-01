@@ -1,4 +1,4 @@
-{ stdenv, lib, glibcLocales, unzip, hasktags, ctags } : {
+{ pkgs, stdenv, lib, glibcLocales, unzip, hasktags, ctags } : {
   # optional srcDir
   annotatedWithSourceAndTagInfo = x : (x ? passthru && x.passthru ? sourceWithTags 
                                       || x ? meta && x.meta ? sourceWithTags );

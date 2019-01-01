@@ -1,5 +1,5 @@
 { stdenv, buildPackages, buildHaskellPackages, ghc
-, jailbreak-cabal, hscolour, cpphs, nodejs, shellFor
+, jailbreak-cabal, hscolour, cpphs, nodejs, shellFor, sourceAndTags
 }:
 
 let
@@ -423,7 +423,7 @@ stdenv.mkDerivation ({
     runHook postInstall
   '';
 
-  passthru = passthru // {
+  passthru = passthru // rec {
 
     inherit pname version;
 
@@ -450,6 +450,29 @@ stdenv.mkDerivation ({
       packages = p: [ drv ];
       inherit shellHook;
     };
+
+    # rewrite as shellFor
+    # env = stdenv.mkDerivation {
+    #   name = "interactive-${pname}-${version}-environment";
+    #   buildInputs = systemBuildInputs
+    #     # ++ (map (x: sourceAndTags.sourceWithTagsDerivation (sourceAndTags.addHasktagsTaggingInfo x).passthru.sourceWithTags) ([ghc] ++ libraryHaskellDepends))
+    #     ;
+    #   nativeBuildInputs = [ ghcEnv ] ++ nativeBuildInputs;
+    #   LANG = "en_US.UTF-8";
+    #   LOCALE_ARCHIVE = optionalString (stdenv.hostPlatform.libc == "glibc") "${glibcLocales}/lib/locale/locale-archive";
+    #   shellHook = ''
+    #     export NIX_${ghcCommandCaps}="${ghcEnv}/bin/${ghcCommand}"
+    #     export NIX_${ghcCommandCaps}PKG="${ghcEnv}/bin/${ghcCommand}-pkg"
+    #     # TODO: is this still valid?
+    #     export NIX_${ghcCommandCaps}_DOCDIR="${ghcEnv}/share/doc/ghc/html"
+    #     ${if isHaLVM
+    #         then ''export NIX_${ghcCommandCaps}_LIBDIR="${ghcEnv}/lib/HaLVM-${ghc.version}"''
+    #         else ''export NIX_${ghcCommandCaps}_LIBDIR="${ghcEnv}/lib/${ghcCommand}-${ghc.version}"''}
+    #     ${shellHook}
+    #   '';
+    # };
+
+
 
   };
 

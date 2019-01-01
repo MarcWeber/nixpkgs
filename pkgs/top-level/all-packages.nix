@@ -412,6 +412,8 @@ in
 
   releaseTools = callPackage ../build-support/release { };
 
+  composableDerivation = callPackage ../../lib/composable-derivation.nix { };
+
   inherit (lib.systems) platforms;
 
   setJavaClassPath = makeSetupHook { } ../build-support/setup-hooks/set-java-classpath.sh;
@@ -7913,7 +7915,16 @@ in
     php = php73-unit;
   });
 
-  inherit (callPackages ../development/interpreters/php { })
+  # inherit (callPackages ../development/interpreters/php { });
+  # trouble with php-fpm ptach, but older (TODO FIXME)
+  # inherit (callPackages ../development/interpreters/php/my.nix { })
+  #   php71
+  #   php72;
+
+  inherit (callPackages ../development/interpreters/php-alt/default.nix { })
+    # this works
+    php56
+    php70
     php71
     php72
     php73;
@@ -13871,7 +13882,9 @@ in
   };
 
   # rremi
-  mysql56 = callPackage ../servers/sql/mysql/5.6.x.nix { };
+  mysql56 = callPackage ../servers/sql/mysql/5.6.x.nix {
+    stdenv = overrideCC stdenv gcc6;
+  };
 
   mysql_jdbc = callPackage ../servers/sql/mysql/jdbc { };
 
@@ -16256,6 +16269,18 @@ in
     pythonPackages = python35Packages;
     stdenv = overrideCC stdenv gcc6;
   };
+
+#   blender_28_beta = callPackage  ../applications/misc/blender/2.8-beta.nix {
+#     cudaSupport = config.cudaSupport or false;
+#     pythonPackages = python36Packages;
+#     stdenv = overrideCC stdenv gcc6;
+#   };
+  blender_28_beta_binary = callPackage  ../applications/misc/blender/2.8-beta-binary.nix {
+    # cudaSupport = config.cudaSupport or false;
+    pythonPackages = python35Packages;
+    stdenv = overrideCC stdenv gcc6;
+  };
+
 
   bluefish = callPackage ../applications/editors/bluefish {
     gtk = gtk3;
@@ -22941,6 +22966,7 @@ in
   soundOfSorting = callPackage ../misc/sound-of-sorting { };
 
   sourceAndTags = callPackage ../misc/source-and-tags {
+    inherit pkgs;
     hasktags = haskellPackages.hasktags;
   };
 
@@ -23039,7 +23065,7 @@ in
 
   vimPluginsUsedByMarcWeber = recurseIntoAttrs (callPackage ../misc/vim-plugins/vim-plugins-used-by-marc-weber.nix { });
   vimMarc =
-     vim_configurable.customize {
+     (vim_configurable.override {python = python3;}).customize {
        name = "vim-marc-weber";
        vimrcConfig.vam.knownPlugins = vimPluginsUsedByMarcWeber;
        vimrcConfig.vam.pluginDictionaries = [
@@ -23065,7 +23091,7 @@ in
         { "name" = ''vim-addon-surround''; }
         { "name" = ''vim-addon-toc''; }
         { "name" = ''vim-addon-haskell''; "filename_regex" = ''\%(\%(l\)hs\|cabal\)$$''; }
-        { "filename_regex" = ''\%(php\|inc\|php.inc\|hsc\|lhs\)$$''; "names" = [ ''phpcomplete'' ''vim-addon-xdebug'' ''vim-addon-php-manual'' ]; }
+        { "filename_regex" = ''\%(php\|inc\|php.inc\|hsc\|lhs\)$$''; "names" = [ /*''phpcomplete'' */ ''vim-addon-xdebug'' ''vim-addon-php-manual'' ]; }
         { "filename_regex" = ''\.\%(iced\|coffee\)$$''; "names" = [ ''sourcemap.vim'' ''vim-iced-coffee-script'' ]; }
         { "name" = ''vim-addon-haskell''; "filetype_regex" = ''\%(cabal\|hs\|hsc\|lhs\)$$''; }
         { "filetype_regex" = ''\%(rb)$$''; "names" = [ ''vim-ruby'' ''vim-addon-rdebug'' ''vim-addon-ruby-debug-ide'' ''textobj-rubyblock'' ]; }
@@ -23423,22 +23449,31 @@ in
 
   xxx = (pkgs.texlive.combine { inherit (pkgs.texlive) scheme-small pdfjam; });
 
+  scrapy_chrome_downloader =
+   let pp = python2Packages;
+   in pkgs.writeScriptBin "chrome-downloader-env-2.x" ''
+      #!/bin/sh
+      export PATH=${pp.python}/bin::$PATH
+      export PYTHONPATH=${stdenv.lib.concatStringsSep ":" (map (x: "${x}/lib/${pp.python.libPrefix}/site-packages") [pp.requests pp.urllib3 pp.chardet pp.certifi pp.idna]) }
+      "$@"
+  '';
+
 
   scrapy_env_2x =
    let pp = python2Packages;
    in pkgs.writeScriptBin "scrapy-env-2.x" ''
       #!/bin/sh
       export PATH=${pp.python}/bin:${pp.scrapy}/bin/:$PATH
-      export PYTHONPATH=${stdenv.lib.concatStringsSep ":" (map (x: "${x}/lib/${python.libPrefix}/site-packages") [pp.scrapy pp.parso pp.numpy pp.pandas pp.dateutil pp.pytz pp.unidecode ]) }
+      export PYTHONPATH=${stdenv.lib.concatStringsSep ":" (map (x: "${x}/lib/${python.libPrefix}/site-packages") [pp.scrapy pp.parso pp.numpy pp.pandas pp.dateutil pp.pytz pp.unidecode pp.setuptools ]) }
       "$@"
   '';
 
   scrapy_env_3x =
-   let pp = python35Packages; 
+   let pp = pkgs.python35Packages; 
    in pkgs.writeScriptBin "scrapy-env-3.x" ''
       #!/bin/sh
       export PATH=${pp.python}/bin:${pp.scrapy}/bin/:$PATH
-      export PYTHONPATH=${stdenv.lib.concatStringsSep ":" (map (x: "${x}/lib/${python.libPrefix}/site-packages") [pp.scrapy pp.parso]) }
+      export PYTHONPATH=${stdenv.lib.concatStringsSep ":" (map (x: "${x}/lib/${pp.python.libPrefix}/site-packages") [pp.scrapy pp.parso pp.numpy pp.pandas pp.dateutil pp.pytz pp.unidecode pp.setuptools]) }
       "$@"
   '';
 
@@ -23487,6 +23522,7 @@ in
     buildInputs = [pp.python opencv3 imutils pp.numpy pp.cached-property];
 
   };
+
 
 
 }

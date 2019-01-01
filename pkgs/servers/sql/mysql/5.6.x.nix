@@ -7,7 +7,7 @@ let x = stdenv.mkDerivation rec {
   version = "5.6.23";
 
   src = fetchurl {
-    url = file:///tmp/mysql-5.6.23.tar.gz;
+    url = file:///tmp/air48chpkn2xx9qjjqrpcn0xd7n6h7bx-mysql-5.6.23.tar.gz;
     sha256 = "16605abxl30d2srljhssq0dsqm5v29bglhdsv9rf614kdbq1mliv";
   };
 
@@ -33,7 +33,7 @@ let x = stdenv.mkDerivation rec {
   '';
 
   passthru.mysqlVersion = "5.6";
-  passthru.mysqld_path = "libexec";
+  passthru.mysqld_path = "bin";
 
   passthru.mysql_initialize_datadir_cmd = {mysql, user, dataDir, ...}: ''
     ${mysql}/bin/mysql_install_db "--user=${user} --datadir=${dataDir} --basedir=${mysql} ";

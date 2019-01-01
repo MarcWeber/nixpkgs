@@ -116,6 +116,11 @@ in {
       compilerConfig = callPackage ../development/haskell-modules/configuration-ghc-8.2.x.nix { };
       packageSetConfig = bootstrapPackageSet;
     };
+    ghc821 = callPackage ../development/haskell-modules {
+      buildHaskellPackages = bh.packages.ghc821;
+      ghc = bh.compiler.ghc821;
+      compilerConfig = callPackage ../development/haskell-modules/configuration-ghc-8.2.x.nix { };
+    };
     ghc822 = callPackage ../development/haskell-modules {
       buildHaskellPackages = bh.packages.ghc822;
       ghc = bh.compiler.ghc822;

@@ -44,6 +44,11 @@ with lib;
                 type = types.string;
                 default = "*";
                 description = "Ip to listen on. 0.0.0.0 for ipv4 only, * for all.";
+                };
+              protocol = mkOption { 
+                type = types.string;
+                default = "";
+                description = "http or https - use to force port 443 to be http for instance";
               };
             };
           } ));

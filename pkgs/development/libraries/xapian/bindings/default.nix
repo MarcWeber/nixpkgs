@@ -11,9 +11,8 @@ composableDerivation.composableDerivation {} rec {
   version = (builtins.parseDrvName xapian.name).version;
 
   src = fetchurl {
-    url = "http://oligarchy.co.uk/xapian/${version}/${name}.tar.xz";
-    sha256 = "0fca9nsf7pj3fq991xcm5iainz3s8yqik4ycvavm09y486n3wciv";
-    # sha256 = "0lv2zblayfax4v7z3sj067b0av0phf3gc2s2d1cvkw0bkl07mv1s";
+    url = "https://oligarchy.co.uk/xapian/${version}/${name}.tar.xz";
+    sha256 = "0cwx39764w24xd25w271had4w78lnw1dgz36yvlw1g3i19rqcy34";
   };
 
   buildInputs = [ xapian pkgconfig zlib ];

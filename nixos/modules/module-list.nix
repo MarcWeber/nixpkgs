@@ -651,6 +651,7 @@
   ./services/networking/unbound.nix
   ./services/networking/unifi.nix
   ./services/networking/vsftpd.nix
+  ./services/networking/vsftpd2.nix
   ./services/networking/wakeonlan.nix
   ./services/networking/websockify.nix
   ./services/networking/wicd.nix

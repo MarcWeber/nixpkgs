@@ -3,8 +3,6 @@
 stdenv.mkDerivation {
   name = "opensp-1.5.2";
 
-  enableParalellBuilding = true;
-
   src = fetchurl {
     url = mirror://sourceforge/openjade/OpenSP-1.5.2.tar.gz;
     sha256 = "1khpasr6l0a8nfz6kcf3s81vgdab8fm2dj291n5r2s53k228kx2p";
@@ -15,12 +13,7 @@ stdenv.mkDerivation {
       docsrc/*.xml
   '';
 
-  configureFlags =
-  # required to run docbook2html even when providing catalog !? else "URL not
-  # supported by this version" happens when running jade (test case docbook2html
-  # gutenprint.xml gutenprint cvs), --enable-http must also be passed in openjade
-    ["--enable-http"]
-    ++ lib.optional stdenv.isDarwin [
+  configureFlags = lib.optional stdenv.isDarwin [
     "--with-libintl-prefix=/usr"
     "--with-libiconv-prefix=/usr"
   ];

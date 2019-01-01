@@ -41,6 +41,7 @@ let
   inherit (haskellLib) overrideCabal getBuildInputs;
 
   mkDerivationImpl = pkgs.callPackage ./generic-builder.nix {
+    inherit (pkgs) sourceAndTags;
     inherit stdenv;
     nodejs = buildPackages.nodejs-slim;
     inherit (self) buildHaskellPackages ghc shellFor;

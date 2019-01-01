@@ -28,7 +28,7 @@ let
         then defaultListen cfg
         else list;
 
-  listenToString = l: "${l.ip}:${toString l.port}";
+  listenToString = l: "${l.ip}:${toString l.port} ${l.protocol or ""}";
 
   extraModules = attrByPath ["extraModules"] [] mainCfg;
   extraForeignModules = filter isAttrs extraModules;

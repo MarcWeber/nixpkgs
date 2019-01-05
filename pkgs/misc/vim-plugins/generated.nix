@@ -81,6 +81,17 @@ let
     };
   };
 
+  ansible-vim = buildVimPluginFrom2Nix {
+    pname = "ansible-vim";
+    version = "2.0";
+    src = fetchFromGitHub {
+      owner = "pearofducks";
+      repo = "ansible-vim";
+      rev = "01d0e7d4b87936d9cfe5a6038a6c9cec409a3c15";
+      sha256 = "14x7lxwvfrvi27qmffh66fpc3fk21xkzfzps0vx6n3n7h56a7r2g";
+    };
+  };
+
   argtextobj-vim = buildVimPluginFrom2Nix {
     pname = "argtextobj-vim";
     version = "2010-10-18";
@@ -3112,6 +3123,16 @@ let
       repo = "vim-pandoc-syntax";
       rev = "56e8e41ef863a0a7d33d85c3c0c895aa6e9e62d3";
       sha256 = "19ll4zrw5yd0frgsbi7pg9b68lmy4bfiwbnwgzii7inifrqsykfw";
+    };
+  };
+
+  vim-parinfer = buildVimPluginFrom2Nix {
+    name = "vim-parinfer-2018-08-31";
+    src = fetchFromGitHub {
+      owner = "bhurlow";
+      repo = "vim-parinfer";
+      rev = "d599e41dd1b9034059524af8156dcbebe68d96d2";
+      sha256 = "0h4zw1yfnrbb3w5brcsy2l43jk7569dhslpkahczqxj6wr6hsxcc";
     };
   };
 

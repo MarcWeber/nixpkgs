@@ -21,6 +21,11 @@
 , vlc
 , mbedtls
 
+, scriptingSupport ? true
+, luajit
+, swig
+, python3
+
 , alsaSupport ? false
 , alsaLib
 , pulseaudioSupport ? false
@@ -68,6 +73,7 @@ in stdenv.mkDerivation rec {
                   makeWrapper
                   mbedtls
                 ]
+                ++ optional scriptingSupport [ luajit swig python3 ]
                 ++ optional alsaSupport alsaLib
                 ++ optional pulseaudioSupport libpulseaudio;
 
@@ -91,6 +97,6 @@ in stdenv.mkDerivation rec {
     homepage = https://obsproject.com;
     maintainers = with maintainers; [ jb55 MP2E ];
     license = licenses.gpl2;
-    platforms = with platforms; linux;
+    platforms = [ "x86_64-linux" "i686-linux" ];
   };
 }

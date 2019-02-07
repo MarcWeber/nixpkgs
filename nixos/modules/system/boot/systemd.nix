@@ -193,7 +193,7 @@ let
     let mkScriptName =  s: "unit-script-" + (replaceChars [ "\\" "@" ] [ "-" "_" ] (shellEscape s) );
     in  pkgs.writeTextFile { name = mkScriptName name; executable = true; inherit text; };
 
-  unitConfig = { config, ... }: {
+  unitConfig = { config, options, ... }: {
     config = {
       unitConfig =
         optionalAttrs (config.requires != [])
@@ -219,7 +219,9 @@ let
         // optionalAttrs (config.documentation != []) {
           Documentation = toString config.documentation; }
         // optionalAttrs (config.onFailure != []) {
-          OnFailure = toString config.onFailure;
+          OnFailure = toString config.onFailure; }
+        // optionalAttrs (options.startLimitIntervalSec.isDefined) {
+          StartLimitIntervalSec = toString config.startLimitIntervalSec;
         };
     };
   };
@@ -898,6 +900,7 @@ in
     systemd.services.systemd-remount-fs.restartIfChanged = false;
     systemd.services.systemd-update-utmp.restartIfChanged = false;
     systemd.services.systemd-user-sessions.restartIfChanged = false; # Restart kills all active sessions.
+    systemd.services.systemd-udev-settle.restartIfChanged = false; # Causes long delays in nixos-rebuild
     # Restarting systemd-logind breaks X11
     # - upstream commit: https://cgit.freedesktop.org/xorg/xserver/commit/?id=dc48bd653c7e101
     # - systemd announcement: https://github.com/systemd/systemd/blob/22043e4317ecd2bc7834b48a6d364de76bb26d91/NEWS#L103-L112

@@ -778,6 +778,8 @@ in {
 
   slither-analyzer = callPackage ../development/python-modules/slither-analyzer { };
 
+  sly = callPackage ../development/python-modules/sly { };
+
   snapcast = callPackage ../development/python-modules/snapcast { };
 
   spglib = callPackage ../development/python-modules/spglib { };
@@ -4742,7 +4744,7 @@ in {
 
   pygccxml = callPackage ../development/python-modules/pygccxml {};
 
-  pymacaroons-pynacl = callPackage ../development/python-modules/pymacaroons-pynacl { };
+  pymacaroons = callPackage ../development/python-modules/pymacaroons { };
 
   pynacl = callPackage ../development/python-modules/pynacl { };
 
@@ -5070,6 +5072,8 @@ in {
   XlsxWriter = callPackage ../development/python-modules/XlsxWriter { };
 
   yowsup = callPackage ../development/python-modules/yowsup { };
+
+  yubico-client = callPackage ../development/python-modules/yubico-client { };
 
   wptserve = callPackage ../development/python-modules/wptserve { };
 

@@ -629,6 +629,8 @@ in
 
   bunny = callPackage ../tools/package-management/bunny { };
 
+  chezmoi = callPackage ../tools/misc/chezmoi { };
+
   clair = callPackage ../tools/admin/clair { };
 
   cloud-sql-proxy = callPackage ../tools/misc/cloud-sql-proxy { };
@@ -687,6 +689,8 @@ in
   };
 
   git-fire = callPackage ../tools/misc/git-fire { };
+
+  git-town = callPackage ../tools/misc/git-town { };
 
   github-changelog-generator = callPackage ../development/tools/github-changelog-generator { };
 
@@ -1087,6 +1091,8 @@ in
   catdocx = callPackage ../tools/text/catdocx { };
 
   catclock = callPackage ../applications/misc/catclock { };
+
+  cardpeek = callPackage ../applications/misc/cardpeek { };
 
   cde = callPackage ../tools/package-management/cde { };
 
@@ -1616,6 +1622,8 @@ in
   };
 
   roundcube = callPackage ../servers/roundcube { };
+
+  roundcubePlugins = callPackage ../servers/roundcube/plugins { };
 
   rsbep = callPackage ../tools/backup/rsbep { };
 
@@ -4542,6 +4550,8 @@ in
   onioncircuits = callPackage ../tools/security/onioncircuits {
     inherit (gnome3) defaultIconTheme;
   };
+
+  openapi-generator-cli = callPackage ../tools/networking/openapi-generator-cli { };
 
   opencc = callPackage ../tools/text/opencc { };
 
@@ -7495,6 +7505,7 @@ in
 
   pyo3-pack = callPackage ../development/tools/rust/pyo3-pack { };
   rainicorn = callPackage ../development/tools/rust/rainicorn { };
+  rls = callPackage ../development/tools/rust/rls { };
   rustfmt = callPackage ../development/tools/rust/rustfmt { };
   rustracer = callPackage ../development/tools/rust/racer { };
   rustracerd = callPackage ../development/tools/rust/racerd { };
@@ -8582,6 +8593,8 @@ in
       gccRaw = gcc.cc;
       binutils = binutils;
     };
+
+  dive = callPackage ../development/tools/dive { };
 
   doclifter = callPackage ../development/tools/misc/doclifter { };
 
@@ -12079,6 +12092,8 @@ in
   qjson = callPackage ../development/libraries/qjson { };
 
   qoauth = callPackage ../development/libraries/qoauth { };
+
+  qolibri = libsForQt5.callPackage ../applications/misc/qolibri { };
 
   qt3 = callPackage ../development/libraries/qt-3 {
     openglSupport = libGLSupported;
@@ -20343,6 +20358,8 @@ in
     inherit (gnome2) libglade;
   };
 
+  xsuspender = callPackage ../applications/misc/xsuspender {  };
+
   xss-lock = callPackage ../misc/screensavers/xss-lock { };
 
   xloadimage = callPackage ../tools/X11/xloadimage { };
@@ -21490,6 +21507,8 @@ in
 
   bftools = callPackage ../applications/science/biology/bftools { };
 
+  cmtk = callPackage ../applications/science/biology/cmtk { }; 
+
   conglomerate = callPackage ../applications/science/biology/conglomerate { };
 
   dcm2niix = callPackage ../applications/science/biology/dcm2niix { };
@@ -22196,6 +22215,8 @@ in
 
   hepmc = callPackage ../development/libraries/physics/hepmc { };
 
+  hepmc3 = callPackage ../development/libraries/physics/hepmc3 { };
+
   herwig = callPackage ../development/libraries/physics/herwig { };
 
   lhapdf = callPackage ../development/libraries/physics/lhapdf { };
@@ -22474,6 +22495,8 @@ in
   kontemplate = callPackage ../applications/networking/cluster/kontemplate { };
 
   kops = callPackage ../applications/networking/cluster/kops { };
+
+  lguf-brightness = callPackage ../misc/lguf-brightness { };
 
   lilypond = callPackage ../misc/lilypond { guile = guile_1_8; };
   lilypond-unstable = callPackage ../misc/lilypond/unstable.nix { };

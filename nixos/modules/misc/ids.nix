@@ -306,7 +306,7 @@
       rslsync = 279;
       minio = 280;
       kanboard = 281;
-      pykms = 282;
+      # pykms = 282; # DynamicUser = true
       kodi = 283;
       restya-board = 284;
       mighttpd2 = 285;
@@ -338,6 +338,7 @@
       minetest = 311;
       rss2email = 312;
       cockroachdb = 313;
+      zoneminder = 314;
 
       orientdb = 350;
 
@@ -606,7 +607,7 @@
       rslsync = 279;
       minio = 280;
       kanboard = 281;
-      pykms = 282;
+      # pykms = 282; # DynamicUser = true
       kodi = 283;
       restya-board = 284;
       mighttpd2 = 285;
@@ -638,6 +639,7 @@
       minetest = 311;
       rss2email = 312;
       cockroachdb = 313;
+      zoneminder = 314;
 
 
       orientdb = 350;

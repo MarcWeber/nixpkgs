@@ -271,6 +271,10 @@ rec {
   */
   imap = imap1;
 
+  # Fake hashes. Can be used as hash placeholders, when computing hash ahead isn't trivial
+  fakeSha256 = "0000000000000000000000000000000000000000000000000000000000000000";
+  fakeSha512 = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+
   # old stuff Marc Weber
 
   # merge attrs based on version key into mkDerivation args, see mergeAttrBy to learn about smart merge defaults

@@ -404,6 +404,13 @@ in
 
   actkbd = callPackage ../tools/system/actkbd { };
 
+  adlplug = callPackage ../applications/audio/adlplug { };
+
+  opnplug = callPackage ../applications/audio/adlplug {
+    adlplugChip = "-DADLplug_CHIP=OPN2";
+    pname = "OPNplug";
+  };
+
   advancecomp = callPackage ../tools/compression/advancecomp {};
 
   aefs = callPackage ../tools/filesystems/aefs { };
@@ -452,7 +459,7 @@ in
 
   airsonic = callPackage ../servers/misc/airsonic { };
 
-  airspy = callPackage ../applications/misc/airspy { };
+  airspy = callPackage ../applications/radio/airspy { };
 
   airtame = callPackage ../applications/misc/airtame { };
 
@@ -465,6 +472,8 @@ in
     inherit (darwin) cf-private;
     inherit (darwin.apple_sdk.frameworks) AppKit CoreFoundation CoreGraphics CoreServices CoreText Foundation OpenGL;
   };
+
+  aldo = callPackage ../applications/radio/aldo { };
 
   amazon-ecs-cli = callPackage ../tools/virtualization/amazon-ecs-cli { };
 
@@ -1782,9 +1791,7 @@ in
 
   burp = callPackage ../tools/backup/burp { };
 
-  buku = callPackage ../applications/misc/buku {
-    python3 = python36; # due to #52766
-  };
+  buku = callPackage ../applications/misc/buku { };
 
   byzanz = callPackage ../applications/video/byzanz {};
 
@@ -3585,9 +3592,9 @@ in
 
   kazam = callPackage ../applications/video/kazam { };
 
-  kalibrate-rtl = callPackage ../tools/misc/kalibrate-rtl { };
+  kalibrate-rtl = callPackage ../applications/radio/kalibrate-rtl { };
 
-  kalibrate-hackrf = callPackage ../tools/misc/kalibrate-hackrf { };
+  kalibrate-hackrf = callPackage ../applications/radio/kalibrate-hackrf { };
 
   kakoune = callPackage ../applications/editors/kakoune { };
 
@@ -3992,7 +3999,7 @@ in
 
   lidarr = callPackage ../servers/lidarr { };
 
-  limesuite = callPackage ../applications/misc/limesuite { };
+  limesuite = callPackage ../applications/radio/limesuite { };
 
   limesurvey = callPackage ../servers/limesurvey { };
 
@@ -4311,11 +4318,10 @@ in
   nbd = callPackage ../tools/networking/nbd { };
   xnbd = callPackage ../tools/networking/xnbd { };
 
-  inherit (callPackages ../development/libraries/science/math/nccl { })
-    nccl_cudatoolkit_8
-    nccl_cudatoolkit_9;
-
-  nccl = nccl_cudatoolkit_9;
+  nccl = callPackage ../development/libraries/science/math/nccl { };
+  nccl_cudatoolkit_9_0 = nccl.override { cudatoolkit = cudatoolkit_9_0; };
+  nccl_cudatoolkit_9 = nccl.override { cudatoolkit = cudatoolkit_9; };
+  nccl_cudatoolkit_10 = nccl.override { cudatoolkit = cudatoolkit_10; };
 
   ndjbdns = callPackage ../tools/networking/ndjbdns { };
 
@@ -4636,6 +4642,10 @@ in
   };
 
   olsrd = callPackage ../tools/networking/olsrd { };
+
+  opl3bankeditor = libsForQt5.callPackage ../tools/audio/opl3bankeditor { };
+
+  opn2bankeditor = callPackage ../tools/audio/opl3bankeditor/opn2bankeditor.nix { };
 
   os-prober = callPackage ../tools/misc/os-prober {};
 
@@ -9171,6 +9181,8 @@ in
 
   texi2mdoc = callPackage ../tools/misc/texi2mdoc { };
 
+  todoist = callPackage ../applications/misc/todoist { };
+
   todolist = callPackage ../applications/misc/todolist { };
 
   travis = callPackage ../development/tools/misc/travis { };
@@ -9183,7 +9195,7 @@ in
     inherit (darwin.apple_sdk.frameworks) CoreFoundation;
   };
 
-  uhd = callPackage ../development/tools/misc/uhd { };
+  uhd = callPackage ../applications/radio/uhd { };
 
   uisp = callPackage ../development/tools/misc/uisp { };
 
@@ -11444,7 +11456,9 @@ in
     then darwin.libunwind
     else callPackage ../development/libraries/libunwind { };
 
-  libuv = callPackage ../development/libraries/libuv { };
+  libuv = callPackage ../development/libraries/libuv {
+    inherit (darwin.apple_sdk.frameworks) ApplicationServices CoreServices;
+  };
 
   libv4l = lowPrio (v4l_utils.override {
     withUtils = false;
@@ -12399,7 +12413,7 @@ in
 
   lvtk = callPackage ../development/libraries/audio/lvtk { };
 
-  qradiolink = callPackage ../applications/misc/qradiolink { };
+  qradiolink = callPackage ../applications/radio/qradiolink { };
 
   qrupdate = callPackage ../development/libraries/qrupdate { };
 
@@ -12558,17 +12572,17 @@ in
 
   snappy = callPackage ../development/libraries/snappy { };
 
-  soapyairspy = callPackage ../applications/misc/soapyairspy { };
+  soapyairspy = callPackage ../applications/radio/soapyairspy { };
 
-  soapybladerf = callPackage ../applications/misc/soapybladerf { };
+  soapybladerf = callPackage ../applications/radio/soapybladerf { };
 
-  soapyhackrf = callPackage ../applications/misc/soapyhackrf { };
+  soapyhackrf = callPackage ../applications/radio/soapyhackrf { };
 
-  soapysdr = callPackage ../applications/misc/soapysdr { inherit (python3Packages) python numpy; };
+  soapysdr = callPackage ../applications/radio/soapysdr { inherit (python3Packages) python numpy; };
 
-  soapyremote = callPackage ../applications/misc/soapyremote { };
+  soapyremote = callPackage ../applications/radio/soapyremote { };
 
-  soapysdr-with-plugins = callPackage ../applications/misc/soapysdr {
+  soapysdr-with-plugins = callPackage ../applications/radio/soapysdr {
     inherit (python3Packages) python numpy;
     extraPackages = [
       limesuite
@@ -12581,9 +12595,9 @@ in
     ];
   };
 
-  soapyrtlsdr = callPackage ../applications/misc/soapyrtlsdr { };
+  soapyrtlsdr = callPackage ../applications/radio/soapyrtlsdr { };
 
-  soapyuhd = callPackage ../applications/misc/soapyuhd { };
+  soapyuhd = callPackage ../applications/radio/soapyuhd { };
 
   socket_wrapper = callPackage ../development/libraries/socket_wrapper { };
 
@@ -13626,6 +13640,8 @@ in
 
   mailman = callPackage ../servers/mail/mailman { };
 
+  mailman-rss = callPackage ../development/python-modules/mailman-rss { };
+
   mattermost = callPackage ../servers/mattermost { };
   matterircd = callPackage ../servers/mattermost/matterircd.nix { };
   matterbridge = callPackage ../servers/matterbridge { };
@@ -14118,6 +14134,7 @@ in
 
   tt-rss = callPackage ../servers/tt-rss { };
   tt-rss-plugin-tumblr-gdpr = callPackage ../servers/tt-rss/plugin-tumblr-gdpr { };
+  tt-rss-plugin-auth-ldap = callPackage ../servers/tt-rss/plugin-auth-ldap { };
   tt-rss-theme-feedly = callPackage ../servers/tt-rss/theme-feedly { };
 
   searx = callPackage ../servers/web-apps/searx { };
@@ -14716,6 +14733,8 @@ in
     rtl8814au = callPackage ../os-specific/linux/rtl8814au { };
 
     rtl8821au = callPackage ../os-specific/linux/rtl8821au { };
+
+    rtl8821ce = callPackage ../os-specific/linux/rtl8821ce { };
 
     rtlwifi_new = callPackage ../os-specific/linux/rtlwifi_new { };
 
@@ -15585,6 +15604,8 @@ in
 
   go-font = callPackage ../data/fonts/go-font { };
 
+  greybird = callPackage ../data/themes/greybird { };
+
   gyre-fonts = callPackage ../data/fonts/gyre {};
 
   hack-font = callPackage ../data/fonts/hack { };
@@ -15995,6 +16016,8 @@ in
 
   zilla-slab = callPackage ../data/fonts/zilla-slab { };
 
+  zuki-themes = callPackage ../data/themes/zuki { };
+
 
   ### APPLICATIONS
 
@@ -16375,7 +16398,7 @@ in
 
   chatzilla = callPackage ../applications/networking/irc/chatzilla { };
 
-  chirp = callPackage ../applications/misc/chirp {
+  chirp = callPackage ../applications/radio/chirp {
     inherit (pythonPackages) pyserial pygtk;
   };
 
@@ -16592,7 +16615,7 @@ in
     inherit (python3Packages) buildPythonApplication requests;
   };
 
-  dmrconfig = callPackage ../applications/misc/dmrconfig { };
+  dmrconfig = callPackage ../applications/radio/dmrconfig { };
 
   dmtx-utils = callPackage (callPackage ../tools/graphics/dmtx-utils) {
   };
@@ -17019,18 +17042,18 @@ in
 
   flexget = callPackage ../applications/networking/flexget { };
 
-  fldigi = callPackage ../applications/audio/fldigi { };
+  fldigi = callPackage ../applications/radio/fldigi { };
 
   flink = callPackage ../applications/networking/cluster/flink { };
   flink_1_5 = flink.override { version = "1.5"; };
 
-  fllog = callPackage ../applications/misc/fllog { };
+  fllog = callPackage ../applications/radio/fllog { };
 
-  flmsg = callPackage ../applications/misc/flmsg { };
+  flmsg = callPackage ../applications/radio/flmsg { };
 
-  flrig = callPackage ../applications/misc/flrig { };
+  flrig = callPackage ../applications/radio/flrig { };
 
-  flwrap = callPackage ../applications/misc/flwrap { };
+  flwrap = callPackage ../applications/radio/flwrap { };
 
   fluidsynth = callPackage ../applications/audio/fluidsynth {
      inherit (darwin.apple_sdk.frameworks) AudioUnit CoreAudio CoreMIDI CoreServices;
@@ -17076,32 +17099,32 @@ in
 
   gksu = callPackage ../applications/misc/gksu { };
 
-  gnss-sdr = callPackage ../applications/misc/gnss-sdr { boost=boost166; };
+  gnss-sdr = callPackage ../applications/radio/gnss-sdr { boost=boost166; };
 
-  gnuradio = callPackage ../applications/misc/gnuradio {
+  gnuradio = callPackage ../applications/radio/gnuradio {
     inherit (python2Packages) cheetah lxml Mako matplotlib numpy python pyopengl pyqt4 scipy wxPython pygtk;
     inherit (darwin.apple_sdk.frameworks) CoreAudio;
     fftw = fftwFloat;
     qwt = qwt6_qt4;
   };
 
-  gnuradio-with-packages = callPackage ../applications/misc/gnuradio/wrapper.nix {
+  gnuradio-with-packages = callPackage ../applications/radio/gnuradio/wrapper.nix {
     inherit (python2Packages) python;
     extraPackages = [ gnuradio-nacl gnuradio-osmosdr gnuradio-ais gnuradio-rds ]
       ++ lib.optionals stdenv.isLinux [ gnuradio-gsm gnuradio-limesdr ];
   };
 
-  gnuradio-nacl = callPackage ../applications/misc/gnuradio/nacl.nix { };
+  gnuradio-nacl = callPackage ../applications/radio/gnuradio/nacl.nix { };
 
-  gnuradio-gsm = callPackage ../applications/misc/gnuradio/gsm.nix { };
+  gnuradio-gsm = callPackage ../applications/radio/gnuradio/gsm.nix { };
 
-  gnuradio-ais = callPackage ../applications/misc/gnuradio/ais.nix { };
+  gnuradio-ais = callPackage ../applications/radio/gnuradio/ais.nix { };
 
-  gnuradio-limesdr = callPackage ../applications/misc/gnuradio/limesdr.nix { };
+  gnuradio-limesdr = callPackage ../applications/radio/gnuradio/limesdr.nix { };
 
-  gnuradio-rds = callPackage ../applications/misc/gnuradio/rds.nix { };
+  gnuradio-rds = callPackage ../applications/radio/gnuradio/rds.nix { };
 
-  gnuradio-osmosdr = callPackage ../applications/misc/gnuradio/osmosdr.nix { };
+  gnuradio-osmosdr = callPackage ../applications/radio/gnuradio/osmosdr.nix { };
 
   goldendict = libsForQt5.callPackage ../applications/misc/goldendict { };
 
@@ -17138,7 +17161,7 @@ in
 
   gpx = callPackage ../applications/misc/gpx { };
 
-  gqrx = qt5.callPackage ../applications/misc/gqrx { };
+  gqrx = qt5.callPackage ../applications/radio/gqrx { };
 
   gpx-viewer = callPackage ../applications/misc/gpx-viewer { };
 
@@ -17180,7 +17203,7 @@ in
 
   wavrsocvt = callPackage ../applications/misc/audio/wavrsocvt { };
 
-  welle-io = libsForQt5.callPackage ../applications/misc/welle-io { };
+  welle-io = libsForQt5.callPackage ../applications/radio/welle-io { };
 
   wireshark = callPackage ../applications/networking/sniffers/wireshark {
     withQt = true;
@@ -17223,6 +17246,7 @@ in
   icecat-unwrapped = firefoxPackages.icecat;
 
   firefox = wrapFirefox firefox-unwrapped { };
+  firefox-wayland = wrapFirefox firefox-unwrapped { gdkWayland = true; };
   firefox-esr-52 = wrapFirefox firefox-esr-52-unwrapped { };
   firefox-esr-60 = wrapFirefox firefox-esr-60-unwrapped { };
   firefox-esr = firefox-esr-60;
@@ -17553,7 +17577,7 @@ in
 
   gxplugins-lv2 = callPackage ../applications/audio/gxplugins-lv2 { };
 
-  hackrf = callPackage ../applications/misc/hackrf { };
+  hackrf = callPackage ../applications/radio/hackrf { };
 
   hakuneko = callPackage ../tools/misc/hakuneko { };
 
@@ -17794,7 +17818,7 @@ in
     poppler = poppler_0_61;
   };
 
-  inspectrum = libsForQt5.callPackage ../applications/misc/inspectrum { };
+  inspectrum = libsForQt5.callPackage ../applications/radio/inspectrum { };
 
   ion3 = callPackage ../applications/window-managers/ion-3 {
     lua = lua5_1;
@@ -17890,7 +17914,7 @@ in
     akonadi akregator ark dolphin dragon ffmpegthumbs filelight gwenview k3b
     kaddressbook kate kcachegrind kcalc kcharselect kcolorchooser kcontacts kdenlive kdf kdialog
     keditbookmarks kget kgpg khelpcenter kig kleopatra kmail kmix kolourpaint kompare konsole
-    kpkpass kitinerary kontact korganizer krdc krfb ksystemlog kwalletmanager marble minuet okular spectacle;
+    kpkpass kitinerary kontact korganizer krdc krfb ksystemlog ktouch kwalletmanager marble minuet okular spectacle;
 
   okteta = libsForQt5.callPackage ../applications/editors/okteta { };
 
@@ -18229,7 +18253,7 @@ in
 
   minicom = callPackage ../tools/misc/minicom { };
 
-  minimodem = callPackage ../applications/audio/minimodem { };
+  minimodem = callPackage ../applications/radio/minimodem { };
 
   minidjvu = callPackage ../applications/graphics/minidjvu { };
 
@@ -18417,7 +18441,7 @@ in
 
   multimarkdown = callPackage ../tools/typesetting/multimarkdown { };
 
-  multimon-ng = callPackage ../applications/misc/multimon-ng { };
+  multimon-ng = callPackage ../applications/radio/multimon-ng { };
 
   inherit (callPackages ../applications/networking/mumble {
       avahi = avahi.override {
@@ -18704,6 +18728,7 @@ in
   opera = callPackage ../applications/networking/browsers/opera {};
 
   orca = python3Packages.callPackage ../applications/misc/orca {
+    inherit (pkgs) pkgconfig;
     inherit (gnome3) yelp-tools;
   };
 
@@ -19006,7 +19031,7 @@ in
     qt = qt4;
   };
 
-  qsstv = qt5.callPackage ../applications/misc/qsstv { };
+  qsstv = qt5.callPackage ../applications/radio/qsstv { };
 
   qsyncthingtray = libsForQt5.callPackage ../applications/misc/qsyncthingtray { };
 
@@ -19131,7 +19156,9 @@ in
 
   rdesktop = callPackage ../applications/networking/remote/rdesktop { };
 
-  rdedup = callPackage ../tools/backup/rdedup { };
+  rdedup = callPackage ../tools/backup/rdedup {
+    inherit (darwin.apple_sdk.frameworks) Security;
+  };
 
   rdup = callPackage ../tools/backup/rdup { };
 
@@ -19185,9 +19212,9 @@ in
   };
   rrsync = callPackage ../applications/networking/sync/rsync/rrsync.nix {};
 
-  rtl_433 = callPackage ../applications/misc/rtl_433 { };
+  rtl_433 = callPackage ../applications/radio/rtl_433 { };
 
-  rtl-sdr = callPackage ../applications/misc/rtl-sdr { };
+  rtl-sdr = callPackage ../applications/radio/rtl-sdr { };
 
   rtv = callPackage ../applications/misc/rtv { };
 
@@ -19686,6 +19713,8 @@ in
 
   tla = callPackage ../applications/version-management/arch { };
 
+  tlf = callPackage ../applications/radio/tlf { };
+
   tlp = callPackage ../tools/misc/tlp {
     inherit (linuxPackages) x86_energy_perf_policy;
   };
@@ -19781,7 +19810,7 @@ in
 
   unpaper = callPackage ../tools/graphics/unpaper { };
 
-  urh = callPackage ../applications/misc/urh { };
+  urh = callPackage ../applications/radio/urh { };
 
   uuagc = haskell.lib.justStaticExecutables haskellPackages.uuagc;
 
@@ -20175,7 +20204,7 @@ in
       );
   };
 
-  wsjtx = qt5.callPackage ../applications/misc/wsjtx { };
+  wsjtx = qt5.callPackage ../applications/radio/wsjtx { };
 
   wtftw = callPackage ../applications/window-managers/wtftw {};
 
@@ -22459,8 +22488,6 @@ in
     binutils-arm-embedded = pkgsCross.arm-embedded.buildPackages.binutils;
   };
 
-  greybird = callPackage ../misc/themes/greybird { };
-
   guetzli = callPackage ../applications/graphics/guetzli { };
 
   gummi = callPackage ../applications/misc/gummi { };
@@ -22716,6 +22743,8 @@ in
     nix-prefetch-scripts;
 
   nix-update-source = callPackage ../tools/package-management/nix-update-source {};
+
+  nix-script = callPackage ../tools/nix/nix-script {};
 
   nix-template-rpm = callPackage ../build-support/templaterpm { inherit (pythonPackages) python toposort; };
 
@@ -23027,7 +23056,7 @@ in
 
   unicode-paracode = callPackage ../tools/misc/unicode { };
 
-  unixcw = callPackage ../applications/misc/unixcw { };
+  unixcw = callPackage ../applications/radio/unixcw { };
 
   vault = callPackage ../tools/security/vault { };
 
@@ -23142,7 +23171,7 @@ in
 
   xlayoutdisplay = callPackage ../tools/X11/xlayoutdisplay { };
 
-  xlog = callPackage ../applications/misc/xlog { };
+  xlog = callPackage ../applications/radio/xlog { };
 
   xmagnify = callPackage ../tools/X11/xmagnify { };
 
@@ -23276,8 +23305,6 @@ in
   wtf = callPackage ../applications/misc/wtf { };
 
   zk-shell = callPackage ../applications/misc/zk-shell { };
-
-  zuki-themes = callPackage ../misc/themes/zuki { };
 
   tora = libsForQt5.callPackage ../development/tools/tora {};
 

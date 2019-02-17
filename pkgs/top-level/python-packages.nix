@@ -168,6 +168,10 @@ in {
 
   aioimaplib = callPackage ../development/python-modules/aioimaplib { };
 
+  aiolifx = callPackage ../development/python-modules/aiolifx { };
+
+  aiolifx-effects = callPackage ../development/python-modules/aiolifx-effects { };
+
   aioamqp = callPackage ../development/python-modules/aioamqp { };
 
   ansicolor = callPackage ../development/python-modules/ansicolor { };
@@ -263,6 +267,8 @@ in {
   bash_kernel = callPackage ../development/python-modules/bash_kernel { };
 
   bayespy = callPackage ../development/python-modules/bayespy { };
+
+  beanstalkc = disabledIf isPy3k (callPackage ../development/python-modules/beanstalkc {});
 
   bitarray = callPackage ../development/python-modules/bitarray { };
 
@@ -1094,11 +1100,10 @@ in {
 
   cached-property = callPackage ../development/python-modules/cached-property { };
 
-  caffe = pkgs.caffe.override {
-    python = self.python;
-    boost = self.boost;
-    numpy = self.numpy;
-  };
+  caffe = toPythonModule (pkgs.caffe.override {
+    pythonSupport = true;
+    inherit (self) python numpy boost;
+  });
 
   capstone = callPackage ../development/python-modules/capstone { };
 

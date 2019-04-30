@@ -1,0 +1,155 @@
+diff --git a/sapi/fpm/config.m4 b/sapi/fpm/config.m4
+index 44d842b..ce3e2fb 100644
+--- a/sapi/fpm/config.m4
++++ b/sapi/fpm/config.m4
+@@ -99,6 +99,22 @@ AC_DEFUN([AC_FPM_CLOCK],
+   fi
+ ])
+ 
++AC_DEFUN([AC_FPM_SYSTEMD],
++[
++  AC_MSG_CHECKING([for systemd])
++
++    SAVED_LIBS="$LIBS"
++    LIBS="$LIBS -lsystemd-journal -lsystemd"
++
++    AC_TRY_LINK([ #include <systemd/sd-journal.h> ], [sd_journal_send("Testing linking to sd-journal.h.");], [
++      AC_DEFINE([HAVE_SYSTEMD], 1, [do we have systemd?])
++      AC_MSG_RESULT([yes])
++    ], [
++      LIBS="$SAVED_LIBS"
++      AC_MSG_RESULT([no])
++    ])
++])
++
+ AC_DEFUN([AC_FPM_TRACE],
+ [
+   have_ptrace=no
+@@ -549,6 +565,7 @@ if test "$PHP_FPM" != "no"; then
+   AC_FPM_STDLIBS
+   AC_FPM_PRCTL
+   AC_FPM_CLOCK
++  AC_FPM_SYSTEMD
+   AC_FPM_TRACE
+   AC_FPM_BUILTIN_ATOMIC
+   AC_FPM_LQ
+diff --git a/sapi/fpm/fpm/fpm_sockets.c b/sapi/fpm/fpm/fpm_sockets.c
+index aaa16cc..57d4e98 100644
+--- a/sapi/fpm/fpm/fpm_sockets.c
++++ b/sapi/fpm/fpm/fpm_sockets.c
+@@ -17,6 +17,8 @@
+ #include <string.h>
+ #include <errno.h>
+ #include <unistd.h>
++#include <systemd/sd-daemon.h>
++#include <systemd/sd-journal.h>
+ 
+ #include "zlog.h"
+ #include "fpm_arrays.h"
+@@ -32,6 +34,7 @@ struct listening_socket_s {
+ 	int refcount;
+ 	int sock;
+ 	int type;
++	int preserve;
+ 	char *key;
+ };
+ 
+@@ -52,7 +55,7 @@ static void fpm_sockets_cleanup(int which, void *arg) /* {{{ */
+ 
+ 	for (i = 0; i < sockets_list.used; i++, ls++) {
+ 		if (which != FPM_CLEANUP_PARENT_EXEC) {
+-			close(ls->sock);
++			if (ls->preserve != 1) close(ls->sock); /* avoid close if systemd-provided socket */
+ 		} else { /* on PARENT EXEC we want socket fds to be inherited through environment variable */
+ 			char fd[32];
+ 			sprintf(fd, "%d", ls->sock);
+@@ -74,7 +77,7 @@ static void fpm_sockets_cleanup(int which, void *arg) /* {{{ */
+ 
+ 		if (which == FPM_CLEANUP_PARENT_EXIT_MAIN) {
+ 			if (ls->type == FPM_AF_UNIX) {
+-				unlink(ls->key);
++				if (ls->preserve != 1) unlink(ls->key); /* avoid unlink if systemd-provided socket */
+ 			}
+ 		}
+ 		free(ls->key);
+@@ -116,7 +119,7 @@ static int fpm_get_in_port(struct sockaddr *sa) /* {{{ */
+ }
+ /* }}} */
+ 
+-static int fpm_sockets_hash_op(int sock, struct sockaddr *sa, char *key, int type, int op) /* {{{ */
++static int fpm_sockets_hash_op(int sock, struct sockaddr *sa, char *key, int type, int op, int preserve) /* {{{ */
+ {
+ 	if (key == NULL) {
+ 		switch (type) {
+@@ -173,6 +176,7 @@ static int fpm_sockets_hash_op(int sock, struct sockaddr *sa, char *key, int typ
+ 			ls->type = type;
+ 			ls->sock = sock;
+ 			ls->key = strdup(key);
++			ls->preserve = preserve;
+ 
+ 			return 0;
+ 		}
+@@ -242,13 +246,13 @@ static int fpm_sockets_get_listening_socket(struct fpm_worker_pool_s *wp, struct
+ {
+ 	int sock;
+ 
+-	sock = fpm_sockets_hash_op(0, sa, 0, wp->listen_address_domain, FPM_GET_USE_SOCKET);
++	sock = fpm_sockets_hash_op(0, sa, 0, wp->listen_address_domain, FPM_GET_USE_SOCKET, /* (systemd) preserve= */ 0);
+ 	if (sock >= 0) {
+ 		return sock;
+ 	}
+ 
+ 	sock = fpm_sockets_new_listening_socket(wp, sa, socklen);
+-	fpm_sockets_hash_op(sock, sa, 0, wp->listen_address_domain, FPM_STORE_USE_SOCKET);
++	fpm_sockets_hash_op(sock, sa, 0, wp->listen_address_domain, FPM_STORE_USE_SOCKET, /* (systemd) preserve= */ 0);
+ 
+ 	return sock;
+ }
+@@ -371,7 +375,10 @@ static int fpm_socket_af_unix_listening_socket(struct fpm_worker_pool_s *wp) /*
+ 
+ int fpm_sockets_init_main() /* {{{ */
+ {
++	int sd_sock_count;
+ 	unsigned i, lq_len;
++	struct sockaddr_un address;
++	socklen_t address_len;
+ 	struct fpm_worker_pool_s *wp;
+ 	char sockname[32];
+ 	char sockpath[256];
+@@ -382,6 +389,27 @@ int fpm_sockets_init_main() /* {{{ */
+ 		return -1;
+ 	}
+ 
++ 
++	/* Is systemd providing any sockets? */
++	sd_sock_count = sd_listen_fds(0);
++	if (sd_sock_count < 0) sd_sock_count = 0; /* can return -errno, so set to zero */
++
++	/* For each systemd-provided socket, get type and address and store it */
++	for (i = SD_LISTEN_FDS_START; i < SD_LISTEN_FDS_START + sd_sock_count; i++) {
++		int type, fd_no;
++
++		fd_no = i;
++		address_len = sizeof(struct sockaddr_un);
++		if (getsockname(fd_no, (struct sockaddr *)&address, &address_len)) {
++			zlog(ZLOG_ERROR, "error getting sockname from systemd-provided socket: fd=%d", fd_no);
++			continue;
++		}
++
++		type = fpm_sockets_domain_from_address(((struct sockaddr *)&address)->sa_data);
++		zlog(ZLOG_NOTICE, "using systemd-provided socket fd=%d, \"%s\"", fd_no, ((struct sockaddr *)&address)->sa_data);
++		fpm_sockets_hash_op(fd_no, (struct sockaddr *)&address, 0, type, FPM_STORE_SOCKET, /* (systemd) preserve= */ 1);
++	}
++
+ 	/* import inherited sockets */
+ 	for (i = 0; i < FPM_ENV_SOCKET_SET_MAX; i++) {
+ 		if (!i) {
+@@ -415,7 +443,7 @@ int fpm_sockets_init_main() /* {{{ */
+ 				fd_no = atoi(eq + 1);
+ 				type = fpm_sockets_domain_from_address(sockpath);
+ 				zlog(ZLOG_NOTICE, "using inherited socket fd=%d, \"%s\"", fd_no, sockpath);
+-				fpm_sockets_hash_op(fd_no, 0, sockpath, type, FPM_STORE_SOCKET);
++				fpm_sockets_hash_op(fd_no, 0, sockpath, type, FPM_STORE_SOCKET, /* (systemd) preserve= */ 1);
+ 			}
+ 
+ 			if (comma) {

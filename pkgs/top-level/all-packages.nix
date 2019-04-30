@@ -8025,7 +8025,9 @@ in
     php70
     php71
     php72
-    php73;
+    php73
+    php734
+    ;
 
   php-embed = php72-embed;
 

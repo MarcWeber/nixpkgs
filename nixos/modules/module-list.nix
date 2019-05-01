@@ -194,7 +194,6 @@
   ./services/backup/crashplan-small-business.nix
   # ./services/backup/mysql-backup.nix
   ./services/backup/duplicity.nix
-  ./services/backup/mysql-backup.nix
   ./services/backup/postgresql-backup.nix
   ./services/backup/restic.nix
   ./services/backup/restic-rest-server.nix
@@ -460,7 +459,7 @@
   ./services/misc/uhub.nix
   ./services/misc/weechat.nix
   ./services/misc/xmr-stak.nix
-  ./services/misc/zoneminder.nix
+  # ./services/misc/zoneminder.nix
   ./services/misc/zookeeper.nix
   # ./services/monitoring/apcupsd.nix
   ./services/monitoring/alerta.nix

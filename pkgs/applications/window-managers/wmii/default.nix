@@ -6,7 +6,7 @@ args: with args; stdenv.mkDerivation {
     sha256 = "46f39b788c5ef4695040b36cc7d9c539db0306bafc4d8cefdc5980ed4331b216";
   };
 
-  buildInputs = [ libX11 libixp xextproto libXt libXext 
+  buildInputs = [ libX11 libixp /*xextproto*/ libXt libXext 
     glibc.out 
     glibc.dev 
     glibc.bin 

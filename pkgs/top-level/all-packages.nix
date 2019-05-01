@@ -20195,7 +20195,7 @@ in
   wmiiSnap = import ../applications/window-managers/wmii {
     libixp = libixp_for_wmii;
     inherit fetchurl /* fetchhg */ stdenv gawk glibc;
-    inherit (xorg) libX11 xextproto libXt libXext;
+    inherit (xorg) libX11 /*xextproto*/ libXt libXext;
     includeUnpack = config.stdenv.includeUnpack or false;
   };
 

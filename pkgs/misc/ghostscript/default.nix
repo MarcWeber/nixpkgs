@@ -1,6 +1,6 @@
 { config, stdenv, lib, fetchurl, pkgconfig, zlib, expat, openssl, autoconf
 , libjpeg, libpng, libtiff, freetype, fontconfig, libpaper, jbig2dec
-, libiconv, ijs, lcms2
+, libiconv, ijs, lcms2, fetchpatch
 , cupsSupport ? config.ghostscript.cups or (!stdenv.isDarwin), cups ? null
 , x11Support ? cupsSupport, xlibsWrapper ? null # with CUPS, X11 only adds very little
 }:
@@ -10,8 +10,8 @@ assert cupsSupport -> cups != null;
 
 let
   version = "9.${ver_min}";
-  ver_min = "26";
-  sha512 = "0z2mvsh06qgnxl7p9isw7swg8jp8xcx3rnbqk727avw7ammvfh8785d2bn5i4fhz8y45ka3cpgp7b598m06yq5zawijhcnzkq187nrx";
+  ver_min = "50";
+  sha512 = "3p46kzn6kh7z4qqnqydmmvdlgzy5730z3yyvyxv6i4yb22mgihzrwqmhmvfn3b7lypwf6fdkkndarzv7ly3zndqpyvg89x436sms7iw";
 
   fonts = stdenv.mkDerivation {
     name = "ghostscript-fonts";
@@ -36,10 +36,11 @@ let
 
 in
 stdenv.mkDerivation rec {
-  name = "ghostscript-${version}";
+  pname = "ghostscript";
+  inherit version;
 
   src = fetchurl {
-    url = "https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs9${ver_min}/${name}.tar.xz";
+    url = "https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs9${ver_min}/${pname}-${version}.tar.xz";
     inherit sha512;
   };
 

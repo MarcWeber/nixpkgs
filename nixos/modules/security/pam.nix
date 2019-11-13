@@ -48,6 +48,16 @@ let
         '';
       };
 
+      yubicoAuth = mkOption {
+        default = config.security.pam.yubico.enable;
+        type = types.bool;
+        description = ''
+          If set, users listed in
+          <filename>~/.yubico/authorized_yubikeys</filename>
+          are able to log in with the asociated Yubikey tokens.
+        '';
+      };
+
       googleAuthenticator = {
         enable = mkOption {
           default = false;
@@ -340,6 +350,8 @@ let
               "auth sufficient ${pkgs.pam_usb}/lib/security/pam_usb.so"}
           ${let oath = config.security.pam.oath; in optionalString cfg.oathAuth
               "auth requisite ${pkgs.oathToolkit}/lib/security/pam_oath.so window=${toString oath.window} usersfile=${toString oath.usersFile} digits=${toString oath.digits}"}
+          ${let yubi = config.security.pam.yubico; in optionalString cfg.yubicoAuth
+              "auth ${yubi.control} ${pkgs.yubico-pam}/lib/security/pam_yubico.so mode=${toString yubi.mode} ${optionalString (yubi.mode == "client") "id=${toString yubi.id}"} ${optionalString yubi.debug "debug"}"}
         '' +
           # Modules in this block require having the password set in PAM_AUTHTOK.
           # pam_unix is marked as 'sufficient' on NixOS which means nothing will run
@@ -398,10 +410,12 @@ let
               "password sufficient ${pam_krb5}/lib/security/pam_krb5.so use_first_pass"}
           ${optionalString config.services.samba.syncPasswordsByPam
               "password optional ${pkgs.samba}/lib/security/pam_smbpass.so nullok use_authtok try_first_pass"}
+          ${optionalString cfg.enableGnomeKeyring
+              "password optional ${pkgs.gnome3.gnome-keyring}/lib/security/pam_gnome_keyring.so use_authtok"}
 
           # Session management.
           ${optionalString cfg.setEnvironment ''
-            session required pam_env.so envfile=${config.system.build.pamEnvironment}
+            session required pam_env.so conffile=${config.system.build.pamEnvironment} readenv=0
           ''}
           session required pam_unix.so
           ${optionalString cfg.setLoginUid
@@ -636,6 +650,71 @@ in
       };
     };
 
+    security.pam.yubico = {
+      enable = mkOption {
+        default = false;
+        type = types.bool;
+        description = ''
+          Enables Yubico PAM (<literal>yubico-pam</literal>) module.
+
+          If set, users listed in
+          <filename>~/.yubico/authorized_yubikeys</filename>
+          are able to log in with the associated Yubikey tokens.
+
+          The file must have only one line:
+          <literal>username:yubikey_token_id1:yubikey_token_id2</literal>
+          More information can be found <link
+          xlink:href="https://developers.yubico.com/yubico-pam/">here</link>.
+        '';
+      };
+      control = mkOption {
+        default = "sufficient";
+        type = types.enum [ "required" "requisite" "sufficient" "optional" ];
+        description = ''
+          This option sets pam "control".
+          If you want to have multi factor authentication, use "required".
+          If you want to use Yubikey instead of regular password, use "sufficient".
+
+          Read
+          <citerefentry>
+            <refentrytitle>pam.conf</refentrytitle>
+            <manvolnum>5</manvolnum>
+          </citerefentry>
+          for better understanding of this option.
+        '';
+      };
+      id = mkOption {
+        example = "42";
+        type = types.str;
+        description = "client id";
+      };
+
+      debug = mkOption {
+        default = false;
+        type = types.bool;
+        description = ''
+          Debug output to stderr.
+        '';
+      };
+      mode = mkOption {
+        default = "client";
+        type = types.enum [ "client" "challenge-response" ];
+        description = ''
+          Mode of operation.
+
+          Use "client" for online validation with a YubiKey validation service such as
+          the YubiCloud.
+
+          Use "challenge-response" for offline validation using YubiKeys with HMAC-SHA-1
+          Challenge-Response configurations. See the man-page ykpamcfg(1) for further
+          details on how to configure offline Challenge-Response validation. 
+
+          More information can be found <link
+          xlink:href="https://developers.yubico.com/yubico-pam/Authentication_Using_Challenge-Response.html">here</link>.
+        '';
+      };
+    };
+
     security.pam.enableEcryptfs = mkOption {
       default = false;
       description = ''
@@ -679,13 +758,6 @@ in
 
     environment.etc =
       mapAttrsToList (n: v: makePAMService v) config.security.pam.services;
-
-    systemd.tmpfiles.rules = optionals
-      (any (s: s.updateWtmp) (attrValues config.security.pam.services))
-      [
-        "f /var/log/wtmp"
-        "f /var/log/lastlog"
-      ];
 
     security.pam.services =
       { other.text =

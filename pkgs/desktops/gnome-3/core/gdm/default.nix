@@ -1,15 +1,29 @@
 { stdenv, fetchurl, substituteAll, pkgconfig, glib, itstool, libxml2, xorg
 , accountsservice, libX11, gnome3, systemd, autoreconfHook
 , gtk3, libcanberra-gtk3, pam, libtool, gobject-introspection, plymouth
-, librsvg, coreutils, xwayland, fetchpatch }:
+, librsvg, coreutils, xwayland, nixos-icons, fetchpatch }:
+
+let
+
+  icon = fetchurl {
+    url = "https://raw.githubusercontent.com/NixOS/nixos-artwork/4f041870efa1a6f0799ef4b32bb7be2cafee7a74/logo/nixos.svg";
+    sha256 = "0b0dj408c1wxmzy6k0pjwc4bzwq286f1334s3cqqwdwjshxskshk";
+  };
+
+  override = substituteAll {
+    src = ./org.gnome.login-screen.gschema.override;
+    inherit icon;
+  };
+
+in
 
 stdenv.mkDerivation rec {
-  name = "gdm-${version}";
-  version = "3.30.3";
+  pname = "gdm";
+  version = "3.34.1";
 
   src = fetchurl {
-    url = "mirror://gnome/sources/gdm/${stdenv.lib.versions.majorMinor version}/${name}.tar.xz";
-    sha256 = "15f7lz7z75krgbq8vb800afj96h8mw2fpy1s28za2911x5vgq0ak";
+    url = "mirror://gnome/sources/gdm/${stdenv.lib.versions.majorMinor version}/${pname}-${version}.tar.xz";
+    sha256 = "1lyqvcwxhwxklbxn4xjswjzr6fhjix6h28mi9ypn34wdm9bzcpg8";
   };
 
   # Only needed to make it build
@@ -17,12 +31,14 @@ stdenv.mkDerivation rec {
     substituteInPlace ./configure --replace "/usr/bin/X" "${xorg.xorgserver.out}/bin/X"
   '';
 
+  initialVT = "7";
+
   configureFlags = [
     "--sysconfdir=/etc"
     "--localstatedir=/var"
     "--with-plymouth=yes"
     "--enable-gdm-xsession"
-    "--with-initial-vt=7"
+    "--with-initial-vt=${initialVT}"
     "--with-systemdsystemunitdir=$(out)/etc/systemd/system"
     "--with-udevdir=$(out)/lib/udev"
   ];
@@ -64,6 +80,11 @@ stdenv.mkDerivation rec {
     "sysconfdir=$(out)/etc"
     "dbusconfdir=$(out)/etc/dbus-1/system.d"
   ];
+
+  preInstall = ''
+    schema_dir=${glib.makeSchemaPath "$out" "${pname}-${version}"}
+    install -D ${override} $schema_dir/org.gnome.login-screen.gschema.override
+  '';
 
   passthru = {
     updateScript = gnome3.updateScript {

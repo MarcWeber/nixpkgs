@@ -1,21 +1,36 @@
-{ stdenv, fetchFromGitHub, pantheon, pkgconfig, cmake, ninja, gtk3, gtksourceview3, webkitgtk, gtkspell3, glib, libgee, sqlite, discount, wrapGAppsHook
+{ stdenv
+, fetchFromGitHub
+, pantheon
+, pkgconfig
+, vala
+, cmake
+, ninja
+, gtk3
+, gtksourceview3
+, webkitgtk
+, gtkspell3
+, glib
+, libgee
+, sqlite
+, discount
+, wrapGAppsHook
 , withPantheon ? false }:
 
 stdenv.mkDerivation rec {
   pname = "notes-up";
-  version = "1.6.3";
+  version = "2.0.2";
 
   src = fetchFromGitHub {
     owner = "Philip-Scott";
     repo = "Notes-up";
     rev = version;
-    sha256 = "06fzdb823kkami0jch9ccblsvw3x7zd1d4xz8fv3giscl3f36x4q";
+    sha256 = "0bklgp8qrrj9y5m77xqbpy1ld2d9ya3rlxklgzx3alffq5312i4s";
   };
 
   nativeBuildInputs = [
     cmake
     ninja
-    pantheon.vala
+    vala
     pkgconfig
     wrapGAppsHook
   ];

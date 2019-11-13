@@ -1,9 +1,7 @@
-{ stdenv, python36Packages }:
+{ stdenv, fetchpatch, python3Packages }:
 
 with stdenv.lib;
-
-# Needs Python <3.7 for now, see https://github.com/louipc/turses/issues/4
-with python36Packages;
+with python3Packages;
 
 buildPythonPackage rec {
   pname = "turses";
@@ -14,10 +12,20 @@ buildPythonPackage rec {
     sha256 = "15mkhm3b5ka42h8qph0mhh8izfc1200v7651c62k7ldcs50ib9j6";
   };
 
-  disabled = ! python36Packages.pythonOlder "3.7";
-
   checkInputs = [ mock pytest coverage tox ];
   propagatedBuildInputs = [ urwid tweepy future ];
+
+  patches = [
+    (fetchpatch {
+      url = "https://github.com/louipc/turses/commit/be0961b51f502d49fd9e2e5253ac130e543a31c7.patch";
+      sha256 = "17s1n0275mcj03vkf3n39dmc09niwv4y7ssrfk7k3vqx22kppzg3";
+    })
+    # python 3.7+ support
+    (fetchpatch {
+      url = "https://github.com/booxter/turses/commit/e6e285eae50fc3d2042a476185fe60daef1e758e.patch";
+      sha256 = "0g2zsrny955viwgs2l6gpiiz8m67b5sgdcxkjmfimfvvih5sg79f";
+    })
+  ];
 
   checkPhase = ''
     TMP_TURSES=`echo turses-$RANDOM`
@@ -26,7 +34,7 @@ buildPythonPackage rec {
     rm -rf $TMP_TURSES
   '';
 
-  patchPhase = ''
+  postPatch = ''
     sed -i -e 's|urwid==1.3.0|urwid==${getVersion urwid}|' setup.py
     sed -i -e "s|future==0.14.3|future==${getVersion future}|" setup.py
     sed -i -e "s|tweepy==3.3.0|tweepy==${getVersion tweepy}|" setup.py
@@ -35,10 +43,10 @@ buildPythonPackage rec {
   '';
 
   meta = with stdenv.lib; {
-    homepage = https://github.com/alejandrogomez/turses;
+    homepage = https://github.com/louipc/turses;
     description = "A Twitter client for the console";
     license = licenses.gpl3;
-    maintainers = with maintainers; [ garbas ];
+    maintainers = with maintainers; [ ];
     platforms = platforms.unix;
   };
 }

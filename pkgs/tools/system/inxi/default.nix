@@ -1,21 +1,23 @@
-{ stdenv, fetchFromGitHub, perl }:
+{ stdenv, fetchFromGitHub, perl, perlPackages, makeWrapper }:
 
 stdenv.mkDerivation rec {
-  name = "inxi-${version}";
-  version = "3.0.32-1";
+  pname = "inxi";
+  version = "3.0.36-1";
 
   src = fetchFromGitHub {
     owner = "smxi";
     repo = "inxi";
     rev = version;
-    sha256 = "171xdip2alkp3g0k0sanaavvdcz6d0wlldj9lgj11xsdbhaaknnv";
+    sha256 = "04134l323vwd0g2bffj11rnpw2jgs9la6aqrmv8vh7w9mq5nd57y";
   };
 
-  buildInputs = [ perl ];
+  buildInputs = [ perl makeWrapper ];
 
   installPhase = ''
     mkdir -p $out/bin
     cp inxi $out/bin/
+    wrapProgram $out/bin/inxi \
+      --set PERL5LIB "${perlPackages.makePerlPath (with perlPackages; [ CpanelJSONXS ])}"
     mkdir -p $out/share/man/man1
     cp inxi.1 $out/share/man/man1/
   '';

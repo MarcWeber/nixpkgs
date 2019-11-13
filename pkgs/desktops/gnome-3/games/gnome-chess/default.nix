@@ -2,12 +2,12 @@
 , gettext, itstool, libxml2, python3, gnome3, glib, gtk3, librsvg }:
 
 stdenv.mkDerivation rec {
-  name = "gnome-chess-${version}";
-  version = "3.30.1";
+  pname = "gnome-chess";
+  version = "3.34.0";
 
   src = fetchurl {
-    url = "mirror://gnome/sources/gnome-chess/${stdenv.lib.versions.majorMinor version}/${name}.tar.xz";
-    sha256 = "1gzdm6z54kxx06lh616g33klrp4dby2a68wxvjpsavdll28kgwgl";
+    url = "mirror://gnome/sources/gnome-chess/${stdenv.lib.versions.majorMinor version}/${pname}-${version}.tar.xz";
+    sha256 = "1n1vjg6xhwppmddrmqmkk6b3jkgphshp06rjbv5h3270k520a135";
   };
 
   nativeBuildInputs = [ meson ninja vala pkgconfig gettext itstool libxml2 python3 wrapGAppsHook gobject-introspection ];

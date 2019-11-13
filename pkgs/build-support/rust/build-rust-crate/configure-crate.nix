@@ -6,8 +6,10 @@
 , completeDeps
 , crateAuthors
 , crateDescription
+, crateHomepage
 , crateFeatures
 , crateName
+, crateRenames
 , crateVersion
 , extraLinkFlags
 , extraRustcOpts
@@ -19,11 +21,11 @@
 , workspace_member }:
 let version_ = lib.splitString "-" crateVersion;
     versionPre = if lib.tail version_ == [] then "" else builtins.elemAt version_ 1;
-    version = lib.splitString "." (lib.head version_);
+    version = lib.splitVersion (lib.head version_);
     rustcOpts = lib.lists.foldl' (opts: opt: opts + " " + opt)
         (if release then "-C opt-level=3" else "-C debuginfo=2")
-        (["-C codegen-units=1"] ++ extraRustcOpts);
-    buildDeps = makeDeps buildDependencies;
+        (["-C codegen-units=$NIX_BUILD_CORES"] ++ extraRustcOpts);
+    buildDeps = makeDeps buildDependencies crateRenames;
     authors = lib.concatStringsSep ":" crateAuthors;
     optLevel = if release then 3 else 0;
     completeDepsDir = lib.concatStringsSep " " completeDeps;
@@ -91,12 +93,11 @@ in ''
   export CARGO_PKG_VERSION_MAJOR=${builtins.elemAt version 0}
   export CARGO_PKG_VERSION_MINOR=${builtins.elemAt version 1}
   export CARGO_PKG_VERSION_PATCH=${builtins.elemAt version 2}
+  export CARGO_PKG_VERSION_PRE="${versionPre}"
+  export CARGO_PKG_HOMEPAGE="${crateHomepage}"
   export NUM_JOBS=1
   export RUSTC="rustc"
   export RUSTDOC="rustdoc"
-  if [[ -n "${versionPre}" ]]; then
-    export CARGO_PKG_VERSION_PRE="${versionPre}"
-  fi
 
   BUILD=""
   if [[ ! -z "${build}" ]] ; then
@@ -149,4 +150,3 @@ in ''
   fi
   runHook postConfigure
 ''
-

@@ -24,6 +24,8 @@ let
 
   darcsToGit = callPackage ./darcs-to-git { };
 
+  delta = callPackage ./delta { };
+
   diff-so-fancy = callPackage ./diff-so-fancy { };
 
   ghq = callPackage ./ghq { };
@@ -38,7 +40,7 @@ let
 
   git-fame = callPackage ./git-fame {};
 
-  gita = callPackage ./gita {};
+  gita = python3Packages.callPackage ./gita {};
 
   # The full-featured Git.
   gitFull = gitBase.override {
@@ -61,7 +63,18 @@ let
 
   git-annex-remote-b2 = callPackage ./git-annex-remote-b2 { };
 
+  git-annex-remote-dbx = callPackage ./git-annex-remote-dbx {
+    inherit (python3Packages)
+    buildPythonApplication
+    fetchPypi
+    dropbox
+    annexremote
+    humanfriendly;
+  };
+
   git-annex-remote-rclone = callPackage ./git-annex-remote-rclone { };
+
+  git-annex-utils = callPackage ./git-annex-utils { };
 
   git-bug = callPackage ./git-bug { };
 
@@ -79,6 +92,10 @@ let
   };
 
   git-extras = callPackage ./git-extras { };
+
+  git-gone = callPackage ./git-gone {
+    inherit (darwin.apple_sdk.frameworks) Security;
+  };
 
   git-hub = callPackage ./git-hub { };
 
@@ -104,7 +121,11 @@ let
 
   git-secrets = callPackage ./git-secrets { };
 
+  git-standup = callPackage ./git-standup { };
+
   git-stree = callPackage ./git-stree { };
+
+  git-subrepo = callPackage ./git-subrepo { };
 
   git-sync = callPackage ./git-sync { };
 
@@ -118,6 +139,8 @@ let
 
   gitflow = callPackage ./gitflow { };
 
+  gitstatus = callPackage ./gitstatus { };
+
   grv = callPackage ./grv { };
 
   hub = callPackage ./hub {
@@ -128,7 +151,9 @@ let
 
   lab = callPackage ./lab { };
 
-  pre-commit = callPackage ./pre-commit { };
+  lefthook = callPackage ./lefthook { };
+
+  pre-commit = pkgs.python3Packages.toPythonApplication pkgs.python3Packages.pre-commit;
 
   pass-git-helper = python3Packages.callPackage ./pass-git-helper { };
 

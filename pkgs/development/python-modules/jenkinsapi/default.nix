@@ -11,11 +11,11 @@
 
 buildPythonPackage rec {
   pname = "jenkinsapi";
-  version = "0.3.8";
+  version = "0.3.10";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "120adfc9cea83fb890744b5049c5bb7edc77699059f0da62db66354ec27c54e2";
+    sha256 = "fc2fcdf95d954d9bbbdb1303a2c3c32997935655c99aff300f1759dba3cebc6d";
   };
 
   propagatedBuildInputs = [ pytz requests ];
@@ -26,6 +26,7 @@ buildPythonPackage rec {
     homepage = https://github.com/salimfadhley/jenkinsapi;
     maintainers = with maintainers; [ drets ];
     license = licenses.mit;
+    broken = true;
   };
 
 }

@@ -1,27 +1,34 @@
-{ stdenv, lib, buildGoPackage, fetchurl, cf-private
+{ stdenv, substituteAll, lib, buildGoPackage, fetchFromGitHub
 , AVFoundation, AudioToolbox, ImageIO, CoreMedia
 , Foundation, CoreGraphics, MediaToolbox
+, gnupg
 }:
 
 buildGoPackage rec {
-  name = "keybase-${version}";
-  version = "3.0.0";
+  pname = "keybase";
+  version = "4.7.2";
 
   goPackagePath = "github.com/keybase/client";
   subPackages = [ "go/keybase" ];
 
   dontRenameImports = true;
 
-  src = fetchurl {
-    url = "https://github.com/keybase/client/archive/v${version}.tar.gz";
-    sha256 = "1mxzihgd3qfahlmnfrpbg2kbixbjmkajrl964kaxmihrkx0fylvf";
+  src = fetchFromGitHub {
+    owner = "keybase";
+    repo = "client";
+    rev = "v${version}";
+    sha256 = "1ixfq9qv71misg04fvf4892z956w5aydq0r1wk6qk5jjqp6gf4lv";
   };
 
-  buildInputs = lib.optionals stdenv.isDarwin [
-    AVFoundation AudioToolbox ImageIO CoreMedia Foundation CoreGraphics MediaToolbox
-    # Needed for OBJC_CLASS_$_NSData symbols.
-    cf-private
+  patches = [
+    (substituteAll {
+      src = ./fix-paths-keybase.patch;
+      gpg = "${gnupg}/bin/gpg";
+      gpg2 = "${gnupg}/bin/gpg2";
+    })
   ];
+
+  buildInputs = stdenv.lib.optionals stdenv.isDarwin [ AVFoundation AudioToolbox ImageIO CoreMedia Foundation CoreGraphics MediaToolbox ];
   buildFlags = [ "-tags production" ];
 
   meta = with stdenv.lib; {

@@ -8,12 +8,12 @@
 
 buildPythonPackage rec {
   pname = "jupyterlab";
-  version = "0.35.4";
+  version = "1.2.2";
   disabled = pythonOlder "3.5";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "deba0b2803640fcad72c61366bff11d5945173015961586d5e3b2f629ffeb455";
+    sha256 = "96d3146eb09ffa0a198f31b36706859dadd4a59ed184aa9329a9c12733e6af0b";
   };
 
   propagatedBuildInputs = [ jupyterlab_server notebook ];
@@ -28,7 +28,7 @@ buildPythonPackage rec {
   meta = with lib; {
     description = "Jupyter lab environment notebook server extension.";
     license = with licenses; [ bsd3 ];
-    homepage = "http://jupyter.org/";
+    homepage = "https://jupyter.org/";
     maintainers = with maintainers; [ zimbatm costrouc ];
   };
 }

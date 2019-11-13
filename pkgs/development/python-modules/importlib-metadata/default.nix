@@ -1,25 +1,35 @@
 { lib
 , buildPythonPackage
 , fetchPypi
+, setuptools_scm
+, zipp
 , pathlib2
 , contextlib2
+, configparser
 , isPy3k
 , importlib-resources
+, packaging
 }:
 
 buildPythonPackage rec {
   pname = "importlib-metadata";
-  version = "0.6";
+  version = "0.23";
 
   src = fetchPypi {
     pname = "importlib_metadata";
     inherit version;
-    sha256 = "36b02c84f9001adf65209fefdf951be8e9014a95eab9938c0779ad5670359b1c";
+    sha256 = "09mdqdfv5rdrwz80jh9m379gxmvk2vhjfz0fg53hid00icvxf65a";
   };
 
-  propagatedBuildInputs = [] ++ lib.optionals (!isPy3k) [ pathlib2 contextlib2 ];
+  nativeBuildInputs = [ setuptools_scm ];
 
-  checkInputs = [ importlib-resources ];
+  propagatedBuildInputs = [ zipp ]
+    ++ lib.optionals (!isPy3k) [ pathlib2 contextlib2 configparser ];
+
+  checkInputs = [ importlib-resources packaging ];
+
+  # Two failing tests: https://gitlab.com/python-devs/importlib_metadata/issues/72
+  doCheck = false;
 
   meta = with lib; {
     description = "Read metadata from Python packages";

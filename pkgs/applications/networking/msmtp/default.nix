@@ -9,12 +9,11 @@ let
 
 in stdenv.mkDerivation rec {
   pname = "msmtp";
-  name = "${pname}-${version}";
-  version = "1.8.3";
+  version = "1.8.6";
 
   src = fetchurl {
-    url = "https://marlam.de/msmtp/releases/${name}.tar.xz";
-    sha256 = "1d4jdgrx4czp66nnwdsy938lzr4llhwyy0715pwg0j6h6gyyxciw";
+    url = "https://marlam.de/${pname}/releases/${pname}-${version}.tar.xz";
+    sha256 = "1qa260xrm0fzlwxpjvgvq39m4dfkskjlyb7m4y2vlr8c8d3z29b6";
   };
 
   patches = [
@@ -54,7 +53,7 @@ in stdenv.mkDerivation rec {
     description = "Simple and easy to use SMTP client with excellent sendmail compatibility";
     homepage = https://marlam.de/msmtp/;
     license = licenses.gpl3Plus;
-    maintainers = with maintainers; [ garbas peterhoeg ];
+    maintainers = with maintainers; [ peterhoeg ];
     platforms = platforms.unix;
   };
 }

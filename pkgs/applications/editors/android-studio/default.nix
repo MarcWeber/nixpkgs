@@ -1,4 +1,4 @@
-{ stdenv, callPackage, makeFontsConf, gnome2 }:
+{ callPackage, makeFontsConf, gnome2 }:
 
 let
   mkStudio = opts: callPackage (import ./common.nix opts) {
@@ -8,31 +8,21 @@ let
     inherit (gnome2) GConf gnome_vfs;
   };
   stableVersion = {
-    version = "3.3.2.0"; # "Android Studio 3.3.2"
-    build = "182.5314842";
-    sha256Hash = "0smh3d3v8n0isxg7fkls20622gp52f58i2b6wa4a0g8wnvmd6mw2";
+    version = "3.5.2.0"; # "Android Studio 3.5.2"
+    build = "191.5977832";
+    sha256Hash = "0kcd6kd5rn4b76damkfddin18d1r0dck05piv8mq1ns7x1n4hf7q";
   };
   betaVersion = {
-    version = "3.4.0.15"; # "Android Studio 3.4 RC 1"
-    build = "183.5341121";
-    sha256Hash = "0s7wadnzbrd031ls43b5nbh1nx0paj74bxy2yiczr4qb9n562zzy";
+    version = "3.6.0.15"; # "Android Studio 3.6 Beta 3"
+    build = "192.5982640";
+    sha256Hash = "0017g7nvjiadd64in9fl4wq5lf8b7pyrdasbnwzjcphpbzy1390x";
   };
   latestVersion = { # canary & dev
-    version = "3.5.0.5"; # "Android Studio 3.5 Canary 6"
-    build = "183.5326993";
-    sha256Hash = "06d43qw0p6zpy6vmriiihql5vgc6c4darplc2148y616hx0whrql";
+    version = "4.0.0.2"; # "Android Studio 4.0 Canary 2"
+    build = "192.5984562";
+    sha256Hash = "0p29a6np31396970lnb3di2yrcqi3z8nqcn27hcnb4c4g7kjm0qw";
   };
-in rec {
-  # Old alias (TODO @primeos: Remove after 19.03 is branched off):
-  preview = throw ''
-    The attributes "android-studio-preview" and "androidStudioPackages.preview"
-    are now deprecated and will be removed soon, please use
-    "androidStudioPackages.beta" instead. This attribute corresponds to the
-    beta channel, if you want the latest release you can use
-    "androidStudioPackages.dev" or "androidStudioPackages.canary" instead
-    (currently, there is no difference between both channels).
-  '';
-
+in {
   # Attributes are named by their corresponding release channels
 
   stable = mkStudio (stableVersion // {

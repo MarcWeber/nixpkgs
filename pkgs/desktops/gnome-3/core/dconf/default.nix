@@ -6,25 +6,20 @@ let
 in
 stdenv.mkDerivation rec {
   name = "${pname}-${version}";
-  version = "0.30.1";
+  version = "0.34.0";
 
   src = fetchurl {
     url = "mirror://gnome/sources/${pname}/${stdenv.lib.versions.majorMinor version}/${name}.tar.xz";
-    sha256 = "1dq2dn7qmxr4fxzx9wnag89ck24gxq17p2n4gl81h4w8qdy3m6jl";
+    sha256 = "0lnsl85cp2vpzgp8pkf6l6yd2i3lp02jdvga1icfa78j2smr8fll";
   };
 
   patches = [
-    # Fix the build on Darwin
-    # Issue: https://gitlab.gnome.org/GNOME/dconf/issues/47
-    (fetchpatch {
-      url = "https://gitlab.gnome.org/GNOME/dconf/commit/49f4d916e1151af3975df52c522c69de98ed2fbb.patch";
-      sha256 = "00klkr1jzli9ap0aj6399m1bj2bxxz48pmcj4r16dsy6dfdl6325";
-    })
   ];
 
   postPatch = ''
-    chmod +x meson_post_install.py
+    chmod +x meson_post_install.py tests/test-dconf.py
     patchShebangs meson_post_install.py
+    patchShebangs tests/test-dconf.py
   '';
 
   outputs = [ "out" "lib" "dev" "devdoc" ];
@@ -37,7 +32,7 @@ stdenv.mkDerivation rec {
     "-Dgtk_doc=true"
   ];
 
-  doCheck = true;
+  doCheck = !stdenv.isAarch32 && !stdenv.isAarch64 && !stdenv.isDarwin;
 
   passthru = {
     updateScript = gnome3.updateScript {

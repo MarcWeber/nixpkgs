@@ -1,5 +1,5 @@
 { stdenv, fetchpatch, fetchFromGitHub, autoreconfHook, libxslt, libxml2
-, docbook_xml_dtd_412, docbook_xsl, gnome-doc-utils, flex, bison
+, docbook_xml_dtd_45, docbook_xsl, itstool, flex, bison
 , pam ? null, glibcCross ? null
 }:
 
@@ -18,24 +18,32 @@ let
 in
 
 stdenv.mkDerivation rec {
-  name = "shadow-${version}";
-  version = "4.6";
+  pname = "shadow";
+  version = "4.7";
 
   src = fetchFromGitHub {
     owner = "shadow-maint";
     repo = "shadow";
-    rev = "${version}";
-    sha256 = "1llcv77lvpc4h3rgww9ms736kbdisiylcr2z02863f41afxbwl82";
+    rev = version;
+    sha256 = "0a7g9k83igfid8pybqpk6fracmz2q021isn2by3994p4hhh3s327";
   };
 
   buildInputs = stdenv.lib.optional (pam != null && stdenv.isLinux) pam;
   nativeBuildInputs = [autoreconfHook libxslt libxml2
-    docbook_xml_dtd_412 docbook_xsl gnome-doc-utils flex bison
+    docbook_xml_dtd_45 docbook_xsl flex bison itstool
     ];
 
   patches =
     [ ./keep-path.patch
+      # Obtain XML resources from XML catalog (patch adapted from gtk-doc)
+      ./respect-xml-catalog-files-var.patch
       dots_in_usernames
+      # Allow building with itstool
+      # https://github.com/shadow-maint/shadow/pull/184
+      (fetchpatch {
+        url = https://github.com/shadow-maint/shadow/commit/6c6c8d3a33bba32277e1ed46f55df1e6dbc914b7.patch;
+        sha256 = "0xfr1mrfv5xsmri6l7ycbpz3qhs4vf3fyci4kwpffi3icsfjn557";
+      })
     ];
 
   # The nix daemon often forbids even creating set[ug]id files.
@@ -52,11 +60,6 @@ stdenv.mkDerivation rec {
   preConfigure = ''
     export ac_cv_func_setpgrp_void=yes
     export shadow_cv_logdir=/var/log
-    (
-    head -n -1 "${docbook_xml_dtd_412}/xml/dtd/docbook/catalog.xml"
-    tail -n +3 "${docbook_xsl}/share/xml/docbook-xsl/catalog.xml"
-    ) > xmlcatalog
-    configureFlags="$configureFlags --with-xml-catalog=$PWD/xmlcatalog ";
   '';
 
   configureFlags = [

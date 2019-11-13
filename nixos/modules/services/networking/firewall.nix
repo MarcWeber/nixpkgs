@@ -58,7 +58,7 @@ let
     ${text}
   ''; in "${dir}/bin/${name}";
 
-  defaultInterface = { default = mapAttrs (name: value: cfg."${name}") commonOptions; };
+  defaultInterface = { default = mapAttrs (name: value: cfg.${name}) commonOptions; };
   allInterfaces = defaultInterface // cfg.interfaces;
 
   startScript = writeShScript "firewall-start" ''
@@ -261,10 +261,14 @@ let
     fi
   '';
 
+  canonicalizePortList =
+    ports: lib.unique (builtins.sort builtins.lessThan ports);
+
   commonOptions = {
     allowedTCPPorts = mkOption {
-      type = types.listOf types.int;
+      type = types.listOf types.port;
       default = [ ];
+      apply = canonicalizePortList;
       example = [ 22 80 ];
       description =
         '' 
@@ -274,7 +278,7 @@ let
     };
 
     allowedTCPPortRanges = mkOption {
-      type = types.listOf (types.attrsOf types.int);
+      type = types.listOf (types.attrsOf types.port);
       default = [ ];
       example = [ { from = 8999; to = 9003; } ];
       description =
@@ -285,8 +289,9 @@ let
     };
 
     allowedUDPPorts = mkOption {
-      type = types.listOf types.int;
+      type = types.listOf types.port;
       default = [ ];
+      apply = canonicalizePortList;
       example = [ 53 ];
       description =
         ''
@@ -295,7 +300,7 @@ let
     };
 
     allowedUDPPortRanges = mkOption {
-      type = types.listOf (types.attrsOf types.int);
+      type = types.listOf (types.attrsOf types.port);
       default = [ ];
       example = [ { from = 60000; to = 61000; } ];
       description =
@@ -323,6 +328,17 @@ in
             firewall that blocks connection attempts to unauthorised TCP
             or UDP ports on this machine.  It does not affect packet
             forwarding.
+          '';
+      };
+
+      package = mkOption {
+        type = types.package;
+        default = pkgs.iptables;
+        defaultText = "pkgs.iptables";
+        example = literalExample "pkgs.iptables-nftables-compat";
+        description =
+          ''
+            The iptables package to use for running the firewall service."
           '';
       };
 
@@ -531,7 +547,7 @@ in
 
     networking.firewall.trustedInterfaces = [ "lo" ];
 
-    environment.systemPackages = [ pkgs.iptables ] ++ cfg.extraPackages;
+    environment.systemPackages = [ cfg.package ] ++ cfg.extraPackages;
 
     boot.kernelModules = (optional cfg.autoLoadConntrackHelpers "nf_conntrack")
       ++ map (x: "nf_conntrack_${x}") cfg.connectionTrackingModules;
@@ -550,7 +566,7 @@ in
       before = [ "network-pre.target" ];
       after = [ "systemd-modules-load.service" ];
 
-      path = [ pkgs.iptables ] ++ cfg.extraPackages;
+      path = [ cfg.package ] ++ cfg.extraPackages;
 
       # FIXME: this module may also try to load kernel modules, but
       # containers don't have CAP_SYS_MODULE.  So the host system had

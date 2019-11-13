@@ -1,14 +1,14 @@
 { stdenv, fetchFromGitHub }:
 
 stdenv.mkDerivation rec {
-  name = "xxHash-${version}";
-  version = "0.6.5";
+  pname = "xxHash";
+  version = "0.7.2";
 
   src = fetchFromGitHub {
     owner = "Cyan4973";
     repo = "xxHash";
     rev = "v${version}";
-    sha256 = "137hifc3f3cb4ib64rd6y83arc9hmbyncgrij2v8m94mx66g2aks";
+    sha256 = "1f9gl0cymmi92ihsfan0p4zmyf2hxwx4arjimpbmbp719nbcvdsx";
   };
 
   outputs = [ "out" "dev" ];
@@ -26,6 +26,7 @@ stdenv.mkDerivation rec {
     '';
     homepage = https://github.com/Cyan4973/xxHash;
     license = with licenses; [ bsd2 gpl2 ];
+    maintainers = with maintainers; [ orivej ];
     platforms = platforms.unix;
   };
 }

@@ -4,8 +4,8 @@ buildRubyGem rec {
   inherit ruby;
   name = "${gemName}-${version}";
   gemName = "brakeman";
-  version = "4.4.0";
-  source.sha256 = "1fg37qknz1f10v4fgbn1s98gks0iimsgs1c8xra2jy16kpz4q86k";
+  version = "4.7.1";
+  source.sha256 = "149ny2n82hzxw4g8xnimjavs2niq14wl9kwq8zlvadavdg4g9ind";
 
   meta = with lib; {
     description = "Static analysis security scanner for Ruby on Rails";

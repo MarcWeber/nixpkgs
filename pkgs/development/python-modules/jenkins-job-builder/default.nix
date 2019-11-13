@@ -1,42 +1,36 @@
-{ stdenv
-, buildPythonPackage
-, fetchPypi
-, pip
+{ lib, buildPythonPackage, fetchPypi, isPy27
+, fasteners
+, jinja2
 , pbr
-, mock
 , python-jenkins
 , pyyaml
 , six
 , stevedore
-, isPy27
-, fasteners
-, jinja2
 }:
 
 buildPythonPackage rec {
   pname = "jenkins-job-builder";
-  version = "2.9.1";
-  disabled = !isPy27;
+  version = "3.0.2";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "fba5f3efe8bd06d559f06a5d3bd68da5a7395541fcd370053a8174d08519e3d0";
+    sha256 = "02ggscsyrrqk06w9lb43km77qgcj8cixrrm5mkigr4gz2pzdjhmf";
   };
 
   postPatch = ''
     export HOME=$TMPDIR
   '';
 
-  propagatedBuildInputs = [ pbr mock python-jenkins pyyaml six stevedore fasteners jinja2 ];
+  propagatedBuildInputs = [ pbr python-jenkins pyyaml six stevedore fasteners jinja2 ];
 
-  # Need to fix test deps
-  doCheck = false;
+  # Need to fix test deps, relies on stestr and a few other packages that aren't available on nixpkgs
+  checkPhase = ''$out/bin/jenkins-jobs --help'';
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     description = "Jenkins Job Builder is a system for configuring Jenkins jobs using simple YAML files stored in Git";
     homepage = "https://docs.openstack.org/infra/system-config/jjb.html";
     license = licenses.asl20;
-    maintainers = with maintainers; [ garbas ];
+    maintainers = with maintainers; [ ];
   };
 
 }

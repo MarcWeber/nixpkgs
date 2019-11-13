@@ -1,22 +1,24 @@
-{ stdenv, lib, fetchurl, fetchpatch, makeWrapper
+{ stdenv, lib, fetchFromGitHub, makeWrapper
 , coq, ocamlPackages, coq2html
 , tools ? stdenv.cc
 }:
 
 assert lib.versionAtLeast ocamlPackages.ocaml.version "4.02";
-assert lib.versionAtLeast coq.coq-version "8.6.1";
+assert lib.versionAtLeast coq.coq-version "8.8.0";
 
 let
   ocaml-pkgs      = with ocamlPackages; [ ocaml findlib menhir ];
   ccomp-platform = if stdenv.isDarwin then "x86_64-macosx" else "x86_64-linux";
 in
 stdenv.mkDerivation rec {
-  name    = "compcert-${version}";
-  version = "3.5";
+  pname = "compcert";
+  version = "3.6";
 
-  src = fetchurl {
-    url    = "http://compcert.inria.fr/release/${name}.tgz";
-    sha256 = "127s8nwsmpl7ng7h4yy8cci8p6ncsw8i8jq3z0pyhx2siryddq0v";
+  src = fetchFromGitHub {
+    owner = "AbsInt";
+    repo = "CompCert";
+    rev = "v${version}";
+    sha256 = "1k9xhj7fgllhf7bn7rp3w6zfvs4clglnc4w39zp4678hrwvdcpha";
   };
 
   nativeBuildInputs = [ makeWrapper ];
@@ -24,7 +26,6 @@ stdenv.mkDerivation rec {
   enableParallelBuilding = true;
 
   patchPhase = ''
-    substituteInPlace ./VERSION --replace 3.4 3.5
     substituteInPlace ./configure \
       --replace '{toolprefix}gcc' '{toolprefix}cc'
   '';

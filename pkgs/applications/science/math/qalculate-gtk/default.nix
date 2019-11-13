@@ -1,14 +1,14 @@
 { stdenv, fetchFromGitHub, intltool, autoreconfHook, pkgconfig, libqalculate, gtk3, wrapGAppsHook }:
 
 stdenv.mkDerivation rec {
-  name = "qalculate-gtk-${version}";
-  version = "2.9.0";
+  pname = "qalculate-gtk";
+  version = "3.5.0";
 
   src = fetchFromGitHub {
     owner = "qalculate";
     repo = "qalculate-gtk";
     rev = "v${version}";
-    sha256 = "0c5s7mz8xwwmzc22yai8vqiww7paafkyi7khp8a2yws78m2nirdx";
+    sha256 = "0vknp52zyp2c4pxr12pryflyin1hl2dwhkrn5y0r4qh4ndf3ms1m";
   };
 
   patchPhase = ''

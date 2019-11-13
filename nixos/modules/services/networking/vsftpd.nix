@@ -166,7 +166,7 @@ in
       };
 
       anonymousUmask = mkOption {
-        type = types.string;
+        type = types.str;
         default = "077";
         example = "002";
         description = "Anonymous write umask.";

@@ -1,4 +1,5 @@
 { fetchgit
+, fetchFromGitHub
 , lib
 , pkgs
 , reattach-to-user-namespace
@@ -90,6 +91,15 @@ in rec {
     };
   };
 
+  ctrlw = mkDerivation {
+    pluginName = "ctrlw";
+    src = fetchgit {
+      url = "https://github.com/eraserhd/tmux-ctrlw";
+      rev = "2354b5d56828813d0f7a4b228ca74b6134c2695f";
+      sha256 = "00hy1axmki8h2285mivsj923z327xkq89wfl2x4dxc71xjhdl216";
+    };
+  };
+
   fpp = mkDerivation {
     pluginName = "fpp";
     src = fetchgit {
@@ -110,6 +120,16 @@ in rec {
       url = "https://github.com/wfxr/tmux-fzf-url";
       rev = "ecd518eec1067234598c01e655b048ff9d06ef2f";
       sha256 = "0png8hdv91y2nivq5vdii2192mb2qcrkwwn69lzxrdnbfa27qrgv";
+    };
+  };
+
+  gruvbox = mkDerivation {
+    pluginName = "gruvbox";
+    rtpFilePath = "gruvbox-tpm.tmux";
+    src = fetchgit {
+      url = "https://github.com/egel/tmux-gruvbox";
+      rev = "6149fd8b5d6924925b4d5aa6935039780e94f3d6";
+      sha256 = "1ykr4yardavd0x7yfrnshd4b0gi8p31pji7i79ib0nss134zncpb";
     };
   };
 
@@ -215,6 +235,26 @@ in rec {
     };
   };
 
+  sysstat = mkDerivation {
+    pluginName = "sysstat";
+    src = fetchFromGitHub {
+      owner = "samoshkin";
+      repo = "tmux-plugin-sysstat";
+      rev = "29e150f403151f2341f3abcb2b2487a5f011dd23";
+      sha256 = "013mv9p6r2r0ls3p60l8hdad4hm8niv3wr27vgm925gxmibi4hyq";
+    };
+  };
+
+  tmux-colors-solarized = mkDerivation {
+    pluginName = "tmuxcolors";
+    src = fetchFromGitHub {
+      owner = "seebi";
+      repo = "tmux-colors-solarized";
+      rev = "e5e7b4f1af37f8f3fc81ca17eadee5ae5d82cd09";
+      sha256 = "1l3i82abzi4b395cgdsjg7lcfaq15kyyhijwvrgchzxi95z3hl4x";
+    };
+  };
+
   urlview = mkDerivation {
     pluginName = "urlview";
     src = fetchgit {
@@ -226,6 +266,16 @@ in rec {
       sed -i -e '14,20{s|urlview|${pkgs.urlview}/bin/urlview|g}' $target/urlview.tmux
     '';
     dependencies = [ pkgs.urlview ];
+  };
+
+  vim-tmux-navigator = mkDerivation {
+    pluginName = "vim-tmux-navigator";
+    rtpFilePath = "vim-tmux-navigator.tmux";
+    src = fetchgit {
+      url = "https://github.com/christoomey/vim-tmux-navigator";
+      rev = "4e1a877f51a17a961b8c2a285ee80aebf05ccf42";
+      sha256 = "1b8sgbzl4pcpaabqk254n97mjz767ganrmqbsr6rqzz3j9a3s1fv";
+    };
   };
 
   yank = mkDerivation {

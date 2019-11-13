@@ -1,13 +1,13 @@
 { stdenv, fetchurl, makeDesktopItem, makeWrapper
-, fontconfig, freetype, glib, gtk2
+, fontconfig, freetype, glib, gtk3
 , jdk, libX11, libXrender, libXtst, zlib }:
 
 # The build process is almost like eclipse's.
 # See `pkgs/applications/editors/eclipse/*.nix`
 
 stdenv.mkDerivation rec {
-  name = "dbeaver-ce-${version}";
-  version = "5.3.5";
+  pname = "dbeaver-ce";
+  version = "6.2.4";
 
   desktopItem = makeDesktopItem {
     name = "dbeaver";
@@ -20,7 +20,7 @@ stdenv.mkDerivation rec {
   };
 
   buildInputs = [
-    fontconfig freetype glib gtk2
+    fontconfig freetype glib gtk3
     jdk libX11 libXrender libXtst zlib
   ];
 
@@ -30,7 +30,7 @@ stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "https://dbeaver.io/files/${version}/dbeaver-ce-${version}-linux.gtk.x86_64.tar.gz";
-    sha256 = "0b9a2l8lcw8abilm9a3igbfm52fmix0vzh6kz6kwgmnflp6n9wib";
+    sha256 = "1k3aan290kfy2b53gl8r4yxvb8jas6sms1r052m3jld3i8frqgva";
   };
 
   installPhase = ''
@@ -43,7 +43,7 @@ stdenv.mkDerivation rec {
 
     makeWrapper $out/dbeaver/dbeaver $out/bin/dbeaver \
       --prefix PATH : ${jdk}/bin \
-      --prefix LD_LIBRARY_PATH : ${stdenv.lib.makeLibraryPath ([ glib gtk2 libXtst ])} \
+      --prefix LD_LIBRARY_PATH : ${stdenv.lib.makeLibraryPath ([ glib gtk3 libXtst ])} \
       --prefix XDG_DATA_DIRS : "$GSETTINGS_SCHEMAS_PATH"
 
     # Create desktop item.
@@ -65,6 +65,6 @@ stdenv.mkDerivation rec {
     '';
     license = licenses.asl20;
     platforms = [ "x86_64-linux" ];
-    maintainers = [ maintainers.samueldr ];
+    maintainers = [ maintainers.jojosch ];
   };
 }

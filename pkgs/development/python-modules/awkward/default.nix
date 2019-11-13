@@ -2,6 +2,8 @@
 , buildPythonPackage
 , fetchPypi
 , numpy
+, pandas
+, pyarrow
 , pytestrunner
 , pytest
 , h5py
@@ -9,15 +11,15 @@
 
 buildPythonPackage rec {
   pname = "awkward";
-  version = "0.8.4";
+  version = "0.12.14";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "7016dc02d15b8797b59a461ccc8d218f37c335b97fa6b376638c0edd4ffc9de2";
+    sha256 = "a76b0b76e4e843bfffc26771f6e1848be6f1c225e79f541c12215ae90503e489";
   };
 
   nativeBuildInputs = [ pytestrunner ];
-  checkInputs = [ pytest h5py ];
+  checkInputs = [ pandas pyarrow pytest h5py ];
   propagatedBuildInputs = [ numpy ];
 
   checkPhase = ''

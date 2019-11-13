@@ -1,54 +1,54 @@
-{ lib, buildPythonPackage, fetchPypi, isPy3k
-, cheroot, contextlib2, portend, routes, six
-, setuptools_scm, zc_lockfile, more-itertools
-, backports_unittest-mock, objgraph, pathpy, pytest, pytestcov
-, backports_functools_lru_cache, requests_toolbelt, pytest-services
+{ stdenv, buildPythonPackage, fetchPypi, isPy3k
+, setuptools_scm
+, cheroot, portend, more-itertools, zc_lockfile, routes
+, objgraph, pytest, pytestcov, pathpy, requests_toolbelt, pytest-services
+, fetchpatch
 }:
 
-let
-  srcInfo = if isPy3k then {
-    version = "18.1.0";
-    sha256 = "4dd2f59b5af93bd9ca85f1ed0bb8295cd0f5a8ee2b84d476374d4e070aa5c615";
-  } else {
-    version = "17.4.1";
-    sha256 = "1kl17anzz535jgkn9qcy0c2m0zlafph0iv7ph3bb9mfrs2bgvagv";
-  };
-in buildPythonPackage rec {
-  pname = "CherryPy";
-  inherit (srcInfo) version;
+buildPythonPackage rec {
+  pname = "cherrypy";
+  version = "18.3.0";
+
+  disabled = !isPy3k;
 
   src = fetchPypi {
-    inherit pname;
-    inherit (srcInfo) version sha256;
+    pname = "CherryPy";
+    inherit version;
+    sha256 = "0q6cs4vrv0rwim4byxfizrlp4h6hmwg3n4baz0ga66vvgiz6hgk8";
   };
 
-  propagatedBuildInputs = if isPy3k then [
+  # Remove patches once 88d2163 and 713f672
+  # become part of a release - they're currently only present in master.
+  # ref: https://github.com/cherrypy/cherrypy/pull/1820
+  patches = [
+    (fetchpatch {
+      name = "test_HTTP11_Timeout.patch";
+      url = "https://github.com/cherrypy/cherrypy/commit/88d21630f68090c56d07000cabb6df4f1b612a71.patch";
+      sha256 = "1i6a3qs3ijyd9rgsxb8axigkzdlmr5sl3ljif9rvn0d90211bzwh";
+    })
+  ];
+
+  propagatedBuildInputs = [
     # required
     cheroot portend more-itertools zc_lockfile
     # optional
     routes
-  ] else [
-    cheroot contextlib2 portend routes six zc_lockfile
   ];
 
-  buildInputs = [ setuptools_scm ];
+  nativeBuildInputs = [ setuptools_scm ];
 
-  checkInputs = if isPy3k then [
+  checkInputs = [
     objgraph pytest pytestcov pathpy requests_toolbelt pytest-services
-  ] else [
-    backports_unittest-mock objgraph pathpy pytest pytestcov backports_functools_lru_cache requests_toolbelt
   ];
 
+  # Disable doctest plugin because times out
   checkPhase = ''
-    # 3 out of 5 SignalHandlingTests need network access
-    # test_2_File_Concurrency also fails upstream: https://github.com/cherrypy/cherrypy/issues/1306
-    # ...and skipping it makes 2 other tests fail
-    LANG=en_US.UTF-8 pytest -k "not SignalHandlingTests and not test_4_Autoreload \
-                            and not test_2_File_Concurrency and not test_3_Redirect and not test_4_File_deletion"
+    substituteInPlace pytest.ini --replace "--doctest-modules" ""
+    pytest --deselect=cherrypy/test/test_static.py::StaticTest::test_null_bytes ${stdenv.lib.optionalString stdenv.isDarwin "--deselect=cherrypy/test/test_bus.py::BusMethodTests::test_block"}
   '';
 
-  meta = with lib; {
-    homepage = "http://www.cherrypy.org";
+  meta = with stdenv.lib; {
+    homepage = https://www.cherrypy.org;
     description = "A pythonic, object-oriented HTTP framework";
     license = licenses.bsd3;
   };

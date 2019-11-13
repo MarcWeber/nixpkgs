@@ -1,12 +1,12 @@
 { stdenv, fetchurl, makeWrapper, jre }:
 
 stdenv.mkDerivation rec {
-  name = "ktlint-${version}";
-  version = "0.30.0";
+  pname = "ktlint";
+  version = "0.35.0";
 
   src = fetchurl {
     url = "https://github.com/shyiko/ktlint/releases/download/${version}/ktlint";
-    sha256 = "0l3h3q4qc7ij3sr9ij1mrhir18xic7qbzgb621fv16zgdk6rjghn";
+    sha256 = "0zj18wcapnqny7k4wvwkyjfds6l2f4y22w6a84k06rzih2ghv0gm";
   };
 
   nativeBuildInputs = [ makeWrapper ];
@@ -14,8 +14,8 @@ stdenv.mkDerivation rec {
   propagatedBuildInputs = [ jre ];
 
   unpackCmd = ''
-    mkdir -p ${name}
-    cp $curSrc ${name}/ktlint
+    mkdir -p ${pname}-${version}
+    cp $curSrc ${pname}-${version}/ktlint
   '';
 
   installPhase = ''

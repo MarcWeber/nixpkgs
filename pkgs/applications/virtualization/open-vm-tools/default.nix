@@ -5,14 +5,14 @@
   withX ? true }:
 
 stdenv.mkDerivation rec {
-  name = "open-vm-tools-${version}";
-  version = "10.3.5";
+  pname = "open-vm-tools";
+  version = "10.3.10";
 
   src = fetchFromGitHub {
     owner  = "vmware";
     repo   = "open-vm-tools";
     rev    = "stable-${version}";
-    sha256 = "10x24gkqcg9lnfxghq92nr76h40s5v3xrv0ymi9c7aqrqry404z7";
+    sha256 = "0x2cyccnb4sycrw7r5mzby2d196f9jiph8vyqi0x8v8r2b4vi4yj";
   };
 
   sourceRoot = "${src.name}/open-vm-tools";
@@ -45,6 +45,10 @@ stdenv.mkDerivation rec {
     ++ lib.optional (!withX) "--without-x";
 
   enableParallelBuilding = true;
+
+  # igrone glib-2.62 deprecations
+  # Drop in next stable release.
+  NIX_CFLAGS_COMPILE = [ "-DGLIB_DISABLE_DEPRECATION_WARNINGS" ];
 
   postInstall = ''
     wrapProgram "$out/etc/vmware-tools/scripts/vmware/network" \

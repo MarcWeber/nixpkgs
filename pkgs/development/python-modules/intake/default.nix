@@ -4,11 +4,13 @@
 , appdirs
 , dask
 , holoviews
+, hvplot
 , jinja2
 , msgpack-numpy
-, msgpack-python
+, msgpack
 , numpy
 , pandas
+, panel
 , python-snappy
 , requests
 , ruamel_yaml
@@ -16,17 +18,17 @@
 , tornado
 , pytest
 , pythonOlder
-, isPy27
 }:
 
 buildPythonPackage rec {
   pname = "intake";
-  version = "0.4.1";
-  disabled = isPy27;
+  version = "0.5.3";
+
+  disabled = pythonOlder "3.6";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "f47e53aa764eeadf6adcc667b9817b1ad32496477476da0b982d4fc0744b40ef";
+    sha256 = "1mbjr4xl4i523bg8k08s5986v2289fznd8cr3j3czn5adi8519j7";
   };
 
   checkInputs = [ pytest ];
@@ -34,11 +36,13 @@ buildPythonPackage rec {
     appdirs
     dask
     holoviews
+    hvplot
     jinja2
     msgpack-numpy
-    msgpack-python
+    msgpack
     numpy
     pandas
+    panel
     python-snappy
     requests
     ruamel_yaml
@@ -46,9 +50,15 @@ buildPythonPackage rec {
     tornado
   ];
 
+  postPatch = ''
+    # Is in setup_requires but not used in setup.py...
+    substituteInPlace setup.py --replace "'pytest-runner'" ""
+  '';
+
+  # test_discover requires driver_with_entrypoints-0.1.dist-info, which is not included in tarball
+  # test_filtered_compressed_cache requires calvert_uk_filter.tar.gz, which is not included in tarball
   checkPhase = ''
-    # single test assumes python for executable name
-    PATH=$out/bin:$PATH HOME=$(mktemp -d) pytest --ignore=intake/catalog/tests/test_default.py
+    PATH=$out/bin:$PATH HOME=$(mktemp -d) pytest -k "not test_discover and not test_filtered_compressed_cache"
   '';
 
   meta = with lib; {

@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, fetchpatch, python2, zlib, pkgconfig, glib
+{ stdenv, fetchurl, fetchpatch, python, zlib, pkgconfig, glib
 , ncurses, perl, pixman, vde2, alsaLib, texinfo, flex
 , bison, lzo, snappy, libaio, gnutls, nettle, curl
 , makeWrapper
@@ -15,7 +15,7 @@
 , usbredirSupport ? spiceSupport, usbredir
 , xenSupport ? false, xen
 , cephSupport ? false, ceph
-, openGLSupport ? sdlSupport, mesa_noglu, epoxy, libdrm
+, openGLSupport ? sdlSupport, mesa, epoxy, libdrm
 , virglSupport ? openGLSupport, virglrenderer
 , smbdSupport ? false, samba
 , hostCpuOnly ? false
@@ -35,21 +35,21 @@ let
 in
 
 stdenv.mkDerivation rec {
-  version = "3.1.0";
-  name = "qemu-"
-    + stdenv.lib.optionalString xenSupport "xen-"
-    + stdenv.lib.optionalString hostCpuOnly "host-cpu-only-"
-    + stdenv.lib.optionalString nixosTestRunner "for-vm-tests-"
-    + version;
+  version = "4.1.0";
+  pname = "qemu"
+    + stdenv.lib.optionalString xenSupport "-xen"
+    + stdenv.lib.optionalString hostCpuOnly "-host-cpu-only"
+    + stdenv.lib.optionalString nixosTestRunner "-for-vm-tests";
 
   src = fetchurl {
     url = "https://wiki.qemu.org/download/qemu-${version}.tar.bz2";
-    sha256 = "08frr1fdjx8qcfh3fafn10kibdwbvkqqvfl7hpqbm7i9dg4f1zlq";
+    sha256 = "1bpl6hwiw1jdxk4xmqp10qgki0dji0l2rzr10dyhyk8d85vxxw29";
   };
 
+  nativeBuildInputs = [ python python.pkgs.sphinx pkgconfig flex bison ];
   buildInputs =
-    [ python2 zlib pkgconfig glib ncurses perl pixman
-      vde2 texinfo flex bison makeWrapper lzo snappy
+    [ zlib glib ncurses perl pixman
+      vde2 texinfo makeWrapper lzo snappy
       gnutls nettle curl
     ]
     ++ optionals stdenv.isDarwin [ CoreServices Cocoa Hypervisor rez setfile ]
@@ -65,7 +65,7 @@ stdenv.mkDerivation rec {
     ++ optionals stdenv.isLinux [ alsaLib libaio libcap_ng libcap attr ]
     ++ optionals xenSupport [ xen ]
     ++ optionals cephSupport [ ceph ]
-    ++ optionals openGLSupport [ mesa_noglu epoxy libdrm ]
+    ++ optionals openGLSupport [ mesa epoxy libdrm ]
     ++ optionals virglSupport [ virglrenderer ]
     ++ optionals smbdSupport [ samba ];
 
@@ -76,8 +76,8 @@ stdenv.mkDerivation rec {
   patches = [
     ./no-etc-install.patch
     ./fix-qemu-ga.patch
+    ./9p-ignore-noatime.patch
   ] ++ optional nixosTestRunner ./force-uid0-on-9p.patch
-    ++ optional pulseSupport ./fix-hda-recording.patch
     ++ optionals stdenv.hostPlatform.isMusl [
     (fetchpatch {
       url = https://raw.githubusercontent.com/alpinelinux/aports/2bb133986e8fa90e2e76d53369f03861a87a74ef/main/qemu/xattr_size_max.patch;
@@ -106,6 +106,7 @@ stdenv.mkDerivation rec {
     [ "--audio-drv-list=${audio}"
       "--sysconfdir=/etc"
       "--localstatedir=/var"
+      "--enable-docs"
     ]
     # disable sysctl check on darwin.
     ++ optional stdenv.isDarwin "--cpu=x86_64"

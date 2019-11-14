@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, ncurses, pcre,  zprofileHack ? false, fetchpatch }:
+{ stdenv, fetchurl, ncurses, pcre, fetchpatch, buildPackages, zprofileHack ? false }:
 
 let
   version = "5.7.1";
@@ -10,36 +10,40 @@ let
 
   zprofileHackStr = ''
     cat > $out/etc/zprofile <<EOF
-    if test -e /etc/NIXOS; then
-      if test -r /etc/zprofile; then
-        . /etc/zprofile
-      else
-        emulate bash
-        alias shopt=false
-        . /etc/profile
-        unalias shopt
-        emulate zsh
-      fi
-      if test -r /etc/zprofile.local; then
-        . /etc/zprofile.local
-      fi
-    else
-      # on non-nixos we just source the global /etc/zprofile as if we did
-      # not use the configure flag
-      if test -r /etc/zprofile; then
-        . /etc/zprofile
-      fi
-    fi
-    EOF
-
-    $out/bin/zsh -c "zcompile $out/etc/zprofile"
+if test -e /etc/NIXOS; then
+  if test -r /etc/zprofile; then
+    . /etc/zprofile
+  else
+    emulate bash
+    alias shopt=false
+    . /etc/profile
+    unalias shopt
+    emulate zsh
+  fi
+  if test -r /etc/zprofile.local; then
+    . /etc/zprofile.local
+  fi
+else
+  # on non-nixos we just source the global /etc/zprofile as if we did
+  # not use the configure flag
+  if test -r /etc/zprofile; then
+    . /etc/zprofile
+  fi
+fi
+EOF
+    ${if stdenv.hostPlatform == stdenv.buildPlatform then ''
+      $out/bin/zsh -c "zcompile $out/etc/zprofile"
+    '' else ''
+      ${stdenv.lib.getBin buildPackages.zsh}/bin/zsh -c "zcompile $out/etc/zprofile"
+    ''}
     mv $out/etc/zprofile $out/etc/zprofile_zwc_is_used
     '';
 
 in
 
 stdenv.mkDerivation {
-  name = "zsh-${version}";
+  pname = "zsh";
+  inherit version;
 
   src = fetchurl {
     url = "mirror://sourceforge/zsh/zsh-${version}.tar.xz";

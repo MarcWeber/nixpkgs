@@ -44,7 +44,7 @@
       vsftpd = 7;
       ftp = 8;
       bitlbee = 9;
-      avahi = 10;
+      #avahi = 10; # removed 2019-05-22
       nagios = 11;
       atd = 12;
       postfix = 13;
@@ -128,7 +128,7 @@
       tcpcryptd = 93; # tcpcryptd uses a hard-coded uid. We patch it in Nixpkgs to match this choice.
       firebird = 95;
       #keys = 96; # unused
-      haproxy = 97;
+      #haproxy = 97; # DynamicUser as of 2019-11-08
       mongodb = 98;
       openldap = 99;
       #users = 100; # unused
@@ -145,7 +145,7 @@
       #notbit = 111; # unused
       aerospike = 111;
       ngircd = 112;
-      btsync = 113;
+      #btsync = 113; # unused
       minecraft = 114;
       vault = 115;
       rippled = 116;
@@ -251,7 +251,7 @@
       gale = 223;
       matrix-synapse = 224;
       rspamd = 225;
-      rmilter = 226;
+      # rmilter = 226; # unused, removed 2019-08-22
       cfdyndns = 227;
       gammu-smsd = 228;
       pdnsd = 229;
@@ -265,8 +265,8 @@
       syncthing = 237;
       caddy = 239;
       taskd = 240;
-      factorio = 241;
-      emby = 242;
+      # factorio = 241; # DynamicUser = true
+      # emby = 242; # unusued, removed 2019-05-01
       graylog = 243;
       sniproxy = 244;
       nzbget = 245;
@@ -328,7 +328,7 @@
       qemu-libvirtd = 301;
       # kvm = 302; # unused
       # render = 303; # unused
-      zeronet = 304;
+      # zeronet = 304; # removed 2019-01-03
       lirc = 305;
       lidarr = 306;
       slurm = 307;
@@ -339,6 +339,8 @@
       rss2email = 312;
       cockroachdb = 313;
       zoneminder = 314;
+      paperless = 315;
+      #mailman = 316;  # removed 2019-08-30
 
       orientdb = 350;
 
@@ -359,7 +361,7 @@
       vsftpd = 7;
       ftp = 8;
       bitlbee = 9;
-      avahi = 10;
+      #avahi = 10; # removed 2019-05-22
       #nagios = 11; # unused
       atd = 12;
       postfix = 13;
@@ -443,7 +445,7 @@
       #tcpcryptd = 93; # unused
       firebird = 95;
       keys = 96;
-      haproxy = 97;
+      #haproxy = 97; # DynamicUser as of 2019-11-08
       #mongodb = 98; # unused
       openldap = 99;
       munin = 102;
@@ -458,7 +460,7 @@
       #notbit = 111; # unused
       aerospike = 111;
       #ngircd = 112; # unused
-      btsync = 113;
+      #btsync = 113; # unused
       #minecraft = 114; # unused
       vault = 115;
       #ripped = 116; # unused
@@ -517,7 +519,7 @@
       tss = 176;
       #memcached = 177; # unused, removed 2018-01-03
       #ntp = 179; # unused
-      #zabbix = 180; # unused
+      zabbix = 180;
       #redis = 181; # unused, removed 2018-01-03
       #unifi = 183; # unused
       #uptimed = 184; # unused
@@ -560,7 +562,7 @@
       gale = 223;
       matrix-synapse = 224;
       rspamd = 225;
-      rmilter = 226;
+      # rmilter = 226; # unused, removed 2019-08-22
       cfdyndns = 227;
       pdnsd = 229;
       octoprint = 230;
@@ -568,8 +570,8 @@
       syncthing = 237;
       caddy = 239;
       taskd = 240;
-      factorio = 241;
-      emby = 242;
+      # factorio = 241; # unused
+      # emby = 242; # unused, removed 2019-05-01
       sniproxy = 244;
       nzbget = 245;
       mosquitto = 246;
@@ -629,7 +631,7 @@
       qemu-libvirtd = 301;
       kvm = 302; # default udev rules from systemd requires these
       render = 303; # default udev rules from systemd requires these
-      zeronet = 304;
+      # zeronet = 304; # removed 2019-01-03
       lirc = 305;
       lidarr = 306;
       slurm = 307;
@@ -640,6 +642,8 @@
       rss2email = 312;
       cockroachdb = 313;
       zoneminder = 314;
+      paperless = 315;
+      #mailman = 316;  # removed 2019-08-30
 
 
       orientdb = 350;

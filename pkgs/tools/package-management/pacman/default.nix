@@ -1,24 +1,30 @@
 { stdenv, lib, fetchurl, autoreconfHook, pkgconfig, perl, libarchive, openssl,
-zlib, bzip2, lzma }:
+zlib, bzip2, lzma, curl, runtimeShell }:
 
 stdenv.mkDerivation rec {
-  name = "pacman-${version}";
-  version = "5.1.2";
+  pname = "pacman";
+  version = "5.1.3";
 
   src = fetchurl {
     url = "https://git.archlinux.org/pacman.git/snapshot/pacman-${version}.tar.gz";
-    sha256 = "19fr60h0ffxzjxmlmhrfcq8447l0bkxnh64fwjagqn133d3dgd5x";
+    sha256 = "108xp6dhvp02jnzskhgzjmp9jvrxhhkffvmpvs3rrif7vj47xd76";
   };
+
+  enableParallelBuilding = true;
 
   configureFlags = [
     # trying to build docs fails with a2x errors, unable to fix through asciidoc
     "--disable-doc"
 
+    "--sysconfdir=/etc"
     "--localstatedir=/var"
+    "--with-scriptlet-shell=${runtimeShell}"
   ];
 
+  installFlags = [ "sysconfdir=${placeholder "out"}/etc" ];
+
   nativeBuildInputs = [ autoreconfHook pkgconfig ];
-  buildInputs = [ perl libarchive openssl zlib bzip2 lzma ];
+  buildInputs = [ curl perl libarchive openssl zlib bzip2 lzma ];
 
   postFixup = ''
     substituteInPlace $out/bin/repo-add \

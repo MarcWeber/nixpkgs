@@ -2092,6 +2092,12 @@
     email = "mpcervin@uncg.edu";
     name = "Mabry Cervin";
   };
+  equirosa = {
+    email = "eduardo@eduardoquiros.com";
+    github = "equirosa";
+    githubId = 39096810;
+    name = "Eduardo Quiros";
+  };
   eqyiel = {
     email = "ruben@maher.fyi";
     github = "eqyiel";
@@ -2630,6 +2636,12 @@
     github = "guibou";
     githubId = 9705357;
     name = "Guillaume Bouchard";
+  };
+  GuillaumeDesforges = {
+    email = "aceus02@gmail.com";
+    github = "GuillaumeDesforges";
+    githubId = 1882000;
+    name = "Guillaume Desforges";
   };
   guillaumekoenig = {
     email = "guillaume.edward.koenig@gmail.com";
@@ -4506,6 +4518,10 @@
     github = "moredread";
     githubId = 100848;
     name = "André-Patrick Bubel";
+    keys = [{
+      longkeyid = "rsa8192/0x118CE7C424B45728";
+      fingerprint = "4412 38AD CAD3 228D 876C  5455 118C E7C4 24B4 5728";
+    }];
   };
   moretea = {
     email = "maarten@moretea.nl";

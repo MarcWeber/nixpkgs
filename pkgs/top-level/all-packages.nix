@@ -250,8 +250,6 @@ in
     cacert = buildPackages.cacert;
   };
 
-  fetchgitPrivate = callPackage ../build-support/fetchgit/private.nix { };
-
   fetchgitLocal = callPackage ../build-support/fetchgitlocal { };
 
   fetchmtn = callPackage ../build-support/fetchmtn (config.fetchmtn or {});
@@ -537,7 +535,7 @@ in
 
   amass = callPackage ../tools/networking/amass { };
 
-  afew = callPackage ../applications/networking/mailreaders/afew { pythonPackages = python3Packages; };
+  afew = callPackage ../applications/networking/mailreaders/afew { };
 
   afio = callPackage ../tools/archivers/afio { };
 
@@ -837,7 +835,7 @@ in
 
   dgsh = callPackage ../shells/dgsh { };
 
-  dkimpy = with pythonPackages; toPythonApplication dkimpy;
+  dkimpy = with python3Packages; toPythonApplication dkimpy;
 
   dpt-rp1-py = callPackage ../tools/misc/dpt-rp1-py { };
 
@@ -1575,9 +1573,7 @@ in
 
   dokuwiki = callPackage ../servers/web-apps/dokuwiki { };
 
-  dosage = callPackage ../applications/graphics/dosage {
-    pythonPackages = python3Packages;
-  };
+  dosage = callPackage ../applications/graphics/dosage { };
 
   dozenal = callPackage ../applications/misc/dozenal { };
 
@@ -1836,7 +1832,7 @@ in
 
   kisslicer = callPackage ../tools/misc/kisslicer { };
 
-  klaus = with pythonPackages; toPythonApplication klaus;
+  klaus = with python3Packages; toPythonApplication klaus;
 
   lcdproc = callPackage ../servers/monitoring/lcdproc { };
 
@@ -1872,7 +1868,7 @@ in
 
   marlin-calc = callPackage ../tools/misc/marlin-calc {};
 
-  mathics = pythonPackages.mathics;
+  mathics = with python2Packages; toPythonApplication mathics;
 
   masscan = callPackage ../tools/security/masscan {
     stdenv = gccStdenv;
@@ -2129,6 +2125,8 @@ in
     # epubcheck pulls in Java, which is problematic on some platforms
     epubcheck = null;
   };
+
+  asciidoctorj = callPackage ../tools/typesetting/asciidoctorj { };
 
   asunder = callPackage ../applications/audio/asunder { };
 
@@ -4098,7 +4096,9 @@ in
 
   intecture-auth = callPackage ../tools/admin/intecture/auth.nix { };
 
-  intecture-cli = callPackage ../tools/admin/intecture/cli.nix { };
+  intecture-cli = callPackage ../tools/admin/intecture/cli.nix {
+    openssl = openssl_1_0_2;
+  };
 
   intel-media-sdk = callPackage ../development/libraries/intel-media-sdk { };
 
@@ -4228,13 +4228,15 @@ in
 
   jpeg-archive = callPackage ../applications/graphics/jpeg-archive { };
 
+  jpegexiforient = callPackage ../tools/graphics/jpegexiforient { };
+
   jpeginfo = callPackage ../applications/graphics/jpeginfo { };
 
   jpegoptim = callPackage ../applications/graphics/jpegoptim { };
 
   jpegrescan = callPackage ../applications/graphics/jpegrescan { };
 
-  jpylyzer = with pythonPackages; toPythonApplication jpylyzer;
+  jpylyzer = with python3Packages; toPythonApplication jpylyzer;
 
   jq = callPackage ../development/tools/jq { };
 
@@ -4288,6 +4290,8 @@ in
   keepalived = callPackage ../tools/networking/keepalived { };
 
   kexectools = callPackage ../os-specific/linux/kexectools { };
+
+  keepkey_agent = with python3Packages; toPythonApplication keepkey_agent;
 
   kexpand = callPackage ../development/tools/kexpand { };
 
@@ -5612,6 +5616,8 @@ in
 
   peco = callPackage ../tools/text/peco { };
 
+  pg_flame = callPackage ../tools/misc/pg_flame { };
+
   pg_top = callPackage ../tools/misc/pg_top { };
 
   pgcenter = callPackage ../tools/misc/pgcenter { };
@@ -6582,6 +6588,8 @@ in
 
   tcpreplay = callPackage ../tools/networking/tcpreplay { };
 
+  tdns-cli = callPackage ../tools/networking/tdns-cli { };
+
   ted = callPackage ../tools/typesetting/ted { };
 
   teamviewer = libsForQt5.callPackage ../applications/networking/remote/teamviewer { };
@@ -6731,6 +6739,8 @@ in
   trezor-udev-rules = callPackage ../os-specific/linux/trezor-udev-rules {};
 
   trezord = callPackage ../servers/trezord { };
+
+  trezor_agent = with python3Packages; toPythonApplication trezor_agent;
 
   tthsum = callPackage ../applications/misc/tthsum { };
 
@@ -8430,7 +8440,10 @@ in
 
   llvmPackages_latest = llvmPackages_9;
 
-  lorri = throw "lorri is not stable yet. Please go to https://github.com/target/lorri and follow the installation instructions there, for the time being.";
+  lorri = callPackage ../tools/misc/lorri {
+    inherit (darwin) cf-private;
+    inherit (darwin.apple_sdk.frameworks) CoreServices Security;
+  };
 
   manticore = callPackage ../development/compilers/manticore { };
 
@@ -8589,6 +8602,9 @@ in
   defaultCrateOverrides = callPackage ../build-support/rust/default-crate-overrides.nix { };
 
   cargo-audit = callPackage ../tools/package-management/cargo-audit {
+    inherit (darwin.apple_sdk.frameworks) Security;
+  };
+  cargo-deb = callPackage ../tools/package-management/cargo-deb {
     inherit (darwin.apple_sdk.frameworks) Security;
   };
   cargo-deps = callPackage ../tools/package-management/cargo-deps { };
@@ -10335,7 +10351,7 @@ in
 
   smc = callPackage ../tools/misc/smc { };
 
-  snakemake = callPackage ../applications/science/misc/snakemake { python = python3Packages; };
+  snakemake = callPackage ../applications/science/misc/snakemake { };
 
   snore = callPackage ../tools/misc/snore { };
 
@@ -10418,6 +10434,11 @@ in
 
   texi2mdoc = callPackage ../tools/misc/texi2mdoc { };
 
+  texlab = callPackage ../development/tools/misc/texlab {
+    inherit (darwin.apple_sdk.frameworks) Security;
+    texlab-citeproc-build-deps = nodePackages."texlab-citeproc-build-deps-../tools/misc/texlab/citeproc";
+  };
+
   tflint = callPackage ../development/tools/analysis/tflint { };
 
   todoist = callPackage ../applications/misc/todoist { };
@@ -10473,9 +10494,7 @@ in
 
   vultr = callPackage ../development/tools/vultr { };
 
-  vulnix = callPackage ../tools/security/vulnix {
-    pythonPackages = python3Packages;
-  };
+  vulnix = callPackage ../tools/security/vulnix { };
 
   vtable-dumper = callPackage ../development/tools/misc/vtable-dumper { };
 
@@ -10964,7 +10983,9 @@ in
 
   easyloggingpp = callPackage ../development/libraries/easyloggingpp {};
 
-  eccodes = callPackage ../development/libraries/eccodes { };
+  eccodes = callPackage ../development/libraries/eccodes {
+    pythonPackages = python3Packages;
+  };
 
   eclib = callPackage ../development/libraries/eclib {};
 
@@ -15118,7 +15139,8 @@ in
   mod_python = pkgs.apacheHttpdPackages.mod_python;
   mod_wsgi = pkgs.apacheHttpdPackages.mod_wsgi;
 
-  mpd = callPackage ../servers/mpd (config.mpd or {});
+  inherit (callPackages ../servers/mpd { })
+    mpd mpd-small mpdWithFeatures;
 
   mpd_clientlib = callPackage ../servers/mpd/clientlib.nix { };
 
@@ -15405,11 +15427,7 @@ in
   postgresql_jdbc = callPackage ../development/java-modules/postgresql_jdbc { };
 
   prom2json = callPackage ../servers/monitoring/prometheus/prom2json.nix { };
-  prometheus = callPackage ../servers/monitoring/prometheus {
-    # Version 2.12.0 fails to build with go 1.13 due to an incorrect module file
-    # compilation error :go: cloud.google.com/go@v0.44.1: Get https://proxy.golang.org/cloud.google.com/go/@v/v0.44.1.mod: dial tcp: lookup proxy.golang.org on [::1]:53: read udp [::1]:58980->[::1]:53: read: connection refused
-    buildGoPackage = buildGo112Package;
-  };
+  prometheus = callPackage ../servers/monitoring/prometheus { };
   prometheus-alertmanager = callPackage ../servers/monitoring/prometheus/alertmanager.nix { };
   prometheus-apcupsd-exporter = callPackage ../servers/monitoring/prometheus/apcupsd-exporter.nix { };
   prometheus-aws-s3-exporter = callPackage ../servers/monitoring/prometheus/aws-s3-exporter.nix { };
@@ -16187,14 +16205,6 @@ in
       ];
   };
 
-  linux_5_2 = callPackage ../os-specific/linux/kernel/linux-5.2.nix {
-    kernelPatches =
-      [ kernelPatches.bridge_stp_helper
-        kernelPatches.modinst_arg_list_too_long
-        kernelPatches.export_kernel_fpu_functions."4.14"
-      ];
-  };
-
   linux_5_3 = callPackage ../os-specific/linux/kernel/linux-5.3.nix {
     kernelPatches = [
       kernelPatches.bridge_stp_helper
@@ -16413,7 +16423,6 @@ in
   linuxPackages_4_9 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_4_9);
   linuxPackages_4_14 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_4_14);
   linuxPackages_4_19 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_4_19);
-  linuxPackages_5_2 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_5_2);
   linuxPackages_5_3 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_5_3);
 
   # When adding to this list:
@@ -16580,6 +16589,10 @@ in
   multipath-tools = callPackage ../os-specific/linux/multipath-tools { };
 
   musl = callPackage ../os-specific/linux/musl { };
+
+  nushell = callPackage ../shells/nushell {
+    inherit (darwin.apple_sdk.frameworks) AppKit Security;
+  };
 
   nettools = if stdenv.isLinux then callPackage ../os-specific/linux/net-tools { }
              else unixtools.nettools;
@@ -18729,6 +18742,8 @@ in
 
   grepm = callPackage ../applications/search/grepm { };
 
+  grip-search = callPackage ../tools/text/grip-search { };
+
   grip = callPackage ../applications/misc/grip {
     inherit (gnome2) libgnome libgnomeui vte;
   };
@@ -19993,7 +20008,9 @@ in
 
   mpg321 = callPackage ../applications/audio/mpg321 { };
 
-  mpc_cli = callPackage ../applications/audio/mpc { };
+  mpc_cli = callPackage ../applications/audio/mpc {
+    inherit (python3Packages) sphinx;
+  };
 
   clerk = callPackage ../applications/audio/clerk { };
 
@@ -20103,6 +20120,8 @@ in
   };
 
   notion = callPackage ../applications/window-managers/notion { };
+
+  open-policy-agent = callPackage ../development/tools/open-policy-agent { };
 
   openshift = callPackage ../applications/networking/cluster/openshift {
     buildGoPackage = buildGo112Package;
@@ -20325,6 +20344,8 @@ in
   obs-studio = libsForQt5.callPackage ../applications/video/obs-studio { };
 
   obs-wlrobs = callPackage ../applications/video/obs-studio/wlrobs.nix { };
+
+  obs-ndi = callPackage ../applications/video/obs-studio/obs-ndi.nix { };
 
   octoprint = callPackage ../applications/misc/octoprint { };
 
@@ -21101,15 +21122,9 @@ in
 
   skrooge = libsForQt5.callPackage ../applications/office/skrooge {};
 
-  slim = callPackage ../applications/display-managers/slim {
-    libpng = libpng12;
-  };
-
   smartgithg = callPackage ../applications/version-management/smartgithg {
     jre = openjdk11;
   };
-
-  slimThemes = recurseIntoAttrs (callPackage ../applications/display-managers/slim/themes.nix {});
 
   smartdeblur = callPackage ../applications/graphics/smartdeblur { };
 
@@ -22309,6 +22324,8 @@ in
     inherit (darwin.apple_sdk.frameworks) IOKit;
   };
 
+  ledger_agent = with python3Packages; toPythonApplication ledger_agent;
+
   ledger-live-desktop = callPackage ../applications/blockchains/ledger-live-desktop { };
 
   litecoin  = callPackage ../applications/blockchains/litecoin.nix {
@@ -22521,7 +22538,7 @@ in
     opencv3 = opencv3WithoutCuda;
   };
 
-  displaycal = (newScope pythonPackages) ../applications/graphics/displaycal {};
+  displaycal = callPackage ../applications/graphics/displaycal {};
 
   drumkv1 = libsForQt5.callPackage ../applications/audio/drumkv1 { };
 
@@ -24250,6 +24267,8 @@ in
   atari800 = callPackage ../misc/emulators/atari800 { };
 
   ataripp = callPackage ../misc/emulators/atari++ { };
+
+  atlantis = callPackage ../applications/networking/cluster/atlantis { };
 
   auctex = callPackage ../tools/typesetting/tex/auctex { };
 

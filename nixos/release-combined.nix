@@ -54,7 +54,7 @@ in rec {
         (all nixos.dummy)
         (all nixos.manual)
 
-        nixos.iso_graphical.x86_64-linux or []
+        nixos.iso_plasma5.x86_64-linux or []
         nixos.iso_minimal.aarch64-linux or []
         nixos.iso_minimal.i686-linux or []
         nixos.iso_minimal.x86_64-linux or []
@@ -63,8 +63,7 @@ in rec {
 
         #(all nixos.tests.containers)
         (all nixos.tests.containers-imperative)
-        (all nixos.tests.containers-ipv4)
-        (all nixos.tests.containers-ipv6)
+        (all nixos.tests.containers-ip)
         nixos.tests.chromium.x86_64-linux or []
         (all nixos.tests.firefox)
         (all nixos.tests.firewall)
@@ -96,14 +95,12 @@ in rec {
         (all nixos.tests.env)
         (all nixos.tests.ipv6)
         (all nixos.tests.i3wm)
-        # 2018-06-06: keymap tests temporarily removed from tested job
-        # since non-deterministic failure are blocking the channel (#41538)
-        #(all nixos.tests.keymap.azerty)
-        #(all nixos.tests.keymap.colemak)
-        #(all nixos.tests.keymap.dvorak)
-        #(all nixos.tests.keymap.dvp)
-        #(all nixos.tests.keymap.neo)
-        #(all nixos.tests.keymap.qwertz)
+        (except ["aarch64-linux"] nixos.tests.keymap.azerty)
+        (except ["aarch64-linux"] nixos.tests.keymap.colemak)
+        (except ["aarch64-linux"] nixos.tests.keymap.dvorak)
+        (except ["aarch64-linux"] nixos.tests.keymap.dvp)
+        (except ["aarch64-linux"] nixos.tests.keymap.neo)
+        (except ["aarch64-linux"] nixos.tests.keymap.qwertz)
         (all nixos.tests.plasma5)
         (all nixos.tests.lightdm)
         (all nixos.tests.login)
@@ -121,8 +118,8 @@ in rec {
         (all nixos.tests.networking.scripted.macvlan)
         (all nixos.tests.networking.scripted.sit)
         (all nixos.tests.networking.scripted.vlan)
-        (all nixos.tests.nfs3)
-        (all nixos.tests.nfs4)
+        (all nixos.tests.nfs3.simple)
+        (all nixos.tests.nfs4.simple)
         (all nixos.tests.openssh)
         (all nixos.tests.php-pcre)
         (all nixos.tests.predictable-interface-names.predictable)
@@ -136,7 +133,6 @@ in rec {
         (all nixos.tests.switchTest)
         (all nixos.tests.udisks2)
         (all nixos.tests.xfce)
-        (all nixos.tests.xfce4-14)
 
         nixpkgs.tarball
         (all allSupportedNixpkgs.emacs)

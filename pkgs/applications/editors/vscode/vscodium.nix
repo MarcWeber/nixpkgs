@@ -11,8 +11,8 @@ let
   archive_fmt = if system == "x86_64-darwin" then "zip" else "tar.gz";
 
   sha256 = {
-    x86_64-linux = "013jhmc29angqh9qb8jj0jqk4whqb59id61njm8gwz977sdgpf9l";
-    x86_64-darwin = "09jfii132cib1kn3bghwchdlvi4cfjqz5hvw6j5gr53h7j35k37j";
+    x86_64-linux = "0f6ic24w6s9wfirzk5rvysn96gj1naj6b81al9743mllaf32ad5q";
+    x86_64-darwin = "0fgyhb2wxkvrc90zzw5w2k3ggwbinmax286gbff3sjlrzbs5sj64";
   }.${system};
 
   sourceRoot = {
@@ -22,8 +22,10 @@ let
 in
   callPackage ./generic.nix rec {
     inherit sourceRoot;
+    # The update script doesn't correctly change the hash for darwin, so please:
+    # nixpkgs-update: no auto update
 
-    version = "1.39.2";
+    version = "1.42.0";
     pname = "vscodium";
 
     executableName = "codium";
@@ -50,7 +52,7 @@ in
       homepage = https://github.com/VSCodium/vscodium;
       downloadPage = https://github.com/VSCodium/vscodium/releases;
       license = licenses.mit;
-      maintainers = with maintainers; [];
+      maintainers = with maintainers; [ synthetica ];
       platforms = [ "x86_64-linux" "x86_64-darwin" ];
     };
   }

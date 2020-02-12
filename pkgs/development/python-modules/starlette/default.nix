@@ -9,21 +9,23 @@
 , pyyaml
 , requests
 , ujson
+, python-multipart
 , pytest
-, python
 , uvicorn
 , isPy27
 , darwin
+, databases
+, aiosqlite
 }:
 
 buildPythonPackage rec {
   pname = "starlette";
-  version = "0.12.10";
+  version = "0.13.0";
   disabled = isPy27;
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "e41ef52e711a82ef95c195674e5d8d41c75c6b1d6f5a275637eedd4cc2150a7f";
+    sha256 = "6bd414152d40d000ccbf6aa40ed89718b40868366a0f69fb83034f416303acef";
   };
 
   propagatedBuildInputs = [
@@ -35,13 +37,17 @@ buildPythonPackage rec {
     requests
     ujson
     uvicorn
+    python-multipart
+    databases
   ] ++ stdenv.lib.optional stdenv.isDarwin [ darwin.apple_sdk.frameworks.ApplicationServices ];
 
+  checkInputs = [
+    pytest
+    aiosqlite
+  ];
+
   checkPhase = ''
-    ${python.interpreter} -c """
-from starlette.applications import Starlette
-app = Starlette(debug=True)
-"""
+    pytest --ignore=tests/test_graphql.py
   '';
 
   meta = with lib; {

@@ -1,25 +1,27 @@
 { stdenv, fetchFromGitHub, makeWrapper
-, python, git, gnupg, less, cacert
+, python3, git, gnupg, less
 }:
 
 stdenv.mkDerivation rec {
   pname = "git-repo";
-  version = "1.13.7.1";
+  version = "2.1.1";
 
   src = fetchFromGitHub {
     owner = "android";
     repo = "tools_repo";
     rev = "v${version}";
-    sha256 = "0acsvrc45kdwpj5mi5i61mibr1fdx4g4835c3b8x0fdgrya4n37c";
+    sha256 = "0p09yak0vrdg8apk76kbx5gy7z57mzis9702rbw8mfx9p0ag6fy7";
   };
 
-  nativeBuildInputs = [ makeWrapper ];
-  buildInputs = [ python ];
+  patches = [ ./import-ssl-module.patch ];
 
-  patchPhase = ''
+  nativeBuildInputs = [ makeWrapper ];
+  buildInputs = [ python3 ];
+
+  postPatch = ''
     substituteInPlace repo --replace \
       'urllib.request.urlopen(url)' \
-      'urllib.request.urlopen(url, cafile="${cacert}/etc/ssl/certs/ca-bundle.crt")'
+      'urllib.request.urlopen(url, context=ssl.create_default_context())'
   '';
 
   installPhase = ''

@@ -3,13 +3,13 @@
 
 stdenv.mkDerivation rec {
   pname = "crun";
-  version = "0.8";
+  version = "0.12.1";
 
   src = fetchFromGitHub {
     owner = "containers";
     repo = pname;
     rev = version;
-    sha256 = "1anvlgw373031w0pp0b28l10yrnyhbj192n60bbbjahw487dk2fi";
+    sha256 = "0dj6lf5yflbsybv7qkx19xvcfy5pv46k9mys7imr7akr9r1bcl5s";
     fetchSubmodules = true;
   };
 
@@ -18,6 +18,14 @@ stdenv.mkDerivation rec {
   buildInputs = [ libcap libseccomp systemd yajl ];
 
   enableParallelBuilding = true;
+
+  preBuild = ''
+    cat > git-version.h <<EOF
+    #ifndef GIT_VERSION
+    # define GIT_VERSION "nixpkgs-${version}"
+    #endif
+    EOF
+  '';
 
   # the tests require additional permissions
   doCheck = false;

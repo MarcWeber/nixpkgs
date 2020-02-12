@@ -4,17 +4,17 @@
 , gobject-introspection, modemmanager, openresolv, libndp, newt, libsoup
 , ethtool, gnused, iputils, kmod, jansson, gtk-doc, libxslt
 , docbook_xsl, docbook_xml_dtd_412, docbook_xml_dtd_42, docbook_xml_dtd_43
-, openconnect, curl, meson, ninja, libpsl }:
+, openconnect, curl, meson, ninja, libpsl, mobile-broadband-provider-info, runtimeShell }:
 
 let
   pythonForDocs = python3.withPackages (pkgs: with pkgs; [ pygobject3 ]);
 in stdenv.mkDerivation rec {
   pname = "network-manager";
-  version = "1.20.4";
+  version = "1.22.6";
 
   src = fetchurl {
     url = "mirror://gnome/sources/NetworkManager/${stdenv.lib.versions.majorMinor version}/NetworkManager-${version}.tar.xz";
-    sha256 = "0k4i6m8acp48vl6l13267wv6kfkmzfjq2mraaa5m9n82wyvkimx3";
+    sha256 = "0r65hk7nw44jq4k6h91wrprr0x9410ibd1n7mpmlh4f4kgy276dw";
   };
 
   outputs = [ "out" "dev" "devdoc" "man" "doc" ];
@@ -54,8 +54,8 @@ in stdenv.mkDerivation rec {
   patches = [
     (substituteAll {
       src = ./fix-paths.patch;
-      inherit iputils kmod openconnect ethtool gnused dbus;
-      inherit (stdenv) shell;
+      inherit iputils kmod openconnect ethtool gnused systemd;
+      inherit runtimeShell;
     })
 
     # Meson does not support using different directories during build and
@@ -64,7 +64,7 @@ in stdenv.mkDerivation rec {
   ];
 
   buildInputs = [
-    systemd libselinux audit libpsl libuuid polkit ppp libndp curl
+    systemd libselinux audit libpsl libuuid polkit ppp libndp curl mobile-broadband-provider-info
     bluez5 dnsmasq gobject-introspection modemmanager readline newt libsoup jansson
   ];
 
@@ -104,7 +104,7 @@ in stdenv.mkDerivation rec {
     homepage = https://wiki.gnome.org/Projects/NetworkManager;
     description = "Network configuration and management tool";
     license = licenses.gpl2Plus;
-    maintainers = with maintainers; [ phreedom domenkozar obadz ];
+    maintainers = with maintainers; [ phreedom domenkozar obadz worldofpeace ];
     platforms = platforms.linux;
   };
 }

@@ -1,19 +1,19 @@
-{ stdenv, fetchFromGitHub, pkgconfig, autoreconfHook, openssl, db53, boost
+{ stdenv, mkDerivation, fetchFromGitHub, pkgconfig, autoreconfHook, openssl, db53, boost
 , zlib, miniupnpc, qtbase ? null , qttools ? null, utillinux, protobuf, qrencode, libevent
 , withGui }:
 
 with stdenv.lib;
 
-stdenv.mkDerivation rec {
+mkDerivation rec {
 
   name = "bitcoin" + (toString (optional (!withGui) "d")) + "-abc-" + version;
-  version = "0.20.5";
+  version = "0.20.12";
 
   src = fetchFromGitHub {
     owner = "bitcoin-ABC";
     repo = "bitcoin-abc";
     rev = "v${version}";
-    sha256 = "1adps3g99m7cxs58c48g2dgyihfv0v8d198klzcbbf4dq0s5v45c";
+    sha256 = "0ar3syrz7psf83bh24hn2y0mxjgn7cjqk2h8q4cgdp7mq55v8ynj";
   };
 
   patches = [ ./fix-bitcoin-qt-build.patch ];

@@ -1,6 +1,0 @@
-From: Marc Weber <marco-oweber@gmx.de>
-Subject: [PATCH] experimental/hack-nix
-
-haskell related changes to make hack-nix work & some masking
-
-Signed-off-by: Marc Weber <marco-oweber@gmx.de>

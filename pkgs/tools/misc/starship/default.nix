@@ -1,26 +1,32 @@
-{ stdenv, fetchFromGitHub, rustPlatform, libiconv, darwin }:
+{ stdenv, fetchFromGitHub, rustPlatform
+, libiconv, Security }:
 
 rustPlatform.buildRustPackage rec {
   pname = "starship";
-  version = "0.26.4";
+  version = "0.35.1";
 
   src = fetchFromGitHub {
     owner = "starship";
-    repo = "starship";
+    repo = pname;
     rev = "v${version}";
-    sha256 = "0r3ggy28zx94cjgf486s9qm9c8c0514k5a8fki466yghkxyjamj8";
+    sha256 = "17338l3nj6rysl9qvlbi1amqk6n5p15x8fvd11md7hwiavy4c63c";
   };
 
-  buildInputs = stdenv.lib.optionals stdenv.isDarwin [ libiconv darwin.apple_sdk.frameworks.Security ];
+  buildInputs = stdenv.lib.optionals stdenv.isDarwin [ libiconv Security ];
 
-  cargoSha256 = "16pdvzvn4na0yksham0kwfkk7jlk4iwrzb4qych3libbswgkaklj";
+  postPatch = ''
+    substituteInPlace src/utils.rs \
+      --replace "/bin/echo" "echo"
+  '';
+
+  cargoSha256 = "0q6g7i930n23aabkwfn30lpbm5brjls552ql5khc6w02sirshsng";
   checkPhase = "cargo test -- --skip directory::home_directory --skip directory::directory_in_root";
 
   meta = with stdenv.lib; {
     description = "A minimal, blazing fast, and extremely customizable prompt for any shell";
     homepage = "https://starship.rs";
     license = licenses.isc;
-    maintainers = with maintainers; [ bbigras davidtwco ];
+    maintainers = with maintainers; [ bbigras davidtwco filalex77 ];
     platforms = platforms.all;
   };
 }

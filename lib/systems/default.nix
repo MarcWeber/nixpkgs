@@ -37,6 +37,7 @@ rec {
         else if final.isAndroid             then "bionic"
         else if final.isLinux /* default */ then "glibc"
         else if final.isMsp430              then "newlib"
+        else if final.isVc4                 then "newlib"
         else if final.isAvr                 then "avrlibc"
         else if final.isNetBSD              then "nblibc"
         # TODO(@Ericson2314) think more about other operating systems
@@ -83,7 +84,7 @@ rec {
         else final.parsed.cpu.name;
 
       qemuArch =
-        if final.isArm then "arm"
+        if final.isAarch32 then "arm"
         else if final.isx86_64 then "x86_64"
         else if final.isx86 then "i386"
         else {

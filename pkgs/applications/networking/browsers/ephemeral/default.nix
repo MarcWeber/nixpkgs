@@ -19,13 +19,13 @@
 
 stdenv.mkDerivation rec {
   pname = "ephemeral";
-  version = "6.0.0";
+  version = "6.2.0";
 
   src = fetchFromGitHub {
     owner = "cassidyjames";
     repo = "ephemeral";
     rev = version;
-    sha256 = "0g9rrx41grmgf4nn2pp17yhjxxayk826gs6nmkfdnimd4gmlf3nk";
+    sha256 = "1y0n1p14kg24qnybi201181q7j6vm20ka4xwmgggjll9v6qflvaz";
   };
 
   nativeBuildInputs = [
@@ -53,6 +53,12 @@ stdenv.mkDerivation rec {
     chmod +x meson/post_install.py
     patchShebangs meson/post_install.py
   '';
+
+  passthru = {
+    updateScript = pantheon.updateScript {
+      attrPath = pname;
+    };
+  };
 
   meta = with stdenv.lib; {
     description = "The always-incognito web browser";

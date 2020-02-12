@@ -1,4 +1,5 @@
 { stdenv
+, lib
 , fetchFromGitHub
 , rustPlatform
 , openssl
@@ -8,41 +9,52 @@
 , libiconv
 , AppKit
 , Security
-, withAllFeatures ? true
+, withStableFeatures ? true
+, withTestBinaries ? true
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "nushell";
-  version = "0.5.0";
+  version = "0.9.0";
 
   src = fetchFromGitHub {
     owner = pname;
     repo = pname;
-    rev = "0_5_0";
-    sha256 = "1s60w29c8sv0a4nmpggls9pkqyfrwwxjzd65p68d1xxxsdb36rzj";
+    rev = version;
+    sha256 = "0p1aykhkz5rixj6x0rskg77q31xw11mirvjhzp7n4nmbx3rfkagc";
   };
 
-  cargoSha256 = "0b8alc3si6y4xmn812izknbkfkz64kz7kcnq4xaqws6iqn7pqidp";
+  cargoSha256 = "0143mm9cdswd1azpzzpbfc5x7dy3ryywvq44mwkd6h1027n5idap";
 
   nativeBuildInputs = [ pkg-config ]
-    ++ stdenv.lib.optionals (withAllFeatures && stdenv.isLinux) [ python3 ];
+    ++ lib.optionals (withStableFeatures && stdenv.isLinux) [ python3 ];
 
-  buildInputs = stdenv.lib.optionals stdenv.isLinux [ openssl ]
-    ++ stdenv.lib.optionals stdenv.isDarwin [ libiconv Security ]
-    ++ stdenv.lib.optionals (withAllFeatures && stdenv.isLinux) [ xorg.libX11 ]
-    ++ stdenv.lib.optionals (withAllFeatures && stdenv.isDarwin) [ AppKit ];
+  buildInputs = lib.optionals stdenv.isLinux [ openssl ]
+    ++ lib.optionals stdenv.isDarwin [ libiconv Security ]
+    ++ lib.optionals (withStableFeatures && stdenv.isLinux) [ xorg.libX11 ]
+    ++ lib.optionals (withStableFeatures && stdenv.isDarwin) [ AppKit ];
 
-  cargoBuildFlags = stdenv.lib.optionals withAllFeatures [ "--features" "all" ];
+  cargoBuildFlags = lib.optional withStableFeatures "--features stable";
+
+  cargoTestFlags = lib.optional withTestBinaries "--features test-bins";
 
   preCheck = ''
     export HOME=$TMPDIR
   '';
 
-  meta = with stdenv.lib; {
+  checkPhase = ''
+    runHook preCheck
+    echo "Running cargo cargo test ${lib.strings.concatStringsSep " " cargoTestFlags} -- ''${checkFlags} ''${checkFlagsArray+''${checkFlagsArray[@]}}"
+    cargo test ${lib.strings.concatStringsSep " " cargoTestFlags} -- ''${checkFlags} ''${checkFlagsArray+"''${checkFlagsArray[@]}"}
+    runHook postCheck
+  '';
+
+  meta = with lib; {
     description = "A modern shell written in Rust";
     homepage = "https://www.nushell.sh/";
     license = licenses.mit;
-    maintainers = [ maintainers.marsam ];
+    maintainers = with maintainers; [ filalex77 marsam ];
+    platforms = [ "x86_64-linux" "i686-linux" "x86_64-darwin" ];
   };
 
   passthru = {

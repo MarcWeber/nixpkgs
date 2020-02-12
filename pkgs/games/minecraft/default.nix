@@ -84,11 +84,11 @@ in
  stdenv.mkDerivation rec {
   pname = "minecraft-launcher";
 
-  version = "2.1.7658";
+  version = "2.1.11314";
 
   src = fetchurl {
     url = "https://launcher.mojang.com/download/linux/x86_64/minecraft-launcher_${version}.tar.gz";
-    sha256 = "10sng7l0q9r98zwifjmy50nyh65ny4djmacz8158hffcsfcx93px";
+    sha256 = "1wd3zh91zamlpgnqlk7sq3xja2g5qz34amy4v8yhdxkhj79plwhg";
   };
 
   icon = fetchurl {
@@ -112,7 +112,8 @@ in
 
     makeWrapper $out/opt/minecraft-launcher/minecraft-launcher $out/bin/minecraft-launcher \
       --prefix LD_LIBRARY_PATH : ${envLibPath} \
-      --prefix PATH : ${stdenv.lib.makeBinPath [ jre ]}
+      --prefix PATH : ${stdenv.lib.makeBinPath [ jre ]} \
+      --run "cd /tmp" # Do not create `GPUCache` in current directory
   '';
 
   preFixup = ''

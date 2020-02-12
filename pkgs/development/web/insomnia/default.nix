@@ -16,12 +16,12 @@ let
   ];
 in stdenv.mkDerivation rec {
   pname = "insomnia";
-  version = "7.0.3";
+  version = "7.0.6";
 
   src = fetchurl {
     url =
       "https://github.com/getinsomnia/insomnia/releases/download/v${version}/insomnia_${version}_amd64.deb";
-    sha256 = "14mkvza7q6l2hn763pjy6zavcg1fmzanys3930w32g07vq3xi97l";
+    sha256 = "125g40micavq5js5l7lpv01yl8635dwg240vldz8i2riqj65inq8";
   };
 
   nativeBuildInputs =

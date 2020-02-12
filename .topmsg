@@ -1,6 +1,0 @@
-From: Marc Weber <marco-oweber@gmx.de>
-Subject: [PATCH] experimental/parallel-building
-
-some more packages can be build with multiple threads easily
-
-Signed-off-by: Marc Weber <marco-oweber@gmx.de>

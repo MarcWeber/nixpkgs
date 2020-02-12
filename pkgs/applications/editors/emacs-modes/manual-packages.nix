@@ -113,9 +113,13 @@
   perl-completion =
     callPackage ./perl-completion { };
 
+  pod-mode = callPackage ./pod-mode { };
+
   railgun = callPackage ./railgun { };
 
   structured-haskell-mode = self.shm;
+
+  sv-kalender = callPackage ./sv-kalender { };
 
   thingatpt-plus = callPackage ./thingatpt-plus { };
 
@@ -128,9 +132,7 @@
   # From old emacsPackages (pre emacsPackagesNg)
   cedet = callPackage ./cedet { };
   cedille = callPackage ./cedille { cedille = pkgs.cedille; };
-  colorThemeSolarized = callPackage ./color-theme-solarized {
-    colorTheme = self.color-theme;
-  };
+  colorThemeSolarized = callPackage ./color-theme-solarized { };
   emacsSessionManagement = callPackage ./session-management-for-emacs { };
   hsc3-mode = callPackage ./hsc3 { };
   hol_light_mode = callPackage ./hol_light { };

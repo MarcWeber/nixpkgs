@@ -2,13 +2,13 @@
 
 stdenv.mkDerivation rec {
   pname = "cpp-utilities";
-  version = "5.0.1";
+  version = "5.2.0";
 
   src = fetchFromGitHub {
     owner = "Martchus";
     repo = pname;
     rev = "v${version}";
-    sha256 = "11wm7z4ldsja2x2m2dkj3xhiammkwfqgbgkwq9gssnv14803fhnv";
+    sha256 = "0cghk1a0ki1063ci63imakmggwzkky1hx6lhrvc0wjfv754wsklb";
   };
 
   nativeBuildInputs = [ cmake ];

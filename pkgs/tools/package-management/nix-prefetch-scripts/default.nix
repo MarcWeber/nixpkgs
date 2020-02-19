@@ -1,5 +1,5 @@
 { stdenv, makeWrapper, buildEnv,
-  git, subversion, mercurial, bazaar, cvs, gnused, coreutils, nix, findutils, unzip, curl
+  bazaar, coreutils, cvs, findutils, gawk, git, gnused, mercurial, nix, subversion
 }:
 
 let mkPrefetchScript = tool: src: deps:
@@ -28,15 +28,14 @@ let mkPrefetchScript = tool: src: deps:
 in rec {
   nix-prefetch-bzr = mkPrefetchScript "bzr" ../../../build-support/fetchbzr/nix-prefetch-bzr [ bazaar ];
   nix-prefetch-cvs = mkPrefetchScript "cvs" ../../../build-support/fetchcvs/nix-prefetch-cvs [ cvs ];
-  nix-prefetch-git = mkPrefetchScript "git" ../../../build-support/fetchgit/nix-prefetch-git [ git coreutils findutils ];
+  nix-prefetch-git = mkPrefetchScript "git" ../../../build-support/fetchgit/nix-prefetch-git [ coreutils findutils gawk git ];
   nix-prefetch-hg  = mkPrefetchScript "hg"  ../../../build-support/fetchhg/nix-prefetch-hg   [ mercurial ];
   nix-prefetch-svn = mkPrefetchScript "svn" ../../../build-support/fetchsvn/nix-prefetch-svn [ subversion ];
-  nix-prefetch-zip = mkPrefetchScript "zip" ../../../build-support/fetchzip/nix-prefetch-zip [unzip curl.bin];
 
   nix-prefetch-scripts = buildEnv {
     name = "nix-prefetch-scripts";
 
-    paths = [ nix-prefetch-bzr nix-prefetch-cvs nix-prefetch-git nix-prefetch-hg nix-prefetch-svn nix-prefetch-zip ];
+    paths = [ nix-prefetch-bzr nix-prefetch-cvs nix-prefetch-git nix-prefetch-hg nix-prefetch-svn ];
 
     meta = with stdenv.lib; {
       description = "Collection of all the nix-prefetch-* scripts which may be used to obtain source hashes";

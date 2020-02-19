@@ -41,7 +41,6 @@
   ./hardware/acpilight.nix
   ./hardware/all-firmware.nix
   ./hardware/bladeRF.nix
-  ./hardware/brightnessctl.nix
   ./hardware/brillo.nix
   ./hardware/ckb-next.nix
   ./hardware/cpu/amd-microcode.nix
@@ -833,6 +832,7 @@
   ./services/web-apps/icingaweb2/icingaweb2.nix
   ./services/web-apps/icingaweb2/module-monitoring.nix
   ./services/web-apps/ihatemoney
+  ./services/web-apps/jirafeau.nix
   ./services/web-apps/limesurvey.nix
   ./services/web-apps/mattermost.nix
   ./services/web-apps/mediawiki.nix

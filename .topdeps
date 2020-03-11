@@ -20,6 +20,5 @@ marc-nixos/minimal-install-archive
 marc-nixos/postfix
 experimental/nginx
 experimental/apache-httpd
-experimental/arangodb
 experimental/vim-plugins-used-by-marc-weber
 experimental/multiple-mysqld-instances

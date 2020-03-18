@@ -7,7 +7,6 @@ experimental/nix
 experimental/blender
 experimental/plover
 experimental/parallel-building
-experimental/eclipse
 experimental/ruby
 experimental/imap-sync-update
 experimental/mercurial

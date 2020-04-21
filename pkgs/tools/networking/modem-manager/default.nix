@@ -3,12 +3,12 @@
 
 stdenv.mkDerivation rec {
   pname = "modem-manager";
-  version = "1.12.4";
+  version = "1.12.6";
 
   package = "ModemManager";
   src = fetchurl {
     url = "https://www.freedesktop.org/software/${package}/${package}-${version}.tar.xz";
-    sha256 = "0nx9b6wfz2r29gb3wgsi5vflycibfhnij5wvc068s6hcbrsn2bc5";
+    sha256 = "0k32rjh06p3q9yq054gxya6c7n39bilhi4s23p2hb02iwlz3bcrf";
   };
 
   nativeBuildInputs = [ vala gobject-introspection gettext pkgconfig ];
@@ -30,11 +30,13 @@ stdenv.mkDerivation rec {
     export G_TEST_DBUS_DAEMON="${dbus.daemon}/bin/dbus-daemon"
   '';
 
+  enableParallelBuilding = true;
+
   doCheck = true;
 
   meta = with stdenv.lib; {
     description = "WWAN modem manager, part of NetworkManager";
-    homepage = https://www.freedesktop.org/wiki/Software/ModemManager/;
+    homepage = "https://www.freedesktop.org/wiki/Software/ModemManager/";
     license = licenses.gpl2Plus;
     maintainers = [ ];
     platforms = platforms.linux;

@@ -1,7 +1,7 @@
 { stdenv, lib, fetchFromGitHub, makeWrapper, removeReferencesTo, pkgconfig
 , go-md2man, go, containerd, runc, docker-proxy, tini, libtool
 , sqlite, iproute, lvm2, systemd
-, btrfs-progs, iptables, e2fsprogs, xz, utillinux, xfsprogs
+, btrfs-progs, iptables, e2fsprogs, xz, utillinux, xfsprogs, git
 , procps, libseccomp
 }:
 
@@ -123,7 +123,7 @@ rec {
 
     outputs = ["out" "man"];
 
-    extraPath = optionals (stdenv.isLinux) (makeBinPath [ iproute iptables e2fsprogs xz xfsprogs procps utillinux ]);
+    extraPath = optionals (stdenv.isLinux) (makeBinPath [ iproute iptables e2fsprogs xz xfsprogs procps utillinux git ]);
 
     installPhase = optionalString (stdenv.isLinux) ''
       install -Dm755 ./components/engine/bundles/dynbinary-daemon/dockerd $out/libexec/docker/dockerd
@@ -182,7 +182,7 @@ rec {
     '';
 
     meta = {
-      homepage = https://www.docker.com/;
+      homepage = "https://www.docker.com/";
       description = "An open source project to pack, ship and run any application as a lightweight container";
       license = licenses.asl20;
       maintainers = with maintainers; [ nequissimus offline tailhook vdemeester periklis ];
@@ -206,9 +206,9 @@ rec {
   };
 
   docker_19_03 = makeOverridable dockerGen {
-    version = "19.03.7";
-    rev = "7141c199a2edb2a90b778175f836f9dd2a22c95a";
-    sha256 = "1h1hrp6cw3ah2gaq2vfdd1d9vh7gyf7rs6bdxwpxk9ixc19fxsm4";
+    version = "19.03.8";
+    rev = "afacb8b7f0d8d4f9d2a8e8736e9c993e672b41f3";
+    sha256 = "15iq16rlnkw78lvapcfpbnsnxhdjbvfvgzg3xzxhpdg1dmq40b6j";
     runcRev = "dc9208a3303feef5b3839f4323d9beb36df0a9dd"; # v1.0.0-rc10
     runcSha256 = "0pi3rvj585997m4z9ljkxz2z9yxf9p2jr0pmqbqrc7bc95f5hagk";
     containerdRev = "7ad184331fa3e55e52b890ea95e65ba581ae3429"; # v1.2.13

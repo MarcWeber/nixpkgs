@@ -16,10 +16,11 @@
 }:
 
 with stdenv.lib;
-
-  with import ../../../../lib/kernel.nix { inherit (stdenv) lib; inherit version; };
+with stdenv.lib.kernel;
+with (stdenv.lib.kernel.whenHelpers version);
 
 let
+
 
   # configuration items have to be part of a subattrs
   flattenKConf =  nested: mapAttrs (_: head) (zipAttrs (attrValues nested));
@@ -243,6 +244,7 @@ let
       SND_HDA_RECONFIG    = yes; # Support reconfiguration of jack functions
       # Support configuring jack functions via fw mechanism at boot
       SND_HDA_PATCH_LOADER = yes;
+      SND_HDA_CODEC_CA0132_DSP = whenOlder "5.8" yes; # Enable DSP firmware loading on Creative Soundblaster Z/Zx/ZxR/Recon
       SND_OSSEMUL         = yes;
       SND_USB_CAIAQ_INPUT = yes;
       # Enable PSS mixer (Beethoven ADSP-16 and other compatible)
@@ -605,6 +607,8 @@ let
       MODULE_COMPRESS    = yes;
       MODULE_COMPRESS_XZ = yes;
       KERNEL_XZ          = yes;
+
+      SYSVIPC            = yes;  # System-V IPC
 
       UNIX               = yes;  # Unix domain sockets.
 

@@ -135,8 +135,8 @@ let
       ${optionalString cfg.enableVirtualUsers ''
         guest_enable=YES
         guest_username=vsftpd
-        pam_service_name=vsftpd
       ''}
+      pam_service_name=vsftpd
       ${cfg.extraConfig}
     '';
 

@@ -93,6 +93,7 @@ in
       };
 
       wayland = mkOption {
+        type = types.bool;
         default = true;
         example = true;
         description = ''
@@ -100,10 +101,10 @@ in
           Note to enable Wayland with Nvidia you need to
           enable the <option>nvidiaWayland</option>.
         '';
-        type = types.bool;
       };
 
       nvidiaWayland = mkOption {
+        type = types.bool;
         default = false;
         description = ''
           Whether to allow wayland to be used with the proprietary

@@ -2,7 +2,7 @@
 
 buildGoPackage rec {
   pname = "grafana";
-  version = "6.7.2";
+  version = "6.7.3";
 
   goPackagePath = "github.com/grafana/grafana";
 
@@ -12,12 +12,12 @@ buildGoPackage rec {
     rev = "v${version}";
     owner = "grafana";
     repo = "grafana";
-    sha256 = "03f6f9caxphrfbps0ljwwiq246vfjlznd8xs7a7va7kb823ff5li";
+    sha256 = "14yrfrn59r3mxbkhs7mg7nlhnvvrmq959r8w4aj6m7wgr32jj8wl";
   };
 
   srcStatic = fetchurl {
     url = "https://dl.grafana.com/oss/release/grafana-${version}.linux-amd64.tar.gz";
-    sha256 = "0sgpc34jfldi0hkbqx9idkzm1n1jy82yhg29kdsvndxvi44z49lv";
+    sha256 = "17h70h6cz1bdhczjqa68kxzfm4vi95zdnqzah8hcjr7rwnx874kr";
   };
 
   postPatch = ''
@@ -29,10 +29,10 @@ buildGoPackage rec {
 
   postInstall = ''
     tar -xvf $srcStatic
-    mkdir -p $bin/share/grafana
-    mv grafana-*/{public,conf,tools} $bin/share/grafana/
+    mkdir -p $out/share/grafana
+    mv grafana-*/{public,conf,tools} $out/share/grafana/
   '' + lib.optionalString phantomJsSupport ''
-    ln -sf ${phantomjs2}/bin/phantomjs $bin/share/grafana/tools/phantomjs/phantomjs
+    ln -sf ${phantomjs2}/bin/phantomjs $out/share/grafana/tools/phantomjs/phantomjs
   '';
 
   meta = with lib; {

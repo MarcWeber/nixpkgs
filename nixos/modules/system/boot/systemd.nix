@@ -405,6 +405,8 @@ let
     "hibernate" "hybrid-sleep" "suspend-then-hibernate" "lock"
   ];
 
+  proxy_env = config.networking.proxy.envVars;
+
 in
 
 {
@@ -593,17 +595,33 @@ in
         each other's limit. The value may be specified in the following
         units: s, min, h, ms, us. To turn off any kind of rate limiting,
         set either value to 0.
+
+        See <option>services.journald.rateLimitBurst</option> for important
+        considerations when setting this value.
       '';
     };
 
     services.journald.rateLimitBurst = mkOption {
-      default = 1000;
+      default = 10000;
       type = types.int;
       description = ''
         Configures the rate limiting burst limit (number of messages per
         interval) that is applied to all messages generated on the system.
         This rate limiting is applied per-service, so that two services
         which log do not interfere with each other's limit.
+
+        Note that the effective rate limit is multiplied by a factor derived
+        from the available free disk space for the journal as described on
+        <link xlink:href="https://www.freedesktop.org/software/systemd/man/journald.conf.html">
+        journald.conf(5)</link>.
+
+        Note that the total amount of logs stored is limited by journald settings
+        such as <literal>SystemMaxUse</literal>, which defaults to a 4 GB cap.
+
+        It is thus recommended to compute what period of time that you will be
+        able to store logs for when an application logs at full burst rate.
+        With default settings for log lines that are 100 Bytes long, this can
+        amount to just a few hours.
       '';
     };
 
@@ -810,6 +828,27 @@ in
         "Service ‘${name}.service’ with ‘Type=oneshot’ must have ‘Restart=no’") cfg.services);
 
     system.build.units = cfg.units;
+
+    # Systemd provides various NSS modules to look up dynamic users, locally
+    # configured IP adresses and local container hostnames.
+    # On NixOS, these can only be passed to the NSS system via nscd (and its
+    # LD_LIBRARY_PATH), which is why it's usually a very good idea to have nscd
+    # enabled (also see the config.nscd.enable description).
+    # While there is already an assertion in place complaining loudly about
+    # having nssModules configured and nscd disabled, for some reason we still
+    # check for nscd being enabled before adding to nssModules.
+    system.nssModules = optional config.services.nscd.enable systemd.out;
+    system.nssDatabases = mkIf config.services.nscd.enable {
+      hosts = (mkMerge [
+        [ "mymachines" ]
+        (mkOrder 1600 [ "myhostname" ] # 1600 to ensure it's always the last
+      )
+      ]);
+      passwd = (mkMerge [
+        [ "mymachines" ]
+        (mkAfter [ "systemd" ])
+      ]);
+    };
 
     environment.systemPackages = [ systemd ];
 
@@ -1019,6 +1058,7 @@ in
     systemd.targets.remote-fs.unitConfig.X-StopOnReconfiguration = true;
     systemd.targets.network-online.wantedBy = [ "multi-user.target" ];
     systemd.services.systemd-binfmt.wants = [ "proc-sys-fs-binfmt_misc.mount" ];
+    systemd.services.systemd-importd.environment = proxy_env;
 
     # Don't bother with certain units in containers.
     systemd.services.systemd-remount-fs.unitConfig.ConditionVirtualization = "!container";

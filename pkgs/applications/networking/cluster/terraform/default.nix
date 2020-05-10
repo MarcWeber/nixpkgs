@@ -1,5 +1,5 @@
 { stdenv, lib, buildEnv, buildGoPackage, fetchFromGitHub, makeWrapper, coreutils
-, runCommand, writeText, terraform-providers }:
+, runCommand, writeText, terraform-providers, fetchpatch }:
 
 let
   goPackagePath = "github.com/hashicorp/terraform";
@@ -26,7 +26,7 @@ let
 
       postInstall = ''
         # remove all plugins, they are part of the main binary now
-        for i in $bin/bin/*; do
+        for i in $out/bin/*; do
           if [[ $(basename $i) != terraform ]]; then
             rm "$i"
           fi
@@ -88,7 +88,7 @@ let
 
             buildCommand = ''
               mkdir -p $out/bin/
-              makeWrapper "${terraform.bin}/bin/terraform" "$out/bin/terraform" \
+              makeWrapper "${terraform}/bin/terraform" "$out/bin/terraform" \
                 --set NIX_TERRAFORM_PLUGIN_DIR "${
                   buildEnv {
                     name = "tf-plugin-env";
@@ -120,7 +120,13 @@ in rec {
   terraform_0_12 = pluggable (generic {
     version = "0.12.24";
     sha256 = "1rjihp6qcaizp2nnv4z20kpmjnqcw95pq5rnhq381a3pdzr0cd0z";
-    patches = [ ./provider-path.patch ];
+    patches = [
+        ./provider-path.patch
+        (fetchpatch {
+            name = "fix-mac-mojave-crashes.patch";
+            url = "https://github.com/hashicorp/terraform/pull/24562.patch";
+            sha256 = "1k70kk4hli72x8gza6fy3vpckdm3sf881w61fmssrah3hgmfmbrs";
+        }) ];
     passthru = { inherit plugins; };
   });
 

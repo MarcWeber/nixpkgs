@@ -38,17 +38,7 @@ let
 
     async_extra_p4 = callPackage ../development/ocaml-modules/async_extra { };
 
-    async_find =
-      if lib.versionOlder "4.03" ocaml.version
-      then janeStreet.async_find
-      else callPackage ../development/ocaml-modules/async_find { };
-
     async_kernel_p4 = callPackage ../development/ocaml-modules/async_kernel { };
-
-    async_shell =
-      if lib.versionOlder "4.03" ocaml.version
-      then janeStreet.async_shell
-      else callPackage ../development/ocaml-modules/async_shell { };
 
     async_unix_p4 = callPackage ../development/ocaml-modules/async_unix { };
 
@@ -74,6 +64,8 @@ let
     bigarray-compat = callPackage ../development/ocaml-modules/bigarray-compat { };
 
     bigstringaf = callPackage ../development/ocaml-modules/bigstringaf { };
+
+    bigstring = callPackage ../development/ocaml-modules/bigstring { };
 
     biocaml = callPackage ../development/ocaml-modules/biocaml { };
 
@@ -562,6 +554,10 @@ let
 
     mirage-stack = callPackage ../development/ocaml-modules/mirage-stack { };
 
+    mirage-time = callPackage ../development/ocaml-modules/mirage-time { };
+
+    mirage-time-unix = callPackage ../development/ocaml-modules/mirage-time/unix.nix { };
+
     mlgmp =  callPackage ../development/ocaml-modules/mlgmp { };
 
     mlgmpidl =  callPackage ../development/ocaml-modules/mlgmpidl { };
@@ -591,8 +587,6 @@ let
     parmap = callPackage ../development/ocaml-modules/parmap { };
 
     comparelib = callPackage ../development/ocaml-modules/comparelib { };
-
-    core_extended_p4 = callPackage ../development/ocaml-modules/core_extended { };
 
     core_kernel_p4 = callPackage ../development/ocaml-modules/core_kernel { };
 
@@ -925,16 +919,9 @@ let
     uucp = callPackage ../development/ocaml-modules/uucp { };
     uunf = callPackage ../development/ocaml-modules/uunf { };
 
-    uri =
-      if lib.versionAtLeast ocaml.version "4.3"
-      then callPackage ../development/ocaml-modules/uri { }
-      else callPackage ../development/ocaml-modules/uri/legacy.nix { };
+    uri = callPackage ../development/ocaml-modules/uri { };
 
     uri-sexp = callPackage ../development/ocaml-modules/uri/sexp.nix { };
-
-    uri_p4 = callPackage ../development/ocaml-modules/uri/legacy.nix {
-      legacyVersion = true;
-    };
 
     uuseg = callPackage ../development/ocaml-modules/uuseg { };
     uutf = callPackage ../development/ocaml-modules/uutf { };
@@ -1199,13 +1186,6 @@ let
       else if lib.versionOlder "4.02" ocaml.version
       then callPackage ../development/ocaml-modules/janestreet/textutils.nix {}
       else textutils_p4;
-
-    core_extended =
-      if lib.versionOlder "4.03" ocaml.version
-      then janeStreet.core_extended
-      else if lib.versionOlder "4.02" ocaml.version
-      then callPackage ../development/ocaml-modules/janestreet/core-extended.nix {}
-      else core_extended_p4;
 
     async_kernel =
       if lib.versionOlder "4.03" ocaml.version

@@ -4,8 +4,10 @@
 , libpng ? null
 , eigen ? null
 , libtiff ? null
-, enableExamples ? false
-, enableDocs ? false }:
+, enableExamples ? true
+, enableDocs ? false 
+, pythonPackages
+}:
 
 stdenv.mkDerivation rec {
   version = "1.3";
@@ -20,7 +22,7 @@ stdenv.mkDerivation rec {
     fetchSubmodules = true;
   };
 
-  buildInputs = [ libjpeg zlib libpng eigen libtiff ];
+  buildInputs = [ libjpeg zlib libpng eigen libtiff pythonPackages.python ];
 
   nativeBuildInputs = [ cmake pkgconfig ];
 
@@ -33,6 +35,12 @@ stdenv.mkDerivation rec {
   cmakeDir = "./src";
 
   dontUseCmakeBuildDir = true;
+
+  postInstall = ''
+  echo find ====
+  find
+  fail
+    '';
 
   # This can be enabled, but it will exhause virtual memory on most machines.
   enableParallelBuilding = false;

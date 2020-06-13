@@ -24,7 +24,7 @@
             TAG_FILE="$SRC_DEST/${a.name}$tagSuffix"
             echo running tag cmd "${a.tagCmd}" in `pwd`
             ${a.tagCmd}
-            TAG_FILES="$TAG_FILES''${TAG_FILES:+:}$TAG_FILE"
+            TAG_FILES="''${TAG_FILES-}''${TAG_FILES:+:}$TAG_FILE"
            '') createTagFiles );
       in ''
       SRC_DEST=$out/src/$name
@@ -35,7 +35,7 @@
       ${createTags}
 
       mkdir -p $out/nix-support
-      echo "TAG_FILES=\"\$TAG_FILES\''${TAG_FILES:+:}$TAG_FILES\"" >> $out/nix-support/setup-hook
+      echo "TAG_FILES=\"\''${TAG_FILES-}\''${TAG_FILES:+:}$TAG_FILES\"" >> $out/nix-support/setup-hook
     '';
   };
   # example usage

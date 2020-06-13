@@ -81,8 +81,20 @@ def describe_generation(generation_dir):
     build_time = int(os.path.getctime(generation_dir))
     build_date = datetime.datetime.fromtimestamp(build_time).strftime('%F')
 
-    description = "NixOS {}, Linux Kernel {}, Built on {}".format(
-        nixos_version, kernel_version, build_date
+    configurationName = None
+    try:
+        with open("%s/configuration-name" % generation_dir) as f:
+            configurationName = f.read()
+            # Do something with the file
+    except IOError:
+        print("File not accessible")
+
+
+    # configurationName is more important than date
+    # some displays have big text, thus show it first.
+    # if date get's truncated you still know what to boot
+    description = "{}, {}, {} {}".format(
+        nixos_version, kernel_version, configurationName, build_date
     )
 
     return description

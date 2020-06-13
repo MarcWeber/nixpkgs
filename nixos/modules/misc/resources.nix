@@ -58,37 +58,37 @@ in
 
 {
 
-  options = {
+#   options = {
 
-    resources.tcp-ports = mkOption (t "used tcp ports" // {
-      example = {
-        "80".required_by = "apache";
-        "8080".required_by = "tomcat";
-      };
-    });
+#     resources.tcp-ports = mkOption (t "used tcp ports" // {
+#       example = {
+#         "80".required_by = "apache";
+#         "8080".required_by = "tomcat";
+#       };
+#     });
 
-    resources.udp-ports = mkOption (t "used udp ports");
+#     resources.udp-ports = mkOption (t "used udp ports");
 
-    resources.paths = mkOption (t "used ptahs" // {
-      example = {
-        "/tmp/mysql.socket".required_by = "mysql";
-      };
-    });
+#     resources.paths = mkOption (t "used ptahs" // {
+#       example = {
+#         "/tmp/mysql.socket".required_by = "mysql";
+#       };
+#     });
 
-    resources.uids = mkOption (t "used uids");
-    resources.gids = mkOption (t "used gids");
-  };
+#     resources.uids = mkOption (t "used uids");
+#     resources.gids = mkOption (t "used gids");
+#   };
 
-  config = {
+#   config = {
 
-    assertions =
-         assertions_for "tcp-ports"
-      ++ assertions_for "udp-ports"
-      ++ assertions_for "paths"
-      ++ assertions_for "uids"
-      ++ assertions_for "gids"
-    ;
+#     assertions =
+#          assertions_for "tcp-ports"
+#       ++ assertions_for "udp-ports"
+#       ++ assertions_for "paths"
+#       ++ assertions_for "uids"
+#       ++ assertions_for "gids"
+#     ;
 
-  };
+#   };
 
 }

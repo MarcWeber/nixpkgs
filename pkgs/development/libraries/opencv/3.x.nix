@@ -17,11 +17,11 @@
 , enableCuda      ? (config.cudaSupport or false) &&
                     stdenv.hostPlatform.isx86_64, cudatoolkit
 
-, enableUnfree    ? false
+, enableUnfree    ? true
 , enableIpp       ? false
 , enablePython    ? false, pythonPackages
 , enableGtk2      ? false, gtk2
-, enableGtk3      ? false, gtk3
+, enableGtk3      ? true, gtk3
 , enableVtk       ? false, vtk
 , enableFfmpeg    ? false, ffmpeg
 , enableGStreamer ? false, gst_all_1

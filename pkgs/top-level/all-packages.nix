@@ -1,4 +1,5 @@
 /* The top-level package collection of nixpkgs.
+c
  * It is sorted by categories corresponding to the folder names
  * in the /pkgs folder. Inside the categories packages are roughly
  * sorted by alphabet, but strict sorting has been long lost due
@@ -1099,7 +1100,9 @@ in
   androidndkPkgs = androidndkPkgs_18b;
   androidndkPkgs_18b = (callPackage ../development/androidndk-pkgs {})."18b";
 
-  anyterm = callPackage ../tools/networking/anyterm { };
+  anyterm = callPackage ../tools/networking/anyterm {
+    stdenv = gcc9Stdenv;
+  };
 
   androidsdk_9_0 = androidenv.androidPkgs_9_0.androidsdk;
 
@@ -5650,7 +5653,9 @@ in
 
   openimagedenoise = callPackage ../development/libraries/openimagedenoise { };
 
-  openmvg = callPackage ../applications/science/misc/openmvg { };
+  openmvg = callPackage ../applications/science/misc/openmvg { 
+    pythonPackages = python3Packages;
+  };
 
   openmvs = callPackage ../applications/science/misc/openmvs { };
 
@@ -9561,16 +9566,13 @@ in
     php72
     php73
     php734
+    php7318
+    php746
     ;
   };
 
-  phpPackages-unit = php72Packages-unit;
-
-  php72Packages-unit = recurseIntoAttrs (callPackage ./php-packages.nix {
-    php = php72-unit;
-  });
-
   php = php74;
+
   phpPackages = php74Packages;
   php72Packages = recurseIntoAttrs php72.packages;
   php73Packages = recurseIntoAttrs php73.packages;
@@ -13583,10 +13585,6 @@ in
 
   libxml_xml_dtd_xhtml = callPackage ../data/sgml+xml/schemas/xml-dtd/xhtml { };
 
-  libixp_for_wmii = lowPrio (import ../development/libraries/libixp_for_wmii {
-    inherit fetchurl stdenv;
-  });
-
   libixp_hg = callPackage ../development/libraries/libixp-hg { };
 
   libyaml = callPackage ../development/libraries/libyaml { };
@@ -15988,6 +15986,14 @@ in
     boost = boost169; # Configure checks for specific version.
   };
 
+  # mysql55 = callPackage ../servers/sql/mysql/5.5.x.nix {
+  #   inherit (darwin) cctools;
+  #   inherit (darwin.apple_sdk.frameworks) CoreServices;
+  # };
+
+
+  mysql55 = mysql57; # ruby alias marc
+
   # rremi
   mysql56 = callPackage ../servers/sql/mysql/5.6.x.nix {
     stdenv = overrideCC stdenv gcc6;
@@ -16406,7 +16412,7 @@ in
 
   ### OS-SPECIFIC
 
-  afuse = callPackage ../os-specific/linux/afuse { };
+  anuxfuse = callPackage ../os-specific/linux/afuse { };
 
   autofs5 = callPackage ../os-specific/linux/autofs { };
 
@@ -16888,6 +16894,14 @@ in
     ];
   };
 
+
+  linux_drm_next = callPackage ../os-specific/linux/kernel/linux-drm-next.nix {
+    kernelPatches = [
+      kernelPatches.bridge_stp_helper
+      kernelPatches.request_key_helper
+    ];
+  };
+
   linux_testing_bcachefs = callPackage ../os-specific/linux/kernel/linux-testing-bcachefs.nix {
     kernelPatches =
       [ kernelPatches.bridge_stp_helper
@@ -17112,6 +17126,7 @@ in
 
   # Intentionally lacks recurseIntoAttrs, as -rc kernels will quite likely break out-of-tree modules and cause failed Hydra builds.
   linuxPackages_testing = linuxPackagesFor pkgs.linux_testing;
+  linuxPackages_drm_next = linuxPackagesFor pkgs.linux_drm_next;
 
   linuxPackages_custom = { version, src, configfile, allowImportFromDerivation ? true }:
     recurseIntoAttrs (linuxPackagesFor (pkgs.linuxManualConfig {
@@ -17220,7 +17235,15 @@ in
 
   libraw1394 = callPackage ../development/libraries/libraw1394 { };
 
-  librealsense = callPackage ../development/libraries/librealsense { };
+  librealsense = callPackage ../development/libraries/librealsense {
+    buildExamples = true;
+    example_deps = {
+      inherit (pkgs.xorg) libX11 libXrender libXtst libXdamage
+                          libXi libXext libXfixes libXcomposite;
+      inherit glfw3;
+      inherit libGLU;
+    };
+  };
 
   libsass = callPackage ../development/libraries/libsass { };
 
@@ -18805,7 +18828,7 @@ in
 #     pythonPackages = python36Packages;
 #     stdenv = overrideCC stdenv gcc6;
 #   };
-  blender_28_beta_binary = callPackage  ../applications/misc/blender/2.8-beta-binary.nix {
+  blender_28_binary = callPackage  ../applications/misc/blender/2.8-beta-binary.nix {
     # cudaSupport = config.cudaSupport or false;
     pythonPackages = python35Packages;
     stdenv = overrideCC stdenv gcc6;
@@ -22476,6 +22499,7 @@ in
   vim_configurable = vimUtils.makeCustomizable (callPackage ../applications/editors/vim/configurable.nix {
     inherit (darwin.apple_sdk.frameworks) CoreServices Cocoa Foundation CoreData;
     inherit (darwin) libobjc;
+    python = python3;
     gtk2 = if stdenv.isDarwin then gtk2-x11 else gtk2;
     gtk3 = if stdenv.isDarwin then gtk3-x11 else gtk3;
   });
@@ -22732,20 +22756,6 @@ in
   wmctrl = callPackage ../tools/X11/wmctrl { };
 
   wmii_hg = callPackage ../applications/window-managers/wmii-hg { };
-
-  # I'm keen on wmiimenu only  >wmii-3.5 no longer has it...
-  wmiimenu = import ../applications/window-managers/wmii31 {
-    libixp = libixp_for_wmii;
-    inherit fetchurl /* fetchhg */ stdenv gawk;
-    inherit (xorg) libX11;
-  };
-
-  wmiiSnap = import ../applications/window-managers/wmii {
-    libixp = libixp_for_wmii;
-    inherit fetchurl /* fetchhg */ stdenv gawk glibc;
-    inherit (xorg) libX11 /*xextproto*/ libXt libXext;
-    includeUnpack = config.stdenv.includeUnpack or false;
-  };
 
   wofi = callPackage ../applications/misc/wofi { };
 
@@ -25393,8 +25403,7 @@ in
 
   gutenprint = callPackage ../misc/drivers/gutenprint { };
   gutenprintCVS = callPackage ../misc/drivers/gutenprint { 
-    gimp = gimp_2_8;
-    version = "cvs";
+    gimp = gimp;
   };
 
   gutenprintBin = callPackage ../misc/drivers/gutenprint/bin.nix { };
@@ -26254,10 +26263,10 @@ in
         { "filename_regex" = ''\.\%(iced\|coffee\)$$''; "names" = [ ''sourcemap.vim'' ''vim-iced-coffee-script'' ]; }
         { "name" = ''vim-addon-haskell''; "filetype_regex" = ''\%(cabal\|hs\|hsc\|lhs\)$$''; }
         { "filetype_regex" = ''\%(rb)$$''; "names" = [ ''vim-ruby'' ''vim-addon-rdebug'' ''vim-addon-ruby-debug-ide'' ''textobj-rubyblock'' ]; }
-        { "filetype_regex" = ''\%(rs)$$''; "names" = [ ''rust'' ]; }
+        # { "filetype_regex" = ''\%(rs)$$''; "names" = [ ''rust'' ]; }
         { "filetype_regex" = ''\%(nix)$$''; "names" = [ ''vim-addon-nix'' ]; }
         { "filetype_regex" = ''\%(vim)$$''; "names" = [ ''reload'' ''vim-dev-plugin'' ]; }
-        { "name" = ''sparkup''; "filename_regex" = ''\%(html\|xml\|php\|php.inc\|inc\)''; }
+        # { "name" = ''sparkup''; "filename_regex" = ''\%(html\|xml\|php\|php.inc\|inc\)''; }
         ];
      };
   vimPlugins = recurseIntoAttrs (callPackage ../misc/vim-plugins {
@@ -26802,5 +26811,381 @@ in
   };
 
 
+  # wave2letter
+
+  wave2letter = rec {
+      blas = blas36;
+      fftw = fftwSinglePrec;
+
+
+      arrayfire = stdenv.mkDerivation {
+        name = "arrayfire";
+         src = pkgs.fetchurl {
+           url    = https://mawercer.de/tmp/arrayfire-recursive.tar.gz;
+           sha256 = "0dq2xwgxglv35n4dm9gkc67mgcr5mxhprs6j66hi995fjk1w7z4l";
+         };
+
+         cmakeFlags = [
+           "-DFFTW_INCLUDE_DIR=${fftw.dev}/include"
+           "-DFFTW_LIBRARY=${fftw}/lib/libjpeg.so"
+         ];
+        patches = [ /pr/tmp/arrayfire/patch.patch ];
+        buildInputs = [
+
+          libGL
+
+          boost162 # at least 16
+          cmake blas fftw python3
+          pkgs.opencl-clhpp
+
+
+# cudatoolkit_9_1
+
+# cudatoolkit_6
+# cudatoolkit_9
+# cudatoolkit_10
+
+# cudatoolkit_10_0 
+cudatoolkit_9_2 
+
+
+
+          # cudatoolkit_9_1
+
+          # cudatoolkit_6
+          #-cudatoolkit_7 # failure
+          # cudatoolkit_9
+          # cudatoolkit_10
+
+          # compiling trying 
+         ## cudatoolkit_9_0  
+              # same as next
+         ## cudatoolkit_9_1
+              # CMake Error at CMakeModules/InternalUtils.cmake:10 (message):
+              #   FFTW not found
+              # Call Stack (most recent call first):
+              #   src/backend/cpu/CMakeLists.txt:320 (dependency_check)
+              # 
+              # 
+              # -- Automatic GPU detection failed. Building for common architectures.
+              # -- CUDA_architecture_build_targets: 3.0;3.5;5.0;5.2;6.0;6.1;7.0;7.0+PTX
+              # -- CUDA driver library missing. Looking for libcuda stub.
+              # -- Found PythonInterp: /nix/store/4ag8gng51y7yw6nr3imwyppqfci3j643-python3-3.7.2/bin/python (found version "3.7.2")
+              # -- Check if compiler accepts -pthread
+              # -- Check if compiler accepts -pthread - yes
+              # -- No git. Setting hash to default
+              # -- Configuring incomplete, errors occurred!
+              # See also "/build/arrayfire/build/CMakeFiles/CMakeOutput.log".
+              # See also "/build/arrayfire/build/CMakeFiles/CMakeError.log".
+          # cudatoolkit_10_0 => FFTW not found
+          # cudatoolkit_8
+          # cudatoolkit_6 => cuda failed
+          # cudatoolkit_7_5 => cuda failed
+          # cudatoolkit_9_2 => arrayfire failed detecting 
+              # automatic gpu detection failed ..
+          # cudatoolkit_9_2 => FFTW
+        ];
+
+        postUnpack = ''
+          find| grep download_sparse_datasets.cmake
+        sed -i '13imessage("CMAKE_CURRENT_SOURCE_DIR ''${CMAKE_CURRENT_SOURCE_DIR} xx ''${CMAKE_CURRENT_BINARY_DIR}/matrixmarket/''${file_name}")' arrayfire/test/CMakeModules/download_sparse_datasets.cmake
+          HOME=`pwd`/home
+          echo "$to_be_downloaded"
+          eval "$to_be_downloaded"
+         '';
+
+        to_be_downloaded = map (x:
+              ''t=arrayfire/build/test/matrixmarket/${x.group}/${x.name}.tar.gz; mkdir -p "$(dirname "$t")"; cp ${fetchurl { inherit (x) url sha256; }} "$t";''
+              )[
+
+                {name = ''Trec4''; group =''JGD_Kocay''; url = ''https://sparse.tamu.edu/MM/JGD_Kocay/Trec4.tar.gz''; sha256 = ''03g3y7cfij85b8ic9h8f9y8cz2wjzhq0wbj9rm1gfkchqb8yv7pl''; }
+                {name = ''bcsstm02''; group =''HB''; url = ''https://sparse.tamu.edu/MM/HB/bcsstm02.tar.gz''; sha256 = ''163w3jbcpnzfilxzhcimlqpbzywlq0ynhj47spd27vggb4l7r2bj''; }
+                {name = ''young4c''; group =''HB''; url = ''https://sparse.tamu.edu/MM/HB/young4c.tar.gz''; sha256 = ''0gjww11gx51pxfgjmrlrnxjzrvf3p0pg0kmp3llzvzf4vxys2lqz''; }
+                {name = ''lpi_vol1''; group =''LPnetlib''; url = ''https://sparse.tamu.edu/MM/LPnetlib/lpi_vol1.tar.gz''; sha256 = ''1jbbvgqh1g6r680r3hzwa3fv0kyd0vmavlfs62885l0aasbri6hf''; }
+                {name = ''lpi_qual''; group =''LPnetlib''; url = ''https://sparse.tamu.edu/MM/LPnetlib/lpi_qual.tar.gz''; sha256 = ''0wqq6hlhl8zcwjrkmqmivblf3kqrfw54v1a9wcpxihcig09ppysl''; }
+                {name = ''oscil_dcop_12''; group =''Sandia''; url = ''https://sparse.tamu.edu/MM/Sandia/oscil_dcop_12.tar.gz''; sha256 = ''19qdcccrjjrdi6wnszcvkafjsnl3dsn8ws8zb0768d6iq62j7n7s''; }
+                {name = ''oscil_dcop_42''; group =''Sandia''; url = ''https://sparse.tamu.edu/MM/Sandia/oscil_dcop_42.tar.gz''; sha256 = ''05qbxpy91kl10ml7kvcw6lrsqy10npvraafy1gfjdgmzs99wwzrs''; }
+                {name = ''conf6_0-4x4-20''; group =''QCD''; url = ''https://sparse.tamu.edu/MM/QCD/conf6_0-4x4-20.tar.gz''; sha256 = ''1g54nw3pzddz1sg7p4ipaj6srvq1zwjwjv2xcinvsashj2mpdgpn''; }
+                {name = ''conf6_0-4x4-30''; group =''QCD''; url = ''https://sparse.tamu.edu/MM/QCD/conf6_0-4x4-30.tar.gz''; sha256 = ''15pz92gghchrp5l116mggbzisjkpvjca4qdq8xkwjfbk0zp7d1bc''; }
+
+        ];
+        # src = fetchgit {
+        #     "url"= "https://github.com/arrayfire/arrayfire.git";
+        #     "rev"= "4bdaa9e79c5a91918857472680edb7fbf6b2a5c4";
+        #     # "date"= "2019-01-12T09:01:20-08:00";
+        #     "sha256"= "0xgkg21kvcgdd3w4jy5j4apg0wd1yn93a5sk81mzbpjsrh8ns3p5";
+        #     "fetchSubmodules"= true;
+        # };
+      };
+
+      flashlight = stdenv.mkDerivation {
+        name = "flashlight";
+        buildInputs = [cmake];
+        src = fetchgit {
+          "url"= "https://github.com/facebookresearch/flashlight.git";
+          "rev"= "349e8cfa261a70dd30ab336c44c6985b45555141";
+          #"date"= "2019-01-18T14:14:15-08:00";
+          "sha256"= "1c1ys01nj5pj4h7d22am73xl9nqriplnf5dx4fz8rdzf9qq0gqa9";
+          "fetchSubmodules"= false;
+        };
+      };
+
+    };
+
+  libnvidia_container = 
+    let nvidia_modprobe = fetchurl {
+          url = "https://github.com/NVIDIA/nvidia-modprobe/archive/396.51.tar.gz";
+          sha256 = "082b1jvkg1dij6l7yvmi7vi1fdbmp7jw4snpkw76ggl4lcvn9g15";
+        };
+        liptirpc = fetchurl {
+          url = "https://downloads.sourceforge.net/project/libtirpc/libtirpc/1.1.4/libtirpc-1.1.4.tar.bz2";
+          sha256 = "07anqypf7c719x9y683qz65cxllmzlgmlab2hlahrqcj4bq2k99c";
+        };
+        elftoolchain = fetchurl {
+          url = "https://sourceforge.net/projects/elftoolchain/files/Sources/elftoolchain-0.7.1/elftoolchain-0.7.1.tar.bz2";
+          sha256 = "1dfj5fxvlsqa88rcyxpl88pyqjzvydi7bp8mf8w984pjzj8lbwa4";
+        };
+  in
+    stdenv.mkDerivation {
+    name = "nvidia-container";
+
+    nvidia-modprobe=https://github.com/NVIDIA/nvidia-modprobe/archive/396.51.tar.gz;
+
+    patchPhase = ''
+    sed  -i "s@https://sourceforge.net/projects/elftoolchain/files/Sources/\$(PREFIX)/\$(PREFIX).tar.bz2@file://${elftoolchain}@" mk/elftoolchain.mk
+    sed  -i "s@https://github.com/NVIDIA/nvidia-modprobe/archive/\$(VERSION).tar.gz@file://${nvidia_modprobe}@" mk/nvidia-modprobe.mk
+    sed  -i "s@https://downloads.sourceforge.net/project/libtirpc/libtirpc/\$(VERSION)/\$(PREFIX).tar.bz2@file://${liptirpc}@" mk/libtirpc.mk
+    cat mk/nvidia-modprobe.mk
+      '';
+
+    buildInputs = [
+      docker
+        git
+        curl
+        which
+      # net-libs/rpcsvc-proto
+      # sys-devel/bmake
+      # sys-apps/lsb-release
+    ];
+
+    src = /pr/tmp/delete/libnvidia-container.tar.gz;
+    # src = fetchgit {
+    #   "url"= "https://github.com/NVIDIA/libnvidia-container.git";
+    #   "rev"= "fe20a8e4a17a63df8116f39795173a461325fb3d";
+    #   # "date"= "2019-01-15T15:28:18-08:00";
+    #   "sha256"= "0yryw5c3xf9d8j9hmj32ir973wjv8vnc0ch8ip6c3iv5drm7g5z5";
+    #   "fetchSubmodules"= false;
+    # };
+    meta = {
+      description = "NVIDIA container runtime library";
+      license = licenses.BSD;
+      maintainers = with maintainers; [];
+      homepage = https://github.com/NVIDIA/libnvidia-container;
+    };
+  };
+
+  pagetools = stdenv.mkDerivation {
+    name = "pagetools-0.1";
+    src = fetchurl{
+      url ="https://liquidtelecom.dl.sourceforge.net/project/pagetools/pagetools/0.1/pagetools-0.1.tar.gz";
+      sha256 = "0r24m8igz3h34l8w4xz6pga8qpbn1nrv2qgim6kc43hssgi89hbw";
+    };
+    unpackPhase = ''
+      tar xzf $src
+      sourceRoot=`pwd`
+      export NIX_CFLAGS_COMPILE="-I ${netpbm}/include/netpbm -I  ${netpbm}/include $NIX_CFLAGS_COMPILE"
+      export LDFLAGS="-L${netpbm}/lib"
+    '';
+    installPhase = ''
+      mkdir -p $out/bin
+      cp pbm_findskew/pbm_findskew tiff_findskew/tiff_findskew $out/bin
+    '';
+    buildInputs = [netpbm libtiff libtiff.dev];
+  };
+
+  csparse = stdenv.mkDerivation {
+    name = "csparse";
+    versions = "git";
+
+    buildInputs = [];
+
+    src = fetchFromGitHub {
+      owner = "ibayer";
+      repo = "CSparse";
+      "rev"= "c8d48ca8b1064ad38b220ea57e95249cf9f44e57";
+      # "url"= "https://github.com/ibayer/CSparse.git";
+      # "date"= "2014-11-02T12:00:26+01:00";
+      # "path"= "/nix/store/6531lsl3hb26svfgjjf727dj7zqzjvyq-CSparse";
+      "sha256"= "1b1pglvj640d332kqdkpqhlv7z34s9arvzw0qsrng92ly2z1r64f";
+      # "fetchSubmodules"= false;
+      # "deepClone"= false;
+      # "leaveDotGit"= false;
+    };
+
+    postInstall = "find";
+
+  };
+
+  rtab_map = stdenv.mkDerivation rec {
+
+    name = "rtab_map";
+    version = "2ff582f06f247192dc3cc8342f61e7ac1d3b3b2c";
+
+    src = fetchFromGitHub {
+      owner = "introlab";
+      repo = "rtabmap";
+      rev = version;
+      sha256 = "1inb3q8pcr20i1hirvw0ivlsn643x1zyfgpvvbjz9fma1m00cl0r";
+    };
+
+    buildInputs = [
+      opencv3
+      cmake
+      pcl
+      boost172
+      zlib
+
+
+      # optional
+      librealsense
+      sqlite
+      libusb1
+
+
+# -- Could NOT find CSPARSE (missing: CSPARSE_INCLUDE_DIR CSPARSE_LIBRARY)
+# -- FlyCapture2_INCLUDE_DIR=FlyCapture2_INCLUDE_DIR-NOTFOUND
+# -- FlyCapture2_LIBRARY=FlyCapture2_LIBRARY-NOTFOUND
+# -- Triclops_INCLUDE_DIR=Triclops_INCLUDE_DIR-NOTFOUND
+# -- Triclops_LIBRARY=Triclops_LIBRARY-NOTFOUND
+# -- FlyCaptureBridge_LIBRARY=FlyCaptureBridge_LIBRARY-NOTFOUND
+# -- Found RealSense2:
+# -- Architecture: x86_64
+# -- Performing Test COMPILER_SUPPORTS_CXX14
+# -- Performing Test COMPILER_SUPPORTS_CXX14 - Success
+# -- Found Pthreads
+# CMake Error at /nix/store/2j1a1innzsvdy3n8idi81chm60jjf5sn-qtbase-5.12.7-dev/lib/cmake/Qt5Core/Qt5CoreMacros.cmake:384 (message):
+#   Can not use "PrintSupport" module which has not yet been found.
+# Call Stack (most recent call first):
+#   guilib/src/CMakeLists.txt:203 (QT5_USE_MODULES)
+
+
+
+
+    ] ++ ( with qt5; [qtbase qtsvg]) ++ [
+
+
+# -- Optional dependencies ('*' affects some default parameters) :
+# --  *With OpenCV 3 xfeatures2d module (SIFT/SURF/BRIEF/FREAK) = YES (License: Non commercial)
+# --   With Qt                   = NO (Qt not found)
+# --   With external SQLite3     = NO (sqlite3 not found, internal version is used for convenience)
+# --   With ORB OcTree           = YES (License: GPLv3)
+# --   With Madgwick             = YES (License: GPL)
+# --   With FastCV               = NO (FastCV not found)
+# --
+# --  Solvers:
+# --   With TORO                 = YES (License: Creative Commons [Attribution-NonCommercial-ShareAlike])
+# --  *With g2o                  = NO (g2o not found)
+# --  *With GTSAM                = NO (GTSAM not found)
+# --  *With Ceres                = NO (Ceres not found)
+# --   With VERTIGO              = NO (GTSAM or g2o required)
+# --   With cvsba                = NO (cvsba not found)
+# --  *With libpointmatcher      = NO (libpointmatcher not found)
+# --
+# --  Reconstruction Approaches:
+# --   With OCTOMAP              = NO (octomap not found)
+# --   With CPUTSDF              = NO (CPUTSDF not found)
+# --   With OpenChisel           = NO (open_chisel not found)
+# --   With AliceVision          = NO (WITH_ALICE_VISION=OFF)
+# --
+# --  Camera Drivers:
+# --   With Freenect             = NO (libfreenect not found)
+# --   With OpenNI2              = NO (OpenNI2 not found)
+# --   With Freenect2            = NO (libfreenect2 not found)
+# --   With Kinect for Windows 2 = NO (Kinect for Windows 2 SDK not found)
+# --   With Kinect for Azure     = NO (Kinect for Azure SDK not found)
+# --   With dc1394               = NO (dc1394 not found)
+# --   With FlyCapture2/Triclops = NO (Point Grey SDK not found)
+# --   With ZED                  = NO (ZED sdk not found)
+# --   With RealSense            = NO (librealsense not found)
+# --   With RealSense2           = NO (librealsense2 not found)
+# --
+# --  Odometry Approaches:
+# --   With loam_velodyne        = NO (loam_velodyne not found)
+# --   With libfovis             = NO (libfovis not found)
+# --   With libviso2             = NO (libviso2 not found)
+# --   With dvo_core             = NO (dvo_core not found)
+# --   With okvis                = NO (okvis not found)
+# --   With msckf_vio            = NO (WITH_MSCKF_VIO=OFF)
+# --   With VINS-Fusion          = NO (VINS-Fusion not found)
+# --   With ORB_SLAM2            = NO (ORB_SLAM2 not found, make sure environment variable ORB_SLAM2_ROOT_DIR is set)
+# 
+
+    ];
+
+
+    meta = with stdenv.lib; {
+      description = "";
+      homepage = "https://github.com/introlab/rtabmap/wiki/Installation#docker";
+      license = licenses.bsd3;
+      # platforms = [ "i686-linux" "x86_64-linux" "x86_64-darwin" ];
+    };
+
+  };
+
+
+rubyEnv = (import (/etc/nixos/nixpkgs-ruby-overlay/default.nix) {}).rubyEnv;
+  x = 
+        ( rubyEnv {
+          name = "scraping-env";
+          ruby = pkgs.ruby_2_6;
+
+          pkgs_fun =
+          # ["mail", "parallel", "htmlentities", "pg", "sequel", "nokogiri", "fileutils", "activesupport", ["excon"], ["mail"], ["mechanize"], ["mysql2"], ["selenium-webdriver"], ["rest-client"], ["addressable"], ["tor_requests"]]
+{build_ruby_package, fix, fetchurl}: fix (rpkgs: {
+"mini_mime" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/mini_mime-1.0.2.gem"; "sha256" = "1axm0rxyx3ss93wbmfkm78a6x03l8y4qy60rhkkiq0aza0vwq3ha";}; "name" = "mini_mime"; "version" = "1.0.2"; "dependencies" = [];};
+"mail" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/mail-2.7.1.gem"; "sha256" = "00wwz6ys0502dpk8xprwcqfwyf3hmnx6lgxaiq6vj43mkx43sapc";}; "name" = "mail"; "version" = "2.7.1"; "dependencies" = ["mini_mime"];};
+"parallel" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/parallel-1.19.1.gem"; "sha256" = "12jijkap4akzdv11lm08dglsc8jmc87xcgq6947i1s3qb69f4zn2";}; "name" = "parallel"; "version" = "1.19.1"; "dependencies" = [];};
+"htmlentities" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/htmlentities-4.3.4.gem"; "sha256" = "1nkklqsn8ir8wizzlakncfv42i32wc0w9hxp00hvdlgjr7376nhj";}; "name" = "htmlentities"; "version" = "4.3.4"; "dependencies" = [];};
+"pg" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/pg-1.2.2.gem"; "sha256" = "1r01bqqhnk272dsyhg3cqx6j0aiwbcdnrwp7vxzc969mb5dgnnrl";}; "name" = "pg"; "version" = "1.2.2"; "dependencies" = [];};
+"sequel" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/sequel-5.29.0.gem"; "sha256" = "1il38hyxxg7i1j8wns38xjjr5n2zvyzm3rj6ry8mmv03mshqafqd";}; "name" = "sequel"; "version" = "5.29.0"; "dependencies" = [];};
+"mini_portile2" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/mini_portile2-2.4.0.gem"; "sha256" = "15zplpfw3knqifj9bpf604rb3wc1vhq6363pd6lvhayng8wql5vy";}; "name" = "mini_portile2"; "version" = "2.4.0"; "dependencies" = [];};
+"nokogiri" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/nokogiri-1.10.8.gem"; "sha256" = "1yi8j8hwrlc3rg5v3w52gxndmwifyk7m732q9yfbal0qajqbh1h8";}; "name" = "nokogiri"; "version" = "1.10.8"; "dependencies" = ["mini_portile2"];};
+"fileutils" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/fileutils-1.4.1.gem"; "sha256" = "1svqk3qsdsxnvnw5w04k78cm7f70qvwm5capshmgxjpag45527f3";}; "name" = "fileutils"; "version" = "1.4.1"; "dependencies" = [];};
+"concurrent-ruby" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/concurrent-ruby-1.1.6.gem"; "sha256" = "094387x4yasb797mv07cs3g6f08y56virc2rjcpb1k79rzaj3nhl";}; "name" = "concurrent-ruby"; "version" = "1.1.6"; "dependencies" = [];};
+"i18n" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/i18n-1.8.2.gem"; "sha256" = "0jwrd1l4mxz06iyx6053lr6hz2zy7ah2k3ranfzisvych5q19kwm";}; "name" = "i18n"; "version" = "1.8.2"; "dependencies" = ["concurrent-ruby"];};
+"thread_safe" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/thread_safe-0.3.6.gem"; "sha256" = "0nmhcgq6cgz44srylra07bmaw99f5271l0dpsvl5f75m44l0gmwy";}; "name" = "thread_safe"; "version" = "0.3.6"; "dependencies" = [];};
+"tzinfo" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/tzinfo-1.2.6.gem"; "sha256" = "04f18jdv6z3zn3va50rqq35nj3izjpb72fnf21ixm7vanq6nc4fp";}; "name" = "tzinfo"; "version" = "1.2.6"; "dependencies" = ["thread_safe"];};
+"minitest" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/minitest-5.14.0.gem"; "sha256" = "0g73x65hmjph8dg1h3rkzfg7ys3ffxm35hj35grw75fixmq53qyz";}; "name" = "minitest"; "version" = "5.14.0"; "dependencies" = [];};
+"zeitwerk" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/zeitwerk-2.2.2.gem"; "sha256" = "0jywi63w1m2b2w9fj9rjb9n3imf6p5bfijfmml1xzdnsrdrjz0x1";}; "name" = "zeitwerk"; "version" = "2.2.2"; "dependencies" = [];};
+"activesupport" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/activesupport-6.0.2.1.gem"; "sha256" = "1dd6gh66ffdbhsxv33rxxsiciqyhhkm69l1yqspwdj2brvh1jzl1";}; "name" = "activesupport"; "version" = "6.0.2.1"; "dependencies" = ["zeitwerk" "concurrent-ruby" "minitest" "tzinfo" "i18n"];};
+"excon" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/excon-0.72.0.gem"; "sha256" = "1vhc5c16i8zrm3d98ppsnw514d7jvwdg0wk60kc9i1xw3797qkkd";}; "name" = "excon"; "version" = "0.72.0"; "dependencies" = [];};
+"unf_ext" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/unf_ext-0.0.7.6.gem"; "sha256" = "1ll6w64ibh81qwvjx19h8nj7mngxgffg7aigjx11klvf5k2g4nxf";}; "name" = "unf_ext"; "version" = "0.0.7.6"; "dependencies" = [];};
+"unf" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/unf-0.1.4.gem"; "sha256" = "0bh2cf73i2ffh4fcpdn9ir4mhq8zi50ik0zqa1braahzadx536a9";}; "name" = "unf"; "version" = "0.1.4"; "dependencies" = ["unf_ext"];};
+"domain_name" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/domain_name-0.5.20190701.gem"; "sha256" = "0lcqjsmixjp52bnlgzh4lg9ppsk52x9hpwdjd53k8jnbah2602h0";}; "name" = "domain_name"; "version" = "0.5.20190701"; "dependencies" = ["unf"];};
+"webrobots" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/webrobots-0.1.2.gem"; "sha256" = "19ndcbba8s8m62hhxxfwn83nax34rg2k5x066awa23wknhnamg7b";}; "name" = "webrobots"; "version" = "0.1.2"; "dependencies" = [];};
+"ntlm-http" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/ntlm-http-0.1.1.gem"; "sha256" = "0yx01ffrw87wya1syivqzf8hz02axk7jdpw6aw221xwvib767d36";}; "name" = "ntlm-http"; "version" = "0.1.1"; "dependencies" = [];};
+"http-cookie" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/http-cookie-1.0.3.gem"; "sha256" = "004cgs4xg5n6byjs7qld0xhsjq3n6ydfh897myr2mibvh6fjc49g";}; "name" = "http-cookie"; "version" = "1.0.3"; "dependencies" = ["domain_name"];};
+"connection_pool" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/connection_pool-2.2.2.gem"; "sha256" = "0lflx29mlznf1hn0nihkgllzbj8xp5qasn8j7h838465pi399k68";}; "name" = "connection_pool"; "version" = "2.2.2"; "dependencies" = [];};
+"net-http-persistent" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/net-http-persistent-3.1.0.gem"; "sha256" = "1bink2g0a94zh9kmb96rrh48rkbkdpimljy2370z5liixvy3gdpa";}; "name" = "net-http-persistent"; "version" = "3.1.0"; "dependencies" = ["connection_pool"];};
+"mime-types-data" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/mime-types-data-3.2019.1009.gem"; "sha256" = "18x61fc36951vw7f74gq8cyybdpxvyg5d0azvqhrs82ddw3v16xh";}; "name" = "mime-types-data"; "version" = "3.2019.1009"; "dependencies" = [];};
+"mime-types" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/mime-types-3.3.1.gem"; "sha256" = "1zj12l9qk62anvk9bjvandpa6vy4xslil15wl6wlivyf51z773vh";}; "name" = "mime-types"; "version" = "3.3.1"; "dependencies" = ["mime-types-data"];};
+"net-http-digest_auth" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/net-http-digest_auth-1.4.1.gem"; "sha256" = "1nq859b0gh2vjhvl1qh1zrk09pc7p54r9i6nnn6sb06iv07db2jb";}; "name" = "net-http-digest_auth"; "version" = "1.4.1"; "dependencies" = [];};
+"mechanize" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/mechanize-2.7.6.gem"; "sha256" = "00834zv6s68g3x00s4kcgdry51s88qj0kjygnwhpg8k67kdihcrx";}; "name" = "mechanize"; "version" = "2.7.6"; "dependencies" = ["net-http-digest_auth" "mime-types" "net-http-persistent" "http-cookie" "nokogiri" "ntlm-http" "webrobots" "domain_name"];};
+"mysql2" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/mysql2-0.5.3.gem"; "sha256" = "0d14pcy5m4hjig0zdxnl9in5f4izszc7v9zcczf2gyi5kiyxk8jw";}; "name" = "mysql2"; "version" = "0.5.3"; "dependencies" = [];};
+"childprocess" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/childprocess-3.0.0.gem"; "sha256" = "1ic028k8xgm2dds9mqnvwwx3ibaz32j8455zxr9f4bcnviyahya5";}; "name" = "childprocess"; "version" = "3.0.0"; "dependencies" = [];};
+"rubyzip" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/rubyzip-2.2.0.gem"; "sha256" = "13b15icwx0c8zzjfzf7bmqq9ynilw0dy8ydgjb199nqzp93p6wqv";}; "name" = "rubyzip"; "version" = "2.2.0"; "dependencies" = [];};
+"selenium-webdriver" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/selenium-webdriver-3.142.7.gem"; "sha256" = "0adcvp86dinaqq3nhf8p3m0rl2g6q0a4h52k0i7kdnsg1qz9k86y";}; "name" = "selenium-webdriver"; "version" = "3.142.7"; "dependencies" = ["rubyzip" "childprocess"];};
+"http-accept" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/http-accept-1.7.0.gem"; "sha256" = "09m1facypsdjynfwrcv19xcb1mqg8z6kk31g8r33pfxzh838c9n6";}; "name" = "http-accept"; "version" = "1.7.0"; "dependencies" = [];};
+"netrc" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/netrc-0.11.0.gem"; "sha256" = "0gzfmcywp1da8nzfqsql2zqi648mfnx6qwkig3cv36n9m0yy676y";}; "name" = "netrc"; "version" = "0.11.0"; "dependencies" = [];};
+"rest-client" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/rest-client-2.1.0.gem"; "sha256" = "1qs74yzl58agzx9dgjhcpgmzfn61fqkk33k1js2y5yhlvc5l19im";}; "name" = "rest-client"; "version" = "2.1.0"; "dependencies" = ["netrc" "mime-types" "http-cookie" "http-accept"];};
+"public_suffix" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/public_suffix-4.0.3.gem"; "sha256" = "1c6kq6s13idl2036b5lch8r7390f8w82cal8hcp4ml76fm2vdac7";}; "name" = "public_suffix"; "version" = "4.0.3"; "dependencies" = [];};
+"addressable" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/addressable-2.7.0.gem"; "sha256" = "1fvchp2rhp2rmigx7qglf69xvjqvzq7x0g49naliw29r2bz656sy";}; "name" = "addressable"; "version" = "2.7.0"; "dependencies" = ["public_suffix"];};
+"socksify" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/socksify-1.7.1.gem"; "sha256" = "1fp4p8p4y713lh00rd31xymxnzkbhmg0d12ixbqs7lcaj2pcgcni";}; "name" = "socksify"; "version" = "1.7.1"; "dependencies" = [];};
+"tor_requests" = build_ruby_package rpkgs {"src" = fetchurl {"url" = "http://production.cf.rubygems.org/gems/tor_requests-0.6.0.gem"; "sha256" = "02358jjz984s6y5hxyfwaw2br7g7klaqyxmn3p70g9chdmxacp3b";}; "name" = "tor_requests"; "version" = "0.6.0"; "dependencies" = ["socksify"];};
+});
+        });
+
+
+  cloudcompare = libsForQt5.callPackage ./cloudcompare.nix { boost = boost15x; };
 
 }

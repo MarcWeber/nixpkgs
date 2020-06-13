@@ -75,7 +75,7 @@ in
 
   config = mkMerge [
     (mkIf cfgC.enable {
-      systemd.user.services.synergy-client = {
+      systemd.services.synergy-client = {
         after = [ "network.target" "graphical-session.target" ];
         description = "Synergy client";
         wantedBy = optional cfgC.autoStart "graphical-session.target";
@@ -85,13 +85,15 @@ in
       };
     })
     (mkIf cfgS.enable {
-      systemd.user.services.synergy-server = {
+      networking.firewall.allowedTCPPorts = [24800];
+      systemd.services.synergy-server = {
         after = [ "network.target" "graphical-session.target" ];
         description = "Synergy server";
         wantedBy = optional cfgS.autoStart "graphical-session.target";
         path = [ pkgs.synergy ];
-        serviceConfig.ExecStart = ''${pkgs.synergy}/bin/synergys -c ${cfgS.configFile} -f ${optionalString (cfgS.address != "") "-a ${cfgS.address}"} ${optionalString (cfgS.screenName != "") "-n ${cfgS.screenName}" }'';
+        serviceConfig.ExecStart = ''${pkgs.synergy}/bin/synergys -c ${cfgS.configFile} -f ${optionalString (cfgS.address != "") "-a ${cfgS.address}"} ${optionalString (cfgS.screenName != "") "-n ${cfgS.screenName}" } -f '';
         serviceConfig.Restart = "on-failure";
+        environment.DISPLAY=":0";
       };
     })
   ];

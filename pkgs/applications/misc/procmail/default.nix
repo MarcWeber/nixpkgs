@@ -22,6 +22,7 @@ stdenv.mkDerivation {
     sed -e "3i\
 .PHONY: install
 " -i Makefile
+xxx
   '';
 
   src = fetchurl {

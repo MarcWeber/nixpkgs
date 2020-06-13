@@ -12,6 +12,7 @@ args: with args; stdenv.mkDerivation {
   phases = "unpackPhase installPhase";
 
   installPhase = "
+  patch -p1 < ${./patch.patch}
      export CFLAGS=\$NIX_CFLAGS_COMPILE
      export LDFLAGS\=$(echo \$NIX_LDFLAGS | sed -e 's/-rpath/-L/g')
      sed -i -e \"s%^PREFIX.*%PREFIX=\$out%\" \\
@@ -28,6 +29,7 @@ args: with args; stdenv.mkDerivation {
      mkdir -p \$out/bin
      cp cmd/wmiimenu \$out/bin
   ";
+
   meta = { homepage = "www.suckless.org";
            description = "One small tool of the wmii window manger to let the user select an item from a list by filtering";
            license = stdenv.lib.licenses.mit;

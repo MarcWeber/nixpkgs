@@ -10,6 +10,13 @@ stdenv.mkDerivation rec {
     url = "https://storage.googleapis.com/google-code-archive-source/v2/code.google.com/wmii/source-archive.zip";
     sha256 = "1wmkq14zvmfrmydl8752xz852cy7agrx3qp4fy2cc5asb2r9abaz";
   };
+  # version = "hg-andrew_shadura-34598056072";
+  # pname = "wmii";
+
+  # src = fetchurl {
+  #   url = https://bitbucket.org/andrew_shadura/wmii/get/e34598056072.zip;
+  #   sha256 = "0rqwfypxsz5q7spg4jqix4w0hfzvdi6ihysg0i91a8dp0dfh3jxl";
+  # };
 
   # for dlopen-ing
   patchPhase = ''

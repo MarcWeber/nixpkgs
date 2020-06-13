@@ -1,16 +1,19 @@
 # pcre functionality is tested in nixos/tests/php-pcre.nix
 
 { lib, stdenv, fetchurl, composableDerivation, autoconf, automake, flex, bison
-, mysql, libxml2, readline, zlib, curl, postgresql, gettext
+, mysql80, libxml2, readline, zlib, curl, postgresql, gettext
 , openssl, pcre, pcre2, pkgconfig, sqlite, config, libjpeg, libpng, freetype
 , libxslt, libmcrypt, bzip2, icu, openldap, cyrus_sasl, libmhash, freetds
 , uwimap, pam, gmp, apacheHttpd, libiconv
 , callPackage, fetchgit, pkgs, writeText, systemd, libsodium
 , idByConfig ? true # if true the php.id value will only depend on php configuration, not on the store path, eg dependencies
 , firebird, libzip
+, oniguruma
 }:
 
 let
+
+  mysql_like = mysql80;
 
   generic =
     { version, sha256 }:
@@ -18,8 +21,9 @@ let
     let php7 = lib.versionAtLeast version "7.0";
         php72 = lib.versionAtLeast version "7.2";
         php734 = lib.versionAtLeast version "7.3.4";
-        mysqlndSupport = config.php.mysqlnd or false;
-        mysqlBuildInputs = lib.optional (!mysqlndSupport) mysql.connector-c;
+        php74x = lib.versionAtLeast version "7.4.0";
+        mysqlndSupport = config.php.mysqlnd or true;
+        mysqlBuildInputs = lib.optional (!mysqlndSupport) mysql_like;
 
         pcre_ = if php734 then pcre2 else pcre;
 
@@ -70,6 +74,7 @@ let
         let php = pkgs.stdenv.mkDerivation args;
 
             php_with_id = php // {
+              inherit version;
               id =
                  if idByConfig && builtins ? hashString
                  then # turn options into something hashable:
@@ -80,7 +85,7 @@ let
                       builtins.baseNameOf (builtins.unsafeDiscardStringContext php);
             };
 
-            in php_with_id // (callPackage ../../../top-level/php-packages.nix { php = php_with_id; inherit fetchgit; }) // rec {
+            in php_with_id // (callPackage ../../../top-level/php-packages.nix { php = php_with_id // { unwrapped = php; }; /* phpWithExtensions = php_with_id; */ inherit fetchgit; }).extensions // rec {
               ioncube_so =
                 let name = "ioncube_loader_lin_${builtins.substring 0 3 version}_ts.so";
                 in "${(stdenv.mkDerivation {
@@ -120,7 +125,8 @@ let
 
       nativeBuildInputs = [ pkgconfig ];
       buildInputs = [ flex bison openssl libzip ]
-        ++ lib.optional stdenv.isLinux systemd;
+        ++ lib.optional stdenv.isLinux systemd
+        ++ lib.optionals php74x [oniguruma];
 
       mergeAttrBy = {
         preConfigure = a: b: "${a}\n${b}";
@@ -223,7 +229,7 @@ let
         };
 
         mysqli = {
-          configureFlags = ["--with-mysqli=${if mysqlndSupport then "mysqlnd" else "${mysql.connector-c}/bin/mysql_config"}"];
+          configureFlags = ["--with-mysqli=${if mysqlndSupport then "mysqlnd" else "${mysql_like}/bin/mysql_config"}"];
           buildInputs = mysqlBuildInputs;
         };
 
@@ -234,7 +240,7 @@ let
         };
 
         pdo_mysql = {
-          configureFlags = ["--with-pdo-mysql=${if mysqlndSupport then "mysqlnd" else mysql.connector-c}"];
+          configureFlags = ["--with-pdo-mysql=${if mysqlndSupport then "mysqlnd" else mysql_like}"];
           buildInputs = mysqlBuildInputs;
         };
 
@@ -414,7 +420,7 @@ let
         "--with-config-file-scan-dir=/etc/php.d"
       ] ++ lib.optional stdenv.isDarwin "--with-iconv=${libiconv}"
         ++ lib.optional stdenv.isLinux  "--with-fpm-systemd"
-        ++ lib.optional (!php72) [ "--with-pcre-regex=${pcre_} PCRE_LIBDIR=${pcre_}" ] # since pcre2 s.th broke, so use the bundled one and be done for now
+        ++ lib.optional (!php7) [ "--with-pcre-regex=${pcre_} PCRE_LIBDIR=${pcre_}" ] # since pcre2 s.th broke, so use the bundled one and be done for now
         ;
 
       postInstall = ''
@@ -480,13 +486,25 @@ in {
     sha256 = "1wvy8jdd1l5hmdqgw7lq2ynkim3mxfsx8q7vp4il1jadfq6qlr8i";
 
   };
-  php73 = generic {
-    version = "7.3.3";
-    sha256 = "1riw0a1mzc5ymaj02rni57l5pyfkxl0ygf1l39q7ksnz7aa9x5k1";
+  # php73 = generic {
+  #   version = "7.3.3";
+  #   sha256 = "1riw0a1mzc5ymaj02rni57l5pyfkxl0ygf1l39q7ksnz7aa9x5k1";
 
-  };
+  # };
   php734 = generic {
     version = "7.3.4";
     sha256 = "0y1bl4nwpr0z11wsdizrs3nvkx1xs3xzy7mn8gj4jdn82a13sb1f";
+  };
+  php7311 = generic {
+    version = "7.3.11";
+    sha256 = "1rxm256vhnvyabfwmyv51sqrkjlid1g8lczcy4skc2f72d5zzlcj";
+  };
+  php7318 = generic {
+    version = "7.3.18";
+    sha256 = "749d21f65deb57153b575f846705f5db54732c6b672e80612b29dcf1a53be8a4";
+  };
+  php746 = generic {
+    version = "7.4.6";
+    sha256 = "a6ed9475695d2056322a3f2c00fee61a122a7fce138a0e25694320c5dd1d2348";
   };
 }

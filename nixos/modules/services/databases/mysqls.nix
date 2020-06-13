@@ -25,14 +25,12 @@ let
 
       mysqldDir = if mysql ? mysqld_path then "${mysql}/${mysql.mysqld_path}" else "${mysql}/bin";
 
-      pidFile = "${m_config.pidDir}/mysqld.pid";
-
       mysql_initOptions =
         "--user=${m_config.user} --datadir=${m_config.dataDir} --basedir=${mysql} ";
 
       mysqldOptions =
-        mysql_initOptions
-        + "--pid-file=${pidFile} --socket=${m_config.socketFile}";
+        mysql_initOptions;
+        # + "--pid-file=${pidFile} --socket=${m_config.socketFile}";
 
       myCnf = pkgs.writeText "my.cnf"
       ''
@@ -80,8 +78,7 @@ let
               fi
               socketDir=$(dirname "${m_config.socketFile}")
               mkdir -m 0755 -p  $socketDir
-              mkdir -m 0700 -p ${m_config.pidDir}
-              chown -R ${m_config.user} ${m_config.pidDir} $socketDir
+              chown -R ${m_config.user} $socketDir
             '';
 
           serviceConfig.Restart = "always";
@@ -140,16 +137,6 @@ let
                     ''
                       # Execute initial script
                       cat ${m_config.initialScript} | ${mysql}/bin/mysql -u root -N -S ${m_config.socketFile}
-                    ''}
-
-                  ${optionalString (m_config.rootPassword != null)
-                    ''
-                      # Change root password
-
-                      ( echo "use mysql;"
-                        echo "update user set Password=password('$(cat ${m_config.rootPassword})') where User='root';"
-                        echo "flush privileges;"
-                      ) | ${mysql}/bin/mysql -u root -N -S ${m_config.socketFile} || true
                     ''}
 
                 rm ${tmp_init_file}
@@ -213,11 +200,6 @@ let
         description = "Location where MySQL stores its table files";
       };
 
-      pidDir = mkOption {
-        default = "/var/run/mysqls/${name}";
-        description = "Location of the file which stores the PID of the MySQL server";
-      };
-
       socketFile = mkOption {
         description = "socket file location for this mysql instance";
         default = "/tmp/${name}.sock";
@@ -253,11 +235,52 @@ let
         description = "A file containing SQL statements to be executed on the first startup. Can be used for granting certain permissions on the database";
       };
 
-      # FIXME: remove this option; it's a really bad idea.
-      rootPassword = mkOption {
-        default = null;
-        description = "Path to a file containing the root password, modified on the first startup. Not specifying a root password will leave the root password empty.";
+      ensureDatabases = mkOption {
+        default = [];
+        description = ''
+          Ensures that the specified databases exist.
+          This option will never delete existing databases, especially not when the value of this
+          option is changed. This means that databases created once through this option or
+          otherwise have to be removed manually.
+        '';
+        example = [
+          "nextcloud"
+          "matomo"
+        ];
       };
+
+      ensureUsers = mkOption {
+        default = [];
+        description = ''
+          Ensures that the specified users exist and have at least the ensured permissions.
+          The MySQL users will be identified using Unix socket authentication. This authenticates the Unix user with the
+          same name only, and that without the need for a password.
+          This option will never delete existing users or remove permissions, especially not when the value of this
+          option is changed. This means that users created and permissions assigned once through this option or
+          otherwise have to be removed manually.
+        '';
+        example = literalExample ''[
+          {
+            name = "nextcloud";
+            ensurePermissions = {
+              "nextcloud.*" = "ALL PRIVILEGES";
+            };
+          }
+          {
+            name = "backup";
+            ensurePermissions = {
+              "*.*" = "SELECT, LOCK TABLES";
+            };
+          }
+        ]'';
+      };
+
+
+      # FIXME: remove this option; it's a really bad idea.
+      # rootPassword = mkOption {
+      #   default = null;
+      #   description = "Path to a file containing the root password, modified on the first startup. Not specifying a root password will leave the root password empty.";
+      # };
 
       replication = {
         role = mkOption {
@@ -335,12 +358,11 @@ in
     users.extraGroups = mkMerge (catAttrs "users_extraGroups" configs);
     users.extraUsers = mkMerge (catAttrs "users_extraUsers" configs);
 
-    resources."tcp-ports" = mkMerge (prepareResources "port");
-    resources.paths = mkMerge (
-      (prepareResources "socketFile")
-      ++ (prepareResources "dataDir")
-      ++ (prepareResources "pidDir")
-    );
+    # resources."tcp-ports" = mkMerge (prepareResources "port");
+    # resources.paths = mkMerge (
+    #   (prepareResources "socketFile")
+    #   ++ (prepareResources "dataDir")
+    # );
   };
 
 }

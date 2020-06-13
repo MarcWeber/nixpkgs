@@ -18,6 +18,6 @@ runCommand "nixos-bootstrap-archive-${stdenv.system}" { } ''
       
   t=$out/nixos-install-archive-${stdenv.system}.tar.xz
   cat tmp.tar | ${xz}/bin/xz > $t
-  ensureDir $out/nix-support
+  mkdir -p $out/nix-support
   echo "file tarball" $t > $out/nix-support/hydra-build-products
 ''

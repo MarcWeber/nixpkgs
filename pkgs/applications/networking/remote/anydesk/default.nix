@@ -7,6 +7,7 @@ let
   sha256 = {
     x86_64-linux = "09ajpsmgrgjhw7b91id76w84kwk2d678n0b81zzpwq7sgjcm0sb0";
     i386-linux   = "0vjxbg5hwkqkh600rr75xviwy848r1xw9mxwf6bb6l8b0isvlsgg";
+    # i386-linux   = "11qwyxvy3c3n7hvksmlsfl9vvqaqkv3kwbk5rgjyy7vy8vn4kjmk";
   }.${stdenv.hostPlatform.system} or (throw "system ${stdenv.hostPlatform.system} not supported");
 
   arch = {

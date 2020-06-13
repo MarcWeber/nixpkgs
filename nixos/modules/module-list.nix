@@ -47,6 +47,7 @@
   ./hardware/cpu/intel-microcode.nix
   ./hardware/digitalbitbox.nix
   ./hardware/device-tree.nix
+  ./hardware/intel-realsense.nix
   ./hardware/sensor/iio.nix
   ./hardware/ksm.nix
   ./hardware/ledger.nix
@@ -226,8 +227,8 @@
   ./services/backup/bacula.nix
   ./services/backup/borgbackup.nix
   ./services/backup/duplicati.nix
-  ./services/backup/crashplan.nix
-  ./services/backup/crashplan-small-business.nix
+  # ./services/backup/crashplan.nix
+  # ./services/backup/crashplan-small-business.nix
   # ./services/backup/mysql-backup.nix
   ./services/backup/duplicity.nix
   ./services/backup/postgresql-backup.nix
@@ -282,6 +283,7 @@
   ./services/databases/memcached.nix
   ./services/databases/monetdb.nix
   ./services/databases/mongodb.nix
+  # ./services/databases/mysql.nix
   ./services/databases/mysqls.nix
   ./services/databases/neo4j.nix
   ./services/databases/openldap.nix
@@ -487,7 +489,7 @@
   ./services/misc/packagekit.nix
   ./services/misc/paperless.nix
   ./services/misc/parsoid.nix
-  ./services/misc/phd.nix
+  # ./services/misc/phd.nix
   ./services/misc/phpfpm.nix
   ./services/misc/plex.nix
   ./services/misc/tautulli.nix
@@ -627,7 +629,7 @@
   ./services/networking/freenet.nix
   ./services/networking/freeradius.nix
   ./services/networking/gale.nix
-  ./services/networking/gateone.nix
+  # ./services/networking/gateone.nix
   ./services/networking/gdomap.nix
   ./services/networking/git-daemon.nix
   ./services/networking/gnunet.nix
@@ -848,25 +850,27 @@
   ./services/web-apps/ihatemoney
   ./services/web-apps/jirafeau.nix
   ./services/web-apps/limesurvey.nix
+  # ./services/web-apps/limesurvey.nix
   ./services/web-apps/mattermost.nix
-  ./services/web-apps/mediawiki.nix
+  # ./services/web-apps/mediawiki.nix
   ./services/web-apps/miniflux.nix
-  ./services/web-apps/moodle.nix
+  # ./services/web-apps/moodle.nix
   ./services/web-apps/nextcloud.nix
   ./services/web-apps/nexus.nix
   ./services/web-apps/pgpkeyserver-lite.nix
   ./services/web-apps/matomo.nix
   ./services/web-apps/moinmoin.nix
   ./services/web-apps/restya-board.nix
-  ./services/web-apps/tt-rss.nix
+  # ./services/web-apps/tt-rss.nix
   ./services/web-apps/trac.nix
   ./services/web-apps/trilium.nix
   ./services/web-apps/selfoss.nix
   ./services/web-apps/shiori.nix
   ./services/web-apps/virtlyst.nix
-  ./services/web-apps/wordpress.nix
+  # ./services/web-apps/wordpress.nix
   ./services/web-apps/youtrack.nix
   ./services/web-apps/zabbix.nix
+  ./services/web-servers/marc-apache-httpd/default.nix
   ./services/web-servers/apache-httpd/default.nix
   ./services/web-servers/caddy.nix
   ./services/web-servers/darkhttpd.nix

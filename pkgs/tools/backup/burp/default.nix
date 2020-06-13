@@ -16,6 +16,9 @@ stdenv.mkDerivation rec {
   buildInputs = [ librsync ncurses openssl zlib uthash ]
     ++ stdenv.lib.optional (!stdenv.isDarwin) acl;
 
+  # --sysconfdir=/etc/burp 
+  # server: burp -c /etc/burp/burp-server.conf
+  # unix client: burp -a b
   configureFlags = [ "--localstatedir=/var" ];
 
   installFlags = [ "localstatedir=/tmp" ];

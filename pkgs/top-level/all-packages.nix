@@ -17243,7 +17243,9 @@ in
       inherit glfw3;
       inherit libGLU;
     };
+    python = null;
   };
+  librealsensWithPython = librealsense.override { python = python3; };
 
   libsass = callPackage ../development/libraries/libsass { };
 

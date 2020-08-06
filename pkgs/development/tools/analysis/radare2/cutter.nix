@@ -10,13 +10,13 @@
 
 stdenv.mkDerivation rec {
   pname = "radare2-cutter";
-  version = "1.10.2";
+  version = "1.11.0";
 
   src = fetchFromGitHub {
     owner = "radareorg";
     repo = "cutter";
     rev = "v${version}";
-    sha256 = "1icv56gxpzdjqn37pk3g99vgpljdc77i6k0x601iw2885s7s01n6";
+    sha256 = "1xvdap7hpkjz6rg0ngnql1p18p93b8w9gv130g818nwcjsh9i2y5";
   };
 
   postUnpack = "export sourceRoot=$sourceRoot/src";

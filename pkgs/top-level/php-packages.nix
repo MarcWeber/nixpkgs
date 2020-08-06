@@ -3,7 +3,7 @@
 , html-tidy, libzip, zlib, pcre, pcre2, libxslt, aspell, openldap, cyrus_sasl
 , uwimap, pam, libiconv, enchant1, libXpm, gd, libwebp, libjpeg, libpng
 , freetype, libffi, freetds, postgresql, sqlite, net-snmp, unixODBC, libedit
-, readline, rsync
+, readline, rsync, fetchpatch
 }:
 
 let
@@ -57,12 +57,12 @@ in
     };
 
     composer = mkDerivation rec {
-      version = "1.10.5";
+      version = "1.10.8";
       pname = "composer";
 
       src = pkgs.fetchurl {
         url = "https://getcomposer.org/download/${version}/composer.phar";
-        sha256 = "0a9iwhd7ijm8gkp3zadxza0xb6xwa5ps0d16pz4mz2p21gfzvwym";
+        sha256 = "1rbqa56bsc3wrhk8djxdzh755zx1qrqp3wrdid7x0djzbmzp6h2c";
       };
 
       dontUnpack = true;
@@ -203,13 +203,41 @@ in
       };
     };
 
+    phpmd = mkDerivation rec {
+      version = "2.8.2";
+      pname = "phpmd";
+
+      src = pkgs.fetchurl {
+        url = "https://github.com/phpmd/phpmd/releases/download/${version}/phpmd.phar";
+        sha256 = "1i8qgzxniw5d8zjpypalm384y7qfczapfq70xmg129laq6xiqlqb";
+      };
+
+      phases = [ "installPhase" ];
+      buildInputs = [ pkgs.makeWrapper ];
+
+      installPhase = ''
+        mkdir -p $out/bin
+        install -D $src $out/libexec/phpmd/phpmd.phar
+        makeWrapper ${php}/bin/php $out/bin/phpmd \
+          --add-flags "$out/libexec/phpmd/phpmd.phar"
+      '';
+
+      meta = with pkgs.lib; {
+        description = "PHP code quality analyzer";
+        license = licenses.bsd3;
+        homepage = "https://phpmd.org/";
+        maintainers = teams.php.members;
+        broken = !isPhp74;
+      };
+    };
+
     phpstan = mkDerivation rec {
-      version = "0.12.19";
+      version = "0.12.32";
       pname = "phpstan";
 
       src = pkgs.fetchurl {
         url = "https://github.com/phpstan/phpstan/releases/download/${version}/phpstan.phar";
-        sha256 = "15fz7rixi9s46qqxpj26349aky7wxqnzmfsnwlh1f2p4jsfd85ki";
+        sha256 = "0sb7yhjjh4wj8wbv4cdf0n1lvhx1ciz7ch8lr73maajj2xbvy1zk";
       };
 
       phases = [ "installPhase" ];
@@ -320,10 +348,15 @@ in
 
       sha256 = "0ma00syhk2ps9k9p02jz7rii6x3i2p986il23703zz5npd6y9n20";
 
+      peclDeps = [ php.extensions.apcu ];
+
       buildInputs = [
-        php.extensions.apcu
         pcre'
       ];
+
+      postInstall = ''
+        mv $out/lib/php/extensions/apc.so $out/lib/php/extensions/apcu_bc.so
+      '';
 
       meta.maintainers = lib.teams.php.members;
     };
@@ -341,13 +374,6 @@ in
       version = "2.6.1";
       pname = "couchbase";
 
-      buildInputs = [
-        pkgs.libcouchbase
-        pkgs.zlib
-        php.extensions.igbinary
-        php.extensions.pcs
-      ];
-
       src = pkgs.fetchFromGitHub {
         owner = "couchbase";
         repo = "php-couchbase";
@@ -356,7 +382,14 @@ in
       };
 
       configureFlags = [ "--with-couchbase" ];
+
+      buildInputs = [
+        pkgs.libcouchbase
+        pkgs.zlib
+      ];
       internalDeps = [ php.extensions.json ];
+      peclDeps = [ php.extensions.igbinary ];
+
       patches = [
         (pkgs.writeText "php-couchbase.patch" ''
           --- a/config.m4
@@ -383,7 +416,6 @@ in
       ];
 
       meta.maintainers = lib.teams.php.members;
-      meta.broken = isPhp74; # Build error
     };
 
     event = buildPecl {
@@ -557,8 +589,10 @@ in
 
       sha256 = "0d4p1gpl8gkzdiv860qzxfz250ryf0wmjgyc8qcaaqgkdyh5jy5p";
 
+      internalDeps = [ php.extensions.tokenizer ];
+
       meta.maintainers = lib.teams.php.members;
-      meta.broken = isPhp74; # Build error
+      meta.broken = isPhp73; # Runtime failure on 7.3, build error on 7.4
     };
 
     pdo_oci = buildPecl rec {
@@ -673,6 +707,26 @@ in
       buildInputs = [ pcre'.dev ];
 
       meta.broken = isPhp74;
+    };
+
+    rdkafka = buildPecl {
+      version = "4.0.3";
+      pname = "rdkafka";
+
+      sha256 = "1g00p911raxcc7n2w9pzadxaggw5c564md6hjvqfs9ip550y5x16";
+
+      buildInputs = with pkgs; [ rdkafka pcre' ];
+
+      postPhpize = ''
+        substituteInPlace configure \
+          --replace 'SEARCH_PATH="/usr/local /usr"' 'SEARCH_PATH=${pkgs.rdkafka}'
+      '';
+
+      meta = {
+        description = "Kafka client based on librdkafka";
+        homepage = "https://github.com/arnaud-lb/php-rdkafka";
+        maintainers = lib.teams.php.members;
+      };
     };
 
     redis = buildPecl {
@@ -800,6 +854,9 @@ in
       inherit configureFlags internalDeps buildInputs
         zendExtension doCheck;
 
+      prePatch = "pushd ../..";
+      postPatch = "popd";
+
       preConfigure = ''
         nullglobRestore=$(shopt -p nullglob)
         shopt -u nullglob   # To make ?-globbing work
@@ -890,6 +947,12 @@ in
         enable = lib.versionOlder php.version "7.4"; }
       { name = "gettext";
         buildInputs = [ gettext ];
+        patches = lib.optionals (lib.versionOlder php.version "7.4") [
+          (fetchpatch {
+            url = "https://github.com/php/php-src/commit/632b6e7aac207194adc3d0b41615bfb610757f41.patch";
+            sha256 = "0xn3ivhc4p070vbk5yx0mzj2n7p04drz3f98i77amr51w0vzv046";
+          })
+        ];
         postPhpize = ''substituteInPlace configure --replace 'as_fn_error $? "Cannot locate header file libintl.h" "$LINENO" 5' ':' '';
         configureFlags = "--with-gettext=${gettext}"; }
       { name = "gmp";
@@ -908,7 +971,13 @@ in
         # uwimap doesn't build on darwin.
         enable = (!stdenv.isDarwin); }
       # interbase (7.3, 7.2)
-      { name = "intl"; buildInputs = [ icu ]; }
+      { name = "intl";
+        buildInputs = [ icu ];
+        patches = lib.optional (lib.versionOlder php.version "7.4") (fetchpatch {
+          url = "https://github.com/php/php-src/commit/93a9b56c90c334896e977721bfb3f38b1721cec6.patch";
+          sha256 = "055l40lpyhb0rbjn6y23qkzdhvpp7inbnn6x13cpn4inmhjqfpg4";
+        });
+      }
       { name = "json"; }
       { name = "ldap";
         buildInputs = [ openldap cyrus_sasl ];
@@ -929,14 +998,14 @@ in
         # The configure script doesn't correctly add library link
         # flags, so we add them to the variable used by the Makefile
         # when linking.
-        MYSQLND_SHARED_LIBADD = "-lssl -lcrypto -lz";
+        MYSQLND_SHARED_LIBADD = "-lssl -lcrypto";
         # The configure script builds a config.h which is never
         # included. Let's include it in the main header file
         # included by all .c-files.
         patches = [
           (pkgs.writeText "mysqlnd_config.patch" ''
-            --- a/mysqlnd.h
-            +++ b/mysqlnd.h
+            --- a/ext/mysqlnd/mysqlnd.h
+            +++ b/ext/mysqlnd/mysqlnd.h
             @@ -1,3 +1,6 @@
             +#ifdef HAVE_CONFIG_H
             +#include "config.h"
@@ -944,6 +1013,19 @@ in
              /*
                +----------------------------------------------------------------------+
                | Copyright (c) The PHP Group                                          |
+          '')
+        ] ++ lib.optional (lib.versionOlder php.version "7.4.8") [
+          (pkgs.writeText "mysqlnd_fix_compression.patch" ''
+            --- a/ext/mysqlnd/mysqlnd.h
+            +++ b/ext/mysqlnd/mysqlnd.h
+            @@ -48,7 +48,7 @@
+             #define MYSQLND_DBG_ENABLED 0
+             #endif
+
+            -#if defined(MYSQLND_COMPRESSION_WANTED) && defined(HAVE_ZLIB)
+            +#if defined(MYSQLND_COMPRESSION_WANTED)
+             #define MYSQLND_COMPRESSION_ENABLED 1
+             #endif
           '')
         ];
         postPhpize = lib.optionalString (lib.versionOlder php.version "7.4") ''
@@ -959,8 +1041,8 @@ in
         # included after the ifdef...
         patches = lib.optional (lib.versionOlder php.version "7.4") [
           (pkgs.writeText "zend_file_cache_config.patch" ''
-            --- a/zend_file_cache.c
-            +++ b/zend_file_cache.c
+            --- a/ext/opcache/zend_file_cache.c
+            +++ b/ext/opcache/zend_file_cache.c
             @@ -27,9 +27,9 @@
              #include "ext/standard/md5.h"
              #endif
@@ -1088,6 +1170,10 @@ in
         doCheck = false; }
       { name = "zlib";
         buildInputs = [ zlib ];
+        patches = lib.optionals (lib.versionOlder php.version "7.4") [
+          # Derived from https://github.com/php/php-src/commit/f16b012116d6c015632741a3caada5b30ef8a699
+          ../development/interpreters/php/zlib-darwin-tests.patch
+        ];
         configureFlags = [ "--with-zlib" ]
           ++ lib.optional (lib.versionOlder php.version "7.4") [ "--with-zlib-dir=${zlib.dev}" ]; }
     ];

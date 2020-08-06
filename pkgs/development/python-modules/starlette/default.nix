@@ -26,14 +26,14 @@ buildPythonPackage rec {
   # https://github.com/tiangolo/fastapi/issues/683. Please update when
   # possible. FastAPI is currently Starlette's only dependent.
 
-  version = "0.13.2";
+  version = "0.13.6";
   disabled = isPy27;
 
   src = fetchFromGitHub {
     owner = "encode";
     repo = pname;
     rev = version;
-    sha256 = "1ls8d121zyyhry5ji7gf7vjvhyqdpr4za3qx1llq48943fmaxxpq";
+    sha256 = "08d1d4qdwhi1xxag4am5ijingdyn0mbyqajs9ql5shxnybyjv321";
   };
 
   propagatedBuildInputs = [

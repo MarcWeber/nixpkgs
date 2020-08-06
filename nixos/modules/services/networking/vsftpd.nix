@@ -118,7 +118,8 @@ let
         userlist_file=${cfg.userlistFile}
       ''}
       background=YES
-      listen=YES
+      listen=NO
+      listen_ipv6=YES
       nopriv_user=vsftpd
       secure_chroot_dir=/var/empty
       ${optionalString (cfg.localRoot != null) ''

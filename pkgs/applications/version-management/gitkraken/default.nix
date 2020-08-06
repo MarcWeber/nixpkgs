@@ -13,11 +13,11 @@ let
 in
 stdenv.mkDerivation rec {
   pname = "gitkraken";
-  version = "6.5.4";
+  version = "7.1.0";
 
   src = fetchzip {
     url = "https://release.axocdn.com/linux/GitKraken-v${version}.tar.gz";
-    sha256 = "0hrxkhxp6kp82jg1pkcl6vxa5mjpgncx0k353bcnm4986ysizhj4";
+    sha256 = "1g7i7sq705x5jkp76z4car9na3qvklpi3a766yiv4h79kc5via48";
   };
 
   dontBuild = true;
@@ -69,7 +69,7 @@ stdenv.mkDerivation rec {
     icon = "gitkraken";
     desktopName = "GitKraken";
     genericName = "Git Client";
-    categories = "Application;Development;";
+    categories = "Development;";
     comment = "Graphical Git client from Axosoft";
   };
 

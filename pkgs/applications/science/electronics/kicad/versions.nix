@@ -3,49 +3,49 @@
 {
   "kicad" = {
     kicadVersion = {
-      version =			"5.1.5";
+      version =			"5.1.6";
       src = {
-        rev =			"52549c5d09cbfb0e807fcbcb07819bc9f7861544";
-        sha256 =		"15h3rwisjss3fdc9bam9n2wq94slhacc3fbg14bnzf4n5agsnv5b";
+        rev =			"c6e7f7de7df655fd59b57823499efc443009de6b";
+        sha256 =		"1pa3z0h0679jmgxlzc833h6q85b5paxdp69kf2h93vkaryj58622";
       };
     };
     libVersion = {
-      version =			"5.1.5";
+      version =			"5.1.6";
       libSources = {
-        i18n.rev =		"5122cbec6563fb7c8d6f960a639ac470353af91b";
-        i18n.sha256 =		"1rfpifl8vky1gba2angizlb2n7mwmsiai3r6ip6qma60wdj8sbd3";
-        symbols.rev =		"dd122ec170b49e032179511c9d263126f52f4020";
-        symbols.sha256 =	"048b07ffsaav1ssrchw2p870lvb4rsyb5vnniy670k7q9p16qq6h";
-        templates.rev =		"94761f10d06582b33cd55ea2149d72f269f65580";
-        templates.sha256 =	"0cs3bm3zb5ngw5ldn0lzw5bvqm4kvcidyrn76438alffwiz2b15g";
-        footprints.rev =	"e076f8f271f8db96d5fec45616b7554caebb7ef7";
-        footprints.sha256 =	"1c4whgn14qhz4yqkl46w13p6rpv1k0hsc9s9h9368fxfcz9knb2j";
-        packages3d.rev =	"8d233cdcb109aa1c3b8ba4c934ee31f6a3b6e1f4";
-        packages3d.sha256 =	"0cff2ms1bsw530kqb1fr1m2pjixyxzwa81mxgac3qpbcf8fnpvaz";
+        i18n.rev =		"5ad171ce5c8d90f4740517c2adecb310d8be51bd";
+        i18n.sha256 =		"0qryi8xjm23ka363zfl7bbga0v5c31fr3d4nyxp3m168vkv9zhha";
+        symbols.rev =		"5150eaa2a7d15cfc6bb1459c527c4ebaa66d7708";
+        symbols.sha256 =	"12w3rdy085drlikkpb27n9ni7cyg9l0pqy7hnr86cxjcw3l5wcx6";
+        templates.rev =		"9213d439f757e6049b7e54f3ea08272a0d0f44a9";
+        templates.sha256 =	"1hppcsrkn4dk6ggby6ckh0q65qxkywrbyxa4lwpaf7pxjyv498xg";
+        footprints.rev =	"a61b4e49762fb355f654e65a1c7db1aaf7bb2332";
+        footprints.sha256 =	"1kmf91a5mmvj9izrv40mkaw1w36yjgn8daczd9rq2wlmd0rdp1zx";
+        packages3d.rev =	"150ff1caf0b01dc04c84f4f966f4f88fedfa8f8c";
+        packages3d.sha256 =	"0b9jglf77fy0n0r8xs4yqkv6zvipyfvp0z5dnqlzp32csy5aqpi1";
       };
     };
   };
   "kicad-unstable" = {
     kicadVersion = {
-      version =			"2020-04-25";
+      version =			"2020-07-21";
       src = {
-        rev =			"3759799d1e03b2da6a0dcd72273e4978880fc8f1";
-        sha256 =		"0ba14fla8m5zli68wfjkfc4ymvj4j8z92y3jigxs8hys0450bybi";
+        rev =			"9a801d8b72f24e297a7d9d6e8cee2eef6cab2988";
+        sha256 =		"0yilmmng7y3rz1bxw2b0s0aqs8hdqr7ach2r45bx8v1f4bih4ka9";
       };
     };
     libVersion = {
-      version =			"2020-04-25";
+      version =			"2020-07-21";
       libSources = {
-        i18n.rev =		"fc14baa52ca56a58b0048ab860bf31887d3cf8eb";
-        i18n.sha256 =		"05nayab7dkjyq7g3i9q7k55hcckpc0cmq4bbklmxx16rx4rbhzc6";
-        symbols.rev =		"0f9ff2d17237f90bb649bf0a52b6d454f68197e8";
-        symbols.sha256 =	"1a54428syn2xksc00n2bvh1alrx2vrqmp7cg7d2rn8nlq8yk4qd5";
-        templates.rev =		"7db8d4d0ea0711f1961d117853547fb3edbc3857";
-        templates.sha256 =	"1hppcsrkn4dk6ggby6ckh0q65qxkywrbyxa4lwpaf7pxjyv498xg";
-        footprints.rev =	"61df6d8853b4c68cca0ac87784c0a33cff9394d3";
-        footprints.sha256 =	"0blmhk8pwd4mi6rlsr4lf4lq7j01h6xbpbvr3pm8pmw8zylhi54v";
-        packages3d.rev =	"88bcf2e817fe000bb2c05e14489afc3b1a4e10ed";
-        packages3d.sha256 =	"0z9p1fn5xbz940kr5jz2ibzf09hpdi1c9izmabkffvrnfy6408x6";
+        i18n.rev =		"a311975d139caf8be9848dd613a9800570adc245";
+        i18n.sha256 =		"1bkn2hhwcg8xdpn9yfm9nnqsg02c1nizhpxd4yhpxgifhh4psz1g";
+        symbols.rev =		"18572c4c118fe8ef779edf3131eebf2c33c6fa46";
+        symbols.sha256 =	"0hqx0aznzrnlbdkpsnl8mbs9bdgiv029d6zjh10nyjzcw27q3hxz";
+        templates.rev =		"ae16953b81055855bcede4a33305413599d86a15";
+        templates.sha256 =	"1pkv90p3liy3bj4nklxsvpzh9m56p0k5ldr22armvgqfaqaadx9v";
+        footprints.rev =	"4835f80b4a52256aa7a3eb650e6e0fef33a77d0d";
+        footprints.sha256 =	"00rc6phxmkry35i0xzry14axvh2akvvkly45s3xxi06vaydaw7i5";
+        packages3d.rev =	"9b560cf94a35b692ca516d37bdaf392ce10e549d";
+        packages3d.sha256 =	"0b9jglf77fy0n0r8xs4yqkv6zvipyfvp0z5dnqlzp32csy5aqpi1";
       };
     };
   };

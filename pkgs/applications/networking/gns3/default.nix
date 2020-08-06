@@ -1,7 +1,7 @@
 { callPackage }:
 
 let
-  stableVersion = "2.2.7";
+  stableVersion = "2.2.11";
   previewVersion = stableVersion;
   addVersion = args:
     let version = if args.stable then stableVersion else previewVersion;
@@ -15,18 +15,19 @@ let
           src = oldAttrs.src.override {
             inherit version sha256;
           };
-          doCheck = oldAttrs.doCheck && (attrname != "psutil");
         });
       };
     commonOverrides = [
-      (mkOverride "psutil" "5.6.6"
-        "1rs6z8bfy6bqzw88s4i5zllrx3i18hnkv4akvmw7bifngcgjh8dd")
+      (mkOverride "psutil" "5.7.0"
+        "03jykdi3dgf1cdal9bv4fq9zjvzj9l9bs99gi5ar81sdl5nc2pk8")
+      (mkOverride "jsonschema" "3.2.0"
+        "0ykr61yiiizgvm3bzipa3l73rvj49wmrybbfwhvpgk3pscl5pa68")
     ];
   };
   mkGui = args: callPackage (import ./gui.nix (addVersion args // extraArgs)) { };
   mkServer = args: callPackage (import ./server.nix (addVersion args // extraArgs)) { };
-  guiSrcHash = "1rq1cb07mvakqny848nvwgasp8f6pxdy790gd98xh55xrbi8jvxp";
-  serverSrcHash = "1cf3inppj2050mgmx5sgf540iz3m3nbh53p26dx8m67x2xfyb934";
+  guiSrcHash = "1carwhp49l9zx2p6i3in03x6rjzn0x6ls2svwazd643rmrl4y7gn";
+  serverSrcHash = "0acbxay1pwq62yq9q67hid44byyi6rb6smz5wa8br3vka7z31iqf";
 in {
   guiStable = mkGui {
     stable = true;

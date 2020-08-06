@@ -23,17 +23,25 @@ let
         library_dirs = "${blas}/lib:${lapack}/lib";
         libraries = "lapack,lapacke,blas,cblas";
       };
+      lapack = {
+        include_dirs = "${lib.getDev lapack}/include";
+        library_dirs = "${lapack}/lib";
+      };
+      blas = {
+        include_dirs = "${lib.getDev blas}/include";
+        library_dirs = "${blas}/lib";
+      };
     });
   };
 in buildPythonPackage rec {
   pname = "numpy";
-  version = "1.18.3";
+  version = "1.19.0";
   format = "pyproject.toml";
 
   src = fetchPypi {
     inherit pname version;
     extension = "zip";
-    sha256 = "e46e2384209c91996d5ec16744234d1c906ab79a701ce1a26155c9ec890b8dc8";
+    sha256 = "76766cc80d6128750075378d3bb7812cf146415bd29b588616f72c943c00d598";
   };
 
   nativeBuildInputs = [ gfortran pytest cython setuptoolsBuildHook ];

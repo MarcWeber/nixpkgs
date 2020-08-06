@@ -1,14 +1,14 @@
 { stdenv, lib, fetchFromGitHub, autoconf, automake, libtool, pkgconfig, ApplicationServices, CoreServices }:
 
 stdenv.mkDerivation rec {
-  version = "1.35.0";
+  version = "1.38.1";
   pname = "libuv";
 
   src = fetchFromGitHub {
     owner = pname;
     repo = pname;
     rev = "v${version}";
-    sha256 = "0pd94h10ay38r8fwj0qqgw908rrj83n768n8mbbpnd5w2c7wy9fz";
+    sha256 = "0cvabjhi53qw94zyjkqamx0c607ayydfb4f3djx2gj8ab2p7s29n";
   };
 
   postPatch = let
@@ -34,7 +34,7 @@ stdenv.mkDerivation rec {
         "tcp_open" "tcp_write_queue_order" "tcp_try_write" "tcp_writealot"
         "multiple_listen" "delayed_accept"
         "shutdown_close_tcp" "shutdown_eof" "shutdown_twice" "callback_stack"
-        "tty_pty" "condvar_5" "hrtime"
+        "tty_pty" "condvar_5" "hrtime" "udp_multicast_join"
         # Tests that fail when sandboxing is enabled.
         "fs_event_close_in_callback" "fs_event_watch_dir" "fs_event_error_reporting"
         "fs_event_watch_dir_recursive" "fs_event_watch_file"

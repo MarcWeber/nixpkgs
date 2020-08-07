@@ -239,7 +239,6 @@ in
       shout = 206;
       gateone = 207;
       namecoin = 208;
-      dnschain = 209;
       #lxd = 210; # unused
       kibana = 211;
       xtreemfs = 212;
@@ -346,6 +345,7 @@ in
       zoneminder = 314;
       paperless = 315;
       #mailman = 316;  # removed 2019-08-30
+      zigbee2mqtt = 317;
 
       orientdb = 350;
 
@@ -551,7 +551,6 @@ in
       #shout = 206; #unused
       gateone = 207;
       namecoin = 208;
-      #dnschain = 209; #unused
       lxd = 210; # unused
       #kibana = 211;
       xtreemfs = 212;
@@ -649,6 +648,7 @@ in
       zoneminder = 314;
       paperless = 315;
       #mailman = 316;  # removed 2019-08-30
+      zigbee2mqtt = 317;
 
 
       orientdb = 350;

@@ -493,6 +493,7 @@
   ./services/misc/phpfpm.nix
   ./services/misc/plex.nix
   ./services/misc/tautulli.nix
+  ./services/misc/pinnwand.nix
   ./services/misc/pykms.nix
   ./services/misc/radarr.nix
   ./services/misc/redmine.nix

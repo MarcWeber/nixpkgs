@@ -2062,8 +2062,6 @@ in {
 
   caldav = callPackage ../development/python-modules/caldav { };
 
-  caldavclientlibrary-asynk = callPackage ../development/python-modules/caldavclientlibrary-asynk { };
-
   biopython = callPackage ../development/python-modules/biopython { };
 
   bedup = callPackage ../development/python-modules/bedup { };
@@ -2568,6 +2566,8 @@ in {
 
   mxnet = callPackage ../development/python-modules/mxnet { };
 
+  nplusone = callPackage ../development/python-modules/nplusone { };
+
   parsy = callPackage ../development/python-modules/parsy { };
 
   portalocker = callPackage ../development/python-modules/portalocker { };
@@ -2619,6 +2619,21 @@ in {
   pyhcl = callPackage ../development/python-modules/pyhcl { };
 
   pyhs100 = callPackage ../development/python-modules/pyhs100 { };
+
+  pyrealsense2 = toPythonModule (pkgs.librealsense.override {
+    enablePython = true;
+    pythonPackages = self;
+  });
+
+  pyrealsense2WithCuda = toPythonModule (pkgs.librealsenseWithCuda.override {
+    enablePython = true;
+    pythonPackages = self;
+  });
+
+  pyrealsense2WithoutCuda = toPythonModule (pkgs.librealsenseWithoutCuda.override {
+    enablePython = true;
+    pythonPackages = self;
+  });
 
   pytest = if isPy3k then self.pytest_5 else self.pytest_4;
 
@@ -2712,6 +2727,8 @@ in {
   pytestpep8 = callPackage ../development/python-modules/pytest-pep8 { };
 
   pytest-pep257 = callPackage ../development/python-modules/pytest-pep257 { };
+
+  pytest-pythonpath = callPackage ../development/python-modules/pytest-pythonpath { };
 
   pytest-raisesregexp = callPackage ../development/python-modules/pytest-raisesregexp { };
 
@@ -3999,6 +4016,8 @@ in {
 
   flask-restplus = callPackage ../development/python-modules/flask-restplus { };
 
+  flask-restx = callPackage ../development/python-modules/flask-restx { };
+
   flask-reverse-proxy-fix = callPackage ../development/python-modules/flask-reverse-proxy-fix { };
 
   flask_script = callPackage ../development/python-modules/flask-script { };
@@ -4411,8 +4430,6 @@ in {
 
   ipython = if isPy27 then
       callPackage ../development/python-modules/ipython/5.nix { }
-    else if isPy35 then
-      callPackage ../development/python-modules/ipython/7.9.nix { }
     else
       callPackage ../development/python-modules/ipython { };
 
@@ -5482,8 +5499,6 @@ in {
   babelgladeextractor = callPackage ../development/python-modules/babelgladeextractor { };
 
   batchspawner = callPackage ../development/python-modules/batchspawner { };
-
-  pybfd = callPackage ../development/python-modules/pybfd { };
 
   pybigwig = callPackage ../development/python-modules/pybigwig { };
 

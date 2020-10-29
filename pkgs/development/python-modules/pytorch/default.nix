@@ -4,7 +4,7 @@
   openMPISupport ? false, openmpi ? null,
   buildDocs ? false,
   cudaArchList ? null,
-  numpy, pyyaml, cffi, click, typing, cmake, oneDNN, hypothesis, numactl, psutil,
+  numpy, pyyaml, cffi, click, typing, cmake, hypothesis, numactl, psutil,
   linkFarm, symlinkJoin,
 
   # virtual pkg that consistently instantiates blas across nixpkgs
@@ -25,15 +25,11 @@ assert !openMPISupport || openmpi != null;
 assert !cudaSupport || cudatoolkit != null;
 assert cudnn == null || cudatoolkit != null;
 assert !cudaSupport || (let majorIs = lib.versions.major cudatoolkit.version;
-                        in majorIs == "9" || majorIs == "10");
+                        in majorIs == "9" || majorIs == "10" || majorIs == "11");
 
-let
-  hasDependency = dep: pkg: lib.lists.any (inp: inp == dep) pkg.buildInputs;
-  matchesCudatoolkit = hasDependency cudatoolkit;
-in
 # confirm that cudatoolkits are sync'd across dependencies
-assert !(openMPISupport && cudaSupport) || matchesCudatoolkit openmpi;
-assert !cudaSupport || matchesCudatoolkit magma;
+assert !(openMPISupport && cudaSupport) || openmpi.cudatoolkit == cudatoolkit;
+assert !cudaSupport || magma.cudatoolkit == cudatoolkit;
 
 let
   cudatoolkit_joined = symlinkJoin {
@@ -104,8 +100,10 @@ let
     "LD_LIBRARY_PATH=${cudaStub}\${LD_LIBRARY_PATH:+:}$LD_LIBRARY_PATH ";
 
 in buildPythonPackage rec {
-  version = "1.6.0";
   pname = "pytorch";
+  # Don't forget to update pytorch-bin to the same version.
+  version = "1.6.0";
+
   disabled = !isPy3k;
 
   outputs = [
@@ -159,9 +157,9 @@ in buildPythonPackage rec {
 
   USE_MKL = blas.implementation == "mkl";
 
-  # Unlike MKL, MKLDNN is FOSS, so we enable support for it by default. Note
-  # that this was renamed to dnnl and then renamed again to oneDNN upstream, but
-  # pytorch still calls it by the old name mkldnn.
+  # Unlike MKL, oneDNN (née MKLDNN) is FOSS, so we enable support for
+  # it by default. PyTorch currently uses its own vendored version
+  # of oneDNN through Intel iDeep.
   USE_MKLDNN = mklDnnSupport;
   USE_MKLDNN_CBLAS = mklDnnSupport;
 
@@ -210,7 +208,7 @@ in buildPythonPackage rec {
     ninja
   ] ++ lib.optionals cudaSupport [ cudatoolkit_joined ];
 
-  buildInputs = [ blas blas.provider oneDNN ]
+  buildInputs = [ blas blas.provider ]
     ++ lib.optionals cudaSupport [ cudnn magma nccl ]
     ++ lib.optionals stdenv.isLinux [ numactl ];
 

@@ -9,7 +9,6 @@
 , ocamlPackages, ncurses
 , buildIde ? !(stdenv.isDarwin && stdenv.lib.versionAtLeast version "8.10")
 , glib, gnome3, wrapGAppsHook
-, darwin
 , csdp ? null
 , version
 }:
@@ -110,16 +109,18 @@ self = stdenv.mkDerivation {
   nativeBuildInputs = [ pkgconfig ]
   ++ stdenv.lib.optional (!versionAtLeast "8.6") gnumake42
   ;
-  buildInputs = [ ncurses ocamlPackages.ocaml ocamlPackages.findlib ]
+  buildInputs = [ ncurses ]
   ++ stdenv.lib.optional (!versionAtLeast "8.10") ocamlPackages.camlp5
   ++ stdenv.lib.optional (!versionAtLeast "8.12") ocamlPackages.num
   ++ stdenv.lib.optionals buildIde
     (if versionAtLeast "8.10"
      then [ ocamlPackages.lablgtk3-sourceview3 glib gnome3.defaultIconTheme wrapGAppsHook ]
-     ++ stdenv.lib.optional stdenv.isDarwin darwin.apple_sdk.frameworks.Cocoa
      else [ ocamlPackages.lablgtk ]);
 
-  propagatedBuildInputs = stdenv.lib.optional (versionAtLeast "8.12") ocamlPackages.num;
+  propagatedBuildInputs = [ ocamlPackages.ocaml ocamlPackages.findlib ]
+    ++ stdenv.lib.optional (versionAtLeast "8.12") ocamlPackages.num;
+
+  propagatedUserEnvPkgs = [ ocamlPackages.ocaml ocamlPackages.findlib ];
 
   postPatch = ''
     UNAME=$(type -tp uname)

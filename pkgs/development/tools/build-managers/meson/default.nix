@@ -9,21 +9,14 @@
 
 python3.pkgs.buildPythonApplication rec {
   pname = "meson";
-  version = "0.55.0";
+  version = "0.55.3";
 
   src = python3.pkgs.fetchPypi {
     inherit pname version;
-    sha256 = "Chriv+KuFKxHWTU3+TKQ+3npt3XFW0xTwoK8PKN0WzU=";
+    sha256 = "19cjy24mfaswxyvqmns6rd7hx05ybqb663zlgklspfr8l4jjmvbb";
   };
 
   patches = [
-    # Meson 0.55.0 incorrectly considers skipped tests as failures,
-    # which makes some packages like gjs fail to build.
-    (fetchpatch {
-      url = "https://github.com/mesonbuild/meson/commit/7db49db67d4aa7582cf46feb7157235e66aa95b1.diff";
-      sha256 = "1chq52sgk24afdlswssr8n8p6fa2wz8rjlxvkjhpqg1kg3qnqc9p";
-    })
-
     # Upstream insists on not allowing bindir and other dir options
     # outside of prefix for some reason:
     # https://github.com/mesonbuild/meson/issues/2561
@@ -66,10 +59,6 @@ python3.pkgs.buildPythonApplication rec {
   # Ensure there will always be a native C compiler when meson is used, as a
   # workaround until https://github.com/mesonbuild/meson/pull/6512 lands.
   depsHostHostPropagated = [ pkgsHostHost.stdenv.cc ];
-
-  pythonPath = [
-    python3.pkgs.setuptools # for pkg_resources
-  ];
 
   # 0.45 update enabled tests but they are failing
   doCheck = false;

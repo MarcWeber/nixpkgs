@@ -25,7 +25,7 @@ let
       "nss-lookup.target"
       "nss-user-lookup.target"
       "time-sync.target"
-      #"cryptsetup.target"
+      "cryptsetup.target"
       "sigpwr.target"
       "timers.target"
       "paths.target"
@@ -80,10 +80,6 @@ let
       # Coredumps.
       "systemd-coredump.socket"
       "systemd-coredump@.service"
-
-      # SysV init compatibility.
-      "systemd-initctl.socket"
-      "systemd-initctl.service"
 
       # Kernel module loading.
       "systemd-modules-load.service"
@@ -261,7 +257,7 @@ let
               pkgs.gnused
               systemd
             ];
-          environment.PATH = config.path;
+          environment.PATH = "${makeBinPath config.path}:${makeSearchPathOutput "bin" "sbin" config.path}";
         }
         (mkIf (config.preStart != "")
           { serviceConfig.ExecStartPre =
@@ -907,11 +903,9 @@ in
       )
       ]);
       passwd = (mkMerge [
-        [ "mymachines" ]
         (mkAfter [ "systemd" ])
       ]);
       group = (mkMerge [
-        [ "mymachines" ]
         (mkAfter [ "systemd" ])
       ]);
     };
@@ -1014,16 +1008,18 @@ in
 
       "tmpfiles.d".source = (pkgs.symlinkJoin {
         name = "tmpfiles.d";
-        paths = cfg.tmpfiles.packages;
+        paths = map (p: p + "/lib/tmpfiles.d") cfg.tmpfiles.packages;
         postBuild = ''
           for i in $(cat $pathsPath); do
-            (test -d $i/lib/tmpfiles.d && test $(ls $i/lib/tmpfiles.d/*.conf | wc -l) -ge 1) || (
-              echo "ERROR: The path $i was passed to systemd.tmpfiles.packages but either does not contain the folder lib/tmpfiles.d or if it contains that folder, there are no files ending in .conf in it."
+            (test -d "$i" && test $(ls "$i"/*.conf | wc -l) -ge 1) || (
+              echo "ERROR: The path '$i' from systemd.tmpfiles.packages contains no *.conf files."
               exit 1
             )
           done
-        '';
-      }) + "/lib/tmpfiles.d";
+        '' + concatMapStrings (name: optionalString (hasPrefix "tmpfiles.d/" name) ''
+          rm -f $out/${removePrefix "tmpfiles.d/" name}
+        '') config.system.build.etc.targets;
+      }) + "/*";
 
       "systemd/system-generators" = { source = hooks "generators" cfg.generators; };
       "systemd/system-shutdown" = { source = hooks "shutdown" cfg.shutdown; };

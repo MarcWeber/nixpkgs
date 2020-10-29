@@ -1,4 +1,4 @@
-{ stdenv, rustPlatform, fetchFromGitHub
+{ stdenv, rustPlatform, fetchFromGitHub, nixosTests
 , pkgconfig, openssl
 , Security, CoreServices
 , dbBackend ? "sqlite", libmysqlclient, postgresql }:
@@ -35,11 +35,12 @@ in rustPlatform.buildRustPackage rec {
     runHook postCheck
   '';
 
+  passthru.tests = nixosTests.bitwarden;
+
   meta = with stdenv.lib; {
     description = "Unofficial Bitwarden compatible server written in Rust";
     homepage = "https://github.com/dani-garcia/bitwarden_rs";
     license = licenses.gpl3;
     maintainers = with maintainers; [ msteen ];
-    platforms = platforms.all;
   };
 }

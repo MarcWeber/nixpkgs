@@ -90,7 +90,7 @@ stdenv.mkDerivation rec {
     openssl'
     pango
     speex
-    systemd.lib
+    (lib.getLib systemd)
     stdenv.cc.cc
     xorg.libXaw
     xorg.libXmu
@@ -149,6 +149,10 @@ stdenv.mkDerivation rec {
     sed -i -e 's,^ANSWER="",ANSWER="$INSTALLER_YES",g' -e 's,/bin/true,true,g' ./linuxx64/hinst
     ${stdenv.shell} linuxx64/hinst CDROM "$(pwd)"
 
+    if [ -f "$ICAInstDir/util/setlog" ]; then
+      chmod +x "$ICAInstDir/util/setlog"
+      ln -sf "$ICAInstDir/util/setlog" "$out/bin/citrix-setlog"
+    fi
     ${mkWrappers wrapLink toWrap}
     ${mkWrappers wrap [ "PrimaryAuthManager" "ServiceRecord" "AuthManagerDaemon" "util/ctxwebhelper" ]}
 

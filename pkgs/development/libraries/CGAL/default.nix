@@ -8,13 +8,13 @@
 
 stdenv.mkDerivation rec {
   pname = "cgal";
-  version = "5.0.2";
+  version = "5.1";
 
   src = fetchFromGitHub {
     owner = "CGAL";
     repo = "releases";
     rev = "CGAL-${version}";
-    sha256 = "0w97knzw85mljrmns8fxjqinx0fqwls9g91mk434ryf6ciy6yign";
+    sha256 = "0rcv86hn5aqna7vr9nfk4np778qjr7l3742v58w6qw0z4y6l1km0";
   };
 
   # note: optional component libCGAL_ImageIO would need zlib and opengl;

@@ -15,7 +15,9 @@ buildGoModule rec {
 
   doCheck = false;
 
-  buildFlags = [ "--tags" "release" ];
+  buildFlagsArray = [
+    "-ldflags=-X main.tag=v${version}"
+  ];
 
   meta = with stdenv.lib; {
     description = ''
@@ -24,7 +26,6 @@ buildGoModule rec {
     '';
     homepage = "https://overdodactyl.github.io/ShadowFox/";
     license = licenses.mit;
-    platforms = platforms.all;
     maintainers = with maintainers; [ infinisil ];
   };
 }

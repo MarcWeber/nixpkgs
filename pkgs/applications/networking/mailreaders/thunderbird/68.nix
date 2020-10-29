@@ -62,15 +62,8 @@
 , waylandSupport ? true
 , libxkbcommon, calendarSupport ? true
 
-# As stated by Sylvestre Ledru (@sylvestre) on Nov 22, 2017 at
-# https://github.com/NixOS/nixpkgs/issues/31843#issuecomment-346372756 we
-# have permission to use the official branding.
-#
-# For purposes of documentation the statement of @sylvestre:
-# > As the person who did part of the work described in the LWN article
-# > and release manager working for Mozilla, I can confirm the statement
-# > that I made in
-# > https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=815006
+# Use official trademarked branding.  Permission obtained at:
+# https://github.com/NixOS/nixpkgs/pull/94880#issuecomment-675907971
 , enableOfficialBranding ? true
 }:
 
@@ -78,13 +71,13 @@ assert waylandSupport -> gtk3Support == true;
 
 stdenv.mkDerivation rec {
   pname = "thunderbird";
-  version = "68.11.0";
+  version = "68.12.0";
 
   src = fetchurl {
     url =
       "mirror://mozilla/thunderbird/releases/${version}/source/thunderbird-${version}.source.tar.xz";
     sha512 =
-      "1rdxizg1mpagh17fhnrbkilyv1i2zfcr6z62jf3ng31ns94za9kdg9f580srkp63png67jaj3b1kc33v5vb8wavl09n5d38g113x2m9";
+      "33350vjgzvsg6sdhdld92z75k1xcf1wmngdcvzsj4f3y3aal73pyw03mlvgg6y36bm0j8fhaxvgbbg5zm7hxhn779z78970m4v9amg7";
   };
 
   nativeBuildInputs = [
@@ -314,7 +307,7 @@ stdenv.mkDerivation rec {
   # package a Thunderbird >=71.0 since XUL shouldn't be anymore (in use)?
   postFixup = ''
     local xul="$out/lib/thunderbird/libxul.so"
-    patchelf --set-rpath "${libnotify}/lib:${systemd.lib}/lib:$(patchelf --print-rpath $xul)" $xul
+    patchelf --set-rpath "${libnotify}/lib:${lib.getLib systemd}/lib:$(patchelf --print-rpath $xul)" $xul
   '';
 
   doInstallCheck = true;
@@ -340,8 +333,10 @@ stdenv.mkDerivation rec {
       eelco
       lovesegfault
       pierron
+      vcunat
     ];
     platforms = platforms.linux;
     license = licenses.mpl20;
+    knownVulnerabilities = [ "Support ended around Semptember 2020." ];
   };
 }

@@ -1,20 +1,30 @@
-{ stdenv, buildPythonPackage, fetchPypi, pythonOlder, pbr, setuptools, six }:
+{ lib
+, buildPythonPackage
+, fetchPypi
+, pythonOlder
+, importlib-metadata
+, pbr
+, setuptools
+, six
+}:
 
 buildPythonPackage rec {
   pname = "stevedore";
-  version = "2.0.1";
+  version = "3.2.2";
   disabled = pythonOlder "3.6";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "609912b87df5ad338ff8e44d13eaad4f4170a65b79ae9cb0aa5632598994a1b7";
+    sha256 = "f845868b3a3a77a2489d226568abe7328b5c2d4f6a011cc759dfa99144a521f0";
   };
 
+  propagatedBuildInputs = [ pbr setuptools six ]
+    ++ lib.optionals (pythonOlder "3.8") [ importlib-metadata ];
+
   doCheck = false;
+  pythonImportsCheck = [ "stevedore" ];
 
-  propagatedBuildInputs = [ pbr setuptools six ];
-
-  meta = with stdenv.lib; {
+  meta = with lib; {
     description = "Manage dynamic plugins for Python applications";
     homepage = "https://pypi.python.org/pypi/stevedore";
     license = licenses.asl20;

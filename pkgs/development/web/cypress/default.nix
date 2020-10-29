@@ -1,12 +1,12 @@
-{ stdenv, fetchzip, autoPatchelfHook, xorg, gtk2, gnome2, gtk3, nss, alsaLib, udev, unzip, wrapGAppsHook }:
+{ stdenv, lib, fetchzip, autoPatchelfHook, xorg, gtk2, gnome2, gtk3, nss, alsaLib, udev, unzip, wrapGAppsHook }:
 
 stdenv.mkDerivation rec {
   pname = "cypress";
-  version = "4.12.1";
+  version = "5.3.0";
 
   src = fetchzip {
     url = "https://cdn.cypress.io/desktop/${version}/linux-x64/cypress.zip";
-    sha256 = "00sma1q7hbhzjkjnkv8y37ar0wnxk9mkqlpsplgyyyx3gx81nn3s";
+    sha256 = "0f3sw71ridpwcy0m8xl9gs76zl9zfsrfwzbqjidvlnszvx3177bl";
   };
 
   # don't remove runtime deps
@@ -20,7 +20,7 @@ stdenv.mkDerivation rec {
     nss gtk2 alsaLib gnome2.GConf gtk3 unzip
   ];
 
-  runtimeDependencies = [ udev.lib ];
+  runtimeDependencies = [ (lib.getLib udev) ];
 
   installPhase = ''
     mkdir -p $out/bin $out/opt/cypress

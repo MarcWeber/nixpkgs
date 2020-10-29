@@ -2,17 +2,22 @@
 , fetchurl
 , appimageTools
 , makeWrapper
-, electron
+, electron_9
 , openssl
 }:
 
+let
+  electron = electron_9;
+
+in
+
 stdenv.mkDerivation rec {
   pname = "1password";
-  version = "0.8.0";
+  version = "0.9.0";
 
   src = fetchurl {
     url = "https://onepassword.s3.amazonaws.com/linux/appimage/${pname}-${version}.AppImage";
-    sha256 = "1r26vyx724h3k6p340bg3lmcxwyvgxj2kqvwczq784583hpq3lq9";
+    sha256 = "109jsls4515y78zhhsxqlgms30i5rzhi60p3b9wx6y8v0iq331wp";
   };
 
   nativeBuildInputs = [ makeWrapper ];
@@ -51,6 +56,8 @@ stdenv.mkDerivation rec {
       --prefix LD_LIBRARY_PATH : "${stdenv.lib.makeLibraryPath runtimeLibs}"
   '';
 
+  passthru.updateScript = ./update.sh;
+
   meta = with stdenv.lib; {
     description = "Multi-platform password manager";
     longDescription = ''
@@ -62,7 +69,7 @@ stdenv.mkDerivation rec {
     '';
     homepage = "https://1password.com/";
     license = licenses.unfree;
-    maintainers = with maintainers; [ danieldk ];
+    maintainers = with maintainers; [ danieldk timstott ];
     platforms = [ "x86_64-linux" ];
   };
 }

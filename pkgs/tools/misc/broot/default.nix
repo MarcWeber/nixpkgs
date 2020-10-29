@@ -1,29 +1,35 @@
 { stdenv
 , rustPlatform
-, fetchFromGitHub
+, fetchCrate
 , installShellFiles
 , makeWrapper
 , coreutils
 , libiconv
+, zlib
 , Security
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "broot";
-  version = "0.19.4";
+  version = "1.0.3";
 
-  src = fetchFromGitHub {
-    owner = "Canop";
-    repo = pname;
-    rev = "v${version}";
-    sha256 = "0k5vv7a141ka9qpay5xccqdcy8sj0v9ywhhcdfpgii6z0wrd7mvr";
+  src = fetchCrate {
+    inherit pname version;
+    sha256 = "046yg270hnwzhap2rraihywpqjq5s3qxmyfcvfgfayz25216jmvc";
   };
 
-  cargoSha256 = "18b4lh5x25mbhpffva8ygzm5ad00svm1c3r83vfw0l2f61m7vyjh";
+  cargoSha256 = "02l6cdfx2sglygsdgnm474vmpbmpm2a1s6srd9cy66k6hjm1m0bn";
 
-  nativeBuildInputs = [ makeWrapper installShellFiles ];
+  nativeBuildInputs = [
+    makeWrapper
+    installShellFiles
+  ];
 
-  buildInputs = stdenv.lib.optionals stdenv.isDarwin [ libiconv Security ];
+  buildInputs = stdenv.lib.optionals stdenv.isDarwin [
+    libiconv
+    Security
+    zlib
+  ];
 
   postPatch = ''
     substituteInPlace src/verb/builtin.rs --replace '"/bin/' '"${coreutils}/bin/'
@@ -67,6 +73,5 @@ rustPlatform.buildRustPackage rec {
     homepage = "https://dystroy.org/broot/";
     maintainers = with maintainers; [ danieldk ];
     license = with licenses; [ mit ];
-    platforms = platforms.all;
   };
 }

@@ -61,21 +61,35 @@ let
     then import ../expand-response-params { inherit (buildPackages) stdenv; }
     else "";
 
+  useGccForLibs = isClang
+    && libcxx == null
+    && !(stdenv.targetPlatform.useLLVM or false)
+    && !(stdenv.targetPlatform.useAndroidPrebuilt or false)
+    && gccForLibs != null;
+
   # older compilers (for example bootstrap's GCC 5) fail with -march=too-modern-cpu
   isGccArchSupported = arch:
     if isGNU then
-      { skylake        = versionAtLeast ccVersion "6.0";
+      { # Intel
+        skylake        = versionAtLeast ccVersion "6.0";
         skylake-avx512 = versionAtLeast ccVersion "6.0";
         cannonlake     = versionAtLeast ccVersion "8.0";
         icelake-client = versionAtLeast ccVersion "8.0";
         icelake-server = versionAtLeast ccVersion "8.0";
         knm            = versionAtLeast ccVersion "8.0";
+        # AMD
+        znver1         = versionAtLeast ccVersion "6.0";
+        znver2         = versionAtLeast ccVersion "9.0";
       }.${arch} or true
     else if isClang then
-      { cannonlake     = versionAtLeast ccVersion "5.0";
+      { # Intel
+        cannonlake     = versionAtLeast ccVersion "5.0";
         icelake-client = versionAtLeast ccVersion "7.0";
         icelake-server = versionAtLeast ccVersion "7.0";
         knm            = versionAtLeast ccVersion "7.0";
+        # AMD
+        znver1         = versionAtLeast ccVersion "4.0";
+        znver2         = versionAtLeast ccVersion "9.0";
       }.${arch} or true
     else
       false;
@@ -209,6 +223,7 @@ stdenv.mkDerivation {
       wrap ${targetPrefix}gfortran $wrapper $ccPath/${targetPrefix}gfortran
       ln -sv ${targetPrefix}gfortran $out/bin/${targetPrefix}g77
       ln -sv ${targetPrefix}gfortran $out/bin/${targetPrefix}f77
+      export named_fc=${targetPrefix}gfortran
     ''
 
     + optionalString cc.langJava or false ''
@@ -227,8 +242,8 @@ stdenv.mkDerivation {
 
   setupHooks = [
     ../setup-hooks/role.bash
-    ./setup-hook.sh
-  ];
+  ] ++ stdenv.lib.optional (cc.langC or true) ./setup-hook.sh
+    ++ stdenv.lib.optional (cc.langFortran or false) ./fortran-hook.sh;
 
   postFixup =
     # Ensure flags files exists, as some other programs cat them. (That these
@@ -263,7 +278,7 @@ stdenv.mkDerivation {
     ##
     ## GCC libs for non-GCC support
     ##
-    + optionalString (isClang && libcxx == null && !(stdenv.targetPlatform.useLLVM or false) && gccForLibs != null) ''
+    + optionalString useGccForLibs ''
 
       echo "-B${gccForLibs}/lib/gcc/${targetPlatform.config}/${gccForLibs.version}" >> $out/nix-support/cc-cflags
       echo "-L${gccForLibs}/lib/gcc/${targetPlatform.config}/${gccForLibs.version}" >> $out/nix-support/cc-ldflags
@@ -307,11 +322,11 @@ stdenv.mkDerivation {
 
     # We have a libc++ directly, we have one via "smuggled" GCC, or we have one
     # bundled with the C compiler because it is GCC
-    + optionalString (libcxx != null || (isClang && !(stdenv.targetPlatform.useLLVM or false) && gccForLibs.langCC or false) || (isGNU && cc.langCC or false)) ''
+    + optionalString (libcxx != null || (useGccForLibs && gccForLibs.langCC or false) || (isGNU && cc.langCC or false)) ''
       touch "$out/nix-support/libcxx-cxxflags"
       touch "$out/nix-support/libcxx-ldflags"
     ''
-    + optionalString (libcxx == null && (isClang && !(stdenv.targetPlatform.useLLVM or false) && gccForLibs.langCC or false)) ''
+    + optionalString (libcxx == null && (useGccForLibs && gccForLibs.langCC or false)) ''
       for dir in ${gccForLibs}/include/c++/*; do
         echo "-isystem $dir" >> $out/nix-support/libcxx-cxxflags
       done

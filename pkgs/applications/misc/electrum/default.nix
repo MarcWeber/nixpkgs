@@ -3,7 +3,6 @@
 , fetchFromGitHub
 , wrapQtAppsHook
 , python3
-, python3Packages
 , zbar
 , secp256k1
 , enableQt ? true
@@ -20,7 +19,15 @@
 }:
 
 let
-  version = "4.0.2";
+  version = "4.0.3";
+
+  # electrum is not compatible with dnspython 2.0.0 yet
+  # use the latest 1.x release instead
+  py = python3.override {
+    packageOverrides = self: super: {
+      dnspython = super.dnspython_1;
+    };
+  };
 
   libsecp256k1_name =
     if stdenv.isLinux then "libsecp256k1.so.0"
@@ -36,7 +43,7 @@ let
     owner = "spesmilo";
     repo = "electrum";
     rev = version;
-    sha256 = "1xpkbard994n1gwl95b558x69k1m1m258bc220nxrajg1pywh90f";
+    sha256 = "1r40i0v7nm35m3pzbd0l5z4qphl13s31l9v5njmyvpfjirdmhjbv";
 
     extraPostFetch = ''
       mv $out ./all
@@ -45,13 +52,13 @@ let
   };
 in
 
-python3Packages.buildPythonApplication {
+py.pkgs.buildPythonApplication {
   pname = "electrum";
   inherit version;
 
   src = fetchurl {
     url = "https://download.electrum.org/${version}/Electrum-${version}.tar.gz";
-    sha256 = "05ibrr6ysf6fncs1pimhxvyr7d659jwj2r2a9pdd3cmn1dxzy2w1";
+    sha256 = "0q891fgzxvyzjxfczynx92hvclfs8i3nr5nr9sgbvz13hsg4s6lg";
   };
 
   postUnpack = ''
@@ -61,7 +68,7 @@ python3Packages.buildPythonApplication {
 
   nativeBuildInputs = stdenv.lib.optionals enableQt [ wrapQtAppsHook ];
 
-  propagatedBuildInputs = with python3Packages; [
+  propagatedBuildInputs = with py.pkgs; [
     aiohttp
     aiohttp-socks
     aiorpcx
@@ -73,13 +80,11 @@ python3Packages.buildPythonApplication {
     matplotlib
     pbkdf2
     protobuf
-    pyaes
     pycryptodomex
     pysocks
     qrcode
     requests
     tlslite-ng
-
     # plugins
     ckcc-protocol
     keepkey
@@ -116,7 +121,7 @@ python3Packages.buildPythonApplication {
     wrapQtApp $out/bin/electrum
   '';
 
-  checkInputs = with python3Packages; [ pytest ];
+  checkInputs = with py.pkgs; [ pytest ];
 
   checkPhase = ''
     py.test electrum/tests

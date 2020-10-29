@@ -24,11 +24,11 @@ let
 in
 stdenv.mkDerivation rec {
   pname = "PortfolioPerformance";
-  version = "0.47.0";
+  version = "0.49.0";
 
   src = fetchurl {
     url = "https://github.com/buchen/portfolio/releases/download/${version}/PortfolioPerformance-${version}-linux.gtk.x86_64.tar.gz";
-    sha256 = "0l328wvikdmm2i0kbpv9qwd0mkbs24y89cgfg28swhcvpywjpk36";
+    sha256 = "1b3dll6ljkj2wyiy3ns9cgxqgjjr60dfrqrbbwdbndqj4pzfvbyf";
   };
 
   nativeBuildInputs = [
@@ -58,7 +58,7 @@ stdenv.mkDerivation rec {
   '';
 
   meta = with stdenv.lib; {
-    description = "A simple tool to calculate the overall performance of an investment portfolio.";
+    description = "A simple tool to calculate the overall performance of an investment portfolio";
     homepage = "https://www.portfolio-performance.info/";
     license = licenses.epl10;
     maintainers = with maintainers; [ elohmeier oyren ];

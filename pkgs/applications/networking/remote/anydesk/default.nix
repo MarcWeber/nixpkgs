@@ -5,9 +5,11 @@
 
 let
   sha256 = {
-    x86_64-linux = "1vpfyffg1g7f1m4mxmqghswihml9rm1cipm7krmr5wvxdmcphxnk";
-    i386-linux   = "0vjxbg5hwkqkh600rr75xviwy848r1xw9mxwf6bb6l8b0isvlsgg";
-    # i386-linux   = "11qwyxvy3c3n7hvksmlsfl9vvqaqkv3kwbk5rgjyy7vy8vn4kjmk";
+#     x86_64-linux = "1vpfyffg1g7f1m4mxmqghswihml9rm1cipm7krmr5wvxdmcphxnk";
+#     i386-linux   = "0vjxbg5hwkqkh600rr75xviwy848r1xw9mxwf6bb6l8b0isvlsgg";
+#     # i386-linux   = "11qwyxvy3c3n7hvksmlsfl9vvqaqkv3kwbk5rgjyy7vy8vn4kjmk";
+    x86_64-linux = "19751ygq1ng79aniqx91qawc0cw07cwdjdjd88azc9ww6z6nv0mp";
+    i386-linux   = "0dwc7v4p1dz51444zwn0kds23yi87r4h2d3isfj9xwkn90pxb7in";
   }.${stdenv.hostPlatform.system} or (throw "system ${stdenv.hostPlatform.system} not supported");
 
   arch = {
@@ -29,7 +31,7 @@ let
 
 in stdenv.mkDerivation rec {
   pname = "anydesk";
-  version = "5.5.6";
+  version = "6.0.1";
 
   src = fetchurl {
     urls = [

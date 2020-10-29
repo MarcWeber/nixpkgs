@@ -5,16 +5,18 @@
 
 buildGoModule rec {
   pname = "archiver";
-  version = "3.3.0";
+  version = "3.4.0";
 
   src = fetchFromGitHub {
     owner = "mholt";
     repo = pname;
     rev = "v${version}";
-    sha256 = "1yr2jhidqvbwh1y08lpqaidwpr5yx3bhvznm5fc9pk64s7z5kq3h";
+    sha256 = "16jawybywqfkp68035bnf206a2w4khjw239saa429a21lxrfyk4a";
   };
 
-  vendorSha256 = "1ikrgl03r9zkn86kxkqi2kf540g3qzzz24i5wvh6g3d5q49nygl9";
+  vendorSha256 = "0m89ibj3dm58j49d99dhkn0ryivnianxz7lkpkvhs0cdbzzc02az";
+
+  buildFlagsArray = [ "-ldflags=-s -w -X main.version=${version} -X main.commit=${src.rev} -X main.date=unknown" ];
 
   doCheck = false;
 
@@ -23,6 +25,5 @@ buildGoModule rec {
     homepage = "https://github.com/mholt/archiver";
     license = licenses.mit;
     maintainers = with maintainers; [ kalbasit ];
-    platforms = platforms.all;
   };
 }

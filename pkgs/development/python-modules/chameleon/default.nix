@@ -1,16 +1,21 @@
 { stdenv
 , buildPythonPackage
-, fetchPypi
+, fetchFromGitHub
 }:
 
 buildPythonPackage rec {
   pname = "Chameleon";
-  version = "3.7.4";
+  version = "3.8.1";
 
-  src = fetchPypi {
-    inherit pname version;
-    sha256 = "37c01c9af720bc80a0097ebc07eb41e802917ad0006c9a77dc158479c087664b";
+  # tests not included in pypi tarball
+  src = fetchFromGitHub {
+    owner = "malthe";
+    repo = "chameleon";
+    rev = version;
+    sha256 = "0nf8x4w2vh1a31wdb86nnvlic9xmr23j3in1f6fq4z6mv2jkwa87";
   };
+
+  pythonImportsCheck = [ "chameleon" ];
 
   meta = with stdenv.lib; {
     homepage = "https://chameleon.readthedocs.io/";

@@ -4,7 +4,6 @@
 , llvmPackages, libffi, libomxil-bellagio, libva-minimal
 , libelf, libvdpau, python3Packages
 , libglvnd
-, patchelf, autoreconfHook, fetchFromGitHub
 , enableRadv ? true
 , galliumDrivers ? ["auto"]
 , driDrivers ? ["auto"]
@@ -32,7 +31,7 @@ with stdenv.lib;
 let
   # Release calendar: https://www.mesa3d.org/release-calendar.html
   # Release frequency: https://www.mesa3d.org/releasing.html#schedule
-  version = "20.1.4";
+  version = "20.1.9";
   branch  = versions.major version;
 in
 
@@ -47,7 +46,7 @@ stdenv.mkDerivation {
       "ftp://ftp.freedesktop.org/pub/mesa/${version}/mesa-${version}.tar.xz"
       "ftp://ftp.freedesktop.org/pub/mesa/older-versions/${branch}.x/${version}/mesa-${version}.tar.xz"
     ];
-    sha256 = "1zlrczmmkcy42w332rfmlicihlnrxmkrnkpb21sl98725cf2f038";
+    sha256 = "10kk8a8k7f4ip8yaiqdyrx162nbw8pw4h3b4hs4ha8mpd43wlldj";
   };
 
   prePatch = "patchShebangs .";
@@ -97,6 +96,12 @@ stdenv.mkDerivation {
     substituteInPlace meson.build --replace \
       "find_program('pkg-config')" \
       "find_program('${buildPackages.pkg-config.targetPrefix}pkg-config')"
+
+    # The drirc.d directory cannot be installed to $drivers as that would cause a cyclic dependency:
+    substituteInPlace src/util/xmlconfig.c --replace \
+      'DATADIR "/drirc.d"' '"${placeholder "out"}/drirc.d"'
+    substituteInPlace src/util/meson.build --replace \
+      "get_option('datadir')" "'${placeholder "out"}'"
   '';
 
   outputs = [ "out" "dev" "drivers" ] ++ lib.optional enableOSMesa "osmesa";
@@ -104,6 +109,7 @@ stdenv.mkDerivation {
   # TODO: Figure out how to enable opencl without having a runtime dependency on clang
   mesonFlags = [
     "--sysconfdir=/etc"
+    "--datadir=${placeholder "drivers"}/share" # Vendor files
 
     # Don't build in debug mode
     # https://gitlab.freedesktop.org/mesa/mesa/blob/master/docs/meson.html#L327
@@ -123,7 +129,7 @@ stdenv.mkDerivation {
     "-Domx-libs-path=${placeholder "drivers"}/lib/bellagio"
     "-Dva-libs-path=${placeholder "drivers"}/lib/dri"
     "-Dd3d-drivers-path=${placeholder "drivers"}/lib/d3d"
-    "-Dgallium-nine=${if enableGalliumNine then "true" else "false"}" # Direct3D in Wine
+    "-Dgallium-nine=${boolToString enableGalliumNine}" # Direct3D in Wine
     "-Dosmesa=${if enableOSMesa then "gallium" else "none"}" # used by wine
   ] ++ optionals stdenv.isLinux [
     "-Dglvnd=true"
@@ -141,16 +147,6 @@ stdenv.mkDerivation {
   depsBuildBuild = [ pkgconfig ];
 
   nativeBuildInputs = [
-    (patchelf.overrideAttrs (pa: {
-      src = fetchFromGitHub {
-        owner = "NixOS";
-        repo = "patchelf";
-        rev = "61bc10176"; # current master; what matters is merge of #225
-        sha256 = "0cy77mn77w3mn64ggp20f4ygnbxfjmddhjjhfwkva53lsirg6w93";
-      };
-      nativeBuildInputs = pa.nativeBuildInputs or [] ++ [ autoreconfHook ];
-    }))
-  ] ++ [
     pkgconfig meson ninja
     intltool bison flex file
     python3Packages.python python3Packages.Mako
@@ -183,9 +179,6 @@ stdenv.mkDerivation {
       # Move other drivers to a separate output
       mv $out/lib/lib*_mesa* $drivers/lib
     fi
-
-    # move vendor files
-    mv $out/share/ $drivers/
 
     # Update search path used by glvnd
     for js in $drivers/share/glvnd/egl_vendor.d/*.json; do
@@ -236,7 +229,7 @@ stdenv.mkDerivation {
     inherit (libglvnd) driverLink;
   };
 
-  meta = with stdenv.lib; {
+  meta = {
     description = "An open source 3D graphics library";
     longDescription = ''
       The Mesa project began as an open-source implementation of the OpenGL

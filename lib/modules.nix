@@ -1,12 +1,53 @@
 { lib }:
 
-with lib.lists;
-with lib.strings;
-with lib.trivial;
-with lib.attrsets;
-with lib.options;
-with lib.debug;
-with lib.types;
+let
+  inherit (lib)
+    all
+    any
+    attrByPath
+    attrNames
+    catAttrs
+    concatLists
+    concatMap
+    count
+    elem
+    filter
+    findFirst
+    flip
+    foldl
+    foldl'
+    getAttrFromPath
+    head
+    id
+    imap1
+    isAttrs
+    isBool
+    isFunction
+    isString
+    length
+    mapAttrs
+    mapAttrsToList
+    mapAttrsRecursiveCond
+    min
+    optional
+    optionalAttrs
+    optionalString
+    recursiveUpdate
+    reverseList sort
+    setAttrByPath
+    toList
+    types
+    warn
+    ;
+  inherit (lib.options)
+    isOption
+    mkOption
+    showDefs
+    showFiles
+    showOption
+    unknownModule
+    ;
+in
 
 rec {
 
@@ -115,8 +156,19 @@ rec {
 
       checkUnmatched =
         if config._module.check && config._module.freeformType == null && merged.unmatchedDefns != [] then
-          let inherit (head merged.unmatchedDefns) file prefix;
-          in throw "The option `${showOption prefix}' defined in `${file}' does not exist."
+          let
+            firstDef = head merged.unmatchedDefns;
+            baseMsg = "The option `${showOption (prefix ++ firstDef.prefix)}' does not exist. Definition values:${showDefs [ firstDef ]}";
+          in
+            if attrNames options == [ "_module" ]
+              then throw ''
+                ${baseMsg}
+
+                However there are no options defined in `${showOption prefix}'. Are you sure you've
+                declared your options properly? This can happen if you e.g. declared your options in `types.submodule'
+                under `config' rather than `options'.
+              ''
+            else throw baseMsg
         else null;
 
       result = builtins.seq checkUnmatched {
@@ -438,7 +490,13 @@ rec {
       # Handle properties, check types, and merge everything together.
       res =
         if opt.readOnly or false && length defs' > 1 then
-          throw "The option `${showOption loc}' is read-only, but it's set multiple times."
+          let
+            # For a better error message, evaluate all readOnly definitions as
+            # if they were the only definition.
+            separateDefs = map (def: def // {
+              value = (mergeDefinitions loc opt.type [ def ]).mergedValue;
+            }) defs';
+          in throw "The option `${showOption loc}' is read-only, but it's set multiple times. Definition values:${showDefs separateDefs}"
         else
           mergeDefinitions loc opt.type defs';
 
@@ -446,7 +504,11 @@ rec {
       # yield a value computed from the definitions
       value = if opt ? apply then opt.apply res.mergedValue else res.mergedValue;
 
-    in opt //
+      warnDeprecation =
+        if opt.type.deprecationMessage == null then id
+        else warn "The type `types.${opt.type.name}' of option `${showOption loc}' defined in ${showFiles opt.declarations} is deprecated. ${opt.type.deprecationMessage}";
+
+    in warnDeprecation opt //
       { value = builtins.addErrorContext "while evaluating the option `${showOption loc}':" value;
         inherit (res.defsFinal') highestPrio;
         definitions = map (def: def.value) res.defsFinal;
@@ -482,8 +544,8 @@ rec {
     mergedValue =
       if isDefined then
         if all (def: type.check def.value) defsFinal then type.merge loc defsFinal
-        else let firstInvalid = findFirst (def: ! type.check def.value) null defsFinal;
-        in throw "The option value `${showOption loc}' in `${firstInvalid.file}' is not of type `${type.description}'."
+        else let allInvalid = filter (def: ! type.check def.value) defsFinal;
+        in throw "A definition for option `${showOption loc}' is not of type `${type.description}'. Definition values:${showDefs allInvalid}"
       else
         # (nixos-option detects this specific error message and gives it special
         # handling.  If changed here, please change it there too.)
@@ -595,14 +657,13 @@ rec {
   fixupOptionType = loc: opt:
     let
       options = opt.options or
-        (throw "Option `${showOption loc'}' has type optionSet but has no option attribute, in ${showFiles opt.declarations}.");
+        (throw "Option `${showOption loc}' has type optionSet but has no option attribute, in ${showFiles opt.declarations}.");
       f = tp:
         let optionSetIn = type: (tp.name == type) && (tp.functor.wrapped.name == "optionSet");
         in
         if tp.name == "option set" || tp.name == "submodule" then
           throw "The option ${showOption loc} uses submodules without a wrapping type, in ${showFiles opt.declarations}."
         else if optionSetIn "attrsOf" then types.attrsOf (types.submodule options)
-        else if optionSetIn "loaOf"   then types.loaOf   (types.submodule options)
         else if optionSetIn "listOf"  then types.listOf  (types.submodule options)
         else if optionSetIn "nullOr"  then types.nullOr  (types.submodule options)
         else tp;
@@ -699,7 +760,7 @@ rec {
 
        mkRemovedOptionModule [ "boot" "loader" "grub" "bootDevice" ] "<replacement instructions>"
 
-     causes a warning if the user defines boot.loader.grub.bootDevice.
+     causes a assertion if the user defines boot.loader.grub.bootDevice.
 
      replacementInstructions is a string that provides instructions on
      how to achieve the same functionality without the removed option,
@@ -855,4 +916,21 @@ rec {
       ];
     };
 
+  /* Use this function to import a JSON file as NixOS configuration.
+
+     importJSON -> path -> attrs
+  */
+  importJSON = file: {
+    _file = file;
+    config = lib.importJSON file;
+  };
+
+  /* Use this function to import a TOML file as NixOS configuration.
+
+     importTOML -> path -> attrs
+  */
+  importTOML = file: {
+    _file = file;
+    config = lib.importTOML file;
+  };
 }

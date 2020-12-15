@@ -2,19 +2,21 @@
 
 stdenv.mkDerivation rec {
   pname = "utf8proc";
-  version = "2.5.0";
+  version = "2.6.0";
 
   src = fetchFromGitHub {
     owner = "JuliaStrings";
     repo = pname;
     rev = "v${version}";
-    sha256 = "1xlkazhdnja4lksn5c9nf4bln5gjqa35a8gwlam5r0728w0h83qq";
+    sha256 = "0czk8xw1jra0fjf6w4bcaridyz3wz2br3v7ik1g7z0j5grx9n8r1";
   };
 
   nativeBuildInputs = [ cmake ];
 
   cmakeFlags = [
     "-DBUILD_SHARED_LIBS=ON"
+    "-DUTF8PROC_ENABLE_TESTING=ON"
+    "-DCMAKE_SKIP_BUILD_RPATH=OFF"
   ];
 
   # the pkg-config file is not created in the cmake installation
@@ -22,6 +24,8 @@ stdenv.mkDerivation rec {
   # see https://github.com/JuliaStrings/utf8proc/issues/198
   preConfigure = "make libutf8proc.pc prefix=$out";
   postInstall = "install -Dm644 ../libutf8proc.pc -t $out/lib/pkgconfig/";
+
+  doCheck = true;
 
   meta = with stdenv.lib; {
     description = "A clean C library for processing UTF-8 Unicode data";

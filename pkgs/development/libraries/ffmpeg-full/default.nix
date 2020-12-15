@@ -164,9 +164,8 @@
  *   utvideo vo-aacenc vo-amrwbenc xvmc zvbi blackmagic-design-desktop-video
  *
  * Need fixes to support Darwin:
- *   frei0r game-music-emu gsm libjack2 libmfx(intel-media-sdk) libssh
- *   libvpx(stable 1.3.0) openal openjpeg pulseaudio rtmpdump samba vid-stab
- *   wavpack x265 xavs
+ *   gsm libjack2 libmodplug libmfx(intel-media-sdk) nvenc pulseaudio samba
+ *   vid-stab
  *
  * Need fixes to support AArch64:
  *   libmfx(intel-media-sdk) nvenc
@@ -243,6 +242,15 @@ assert opensslExtlib -> gnutls == null && openssl != null && nonfreeLicensing;
 stdenv.mkDerivation rec {
   pname = "ffmpeg-full";
   inherit (ffmpeg) src version;
+
+  # this should go away in the next release
+  patches = [
+    (fetchpatch {
+      url = "https://git.videolan.org/?p=ffmpeg.git;a=patch;h=7c59e1b0f285cd7c7b35fcd71f49c5fd52cf9315";
+      sha256 = "sha256-dqpmpDFETTuWHWolMoLaubU4BeDEuQaBNA0wmzL1f8o=";
+      name = "fix_libsrt.patch";
+    })
+  ];
 
   prePatch = ''
     patchShebangs .

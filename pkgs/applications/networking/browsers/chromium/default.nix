@@ -14,9 +14,7 @@
 , proprietaryCodecs ? true
 , enablePepperFlash ? false
 , enableWideVine ? false
-, useVaapi ? false # Deprecated, use enableVaapi instead!
 , enableVaapi ? false # Disabled by default due to unofficial support
-, useOzone ? false
 , cupsSupport ? true
 , pulseSupport ? config.pulseaudio or stdenv.isLinux
 , commandLineArgs ? ""
@@ -35,25 +33,11 @@ let
 
     mkChromiumDerivation = callPackage ./common.nix ({
       inherit channel gnome gnomeSupport gnomeKeyringSupport proprietaryCodecs
-              cupsSupport pulseSupport useOzone;
-      # TODO: Remove after we can update gn for the stable channel (backward incompatible changes):
+              cupsSupport pulseSupport;
       gnChromium = gn.overrideAttrs (oldAttrs: {
-        version = "2020-07-20";
+        inherit (upstream-info.deps.gn) version;
         src = fetchgit {
-          url = "https://gn.googlesource.com/gn";
-          rev = "3028c6a426a4aaf6da91c4ebafe716ae370225fe";
-          sha256 = "0h3wf4152zdvrbb0jbj49q6814lfl3rcy5mj8b2pl9s0ahvkbc6q";
-        };
-      });
-    } // lib.optionalAttrs (lib.versionAtLeast upstream-info.version "87") {
-      useOzone = true; # YAY: https://chromium-review.googlesource.com/c/chromium/src/+/2382834 \o/
-      useVaapi = !stdenv.isAarch64; # TODO: Might be best to not set use_vaapi anymore (default is fine)
-      gnChromium = gn.overrideAttrs (oldAttrs: {
-        version = "2020-08-17";
-        src = fetchgit {
-          url = "https://gn.googlesource.com/gn";
-          rev = "6f13aaac55a977e1948910942675c69f2b4f7a94";
-          sha256 = "01hpma1sllpdx09mvr4d6073sg6zmk6iv44kd3r28khymcj4s251";
+          inherit (upstream-info.deps.gn) url rev sha256;
         };
       });
     });
@@ -148,13 +132,6 @@ let
       ''
     else browser;
 
-  optionalVaapiFlags = if useVaapi # TODO: Remove after 20.09:
-    then throw ''
-      Chromium's useVaapi was replaced by enableVaapi and you don't need to pass
-      "--ignore-gpu-blacklist" anymore (also no rebuilds are required anymore).
-    '' else lib.optionalString
-      (enableVaapi)
-      "--add-flags --enable-accelerated-video-decode";
 in stdenv.mkDerivation {
   name = "chromium${suffix}-${version}";
   inherit version;
@@ -181,7 +158,7 @@ in stdenv.mkDerivation {
 
     eval makeWrapper "${browserBinary}" "$out/bin/chromium" \
       --add-flags ${escapeShellArg (escapeShellArg commandLineArgs)} \
-      ${optionalVaapiFlags} \
+      ${lib.optionalString enableVaapi "--add-flags --enable-accelerated-video-decode"} \
       ${concatMapStringsSep " " getWrapperFlags chromium.plugins.enabled}
 
     ed -v -s "$out/bin/chromium" << EOF

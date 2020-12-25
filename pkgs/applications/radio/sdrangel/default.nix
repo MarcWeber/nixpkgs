@@ -26,6 +26,7 @@ qtserialport,
 qtwebsockets,
 rtl-sdr,
 serialdv,
+soapysdr-with-plugins,
 uhd
 }:
 
@@ -46,12 +47,13 @@ mkDerivation rec {
     glew opencv3 libusb1 boost libopus limesuite libav libiio libpulseaudio
     qtbase qtwebsockets qtmultimedia rtl-sdr airspy hackrf
     fftwFloat codec2 cm256cc serialdv qtserialport
-    libbladeRF uhd
+    libbladeRF uhd soapysdr-with-plugins
   ];
   cmakeFlags = [
     "-DLIBSERIALDV_INCLUDE_DIR:PATH=${serialdv}/include/serialdv"
     "-DLIMESUITE_INCLUDE_DIR:PATH=${limesuite}/include"
     "-DLIMESUITE_LIBRARY:FILEPATH=${limesuite}/lib/libLimeSuite.so"
+    "-DSOAPYSDR_DIR=${soapysdr-with-plugins}"
   ];
 
   LD_LIBRARY_PATH = "${ocl-icd}/lib";

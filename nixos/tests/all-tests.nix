@@ -63,7 +63,6 @@ in
   clickhouse = handleTest ./clickhouse.nix {};
   cloud-init = handleTest ./cloud-init.nix {};
   cockroachdb = handleTestOn ["x86_64-linux"] ./cockroachdb.nix {};
-  codimd = handleTest ./codimd.nix {};
   consul = handleTest ./consul.nix {};
   containers-bridge = handleTest ./containers-bridge.nix {};
   containers-custom-pkgs.nix = handleTest ./containers-custom-pkgs.nix {};
@@ -147,6 +146,7 @@ in
   handbrake = handleTestOn ["x86_64-linux"] ./handbrake.nix {};
   haproxy = handleTest ./haproxy.nix {};
   hardened = handleTest ./hardened.nix {};
+  hedgedoc = handleTest ./hedgedoc.nix {};
   installed-tests = pkgs.recurseIntoAttrs (handleTest ./installed-tests {});
   oci-containers = handleTestOn ["x86_64-linux"] ./oci-containers.nix {};
   # 9pnet_virtio used to mount /nix partition doesn't support
@@ -168,6 +168,7 @@ in
   initrd-network-openvpn = handleTest ./initrd-network-openvpn {};
   initrd-network-ssh = handleTest ./initrd-network-ssh {};
   initrdNetwork = handleTest ./initrd-network.nix {};
+  initrd-secrets = handleTest ./initrd-secrets.nix {};
   installer = handleTest ./installer.nix {};
   iodine = handleTest ./iodine.nix {};
   ipfs = handleTest ./ipfs.nix {};
@@ -210,6 +211,7 @@ in
   magic-wormhole-mailbox-server = handleTest ./magic-wormhole-mailbox-server.nix {};
   magnetico = handleTest ./magnetico.nix {};
   mailcatcher = handleTest ./mailcatcher.nix {};
+  mailhog = handleTest ./mailhog.nix {};
   mariadb-galera-mariabackup = handleTest ./mysql/mariadb-galera-mariabackup.nix {};
   mariadb-galera-rsync = handleTest ./mysql/mariadb-galera-rsync.nix {};
   matomo = handleTest ./matomo.nix {};
@@ -278,6 +280,7 @@ in
   openssh = handleTest ./openssh.nix {};
   openstack-image-metadata = (handleTestOn ["x86_64-linux"] ./openstack-image.nix {}).metadata or {};
   openstack-image-userdata = (handleTestOn ["x86_64-linux"] ./openstack-image.nix {}).userdata or {};
+  image-contents = handleTest ./image-contents.nix {};
   orangefs = handleTest ./orangefs.nix {};
   os-prober = handleTestOn ["x86_64-linux"] ./os-prober.nix {};
   osrm-backend = handleTest ./osrm-backend.nix {};
@@ -321,6 +324,7 @@ in
   redis = handleTest ./redis.nix {};
   redmine = handleTest ./redmine.nix {};
   restic = handleTest ./restic.nix {};
+  ripgrep = handleTest ./ripgrep.nix {};
   robustirc-bridge = handleTest ./robustirc-bridge.nix {};
   roundcube = handleTest ./roundcube.nix {};
   rspamd = handleTest ./rspamd.nix {};
@@ -336,6 +340,7 @@ in
   scala = handleTest ./scala.nix {};
   sddm = handleTest ./sddm.nix {};
   service-runner = handleTest ./service-runner.nix {};
+  shadow = handleTest ./shadow.nix {};
   shadowsocks = handleTest ./shadowsocks {};
   shattered-pixel-dungeon = handleTest ./shattered-pixel-dungeon.nix {};
   shiori = handleTest ./shiori.nix {};
@@ -410,6 +415,7 @@ in
   xterm = handleTest ./xterm.nix {};
   yabar = handleTest ./yabar.nix {};
   yggdrasil = handleTest ./yggdrasil.nix {};
+  yq = handleTest ./yq.nix {};
   zfs = handleTest ./zfs.nix {};
   zigbee2mqtt = handleTest ./zigbee2mqtt.nix {};
   zoneminder = handleTest ./zoneminder.nix {};

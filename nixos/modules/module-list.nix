@@ -100,6 +100,7 @@
   ./misc/resources.nix
   ./misc/version.nix
   ./misc/nixops-autoluks.nix
+  # ./misc/twmn.nix
   ./programs/adb.nix
   ./programs/atop.nix
   ./programs/autojump.nix

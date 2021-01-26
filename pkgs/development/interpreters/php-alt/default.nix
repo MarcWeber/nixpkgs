@@ -1,8 +1,8 @@
 # pcre functionality is tested in nixos/tests/php-pcre.nix
 
-{ lib, stdenv, fetchurl, composableDerivation, autoconf, automake, flex, bison
+{ lib, stdenv, fetchurl, composableDerivation, autoconf, automake, flex, bison, gd
 , mysql80, libxml2, readline, zlib, curl, postgresql, gettext
-, openssl, pcre, pcre2, pkgconfig, sqlite, config, libjpeg, libpng, freetype
+, openssl, pcre, pcre2, pkgconfig, sqlite, config, libjpeg, libpng, libwebp, freetype
 , libxslt, libmcrypt, bzip2, icu, openldap, cyrus_sasl, libmhash, freetds
 , uwimap, pam, gmp, apacheHttpd, libiconv
 , callPackage, fetchgit, pkgs, writeText, systemd, libsodium
@@ -85,7 +85,7 @@ let
                       builtins.baseNameOf (builtins.unsafeDiscardStringContext php);
             };
 
-            in php_with_id // (callPackage ../../../top-level/php-packages.nix { php = php_with_id // { unwrapped = php; }; /* phpWithExtensions = php_with_id; */ inherit fetchgit; }).extensions // rec {
+            in php_with_id // (callPackage ../../../top-level/php-packages.nix { phpPackage = php_with_id // { unwrapped = php; }; /* phpWithExtensions = php_with_id; */ inherit fetchgit; }).extensions // rec {
               ioncube_so =
                 let name = "ioncube_loader_lin_${builtins.substring 0 3 version}_ts.so";
                 in "${(stdenv.mkDerivation {
@@ -248,11 +248,28 @@ let
           configureFlags = ["--enable-bcmath"];
         };
 
-        gd = {
+        gd =
+          if php74x then
+          {
+          # FIXME: Our own gd package doesn't work, see https://bugs.php.net/bug.php?id=60108.
+          configureFlags = [
+            "--enable-gd"
+            "--with-freetype"
+            "--with-webp"
+            "--with-png"
+            "--with-jpeg"
+          ];
+          buildInputs = [ libpng libjpeg freetype libwebp ];
+        }
+
+          else
+
+          {
           # FIXME: Our own gd package doesn't work, see https://bugs.php.net/bug.php?id=60108.
           configureFlags = [
             "--with-gd"
             "--with-freetype-dir=${freetype.dev}"
+            "--with-webp-dir=${libwebp}"
             "--with-png-dir=${libpng.dev}"
             "--with-jpeg-dir=${libjpeg.dev}"
           ];
@@ -410,6 +427,8 @@ let
         configureFlags+=(--with-config-file-path=$out/etc \
           --includedir=$dev/include)
       '';
+
+      # postConfigure = "fail";
 
         # sed -i 's@#define PHP_PROG_SENDMAIL	.*@#define PHP_PROG_SENDMAIL	"${fixed.sendmail or "/var/setuid-wrappers/sendmail"}"@' main/build-defs.h
       preBuild = ''

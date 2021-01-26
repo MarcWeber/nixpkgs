@@ -142,16 +142,27 @@ lib.makeScope pkgs.newScope (self: with self; {
     };
 
     v8js = buildPecl {
-      version = "2.1.0";
+      version = "2.1.2";
       pname = "v8js";
 
-      sha256 = "0g63dyhhicngbgqg34wl91nm3556vzdgkq19gy52gvmqj47rj6rg";
+      src = fetchgit {
+        "url"= "https://github.com/phpv8/v8js.git";
+        "rev"= "ec583e343bee9353cf81025f14bcf04575b3eedc";
+        # "date"= "2020-08-21T12:46:58+02:00";
+        # "path"= "/nix/store/1p6nq0lkkpaiq2wgyscgv9h7fbyhpic6-v8js";
+        "sha256"= "1ipqv22rk402akgb99fgl81qgzidiszjvjgxhw1nn00khl5w6f4c";
+        # "fetchSubmodules"= false;
+        # "deepClone"= false;
+        # "leaveDotGit"= false
+      };
 
-      buildInputs = [ pkgs.v8_6_x ];
-      configureFlags = [ "--with-v8js=${pkgs.v8_6_x}" ];
+      # sha256 = "1jh3riw740spl0law0rimg6m4pg5q75hqa4m07094vdd240p7dv5";
+
+      buildInputs = [ pkgs.v8_shared ];
+      configureFlags = [ "--with-v8js=${pkgs.v8_shared}" ];
 
       meta.maintainers = lib.teams.php.members;
-      meta.broken = true;
+      # meta.broken = true;
     };
 
     xdebug = callPackage ../development/php-packages/xdebug { };

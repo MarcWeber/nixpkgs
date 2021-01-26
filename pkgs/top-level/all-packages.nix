@@ -11339,6 +11339,11 @@ in
     inherit (pkgs) cmake;
   };
 
+  # The following patch allows files to be downloaded be passed as env var.
+  # eg mkDerivation { .. "http://file-to-download.de" = fetchurl { ...}; buildInputs = [ cmakeWithHack ]; }
+  # some packages like slicer have additional downloads
+  cmakeWithHack = pkgs.lib.overrideDerivation cmake (p: { patches = p.patches ++ [ ../development/tools/build-managers/cmake/hack.patch ]; });
+
   # Does not actually depend on Qt 5
   inherit (kdeFrameworks) extra-cmake-modules;
 

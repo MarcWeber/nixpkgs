@@ -4,11 +4,19 @@
 
 let x = stdenv.mkDerivation rec {
   name = "mysql-${version}";
-  version = "5.6.23";
+  # version = "5.6.23";
+
+  # src = fetchurl {
+  #   url = file:///tmp/air48chpkn2xx9qjjqrpcn0xd7n6h7bx-mysql-5.6.23.tar.gz;
+  #   sha256 = "16605abxl30d2srljhssq0dsqm5v29bglhdsv9rf614kdbq1mliv";
+  # };
+
+
+  version = "5.6.48";
 
   src = fetchurl {
-    url = file:///tmp/air48chpkn2xx9qjjqrpcn0xd7n6h7bx-mysql-5.6.23.tar.gz;
-    sha256 = "16605abxl30d2srljhssq0dsqm5v29bglhdsv9rf614kdbq1mliv";
+    url = https://cdn.mysql.com//Downloads/MySQL-5.6/mysql-5.6.48.tar.gz;
+    sha256 = "1hima34vnq92pdrhrm9acranplq0vjvahf3wg3siyk7ps6n27942";
   };
 
   preConfigure = stdenv.lib.optional stdenv.isDarwin ''
@@ -36,7 +44,7 @@ let x = stdenv.mkDerivation rec {
   passthru.mysqld_path = "bin";
 
   passthru.mysql_initialize_datadir_cmd = {mysql, user, dataDir, ...}: ''
-    ${mysql}/bin/mysql_install_db "--user=${user} --datadir=${dataDir} --basedir=${mysql} ";
+    ${mysql}/bin/mysql_install_db --user=${user} --datadir=${dataDir} --basedir=${mysql};
   '';
 
   meta = {

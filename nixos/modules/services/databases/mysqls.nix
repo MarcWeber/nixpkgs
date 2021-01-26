@@ -29,8 +29,8 @@ let
         "--user=${m_config.user} --datadir=${m_config.dataDir} --basedir=${mysql} ";
 
       mysqldOptions =
-        mysql_initOptions;
-        # + "--pid-file=${pidFile} --socket=${m_config.socketFile}";
+        mysql_initOptions
+        + "--pid-file=${m_config.socketFile}.pid --socket=${m_config.socketFile}";
 
       myCnf = pkgs.writeText "my.cnf"
       ''
@@ -67,6 +67,10 @@ let
           wantedBy = [ "multi-user.target" ];
 
           unitConfig.RequiresMountsFor = "${m_config.dataDir}";
+
+          path = [
+            m_config.package
+          ];
 
           preStart =
             ''
@@ -162,6 +166,11 @@ let
         description = "
           Which MySQL derivation to use.
         ";
+      };
+
+      addToSystemPackages = mkOption {
+        default = true;
+        description = "for older mysql set false to have newest client";
       };
 
       port = mkOption {
@@ -354,7 +363,7 @@ in
 
   config = {
     systemd.services = mkMerge (catAttrs "systemd_services" configs);
-    environment.systemPackages = lib.optional (cfg.systemPackage != null) cfg.systemPackage;
+    environment.systemPackages = lib.optional (cfg.systemPackage != null && cfg.addToSystemPackages) cfg.systemPackage;
     users.extraGroups = mkMerge (catAttrs "users_extraGroups" configs);
     users.extraUsers = mkMerge (catAttrs "users_extraUsers" configs);
 

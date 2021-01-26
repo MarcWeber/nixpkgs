@@ -4,6 +4,7 @@
 , version
 , internalDeps ? []
 , peclDeps ? []
+, patches ? []
 , buildInputs ? []
 , nativeBuildInputs ? []
 , postPhpize ? ""
@@ -19,7 +20,7 @@ stdenv.mkDerivation (args // {
   name = "php-${pname}-${version}";
   extensionName = pname;
 
-  inherit src;
+  inherit src patches;
 
   nativeBuildInputs = [ autoreconfHook re2c ] ++ nativeBuildInputs;
   buildInputs = [ php ] ++ peclDeps ++ buildInputs;

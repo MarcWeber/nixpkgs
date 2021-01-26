@@ -61,6 +61,11 @@ self = stdenv.mkDerivation rec {
     connector-c = self;
     server = self;
     mysqlVersion = "8.0";
+
+    mysql_initialize_datadir_cmd = {mysql, user, dataDir, ...}: ''
+    [ -d ${dataDir}/mysql ] || ${mysql}/bin/mysqld --user=${user} --initialize --initialize-insecure --basedir=${mysql} --datadir=${dataDir}
+  '';
+
   };
 
   meta = with lib; {

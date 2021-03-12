@@ -1,0 +1,6 @@
+From: Marc Weber <marco-oweber@gmx.de>
+Subject: [PATCH] e2/linuxcnc
+
+attempt to package linuxcnc.
+
+It can be run but I failed at realitem see run as root patch.

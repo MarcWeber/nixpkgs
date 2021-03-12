@@ -8714,6 +8714,8 @@ in {
 
   Yapsy = callPackage ../development/python-modules/yapsy { };
 
+  Yapps2 = callPackage ../development/python-modules/yapps2 { };
+
   yarg = callPackage ../development/python-modules/yarg { };
 
   yarl = callPackage ../development/python-modules/yarl { };

@@ -2584,6 +2584,8 @@ in
 
   linuxptp = callPackage ../os-specific/linux/linuxptp { };
 
+  linuxcnc29 = callPackage ../os-specific/linux/linuxcnc/29.nix { };
+
   lite = callPackage ../applications/editors/lite { };
 
   loadwatch = callPackage ../tools/system/loadwatch { };
@@ -17240,6 +17242,8 @@ in
   tk-8_6 = callPackage ../development/libraries/tk/8.6.nix { };
   tk-8_5 = callPackage ../development/libraries/tk/8.5.nix { tcl = tcl-8_5; };
 
+  tkimg = (import ../tk-packages.nix { inherit pkgs stdenv; }).tkimg;
+  tkimgsrc = (import ../tk-packages.nix { inherit pkgs stdenv; }).tkimgsrc;
   tkrzw = callPackage ../development/libraries/tkrzw { };
 
   tl-expected = callPackage ../development/libraries/tl-expected { };

@@ -141,6 +141,7 @@
   ./programs/hamster.nix
   ./programs/iftop.nix
   ./programs/iotop.nix
+  ./programs/linuxcnc.nix
   ./programs/java.nix
   ./programs/kbdlight.nix
   ./programs/less.nix
